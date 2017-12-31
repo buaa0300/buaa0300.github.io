@@ -5,9 +5,9 @@
   
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://yoursite.com/"/>
-  <updated>2017-12-31T08:23:29.997Z</updated>
-  <id>http://yoursite.com/</id>
+  <link href="http://buaa0300/nanhuacoder.com/"/>
+  <updated>2017-12-31T10:11:41.797Z</updated>
+  <id>http://buaa0300/nanhuacoder.com/</id>
   
   <author>
     <name>南华coder</name>
@@ -17,9 +17,31 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>告别2017年</title>
+    <link href="http://buaa0300/nanhuacoder.com/2017/12/31/newStart/"/>
+    <id>http://buaa0300/nanhuacoder.com/2017/12/31/newStart/</id>
+    <published>2017-12-31T10:09:31.000Z</published>
+    <updated>2017-12-31T10:11:41.797Z</updated>
+    
+    <content type="html"><![CDATA[<p>2018年就这么来了！</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;2018年就这么来了！&lt;/p&gt;
+
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
     <title>newBlog</title>
-    <link href="http://yoursite.com/2017/12/31/newBlog/"/>
-    <id>http://yoursite.com/2017/12/31/newBlog/</id>
+    <link href="http://buaa0300/nanhuacoder.com/2017/12/31/newBlog/"/>
+    <id>http://buaa0300/nanhuacoder.com/2017/12/31/newBlog/</id>
     <published>2017-12-31T08:23:29.000Z</published>
     <updated>2017-12-31T08:23:29.997Z</updated>
     
@@ -32,8 +54,8 @@
   
   <entry>
     <title>Hello World</title>
-    <link href="http://yoursite.com/2017/12/31/hello-world/"/>
-    <id>http://yoursite.com/2017/12/31/hello-world/</id>
+    <link href="http://buaa0300/nanhuacoder.com/2017/12/31/hello-world/"/>
+    <id>http://buaa0300/nanhuacoder.com/2017/12/31/hello-world/</id>
     <published>2017-12-31T07:59:28.625Z</published>
     <updated>2017-12-31T07:59:28.625Z</updated>
     
