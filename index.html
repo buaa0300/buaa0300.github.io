@@ -317,7 +317,7 @@
 6、主线程Runloop提交CATransaction，开始进行图像渲染
   6.1 如果数据没有字节对齐，Core Animation会再拷贝一份数据，进行字节对齐。
   6.2 GPU处理位图数据，进行渲染。
-</code></pre><p><strong>说明1</strong>：这部分摘抄自<a href="http://blog.cnbang.net/tech/2578/" target="_blank" rel="noopener">iOS图片加载速度极限优化—FastImageCache解析</a>，它介绍了<a href="https://github.com/path/FastImageCache" target="_blank" rel="noopener">FastImageCache</a>极限优化的手段 - 。</p>
+</code></pre><p><strong>说明1</strong>：这部分摘抄自<a href="http://blog.cnbang.net/tech/2578/" target="_blank" rel="noopener">iOS图片加载速度极限优化—FastImageCache解析</a>，它介绍了<a href="https://github.com/path/FastImageCache" target="_blank" rel="noopener">FastImageCache</a>极限优化的手段。</p>
 <h5 id="2、FastImageCache的优化手段"><a href="#2、FastImageCache的优化手段" class="headerlink" title="2、FastImageCache的优化手段"></a>2、FastImageCache的优化手段</h5><p><em>优化有三</em>：</p>
 <ul>
 <li><p>使用<strong>mmap这样的内存映射方案</strong>，将文件映射进内存；比普通的<strong>read()读取</strong>少了一次内存拷贝（内核缓存区拷贝到用户内存空间）</p>
@@ -361,7 +361,7 @@
 </li>
 <li><p><strong>缓存的使用</strong>。无论是图片的解码，还是绘制CG图片，都是个耗时耗CPU的操作，将这些结果缓存(到内存中)下来，避免重复解码和绘制，是个好的选择，这里推荐<a href="https://github.com/ibireme/YYCache" target="_blank" rel="noopener">YYCache</a>这样的方案（线程安全、LRU淘汰算法）。</p>
 </li>
-<li><p><strong>及时清理旧的图片资源</strong>。使用类似<a href="https://github.com/tinymind/LSUnusedResources" target="_blank" rel="noopener">LSUnusedResources</a> <strong>清理旧的图片文件</strong>。</p>
+<li><p><strong>及时清理旧的图片资源</strong>。使用类似<a href="https://github.com/tinymind/LSUnusedResources" target="_blank" rel="noopener">LSUnusedResources</a> 清理旧的图片文件。</p>
 <p><strong>说明</strong>：导入项目中的图片记得压缩。</p>
 </li>
 </ul>
