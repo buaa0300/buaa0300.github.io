@@ -326,12 +326,16 @@
 </li>
 <li><p>其三、将自己添加<strong>allAnimatedImagesWeak</strong>对象中（添加操作使用@synchronized保证线程安全），这是一个NSHashTable对象，当哈希表中的FLAnimatedImage对象的引用计数是0时，表中会清除该对象。</p>
 <p><strong>说明</strong>：线程同步中，一说<strong>同步锁</strong>，很多人直觉反应，性能最差，不用；但是FLAnimatedImage库和SDWebImage都在用，应该是其<strong>使用方便</strong>所致；其本身实现很有意思，利用对象的内存地址去获取互斥锁；还添加了异常处理，如果同步某对象抛出异常时，还会释放掉锁。</p>
-<h5 id="2、imageLazilyCachedAtIndex-方法"><a href="#2、imageLazilyCachedAtIndex-方法" class="headerlink" title="2、imageLazilyCachedAtIndex:方法"></a>2、imageLazilyCachedAtIndex:方法</h5></li>
+</li>
+</ul>
+<h5 id="2、imageLazilyCachedAtIndex-方法"><a href="#2、imageLazilyCachedAtIndex-方法" class="headerlink" title="2、imageLazilyCachedAtIndex:方法"></a>2、imageLazilyCachedAtIndex:方法</h5><ul>
 <li><p>通过<strong>imageLazilyCachedAtIndex:方法</strong>将帧每一帧图片给FLAnimatedImageView对象展示。</p>
 </li>
 <li><p>根据<strong>当前的帧号</strong>(index)和<strong>当前缓存帧数</strong>(frameCacheSizeCurrent)获取接下来需要缓存的帧图片，并异步绘制出位图，并保存在内存缓存中。</p>
 <p><strong>说明</strong>：都是提前绘制后面需要展示的图片，第一帧图片在init方法时就获得了。</p>
-<h5 id="3、内存警告的处理"><a href="#3、内存警告的处理" class="headerlink" title="3、内存警告的处理"></a>3、内存警告的处理</h5></li>
+</li>
+</ul>
+<h5 id="3、内存警告的处理"><a href="#3、内存警告的处理" class="headerlink" title="3、内存警告的处理"></a>3、内存警告的处理</h5><ul>
 <li><p>位图比较大，将位图缓存在内存中，即使FLAnimatedImage做了优化，当时GIF较大，或多张GIF同时播放，内存的压力会很大，很大概率收到内存警告。</p>
 </li>
 <li><p><strong>allAnimatedImagesWeak</strong>保存所有的FLAnimatedImage对象，收到内存警告时，通知所有FLAnimatedImage对象，当前只允许缓存一帧图片；如果接下来没有新的内存警告，慢慢恢复到定义的缓存的图片帧数；但是如果内存警告次数超过三次，以后只能缓存一帧图片。</p>
