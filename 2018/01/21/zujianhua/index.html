@@ -73,8 +73,6 @@
 
 
 
-  
-
 
   <link rel="alternate" href="/atom.xml" title="南华coder的空间" type="application/atom+xml" />
 
@@ -83,17 +81,17 @@
 
 
 
-<meta name="description" content="FLAnimatedImage库很不错，分享下我的学习笔记  一、概述  SDWebImage处理网络GIF播放，是在FLAnimatedImage库基础上做的。  FLAnimatedImage库就主要的类是：FLAnimatedImage类和FLAnimatedImageView类。FLAnimatedImage看做个生产者，负责将GIF图片转换成一帧帧图片，提供给FLAnimatedImag">
+<meta name="description" content="没有做过组件化，先自行了解下  一、概述 1、为什么用组件化 业务快速发展、复杂的业务场景、团队的快速扩展等带来的变革诉求，希望通过组件化来提高团队的协作能力、减低开发成本，提高开发质量。  组件化直接效果：代码解耦，功能模块化；代码的复用性高；代码管理更加科学。  从蘑菇街(蘑菇街 App 的组件化之路)、支付宝(从支付宝红包揭秘亿级APP的移动开发)等团队公开的信息来看：业务的增加、开发团队的">
 <meta property="og:type" content="article">
-<meta property="og:title" content="速览FLAnimatedImage库笔记">
-<meta property="og:url" content="http://buaa0300/nanhuacoder.com/2018/01/14/read-FLAnimatedImage/index.html">
+<meta property="og:title" content="组件化学习笔记">
+<meta property="og:url" content="http://buaa0300/nanhuacoder.com/2018/01/21/zujianhua/index.html">
 <meta property="og:site_name" content="南华coder的空间">
-<meta property="og:description" content="FLAnimatedImage库很不错，分享下我的学习笔记  一、概述  SDWebImage处理网络GIF播放，是在FLAnimatedImage库基础上做的。  FLAnimatedImage库就主要的类是：FLAnimatedImage类和FLAnimatedImageView类。FLAnimatedImage看做个生产者，负责将GIF图片转换成一帧帧图片，提供给FLAnimatedImag">
+<meta property="og:description" content="没有做过组件化，先自行了解下  一、概述 1、为什么用组件化 业务快速发展、复杂的业务场景、团队的快速扩展等带来的变革诉求，希望通过组件化来提高团队的协作能力、减低开发成本，提高开发质量。  组件化直接效果：代码解耦，功能模块化；代码的复用性高；代码管理更加科学。  从蘑菇街(蘑菇街 App 的组件化之路)、支付宝(从支付宝红包揭秘亿级APP的移动开发)等团队公开的信息来看：业务的增加、开发团队的">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-01-14T04:08:50.080Z">
+<meta property="og:updated_time" content="2018-01-21T15:26:10.049Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="速览FLAnimatedImage库笔记">
-<meta name="twitter:description" content="FLAnimatedImage库很不错，分享下我的学习笔记  一、概述  SDWebImage处理网络GIF播放，是在FLAnimatedImage库基础上做的。  FLAnimatedImage库就主要的类是：FLAnimatedImage类和FLAnimatedImageView类。FLAnimatedImage看做个生产者，负责将GIF图片转换成一帧帧图片，提供给FLAnimatedImag">
+<meta name="twitter:title" content="组件化学习笔记">
+<meta name="twitter:description" content="没有做过组件化，先自行了解下  一、概述 1、为什么用组件化 业务快速发展、复杂的业务场景、团队的快速扩展等带来的变革诉求，希望通过组件化来提高团队的协作能力、减低开发成本，提高开发质量。  组件化直接效果：代码解耦，功能模块化；代码的复用性高；代码管理更加科学。  从蘑菇街(蘑菇街 App 的组件化之路)、支付宝(从支付宝红包揭秘亿级APP的移动开发)等团队公开的信息来看：业务的增加、开发团队的">
 
 
 
@@ -123,13 +121,13 @@
 
 
 
-  <link rel="canonical" href="http://buaa0300/nanhuacoder.com/2018/01/14/read-FLAnimatedImage/"/>
+  <link rel="canonical" href="http://buaa0300/nanhuacoder.com/2018/01/21/zujianhua/"/>
 
 
 
 
 
-  <title>速览FLAnimatedImage库笔记 | 南华coder的空间</title>
+  <title>组件化学习笔记 | 南华coder的空间</title>
   
 
 
@@ -236,7 +234,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/14/read-FLAnimatedImage/">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/21/zujianhua/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="南华coder">
@@ -253,7 +251,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">速览FLAnimatedImage库笔记</h1>
+          <h1 class="post-title" itemprop="name headline">组件化学习笔记</h1>
         
 
         <div class="post-meta">
@@ -265,8 +263,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-14T12:05:17+08:00">
-                2018-01-14
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-21T21:29:49+08:00">
+                2018-01-21
               </time>
             
 
@@ -303,69 +301,92 @@
       
 
       
-        <p>FLAnimatedImage库很不错，分享下我的学习笔记</p>
+        <p>没有做过组件化，先自行了解下</p>
 <blockquote>
 <h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4></blockquote>
+<h5 id="1、为什么用组件化"><a href="#1、为什么用组件化" class="headerlink" title="1、为什么用组件化"></a>1、为什么用组件化</h5><ul>
+<li><p><strong>业务快速发展、复杂的业务场景、团队的快速扩展等</strong>带来的变革诉求，希望通过<strong>组件化</strong>来提高团队的协作能力、减低开发成本，提高开发质量。</p>
+</li>
+<li><p>组件化直接效果：代码解耦，功能模块化；代码的复用性高；代码管理更加科学。</p>
+</li>
+<li><p>从<strong>蘑菇街</strong>(<a href="https://www.jianshu.com/p/cdf94a963c27" target="_blank" rel="noopener">蘑菇街 App 的组件化之路</a>)、<strong>支付宝(<a href="http://www.sohu.com/a/129493438_536622" target="_blank" rel="noopener">从支付宝红包揭秘亿级APP的移动开发</a>)</strong>等团队公开的信息来看：业务的增加、开发团队的扩张、快速迭代的要求，催生组件化方案(<em>可能有更好的架构方案</em>)快速落地。</p>
+</li>
+</ul>
+<h5 id="2、为什么还不用组件化"><a href="#2、为什么还不用组件化" class="headerlink" title="2、为什么还不用组件化"></a>2、为什么还不用组件化</h5><ul>
+<li><p>虽然组件化的风吹了好几年了，但是依然很多团队没有使用组件化方案；主要还是开发资源有限，组件化的改造成本较高，收益相对不大。</p>
+</li>
+<li><p>蘑菇街和支付宝等团队实现组件化方案，一是业务发展的必然选择；二是其技术沉淀深，能为自己和兄弟团队打造出质量上乘的组件化服务。</p>
+</li>
+</ul>
+<h5 id="3、总结"><a href="#3、总结" class="headerlink" title="3、总结"></a>3、总结</h5><ul>
+<li>组件化是趋势，是大中型App团队的选择。</li>
+</ul>
+<blockquote>
+<h4 id="二、组件化四要素"><a href="#二、组件化四要素" class="headerlink" title="二、组件化四要素"></a>二、组件化四要素</h4></blockquote>
+<p>完成组件化，先考虑四要素。</p>
+<p>#####1、组件拆分 #####</p>
 <ul>
-<li><p><a href="https://github.com/rs/SDWebImage" target="_blank" rel="noopener">SDWebImage</a>处理网络GIF播放，是在<a href="https://github.com/Flipboard/FLAnimatedImage" target="_blank" rel="noopener">FLAnimatedImage库</a>基础上做的。</p>
+<li><p>首先需要对原有的<strong>基础模块</strong>，如网络模块、存储模块、网络图片加载模块、日志上报模块从原有代码中独立出来，用Cocoapods或Submodule管理起来。（<em>这部分相对简单</em>）</p>
 </li>
-<li><p><a href="https://github.com/Flipboard/FLAnimatedImage" target="_blank" rel="noopener">FLAnimatedImage库</a>就主要的类是：<strong>FLAnimatedImage类</strong>和<strong>FLAnimatedImageView类</strong>。<strong>FLAnimatedImage</strong>看做个生产者，负责将GIF图片转换成一帧帧图片，提供给<strong>FLAnimatedImageView</strong>；后者可以看做是消费者，将一帧帧图片刷新显示到屏幕中。</p>
+<li><p><strong>业务模块</strong>的拆分比较麻烦，这部分代码的规范性不强，文件之间的引用乱且杂，且代码阅读性较差，是个坑多的地方。</p>
 </li>
-<li><p><a href="https://github.com/Flipboard/FLAnimatedImage" target="_blank" rel="noopener">FLAnimatedImage库</a>中涉及一些<strong>线程安全</strong>、<strong>weakProxy</strong>、<strong>内存警告处理</strong>还是很值得借鉴的。</p>
+<li><p>除了业务模块之外，还有一块代码是<strong>重灾区</strong>，是<strong>AppDelegate的初始化部分</strong>；这里包含太多的逻辑，如SDK和基础模块的初始化，参数设置，注册通知，网络请求等等。我的想法是：将不同的工作分配到不同的Category中，使其职责明确清晰。</p>
 </li>
 </ul>
+<p>#####2、组件间通信 #####</p>
+<p>组件之前的通信，更多是指业务组件之间的通信吧。目前蘑菇街团队公开的方案是：<strong>URLRouter</strong>、<strong>Protocol Class Binding</strong>这两类方案。</p>
+<h5 id="2-1-URLRouter"><a href="#2-1-URLRouter" class="headerlink" title="2-1 URLRouter"></a>2-1 URLRouter</h5><ul>
+<li><p><strong>简介</strong>：蘑菇街团队实现<a href="https://github.com/meili/MGJRouter" target="_blank" rel="noopener">MGJRouter</a>库，可以根据URL处理执行对应的Block；其核心在于，先注册URL 和 <strong>服务Block</strong> &amp; <strong>参数字典</strong>的对应关系（<em>保存在router字典中</em>），然后利用URL找到对应的Block，将参数字典交给Block，唤起对应的服务。</p>
+<pre><code>  // 注册
+ [MGJRouter registerURLPattern:@&quot;mgj://foo/bar&quot; toHandler:^(NSDictionary *routerParameters) {
+[self appendLog:[NSString stringWithFormat:@&quot;routerParameters:%@&quot;, routerParameters]];
+ }];
+
+ //传参
+ [MGJRouter openURL:@&quot;mgj://foo/bar&quot; withUserInfo:@{@&quot;param1&quot;:@&quot;hello world&quot;} completion:nil];
+
+ //同步获取object
+ NSNumber *orderCount = [MGJRouter objectForURL:@&quot;mgj://cart/ordercount&quot;]
+</code></pre></li>
+<li><p><strong>优势</strong>：解耦方便；各个组件依赖MGJRouter就可以；打破组件间的相关依赖关系；</p>
+</li>
+<li><p><strong>不足</strong>：组件本身依赖中间件，但是分散注册又使得<strong>耦合较多</strong>。<br>需要专门维护URL(<em>蘑菇街使用后台维护，自动生成URL短链的方式</em>)；</p>
+</li>
+</ul>
+<h5 id="2-2-Protocol-Class-Binding（协议和类绑定"><a href="#2-2-Protocol-Class-Binding（协议和类绑定" class="headerlink" title="2-2 Protocol Class Binding（协议和类绑定)"></a>2-2 Protocol Class Binding（协议和类绑定)</h5><ul>
+<li><p><strong>简介</strong>：可以看做是蘑菇街团队URLRouter的升级方案。其核心在于，为组件定义Protocol，Protocol指定返回的数据，然后在组件中新建Class实现Protocol，如此将Protocol和Class关联起来。</p>
+<pre><code> //以购物车组件为例
+
+//1、组件定义MGJCart，执行返回订单数方法
+ @protocol MGJCart &lt;NSObject&gt;
+ + (NSInteger)orderCount;
+ @end
+
+//2、MGJCartImpl 实现MGJCart ，实现略
+
+ //3、关联
+[ModuleManager registerClass:MGJCartImpl forProtocol:@protocol(MGJCart)]，
+
+//4、获取MGJCartImpl，接下来可以访问到参数了
+[ModuleManager classForProtocol:@protocol(MGJCart)]
+</code></pre></li>
+<li><p><strong>优势</strong>：把公共的协议统一放到同一文件中，组件依赖该文件即可。</p>
+</li>
+</ul>
+<p>#####3、组件的单元测试 #####</p>
+<p>每一个组件都需要提供单元测试，保证代码质量。</p>
+<p><em>实践后，再来补充</em></p>
+<p>#####4、组件开发、集成、发版 #####</p>
+<p><em>实践后，再来补充</em></p>
 <blockquote>
-<h4 id="二、FLAnimatedImage-类"><a href="#二、FLAnimatedImage-类" class="headerlink" title="二、FLAnimatedImage 类"></a>二、FLAnimatedImage 类</h4></blockquote>
-<p>重要的两个方法，分别是<strong>initWithAnimatedGIFData:方法</strong> 和  <strong>imageLazilyCachedAtIndex:方法</strong></p>
-<h5 id="1、initWithAnimatedGIFData-方法"><a href="#1、initWithAnimatedGIFData-方法" class="headerlink" title="1、initWithAnimatedGIFData: 方法"></a>1、initWithAnimatedGIFData: 方法</h5><ul>
-<li><p>其一、获取<strong>GIF图片的信息</strong>，包括图片大小、图片帧数、首帧图片、每帧图片的属性信息(播放时间)、循环播放次数，最大缓存帧个数等。其中<strong>最大缓存帧个数</strong>是根据图片大小获得 或者 手动指定。</p>
-</li>
-<li><p>其二、设置个弱代理(weakProxy)，用来<strong>防止循环引用</strong>用的。</p>
-</li>
-<li><p>其三、将自己添加<strong>allAnimatedImagesWeak</strong>对象中（添加操作使用@synchronized保证线程安全），这是一个NSHashTable对象，当哈希表中的FLAnimatedImage对象的引用计数是0时，表中会清除该对象。</p>
-<p><strong>说明</strong>：线程同步中，一说<strong>同步锁</strong>，很多人直觉反应，性能最差，不用；但是FLAnimatedImage库和SDWebImage都在用，应该是其<strong>使用方便</strong>所致；其本身实现很有意思，利用对象的内存地址去获取互斥锁；还添加了异常处理，如果同步某对象抛出异常时，还会释放掉锁。</p>
-</li>
-</ul>
-<h5 id="2、imageLazilyCachedAtIndex-方法"><a href="#2、imageLazilyCachedAtIndex-方法" class="headerlink" title="2、imageLazilyCachedAtIndex:方法"></a>2、imageLazilyCachedAtIndex:方法</h5><ul>
-<li><p>通过<strong>imageLazilyCachedAtIndex:方法</strong>将帧每一帧图片给FLAnimatedImageView对象展示。</p>
-</li>
-<li><p>根据<strong>当前的帧号</strong>(index)和<strong>当前缓存帧数</strong>(frameCacheSizeCurrent)获取接下来需要缓存的帧图片，并异步绘制出位图，并保存在内存缓存中。</p>
-<p><strong>说明</strong>：都是提前绘制后面需要展示的图片，第一帧图片在init方法时就获得了。</p>
-</li>
-</ul>
-<h5 id="3、内存警告的处理"><a href="#3、内存警告的处理" class="headerlink" title="3、内存警告的处理"></a>3、内存警告的处理</h5><ul>
-<li><p>位图比较大，将位图缓存在内存中，即使FLAnimatedImage做了优化，当时GIF较大，或多张GIF同时播放，内存的压力会很大，很大概率收到内存警告。</p>
-</li>
-<li><p><strong>allAnimatedImagesWeak</strong>保存所有的FLAnimatedImage对象，收到内存警告时，通知所有FLAnimatedImage对象，当前只允许缓存一帧图片；如果接下来没有新的内存警告，慢慢恢复到定义的缓存的图片帧数；但是如果内存警告次数超过三次，以后只能缓存一帧图片。</p>
-</li>
-<li><p>在内存警告处理中，使用了些<strong>延迟执行</strong>的方法，防止循环引用，使用了弱代理(weakProxy)。</p>
-</li>
-<li><p>weakProxy是FLWeakProxy 对象；FLWeakProxy是NSProxy类子类，持有一个 weak 对象的代理，利用消息转发机制将消息的处理交给weak 对象；用来避免循环引用的一种方法，具体可以看我之前写的<a href="https://www.jianshu.com/p/5068b6f02238" target="_blank" rel="noopener">解决NSTimer/CADisplayLink的循环引用</a>。</p>
-</li>
-</ul>
-<blockquote>
-<h4 id="三、FLAnimatedImageView"><a href="#三、FLAnimatedImageView" class="headerlink" title="三、FLAnimatedImageView"></a>三、FLAnimatedImageView</h4></blockquote>
-<h5 id="1、CADispalyLink"><a href="#1、CADispalyLink" class="headerlink" title="1、CADispalyLink"></a>1、CADispalyLink</h5><ul>
-<li><p>CADispalyLink是个和屏幕刷新率相同的定时器，将帧图片刷新显示在屏幕上。</p>
-</li>
-<li><p>使用FLWeakProxy这类弱引用代理，打破循环引用；</p>
-</li>
-<li><p>多个处理器情况下，CADispalyLink对象默认以NSRunLoopCommonModes添加到Runloop上，避免因为列表滑动不刷新显示。</p>
-</li>
-<li><p>CADispalyLink的刷新时间是：每帧图片播放时间的最大公约数；因为不能保证每帧图片的播放时间是一样的，取他们的最大公约数，使得每一帧都尽可能获得其播放时间。当然也可以暴力使用平均停留时间作为CADispalyLink的刷新时间。</p>
-</li>
-</ul>
-<blockquote>
-<h4 id="四、后记"><a href="#四、后记" class="headerlink" title="四、后记"></a>四、后记</h4></blockquote>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4></blockquote>
 <ul>
-<li><p>这是之前阅读FLAnimatedImage库的笔记整理，一是本着学习的目的，二是为了评估 <strong>在列表页缩放裁剪播放n张GIF图的需求</strong>的可行性；</p>
+<li><p>个人认为，<strong>组件化</strong>是<strong>业务、团队快速扩张</strong>下的新的<strong>合作分工方式</strong>；</p>
 </li>
-<li><p>将<strong>GIF图片的裁剪和合成小GIF图</strong>的重任交给客户端，本身就很冒险；裁剪过程中，GIF图片的帧数多，GIF图片多，对内存的挑战是很大的，在列表中下发小的GIF图播放比较好（后台表示压力大）。</p>
+<li><p>虽然我们团队还没有这类变革诉求，但是我们能够要在各个垂直、细分领域打开局面，形成自己的<strong>产品矩阵</strong>，组件化方案或类组件化方案是必须要有人去踩坑的。</p>
+<p>参考文章：<a href="https://www.jianshu.com/p/48fbcbb36c75" target="_blank" rel="noopener">iOS App组件化开发实践</a></p>
 </li>
 </ul>
-<blockquote>
-<h4 id="End"><a href="#End" class="headerlink" title="End"></a>End</h4></blockquote>
-<p>我是<a href="https://buaa0300.github.io/" target="_blank" rel="noopener">南华coder</a>，一名北漂的iOS程序猿。</p>
 
       
     </div>
@@ -390,8 +411,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/01/13/generateCode/" rel="next" title="代码自动生成笔记">
-                <i class="fa fa-chevron-left"></i> 代码自动生成笔记
+              <a href="/2018/01/14/read-FLAnimatedImage/" rel="next" title="速览FLAnimatedImage库笔记">
+                <i class="fa fa-chevron-left"></i> 速览FLAnimatedImage库笔记
               </a>
             
           </div>
@@ -399,10 +420,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/01/21/zujianhua/" rel="prev" title="组件化学习笔记">
-                组件化学习笔记 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -527,7 +544,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、概述"><span class="nav-number">1.</span> <span class="nav-text">一、概述</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、FLAnimatedImage-类"><span class="nav-number">2.</span> <span class="nav-text">二、FLAnimatedImage 类</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、initWithAnimatedGIFData-方法"><span class="nav-number">2.1.</span> <span class="nav-text">1、initWithAnimatedGIFData: 方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、imageLazilyCachedAtIndex-方法"><span class="nav-number">2.2.</span> <span class="nav-text">2、imageLazilyCachedAtIndex:方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、内存警告的处理"><span class="nav-number">2.3.</span> <span class="nav-text">3、内存警告的处理</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、FLAnimatedImageView"><span class="nav-number">3.</span> <span class="nav-text">三、FLAnimatedImageView</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、CADispalyLink"><span class="nav-number">3.1.</span> <span class="nav-text">1、CADispalyLink</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四、后记"><span class="nav-number">4.</span> <span class="nav-text">四、后记</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#End"><span class="nav-number">5.</span> <span class="nav-text">End</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、概述"><span class="nav-number">1.</span> <span class="nav-text">一、概述</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、为什么用组件化"><span class="nav-number">1.1.</span> <span class="nav-text">1、为什么用组件化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、为什么还不用组件化"><span class="nav-number">1.2.</span> <span class="nav-text">2、为什么还不用组件化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、总结"><span class="nav-number">1.3.</span> <span class="nav-text">3、总结</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、组件化四要素"><span class="nav-number">2.</span> <span class="nav-text">二、组件化四要素</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-1-URLRouter"><span class="nav-number">2.1.</span> <span class="nav-text">2-1 URLRouter</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-2-Protocol-Class-Binding（协议和类绑定"><span class="nav-number">2.2.</span> <span class="nav-text">2-2 Protocol Class Binding（协议和类绑定)</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>

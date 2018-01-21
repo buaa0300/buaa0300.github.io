@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://buaa0300/nanhuacoder.com/"/>
-  <updated>2018-01-14T04:08:50.080Z</updated>
+  <updated>2018-01-21T15:26:10.049Z</updated>
   <id>http://buaa0300/nanhuacoder.com/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>组件化学习笔记</title>
+    <link href="http://buaa0300/nanhuacoder.com/2018/01/21/zujianhua/"/>
+    <id>http://buaa0300/nanhuacoder.com/2018/01/21/zujianhua/</id>
+    <published>2018-01-21T13:29:49.000Z</published>
+    <updated>2018-01-21T15:26:10.049Z</updated>
+    
+    <content type="html"><![CDATA[<p>没有做过组件化，先自行了解下</p><blockquote><h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4></blockquote><h5 id="1、为什么用组件化"><a href="#1、为什么用组件化" class="headerlink" title="1、为什么用组件化"></a>1、为什么用组件化</h5><ul><li><p><strong>业务快速发展、复杂的业务场景、团队的快速扩展等</strong>带来的变革诉求，希望通过<strong>组件化</strong>来提高团队的协作能力、减低开发成本，提高开发质量。</p></li><li><p>组件化直接效果：代码解耦，功能模块化；代码的复用性高；代码管理更加科学。</p></li><li><p>从<strong>蘑菇街</strong>(<a href="https://www.jianshu.com/p/cdf94a963c27" target="_blank" rel="noopener">蘑菇街 App 的组件化之路</a>)、<strong>支付宝(<a href="http://www.sohu.com/a/129493438_536622" target="_blank" rel="noopener">从支付宝红包揭秘亿级APP的移动开发</a>)</strong>等团队公开的信息来看：业务的增加、开发团队的扩张、快速迭代的要求，催生组件化方案(<em>可能有更好的架构方案</em>)快速落地。</p></li></ul><h5 id="2、为什么还不用组件化"><a href="#2、为什么还不用组件化" class="headerlink" title="2、为什么还不用组件化"></a>2、为什么还不用组件化</h5><ul><li><p>虽然组件化的风吹了好几年了，但是依然很多团队没有使用组件化方案；主要还是开发资源有限，组件化的改造成本较高，收益相对不大。</p></li><li><p>蘑菇街和支付宝等团队实现组件化方案，一是业务发展的必然选择；二是其技术沉淀深，能为自己和兄弟团队打造出质量上乘的组件化服务。</p></li></ul><h5 id="3、总结"><a href="#3、总结" class="headerlink" title="3、总结"></a>3、总结</h5><ul><li>组件化是趋势，是大中型App团队的选择。</li></ul><blockquote><h4 id="二、组件化四要素"><a href="#二、组件化四要素" class="headerlink" title="二、组件化四要素"></a>二、组件化四要素</h4></blockquote><p>完成组件化，先考虑四要素。</p><p>#####1、组件拆分 #####</p><ul><li><p>首先需要对原有的<strong>基础模块</strong>，如网络模块、存储模块、网络图片加载模块、日志上报模块从原有代码中独立出来，用Cocoapods或Submodule管理起来。（<em>这部分相对简单</em>）</p></li><li><p><strong>业务模块</strong>的拆分比较麻烦，这部分代码的规范性不强，文件之间的引用乱且杂，且代码阅读性较差，是个坑多的地方。</p></li><li><p>除了业务模块之外，还有一块代码是<strong>重灾区</strong>，是<strong>AppDelegate的初始化部分</strong>；这里包含太多的逻辑，如SDK和基础模块的初始化，参数设置，注册通知，网络请求等等。我的想法是：将不同的工作分配到不同的Category中，使其职责明确清晰。</p></li></ul><p>#####2、组件间通信 #####</p><p>组件之前的通信，更多是指业务组件之间的通信吧。目前蘑菇街团队公开的方案是：<strong>URLRouter</strong>、<strong>Protocol Class Binding</strong>这两类方案。</p><h5 id="2-1-URLRouter"><a href="#2-1-URLRouter" class="headerlink" title="2-1 URLRouter"></a>2-1 URLRouter</h5><ul><li><p><strong>简介</strong>：蘑菇街团队实现<a href="https://github.com/meili/MGJRouter" target="_blank" rel="noopener">MGJRouter</a>库，可以根据URL处理执行对应的Block；其核心在于，先注册URL 和 <strong>服务Block</strong> &amp; <strong>参数字典</strong>的对应关系（<em>保存在router字典中</em>），然后利用URL找到对应的Block，将参数字典交给Block，唤起对应的服务。</p><pre><code>  // 注册 [MGJRouter registerURLPattern:@&quot;mgj://foo/bar&quot; toHandler:^(NSDictionary *routerParameters) {[self appendLog:[NSString stringWithFormat:@&quot;routerParameters:%@&quot;, routerParameters]]; }]; //传参 [MGJRouter openURL:@&quot;mgj://foo/bar&quot; withUserInfo:@{@&quot;param1&quot;:@&quot;hello world&quot;} completion:nil]; //同步获取object NSNumber *orderCount = [MGJRouter objectForURL:@&quot;mgj://cart/ordercount&quot;]</code></pre></li><li><p><strong>优势</strong>：解耦方便；各个组件依赖MGJRouter就可以；打破组件间的相关依赖关系；</p></li><li><p><strong>不足</strong>：组件本身依赖中间件，但是分散注册又使得<strong>耦合较多</strong>。<br>需要专门维护URL(<em>蘑菇街使用后台维护，自动生成URL短链的方式</em>)；</p></li></ul><h5 id="2-2-Protocol-Class-Binding（协议和类绑定"><a href="#2-2-Protocol-Class-Binding（协议和类绑定" class="headerlink" title="2-2 Protocol Class Binding（协议和类绑定)"></a>2-2 Protocol Class Binding（协议和类绑定)</h5><ul><li><p><strong>简介</strong>：可以看做是蘑菇街团队URLRouter的升级方案。其核心在于，为组件定义Protocol，Protocol指定返回的数据，然后在组件中新建Class实现Protocol，如此将Protocol和Class关联起来。</p><pre><code> //以购物车组件为例//1、组件定义MGJCart，执行返回订单数方法 @protocol MGJCart &lt;NSObject&gt; + (NSInteger)orderCount; @end//2、MGJCartImpl 实现MGJCart ，实现略 //3、关联[ModuleManager registerClass:MGJCartImpl forProtocol:@protocol(MGJCart)]，//4、获取MGJCartImpl，接下来可以访问到参数了[ModuleManager classForProtocol:@protocol(MGJCart)]</code></pre></li><li><p><strong>优势</strong>：把公共的协议统一放到同一文件中，组件依赖该文件即可。</p></li></ul><p>#####3、组件的单元测试 #####</p><p>每一个组件都需要提供单元测试，保证代码质量。</p><p><em>实践后，再来补充</em></p><p>#####4、组件开发、集成、发版 #####</p><p><em>实践后，再来补充</em></p><blockquote><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4></blockquote><ul><li><p>个人认为，<strong>组件化</strong>是<strong>业务、团队快速扩张</strong>下的新的<strong>合作分工方式</strong>；</p></li><li><p>虽然我们团队还没有这类变革诉求，但是我们能够要在各个垂直、细分领域打开局面，形成自己的<strong>产品矩阵</strong>，组件化方案或类组件化方案是必须要有人去踩坑的。</p><p>参考文章：<a href="https://www.jianshu.com/p/48fbcbb36c75" target="_blank" rel="noopener">iOS App组件化开发实践</a></p></li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;没有做过组件化，先自行了解下&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;h4 id=&quot;一、概述&quot;&gt;&lt;a href=&quot;#一、概述&quot; class=&quot;headerlink&quot; title=&quot;一、概述&quot;&gt;&lt;/a&gt;一、概述&lt;/h4&gt;&lt;/blockquote&gt;
+&lt;h5 id=&quot;1、为什么用组件
+      
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>速览FLAnimatedImage库笔记</title>
