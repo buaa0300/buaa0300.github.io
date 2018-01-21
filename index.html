@@ -328,8 +328,7 @@
 <blockquote>
 <h4 id="二、组件化四要素"><a href="#二、组件化四要素" class="headerlink" title="二、组件化四要素"></a>二、组件化四要素</h4></blockquote>
 <p>完成组件化，先考虑四要素。</p>
-<p>#####1、组件拆分 #####</p>
-<ul>
+<h5 id="1、组件拆分"><a href="#1、组件拆分" class="headerlink" title="1、组件拆分"></a>1、组件拆分</h5><ul>
 <li><p>首先需要对原有的<strong>基础模块</strong>，如网络模块、存储模块、网络图片加载模块、日志上报模块从原有代码中独立出来，用Cocoapods或Submodule管理起来。（<em>这部分相对简单</em>）</p>
 </li>
 <li><p><strong>业务模块</strong>的拆分比较麻烦，这部分代码的规范性不强，文件之间的引用乱且杂，且代码阅读性较差，是个坑多的地方。</p>
@@ -337,8 +336,7 @@
 <li><p>除了业务模块之外，还有一块代码是<strong>重灾区</strong>，是<strong>AppDelegate的初始化部分</strong>；这里包含太多的逻辑，如SDK和基础模块的初始化，参数设置，注册通知，网络请求等等。我的想法是：将不同的工作分配到不同的Category中，使其职责明确清晰。</p>
 </li>
 </ul>
-<p>#####2、组件间通信 #####</p>
-<p>组件之前的通信，更多是指业务组件之间的通信吧。目前蘑菇街团队公开的方案是：<strong>URLRouter</strong>、<strong>Protocol Class Binding</strong>这两类方案。</p>
+<h5 id="2、组件间通信"><a href="#2、组件间通信" class="headerlink" title="2、组件间通信"></a>2、组件间通信</h5><p>组件之前的通信，更多是指业务组件之间的通信吧。目前蘑菇街团队公开的方案是：<strong>URLRouter</strong>、<strong>Protocol Class Binding</strong>这两类方案。</p>
 <h5 id="2-1-URLRouter"><a href="#2-1-URLRouter" class="headerlink" title="2-1 URLRouter"></a>2-1 URLRouter</h5><ul>
 <li><p><strong>简介</strong>：蘑菇街团队实现<a href="https://github.com/meili/MGJRouter" target="_blank" rel="noopener">MGJRouter</a>库，可以根据URL处理执行对应的Block；其核心在于，先注册URL 和 <strong>服务Block</strong> &amp; <strong>参数字典</strong>的对应关系（<em>保存在router字典中</em>），然后利用URL找到对应的Block，将参数字典交给Block，唤起对应的服务。</p>
 <pre><code>  // 注册
