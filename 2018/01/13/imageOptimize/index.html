@@ -88,7 +88,7 @@
 <meta property="og:site_name" content="南华coder的空间">
 <meta property="og:description" content="根据我自己的经验，说一下我对图片优化的理解。  一、他山之石 1、图片的加载步骤从磁盘中加载图片，并通过UIImageVIew显示在屏幕上，需要经过以下步骤： 1、从磁盘拷贝数据到内核缓冲区 2、从内核缓冲区复制数据到用户空间 3、生成UIImageView，把图像数据赋值给UIImageView 4、如果图像数据为未解码的PNG/JPG，解码为位图数据 5、CATransaction捕获到UII">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-01-13T11:50:47.083Z">
+<meta property="og:updated_time" content="2018-01-26T15:27:54.543Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="浅谈iOS图片优化">
 <meta name="twitter:description" content="根据我自己的经验，说一下我对图片优化的理解。  一、他山之石 1、图片的加载步骤从磁盘中加载图片，并通过UIImageVIew显示在屏幕上，需要经过以下步骤： 1、从磁盘拷贝数据到内核缓冲区 2、从内核缓冲区复制数据到用户空间 3、生成UIImageView，把图像数据赋值给UIImageView 4、如果图像数据为未解码的PNG/JPG，解码为位图数据 5、CATransaction捕获到UII">
@@ -377,9 +377,10 @@
 <ul>
 <li><p><strong>使用优秀的第三方库</strong>，如<a href="https://github.com/rs/SDWebImage" target="_blank" rel="noopener">SDWebImage</a>。关于SDWebImage我在简书上写了文章<a href="https://www.jianshu.com/p/f3cb4ea0d14c" target="_blank" rel="noopener">SDWebImage源码理解</a>,可以看看。</p>
 </li>
-<li><p><strong>使用压缩比高，质量小，失真小的图片格式</strong>，如Google的Web格式，这种图片文件小，很适合在网络中传输，消耗的流量少，下载快。</p>
+<li><p><strong>使用压缩比高，质量小，失真小的图片格式</strong>，如Google的Webp、Tencent的SharpP格式，这两图片文件小，很适合在网络中传输，消耗的流量少，下载快,解码快（SharpP和webp的编码慢）。</p>
 </li>
 <li><p><strong>结合业务需要优化图片</strong>；网络环境获取图片比较复杂，且难以预测；对下载下来的图片进行<strong>裁剪</strong>（按显示的<em>目标大小</em>、<em>是否需要圆角</em>、<em>描边</em>、<em>阴影</em>等），能很大程度上避免<strong>图片像素不对齐</strong>(图片大小和显示大小不一致)、<strong>像素混合</strong>（图层透明）、<strong>离屏渲染</strong>（圆角和阴影等）等问题。</p>
+<p>  <strong>参考</strong>：<a href="https://cloud.tencent.com/developer/article/1004404" target="_blank" rel="noopener">图片流量节省大杀器：基于 CDN 的 sharpP 自适应图片技术实践</a></p>
 </li>
 </ul>
 <h5 id="3、一些小的优化手段"><a href="#3、一些小的优化手段" class="headerlink" title="3、一些小的优化手段"></a>3、一些小的优化手段</h5><ul>
@@ -513,7 +514,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
