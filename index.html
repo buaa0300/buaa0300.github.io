@@ -334,6 +334,8 @@
 </li>
 <li><p><strong>选择轻量级对象</strong>：不响应触摸事件的视图，不使用UIView，优先使用CAShapeLayer(硬件加速、渲染快）。</p>
 </li>
+<li><p><strong>数据对象的缓存</strong>：比较典型的是，解码图像的缓存和cell高度的缓存；前者避免图片重复解码，后者避免Cell高度重复计算。</p>
+</li>
 </ul>
 <h5 id="2、视图布局"><a href="#2、视图布局" class="headerlink" title="2、视图布局"></a>2、视图布局</h5><ul>
 <li><p>不使用Autolayout（布局计算在主线程），视图复杂后，性能不佳；可以使用代码创建View，使用frame布局；要注意<strong>frame值要取整</strong>，避免像素不对齐；</p>
