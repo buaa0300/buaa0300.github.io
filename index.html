@@ -234,6 +234,184 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/28/launchOPt/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/28/launchOPt/" itemprop="url">启动优化</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-28T17:22:36+08:00">
+                2018-01-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>目前iOS优化主要包括三方面：<strong>卡顿优化</strong>、<strong>启动优化</strong>和<strong>瘦身优化</strong>，本文简单说下<strong>启动优化</strong></p>
+<blockquote>
+<h4 id="一、启动时间"><a href="#一、启动时间" class="headerlink" title="一、启动时间"></a>一、启动时间</h4></blockquote>
+<ul>
+<li><p>如果你的App启动超过20s内，是时候考虑换个工作了(<em>开个玩笑</em>)；启动优化是<strong>基于当下的业务复杂度和代码复杂度的最优处理</strong>。</p>
+</li>
+<li><p><strong>App总启动时间</strong> = t1(main函数之前的加载时间) + t2(main函数之后的加载时间)</p>
+</li>
+<li><p><strong>t1</strong> = 系统dylib(动态链接库)和自身App可执行文件的加载时间</p>
+</li>
+<li><strong>t2</strong> = main方法执行之后到AppDelegate类中的- (BOOL)Application:(UIApplication <em>)Application didFinishLaunchingWithOptions:(NSDictionary </em>)launchOptions方法执行结束前这段时间，主要是构建第一个界面，并完成渲染展示。</li>
+</ul>
+<blockquote>
+<h4 id="二、main函数之前的优化"><a href="#二、main函数之前的优化" class="headerlink" title="二、main函数之前的优化"></a>二、main函数之前的优化</h4></blockquote>
+<h5 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h5><ul>
+<li><p><strong>加载过程</strong>：先加载<strong>可执行文件</strong>；然后<strong>加载dyld</strong>(dynamic link editor)动态链接器；然后dyld从可执行文件的依赖开始，递归加载所有依赖的动态链接库。</p>
+</li>
+<li><p><strong>动态链接库</strong>包括：系统的framework、加载OC Runtime的libobjc、系统级别的libSystem、如libdispatch(GCD)和libsystem_blocks(Block)。</p>
+</li>
+<li><p><strong>Apple不允许使用自己的动态库</strong>，否则无法过审；只能选择<strong>静态库</strong>的方式，第三方登录、分享都使用该类方式；链接时会被完整的复制到可执行文件中；</p>
+</li>
+<li><p>相比<strong>静态库</strong>而言，<strong>动态链接库</strong>在程序运行时才记载到内存，不会增加可执行文件的体积，但是会增加加载时间；而<strong>静态库</strong>虽然有利于优化加载速度，但是会增加包的体积。</p>
+</li>
+</ul>
+<h5 id="2、优化思路"><a href="#2、优化思路" class="headerlink" title="2、优化思路"></a>2、优化思路</h5><ul>
+<li><p>减少不必要的framework，因为动态链接比较耗时；</p>
+</li>
+<li><p>检查framework应当设为optional和required，如果该framework在当前App支持的所有iOS系统版本都存在，那么就设为required，否则就设为optional，因为optional会有些额外的检查；</p>
+</li>
+<li><p>合并或者删减一些OC类；删减一些无用的静态变量；删减没有被调用到或者已经废弃的方法；</p>
+</li>
+<li><p>将不必须在+load方法中做的事情延迟到+initialize中；</p>
+</li>
+<li><p>尽量不要用C++虚函数(创建虚函数表有开销)；</p>
+</li>
+</ul>
+<blockquote>
+<h4 id="三、main函数之后的优化"><a href="#三、main函数之后的优化" class="headerlink" title="三、main函数之后的优化"></a>三、main函数之后的优化</h4></blockquote>
+<h5 id="1、概述-1"><a href="#1、概述-1" class="headerlink" title="1、概述"></a>1、概述</h5><ul>
+<li>这部分主要是服务初始化、闪屏（广告或引导）和首页UI渲染等工作；</li>
+</ul>
+<h5 id="2、优化思路-1"><a href="#2、优化思路-1" class="headerlink" title="2、优化思路"></a>2、优化思路</h5><ul>
+<li><p><strong>视图</strong>：使用代码创建首页视图。</p>
+</li>
+<li><p><strong>服务初始化</strong>：团队间沟通优化业务逻辑，如，延迟某些服务的初始化；合并某些网络请求或减少启动时网络请求个数；</p>
+</li>
+<li><p><strong>其他</strong>：减少NSLog输出，因为其会隐似创建个NSCalender，比较耗时；网络请求和数据读取等耗时操作放在子线程；图片子线程解码等。</p>
+</li>
+</ul>
+<blockquote>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4></blockquote>
+<ul>
+<li><p>一个比较靠谱团队，启动这块耗时不会太糟糕，动不动就优化效果显著，要么是太牛逼，要么是团队太坑；做启动优化这块，需要平常心和耐心。</p>
+</li>
+<li><p><strong>main函数之后优化空间比较大，主要在业务上</strong>；所以要先需要熟悉业务，优化之前和各方沟通好，如XX提供的SDK能否延迟初始化，XXX效果设计团队能否接受；XXXX处理会不会给其他团队人员的工作带来困扰….</p>
+</li>
+<li><p>网络上有很多团队分享了启动优化经验，大都是基于自身业务特点的优化总结；想系统了解，还是推荐看看<a href="https://techblog.toutiao.com/2017/01/17/iosspeed/" target="_blank" rel="noopener">今日头条iOS客户端启动速度优化</a>(<em>我的优化知识也是来源于此</em>)</p>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/27/app-thinning/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -578,6 +756,8 @@
 </li>
 <li><p>视图尽量<strong>不使用透明的背景色</strong>，避免像素混合计算(视图默认不透明 opaque=YES)；尽量<strong>使用不透明的图片</strong>，避免像素混合计算</p>
 </li>
+<li><p>UILabel显示中文时，记得<strong>masksToBounds = YES</strong>，避免混合计算</p>
+</li>
 </ul>
 <h5 id="3、离屏渲染"><a href="#3、离屏渲染" class="headerlink" title="3、离屏渲染"></a>3、离屏渲染</h5><ul>
 <li><p>GPU屏幕渲染分为当前<strong>屏幕渲染</strong>(On-Screen Rendering)和<strong>离屏渲染</strong>(Off-Screen Rendering)，<strong>离屏渲染</strong>需要在当前屏幕缓冲区以外新开辟一个缓冲区进行渲染操作，其中涉及到的<strong>创建新缓冲区</strong>、<strong>上下文切换</strong>都很消耗GPU资源。</p>
@@ -591,7 +771,7 @@
 </ul>
 <p><strong>说明</strong>：还有种<strong>CPU渲染</strong>的说法，重写了drawRect方法，或使用Core Graphics绘制都会触发；虽然其性能可能还不如GPU的离屏渲染，但是可以在子线程中做CPU渲染，然后在主线程显示。</p>
 <h5 id="4、像素不对齐"><a href="#4、像素不对齐" class="headerlink" title="4、像素不对齐"></a>4、像素不对齐</h5><ul>
-<li>图片显示前，在子线程中可以按目标显示大小裁剪，使图片符合展示大小，避免展示时，有像素不对齐问题。</li>
+<li>图片显示前，在子线程中可以按目标显示大小裁剪，使图片符合展示大小，避免拉伸缩放(像素不对齐)。</li>
 </ul>
 <blockquote>
 <h4 id="四、其他"><a href="#四、其他" class="headerlink" title="四、其他"></a>四、其他</h4></blockquote>
@@ -2276,210 +2456,13 @@ if __name__ == &apos;__main__&apos;:
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2017/12/31/newStart/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="南华coder">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="南华coder的空间">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/12/31/newStart/" itemprop="url">再见2017</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-31T18:09:31+08:00">
-                2017-12-31
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<h4 id="再见2017"><a href="#再见2017" class="headerlink" title="再见2017"></a>再见2017</h4></blockquote>
-<ul>
-<li><p><strong>2017年</strong> 就这么匆匆而去，毕业工作快满2年了；从17年4月开始，断断续续在简书上写了些技术文章；而今回头看看，文章存在许多不足；最后两个月因为项目太忙(也有懒的原因)，几乎断更了。</p>
-</li>
-<li><p><strong>两年</strong>的时间，对于一个iOS Developer来说，不算短的时间，眼看要<strong>奔三</strong>了，带着2017的遗憾，怀着对2018年的美好憧憬，忐忑前行。</p>
-</li>
-<li><p>之前的文章大概写了6w字，依然保存在<a href="https://www.jianshu.com/u/7d197f08438f" target="_blank" rel="noopener">南华coder的简书</a>，新的文章将在这里继续。</p>
-</li>
-</ul>
-<blockquote>
-<h4 id="新的选择（Hex-Github）"><a href="#新的选择（Hex-Github）" class="headerlink" title="新的选择（Hex + Github）"></a>新的选择（Hex + Github）</h4></blockquote>
-<p><strong>Hex</strong>是个不错的博客框架，结合Github，可以实现低成本(<em>学习成本和经济成本</em>) 、快速实现搭建个人博客的梦想。主要分以下几个步骤</p>
-<h5 id="1、安装和建站"><a href="#1、安装和建站" class="headerlink" title="1、安装和建站"></a>1、安装和建站</h5><pre><code>//npm 安装 Hexo。
-npm install hexo-cli -g
-
-//初始化hexo文件夹
-hexo init &lt;folder&gt;
-
-//进入文件夹
-cd &lt;folder&gt;
-
-//新建所需要的文件
-npm install
-</code></pre><p>  <strong>新建完成后，指定文件夹的目录如下</strong>：</p>
-<pre><code>.
-├── _config.yml (网站的配置信息，在此配置大部分的参数)
-├── package.json (应用程序的信息)
-├── scaffolds (模版文件夹, 新建文章时，Hexo根据 scaffold 来建立文件)
-├── source (资源文件夹)
-|   ├── _drafts
-|   └── _posts
-└── themes (主题文件夹, Hexo 会根据主题来生成静态页面)
-</code></pre><h5 id="2、配置-config-yml"><a href="#2、配置-config-yml" class="headerlink" title="2、配置_config.yml"></a>2、配置_config.yml</h5><pre><code># Site
-title: 南华coder的空间
-subtitle:
-description: 曾经仗剑走天涯,如今沉醉代码忙
-author: 南华coder
-language: zh-Hans
-timezone:
-avatar: /uploads/avatar.jpeg
-</code></pre><p><strong>注意</strong>：冒号(:)后要有空格</p>
-<h5 id="3、新建文件和本地发布"><a href="#3、新建文件和本地发布" class="headerlink" title="3、新建文件和本地发布"></a>3、新建文件和本地发布</h5><pre><code>// layout是文章的布局，默认是post，可以通过修改 _config.yml 中的   
-// default_layout 参数来指定默认布局; 默认以标题做为文件名称
-hexo new [layout] &lt;title&gt;
-
-//生成静态页面
-hexo generate 
-
-//本地发布
-hexo server
-</code></pre><p><strong>注意</strong>：可以使用 hexo s -g 实现生成页面和本地部署，访问 <a href="http://localhost:4000/" target="_blank" rel="noopener">http://localhost:4000/</a> 可以看到效果。</p>
-<h5 id="4、部署到Github上"><a href="#4、部署到Github上" class="headerlink" title="4、部署到Github上"></a>4、部署到Github上</h5><pre><code># 修改_config.yml文件,添加Github仓库的地址
-deploy:
-  type: git
-  repo: https://github.com/buaa0300/buaa0300.github.io.git
-  branch: master
-
- // 生成页面
- hexo g 或 hexo generate
-
- // 部署
- hexo d 或 hexo deploy
-</code></pre><p><strong>说明</strong>：可以使用 hexo d -g 实现生成页面和部署</p>
-<h5 id="5、主题"><a href="#5、主题" class="headerlink" title="5、主题"></a>5、主题</h5><p>Hexo还提供了许多主题，让你的页面看起来更漂亮，我选择比较大众化的<a href="https://github.com/iissnan/hexo-theme-next" target="_blank" rel="noopener">hexo-theme-next</a></p>
-<pre><code>//下载
-cd themes
-git clone https://github.com/iissnan/hexo-theme-next
-
-//修改根路径下的_config.yml (网站的配置信息）
-theme: hexo-theme-next
-
-//修改主题样式(themes/hexo-theme-next/_config.yml)
-# Muse是默认样式
-#scheme: Muse  
-#scheme: Mist
-#scheme: Pisces
-scheme: Gemini
-</code></pre><h5 id="6、其他"><a href="#6、其他" class="headerlink" title="6、其他"></a>6、其他</h5><p>其他详细内容可以参考<a href="https://hexo.io/zh-cn/docs/index.html" target="_blank" rel="noopener">Hexo官方文档</a>、<a href="http://blog.csdn.net/gdutxiaoxu/article/details/53576018" target="_blank" rel="noopener">手把手教你用Hexo+Github 搭建属于自己的博客</a></p>
-<blockquote>
-<h4 id="End"><a href="#End" class="headerlink" title="End"></a>End</h4></blockquote>
-<p>我是<a href="https://buaa0300.github.io/" target="_blank" rel="noopener">南华coder</a>，一名北漂的iOS程序猿。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+  </nav>
+
 
 
           </div>
@@ -2527,7 +2510,7 @@ scheme: Gemini
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
