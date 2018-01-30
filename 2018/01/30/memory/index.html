@@ -73,6 +73,8 @@
 
 
 
+  
+
 
   <link rel="alternate" href="/atom.xml" title="南华coder的空间" type="application/atom+xml" />
 
@@ -88,7 +90,7 @@
 <meta property="og:site_name" content="南华coder的空间">
 <meta property="og:description" content="一、概述 1、内存管理 引用计数：OC对象都有个引用计数(retaincount)、表明当前有多少个对象希望该对象存活；当对象的retaincount &amp;gt; 0,对象存活；当对象的retaincount = 0,对象销毁；  创建对象，retaincount至少为1；retain操作，retaincount加1；release操作，retaincount减1；autorelease操作，清理">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-01-30T14:47:04.691Z">
+<meta property="og:updated_time" content="2018-01-30T14:48:48.702Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="浅谈OC的内存问题">
 <meta name="twitter:description" content="一、概述 1、内存管理 引用计数：OC对象都有个引用计数(retaincount)、表明当前有多少个对象希望该对象存活；当对象的retaincount &amp;gt; 0,对象存活；当对象的retaincount = 0,对象销毁；  创建对象，retaincount至少为1；retain操作，retaincount加1；release操作，retaincount减1；autorelease操作，清理">
@@ -319,12 +321,12 @@
 <li><p>此外，CoreFoundation对象、CoreGraphics对象、还有C/C++的内存分配还是需要开发者自己管理，否则也会发生内存泄漏。</p>
 </li>
 <li><p><strong>循环引用</strong>，简单来说，就是堆内存中对象相互引用，彼此都得不到释放的机会；解决办法无非是使用<strong>弱引用</strong>；比较典型的场景有三：</p>
-</li>
-</ul>
 <pre><code> 1、一般申明代理(delegate)为weak；
  2、使用weakSelf和strongSelf处理Block的循环引用；
 3、实现NSProxy(虚拟类)的子类，然后在子类中定义weak修饰的target，然后实现消息转发方法，使target处理业务逻辑；一般用于解决NSTimer、CADisplayLink的循环引用。
-</code></pre><h5 id="3、其他内存问题"><a href="#3、其他内存问题" class="headerlink" title="3、其他内存问题"></a>3、其他内存问题</h5><ul>
+</code></pre></li>
+</ul>
+<h5 id="3、其他内存问题"><a href="#3、其他内存问题" class="headerlink" title="3、其他内存问题"></a>3、其他内存问题</h5><ul>
 <li><p>高清图片解码、内存暴增，可以将大图裁成小图，然后分别加载显示；</p>
 </li>
 <li><p>添加NSNotification监听，记得在dealloc中移除。</p>
@@ -542,7 +544,7 @@
                 alt="南华coder" />
             
               <p class="site-author-name" itemprop="name">南华coder</p>
-              <p class="site-description motion-element" itemprop="description">曾经仗剑走天涯,如今沉醉代码忙</p>
+              <p class="site-description motion-element" itemprop="description">曾想仗剑走天涯,如今沉醉代码忙</p>
           </div>
 
           <nav class="site-state motion-element">
