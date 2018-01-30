@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="南华coder的空间" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="一、概述 1、内存管理 引用计数：OC对象都有个引用计数(retaincount)、表明当前有多少个对象希望该对象存活；当对象的retaincount &amp;gt; 0,对象存活；当对象的retaincount = 0,对象销毁；  创建对象，retaincount至少为1；retain操作，retaincount加1；release操作，retaincount减1；autorelease操作，清理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅谈OC的内存问题">
+<meta property="og:url" content="http://buaa0300/nanhuacoder.com/2018/01/30/memory/index.html">
+<meta property="og:site_name" content="南华coder的空间">
+<meta property="og:description" content="一、概述 1、内存管理 引用计数：OC对象都有个引用计数(retaincount)、表明当前有多少个对象希望该对象存活；当对象的retaincount &amp;gt; 0,对象存活；当对象的retaincount = 0,对象销毁；  创建对象，retaincount至少为1；retain操作，retaincount加1；release操作，retaincount减1；autorelease操作，清理">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-01-30T14:47:04.691Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="浅谈OC的内存问题">
+<meta name="twitter:description" content="一、概述 1、内存管理 引用计数：OC对象都有个引用计数(retaincount)、表明当前有多少个对象希望该对象存活；当对象的retaincount &amp;gt; 0,对象存活；当对象的retaincount = 0,对象销毁；  创建对象，retaincount至少为1；retain操作，retaincount加1；release操作，retaincount减1；autorelease操作，清理">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://buaa0300/nanhuacoder.com/2018/01/30/memory/"/>
+
+
+
+
+
+  <title>浅谈OC的内存问题 | 南华coder的空间</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">南华coder的空间</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/30/memory/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">浅谈OC的内存问题</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-30T22:43:26+08:00">
+                2018-01-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4></blockquote>
+<h5 id="1、内存管理"><a href="#1、内存管理" class="headerlink" title="1、内存管理"></a>1、内存管理</h5><ul>
+<li><p><strong>引用计数</strong>：OC对象都有个引用计数(retaincount)、表明当前有多少个对象<strong>希望该对象存活</strong>；当对象的retaincount &gt; 0,对象存活；当对象的retaincount = 0,对象销毁；</p>
+</li>
+<li><p><strong>创建对象</strong>，retaincount至少为1；<strong>retain操作</strong>，retaincount加1；<strong>release操作</strong>，retaincount减1；<strong>autorelease操作</strong>，清理autorelease pool后，再递减retaincount；为了简化引用计数的管理，ARC应运而生。</p>
+</li>
+<li><p><strong>ARC</strong>（自动引用计数）通过编译器，在合适的地方插入<strong>retain、release和autorelease</strong>等操作；变量的内存管理通过<strong>修饰符(<strong>strong、</strong>weak、__autoreleasing)</strong>指明；以<strong>alloc、new、copy和mutableCopy</strong>方法名开头返回的对象归调用者所有。</p>
+</li>
+<li><p><strong>ARC只管理Objective-C对象的内存</strong>，CoreFoundation对象、CoreGraphics对象、还有C/C++的内存分配还是需要开发者自己管理。</p>
+</li>
+</ul>
+<h5 id="2、内存泄漏"><a href="#2、内存泄漏" class="headerlink" title="2、内存泄漏"></a>2、内存泄漏</h5><ul>
+<li><p>Objective-C对象分配在内存的<strong>堆区</strong>，这部分内存需要开发者自己回收；如果没有释放，就造成<strong>内存泄漏</strong>；在ARC帮助下，当前内存泄漏最大可能是<strong>循环引用</strong>，导致对象的retaincount &gt; 0,系统无法回收这部分内存。</p>
+</li>
+<li><p>此外，CoreFoundation对象、CoreGraphics对象、还有C/C++的内存分配还是需要开发者自己管理，否则也会发生内存泄漏。</p>
+</li>
+<li><p><strong>循环引用</strong>，简单来说，就是堆内存中对象相互引用，彼此都得不到释放的机会；解决办法无非是使用<strong>弱引用</strong>；比较典型的场景有三：</p>
+</li>
+</ul>
+<pre><code> 1、一般申明代理(delegate)为weak；
+ 2、使用weakSelf和strongSelf处理Block的循环引用；
+3、实现NSProxy(虚拟类)的子类，然后在子类中定义weak修饰的target，然后实现消息转发方法，使target处理业务逻辑；一般用于解决NSTimer、CADisplayLink的循环引用。
+</code></pre><h5 id="3、其他内存问题"><a href="#3、其他内存问题" class="headerlink" title="3、其他内存问题"></a>3、其他内存问题</h5><ul>
+<li><p>高清图片解码、内存暴增，可以将大图裁成小图，然后分别加载显示；</p>
+</li>
+<li><p>添加NSNotification监听，记得在dealloc中移除。</p>
+</li>
+<li><p>捕获异常时，一定要注意把try块内创建的对象清理干净。</p>
+</li>
+</ul>
+<blockquote>
+<h4 id="二、三个概念"><a href="#二、三个概念" class="headerlink" title="二、三个概念"></a>二、三个概念</h4></blockquote>
+<h5 id="1、weak的实现原理"><a href="#1、weak的实现原理" class="headerlink" title="1、weak的实现原理"></a>1、weak的实现原理</h5><p>Runtime维护一个<strong>weak表</strong>，用于存储执行某个对象的<strong>所有weak指针</strong>；Key是对象地址，Value是weak指针的地址数组；实现分三步：</p>
+<ul>
+<li><p><strong>初始化时</strong>，Runtime会调用<strong>objc_initWeak</strong>函数，初始化一个新的weak指针指向对象的地址；</p>
+</li>
+<li><p><strong>添加引用时</strong>，调用<strong>objc_storeWeak</strong>函数，更新指针指向，创建对应的弱引用表；</p>
+</li>
+<li><p><strong>释放时</strong>，调用<strong>clearDeallocating</strong>函数，根据对象地址获得所有weak指针地址数组，然后遍历这个数组把其中指针置为nil，把这组对应关系从weak表中删除。</p>
+<p><strong>说明</strong>：详细可了解下<a href="http://ios.jobbole.com/89012/" target="_blank" rel="noopener">weak 弱引用的实现方式</a></p>
+</li>
+</ul>
+<h5 id="2、autoreleasepool"><a href="#2、autoreleasepool" class="headerlink" title="2、autoreleasepool"></a>2、autoreleasepool</h5><ul>
+<li><p>在没有手动添加自动释放池的情况下，autorelease对象<strong>会自动在当前的runloop迭代中加入自动释放池push和pop</strong>，在当前的runloop迭代结束时释放；如果加了，在添加自动释放池结束后，autorelease对象释放；</p>
+<pre><code> @autorealsepool{
+   //todo
+}
+</code></pre></li>
+<li><p><strong>合理使用@autorealsepool，能降低内存峰值</strong>；如容器的block版本的枚举器时，内部会自动添加一个autoreleasepool（<em>普通for循环和for in循环中没有</em>）：</p>
+<pre><code>[array enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+  // 这里被一个局部@autoreleasepool包围着
+}];
+</code></pre><p>  <strong>说明</strong>：详细可了解下<a href="http://blog.sunnyxx.com/2014/10/15/behind-autorelease/" target="_blank" rel="noopener">黑幕背后的Autorelease</a></p>
+</li>
+</ul>
+<h5 id="3、Block"><a href="#3、Block" class="headerlink" title="3、Block"></a>3、Block</h5><ul>
+<li><p>Block在C语言层面就是结构体，结构体存储了<strong>isa（Class对象的指针）</strong>、<strong>函数指针</strong>(invoke指针，指向块的实现)和<strong>捕获的变量列表</strong>等;</p>
+</li>
+<li><p>Block可以分配在<strong>栈上</strong>、<strong>堆上</strong>或<strong>全局</strong>上；<strong>栈上分配的Block</strong>，作用域结束后自动释放；<strong>堆上分配的Block</strong>，和Objective-C对象一样有引用计数了；<strong>全局分配的Block</strong>分配在全局内存中，不会被系统回收，相当于单例；</p>
+</li>
+<li><p>ARC开启时，会自动把栈上的Block拷贝到堆上；</p>
+</li>
+<li><p>Block捕获对象的时候会增加对象的引用计数。</p>
+<p><strong>说明</strong>： <a href="http://blog.csdn.net/hello_hwc/article/details/70210549" target="_blank" rel="noopener">Objective C block背后的黑魔法</a></p>
+</li>
+</ul>
+<blockquote>
+<h4 id="三、发现循环引用"><a href="#三、发现循环引用" class="headerlink" title="三、发现循环引用"></a>三、发现循环引用</h4></blockquote>
+<p><em>有一定开发经验后，开发中可以避免绝大多数的循环引用问题，但是代码多了之后，不能保证代码中没有循环引用问题；</em>这时候就要靠工具了。</p>
+<h5 id="1、Instrument"><a href="#1、Instrument" class="headerlink" title="1、Instrument"></a>1、Instrument</h5><ul>
+<li><p>App内存中有三类：<strong>Abandoned memory</strong>、<strong>Leaked memory</strong>和<strong>Cached memory</strong>；有了ARC帮助管理内存，Leaked memory很少了，Leaks工具效果不大；</p>
+</li>
+<li><p>目前用得比较多的是<strong>Allocation</strong>，利用它观察在App运行中，业务相关类的创建和销毁情况。如进入底层页后退出，底层页相关的Controller、View等是否会销毁。</p>
+</li>
+<li><p>使用<strong>Allocation</strong>，需要一个个场景去跑，比较费时，但是可信度最高，可以作为其他方案补充；人力够的话，可以安排单人跑（<em>感觉有点奢侈</em>）。</p>
+</li>
+</ul>
+<h5 id="2、MLeaksFinder"><a href="#2、MLeaksFinder" class="headerlink" title="2、MLeaksFinder"></a>2、<a href="https://github.com/Tencent/MLeaksFinder" target="_blank" rel="noopener">MLeaksFinder</a></h5><ul>
+<li><p><em>微信阅读推出的内存泄漏检测工具</em>；它通过利用Method Swizzling，<strong>hook</strong> 掉 UIViewController 和 UINavigationController 的dismiss和pop方法，当对象即将释放时，调用<strong>willDealloc</strong>方法; 该方法先用一个弱指针指向 self，并在一小段时间(2秒)后，通过这个弱指针调用<strong>assertNotDealloc</strong>，而<strong>assertNotDealloc</strong>主要是利用<strong>FBRetainCycleDetector</strong>找出<strong>循环引用链</strong>，以此定位循环引用的位置。</p>
+<pre><code>- (BOOL)willDealloc {
+
+  // 白名单机制，消除某些场景的内存泄漏警告...（略）
+
+  __weak id weakSelf = self;
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+      __strong id strongSelf = weakSelf;
+      [strongSelf assertNotDealloc];
+  });
+  return YES;
+}
+
+- (void)assertNotDealloc {
+  if ([MLeakedObjectProxy isAnyObjectLeakedAtPtrs:[self parentPtrs]]) {
+      return;
+  }
+  //检查循环引用链
+  [MLeakedObjectProxy addLeakedObject:self];
+      //输出日志...（略）
+}
+</code></pre></li>
+<li><p>有可能误判的情形，</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>场景</th>
+<th>解决</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>单例和Cache 起来复用的 View 或 ViewController</strong></td>
+<td>可以将willDealloc返回NO，以消除内存泄漏的警告。</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>释放不及时的 View 或 ViewController</strong></td>
+<td>可能是网络请求返回慢的原因，可以在网络请求回调的 block 里弱引用 ViewController（比较合理）</td>
+</tr>
+</tbody>
+</table>
+<p>  <strong>说明</strong>：具体可以参考<a href="http://wereadteam.github.io/2016/02/22/MLeaksFinder/" target="_blank" rel="noopener">MLeaksFinder：精准 iOS 内存泄露检测工具</a>、<a href="http://wereadteam.github.io/2016/07/20/MLeaksFinder2/" target="_blank" rel="noopener">MLeaksFinder 新特性</a></p>
+<h5 id="3、FBMemoryProfiler"><a href="#3、FBMemoryProfiler" class="headerlink" title="3、FBMemoryProfiler"></a>3、<a href="https://github.com/facebook/FBMemoryProfiler" target="_blank" rel="noopener">FBMemoryProfiler</a></h5><ul>
+<li><p>Facebook发布的内存检查工具，FBMemoryProfiler包括<strong>FBAllocationTracker</strong> 、 <strong>FBRetainCycleDetector</strong>和 <strong>UI界面</strong>。</p>
+</li>
+<li><p><strong>FBAllocationTracker</strong>利用Method Swizzling 替换原本的 alloc 方法，记录检测所有的实例分配；而<strong>FBRetainCycleDetector</strong>用来递归遍历对象中的所有强引用的对象，以检测以该对象为根结点的强引用树有没有循环引用。</p>
+</li>
+<li><p><strong>FBMemoryProfiler</strong> 除了可以手动调试之外，它还可以进行自动化检测。 通过它内置的两个组件 FBRetainCycleDetector 和 FBAllocationTracker，直接检测出内存中的循环引用，然后把数据发送到自己的服务器上，可以形成一个自动化检测系统。 </p>
+<p><strong>说明</strong>：详细了解可见<a href="https://code.facebook.com/posts/583946315094347/automatic-memory-leak-detection-on-ios/" target="_blank" rel="noopener">automatic-memory-leak-detection-on-ios</a></p>
+</li>
+</ul>
+<h5 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h5><ul>
+<li>保持良好编程习惯的同时，搭配工具来及时纠错；推荐<strong>MLeaksFinder + Instrument</strong> 或 <strong>FBMemoryProfiler + Instrument</strong>组合使用。通过MLeaksFinder/FBMemoryProfiler发现后。然后使用Instrument再验证下。</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/28/launchOPt/" rel="next" title="浅谈启动优化">
+                <i class="fa fa-chevron-left"></i> 浅谈启动优化
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.jpeg"
+                alt="南华coder" />
+            
+              <p class="site-author-name" itemprop="name">南华coder</p>
+              <p class="site-description motion-element" itemprop="description">曾经仗剑走天涯,如今沉醉代码忙</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、概述"><span class="nav-number">1.</span> <span class="nav-text">一、概述</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、内存管理"><span class="nav-number">1.1.</span> <span class="nav-text">1、内存管理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、内存泄漏"><span class="nav-number">1.2.</span> <span class="nav-text">2、内存泄漏</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、其他内存问题"><span class="nav-number">1.3.</span> <span class="nav-text">3、其他内存问题</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、三个概念"><span class="nav-number">2.</span> <span class="nav-text">二、三个概念</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、weak的实现原理"><span class="nav-number">2.1.</span> <span class="nav-text">1、weak的实现原理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、autoreleasepool"><span class="nav-number">2.2.</span> <span class="nav-text">2、autoreleasepool</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、Block"><span class="nav-number">2.3.</span> <span class="nav-text">3、Block</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、发现循环引用"><span class="nav-number">3.</span> <span class="nav-text">三、发现循环引用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、Instrument"><span class="nav-number">3.1.</span> <span class="nav-text">1、Instrument</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、MLeaksFinder"><span class="nav-number">3.2.</span> <span class="nav-text">2、MLeaksFinder</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、FBMemoryProfiler"><span class="nav-number">3.3.</span> <span class="nav-text">3、FBMemoryProfiler</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#总结"><span class="nav-number">3.4.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">南华coder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

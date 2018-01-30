@@ -73,8 +73,6 @@
 
 
 
-  
-
 
   <link rel="alternate" href="/atom.xml" title="南华coder的空间" type="application/atom+xml" />
 
@@ -83,17 +81,17 @@
 
 
 
-<meta name="description" content="目前iOS优化主要包括三方面：卡顿优化、启动优化和瘦身优化，本文简单说下启动优化  一、启动时间  如果你的App启动超过20s内，是时候考虑换个工作了(开个玩笑)；启动优化是基于当下的业务复杂度和代码复杂度的最优处理。  App总启动时间 = t1(main函数之前的加载时间) + t2(main函数之后的加载时间)  t1 = 系统dylib(动态链接库)和自身App可执行文件的加载时间  t">
+<meta name="description" content="目前iOS优化主要包括三方面：卡顿优化、启动优化和瘦身优化，本文简单说下启动优化  一、启动时间  如果你的App启动超过20s，是时候考虑换个工作了(开个玩笑)；启动优化是基于当下的业务复杂度和代码复杂度的近似最优处理。  App总启动时间 = t1(main函数之前的加载时间) + t2(main函数之后的加载时间)  t1 = 系统dylib(动态链接库)和自身App可执行文件的加载时间">
 <meta property="og:type" content="article">
 <meta property="og:title" content="浅谈启动优化">
 <meta property="og:url" content="http://buaa0300/nanhuacoder.com/2018/01/28/launchOPt/index.html">
 <meta property="og:site_name" content="南华coder的空间">
-<meta property="og:description" content="目前iOS优化主要包括三方面：卡顿优化、启动优化和瘦身优化，本文简单说下启动优化  一、启动时间  如果你的App启动超过20s内，是时候考虑换个工作了(开个玩笑)；启动优化是基于当下的业务复杂度和代码复杂度的最优处理。  App总启动时间 = t1(main函数之前的加载时间) + t2(main函数之后的加载时间)  t1 = 系统dylib(动态链接库)和自身App可执行文件的加载时间  t">
+<meta property="og:description" content="目前iOS优化主要包括三方面：卡顿优化、启动优化和瘦身优化，本文简单说下启动优化  一、启动时间  如果你的App启动超过20s，是时候考虑换个工作了(开个玩笑)；启动优化是基于当下的业务复杂度和代码复杂度的近似最优处理。  App总启动时间 = t1(main函数之前的加载时间) + t2(main函数之后的加载时间)  t1 = 系统dylib(动态链接库)和自身App可执行文件的加载时间">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-01-28T09:25:12.148Z">
+<meta property="og:updated_time" content="2018-01-29T15:10:04.387Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="浅谈启动优化">
-<meta name="twitter:description" content="目前iOS优化主要包括三方面：卡顿优化、启动优化和瘦身优化，本文简单说下启动优化  一、启动时间  如果你的App启动超过20s内，是时候考虑换个工作了(开个玩笑)；启动优化是基于当下的业务复杂度和代码复杂度的最优处理。  App总启动时间 = t1(main函数之前的加载时间) + t2(main函数之后的加载时间)  t1 = 系统dylib(动态链接库)和自身App可执行文件的加载时间  t">
+<meta name="twitter:description" content="目前iOS优化主要包括三方面：卡顿优化、启动优化和瘦身优化，本文简单说下启动优化  一、启动时间  如果你的App启动超过20s，是时候考虑换个工作了(开个玩笑)；启动优化是基于当下的业务复杂度和代码复杂度的近似最优处理。  App总启动时间 = t1(main函数之前的加载时间) + t2(main函数之后的加载时间)  t1 = 系统dylib(动态链接库)和自身App可执行文件的加载时间">
 
 
 
@@ -307,7 +305,7 @@
 <blockquote>
 <h4 id="一、启动时间"><a href="#一、启动时间" class="headerlink" title="一、启动时间"></a>一、启动时间</h4></blockquote>
 <ul>
-<li><p>如果你的App启动超过20s内，是时候考虑换个工作了(<em>开个玩笑</em>)；启动优化是<strong>基于当下的业务复杂度和代码复杂度的最优处理</strong>。</p>
+<li><p>如果你的App启动超过20s，是时候考虑换个工作了(<em>开个玩笑</em>)；启动优化是<strong>基于当下的业务复杂度和代码复杂度的近似最优处理</strong>。</p>
 </li>
 <li><p><strong>App总启动时间</strong> = t1(main函数之前的加载时间) + t2(main函数之后的加载时间)</p>
 </li>
@@ -318,7 +316,7 @@
 <blockquote>
 <h4 id="二、main函数之前的优化"><a href="#二、main函数之前的优化" class="headerlink" title="二、main函数之前的优化"></a>二、main函数之前的优化</h4></blockquote>
 <h5 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h5><ul>
-<li><p><strong>加载过程</strong>：先加载<strong>可执行文件</strong>；然后<strong>加载dyld</strong>(dynamic link editor)动态链接器；然后dyld从可执行文件的依赖开始，递归加载所有依赖的动态链接库。</p>
+<li><p><strong>加载过程</strong>：先加载<strong>可执行文件</strong>；然后<strong>加载dyld</strong>(dynamic link editor)动态链接器；最后dyld从可执行文件的依赖开始，递归加载所有依赖的动态链接库。</p>
 </li>
 <li><p><strong>动态链接库</strong>包括：系统的framework、加载OC Runtime的libobjc、系统级别的libSystem、如libdispatch(GCD)和libsystem_blocks(Block)。</p>
 </li>
@@ -359,7 +357,7 @@
 </li>
 <li><p><strong>main函数之后优化空间比较大，主要在业务上</strong>；所以要先需要熟悉业务，优化之前和各方沟通好，如XX提供的SDK能否延迟初始化，XXX效果设计团队能否接受；XXXX处理会不会给其他团队人员的工作带来困扰….</p>
 </li>
-<li><p>网络上有很多团队分享了启动优化经验，大都是基于自身业务特点的优化总结；想系统了解，还是推荐看看<a href="https://techblog.toutiao.com/2017/01/17/iosspeed/" target="_blank" rel="noopener">今日头条iOS客户端启动速度优化</a>(<em>我的优化知识也是来源于此</em>)</p>
+<li><p>网络上有很多团队分享了启动优化经验，大都是基于自身业务特点的优化总结；想系统了解，还是推荐看看<a href="https://techblog.toutiao.com/2017/01/17/iosspeed/" target="_blank" rel="noopener">今日头条iOS客户端启动速度优化</a></p>
 </li>
 </ul>
 
@@ -395,6 +393,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/30/memory/" rel="prev" title="浅谈OC的内存问题">
+                浅谈OC的内存问题 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -475,7 +477,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-count">12</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
