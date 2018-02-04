@@ -88,7 +88,7 @@
 <meta property="og:site_name" content="南华coder的空间">
 <meta property="og:description" content="目前iOS优化主要包括三方面：卡顿优化、启动优化和瘦身优化，本文简单说下启动优化  一、启动时间  如果你的App启动超过20s，是时候考虑换个工作了(开个玩笑)；启动优化是基于当下的业务复杂度和代码复杂度的近似最优处理。  App总启动时间 = t1(main函数之前的加载时间) + t2(main函数之后的加载时间)  t1 = 系统dylib(动态链接库)和自身App可执行文件的加载时间">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-01-29T15:10:04.387Z">
+<meta property="og:updated_time" content="2018-02-04T15:11:49.462Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="浅谈启动优化">
 <meta name="twitter:description" content="目前iOS优化主要包括三方面：卡顿优化、启动优化和瘦身优化，本文简单说下启动优化  一、启动时间  如果你的App启动超过20s，是时候考虑换个工作了(开个玩笑)；启动优化是基于当下的业务复杂度和代码复杂度的近似最优处理。  App总启动时间 = t1(main函数之前的加载时间) + t2(main函数之后的加载时间)  t1 = 系统dylib(动态链接库)和自身App可执行文件的加载时间">
@@ -337,8 +337,13 @@
 <li><p>尽量不要用C++虚函数(创建虚函数表有开销)；</p>
 </li>
 </ul>
-<blockquote>
+<h5 id="3、耗时衡量"><a href="#3、耗时衡量" class="headerlink" title="3、耗时衡量"></a>3、耗时衡量</h5><ul>
+<li>Xcode 中 Edit scheme -&gt; Run -&gt; Auguments 将环境变量 DYLD_PRINT_STATISTICS 设为 1</li>
+<li></li>
+<li>Xcode 中 Edit scheme -&gt; Run -&gt; Auguments 将环境变量 DYLD_PRINT_STATISTICS_DETAILS 设为 1，可以看到更多数据<blockquote>
 <h4 id="三、main函数之后的优化"><a href="#三、main函数之后的优化" class="headerlink" title="三、main函数之后的优化"></a>三、main函数之后的优化</h4></blockquote>
+</li>
+</ul>
 <h5 id="1、概述-1"><a href="#1、概述-1" class="headerlink" title="1、概述"></a>1、概述</h5><ul>
 <li>这部分主要是服务初始化、闪屏（广告或引导）和首页UI渲染等工作；</li>
 </ul>
@@ -521,7 +526,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、启动时间"><span class="nav-number">1.</span> <span class="nav-text">一、启动时间</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、main函数之前的优化"><span class="nav-number">2.</span> <span class="nav-text">二、main函数之前的优化</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、概述"><span class="nav-number">2.1.</span> <span class="nav-text">1、概述</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、优化思路"><span class="nav-number">2.2.</span> <span class="nav-text">2、优化思路</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、main函数之后的优化"><span class="nav-number">3.</span> <span class="nav-text">三、main函数之后的优化</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、概述-1"><span class="nav-number">3.1.</span> <span class="nav-text">1、概述</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、优化思路-1"><span class="nav-number">3.2.</span> <span class="nav-text">2、优化思路</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、启动时间"><span class="nav-number">1.</span> <span class="nav-text">一、启动时间</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、main函数之前的优化"><span class="nav-number">2.</span> <span class="nav-text">二、main函数之前的优化</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、概述"><span class="nav-number">2.1.</span> <span class="nav-text">1、概述</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、优化思路"><span class="nav-number">2.2.</span> <span class="nav-text">2、优化思路</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、耗时衡量"><span class="nav-number">2.3.</span> <span class="nav-text">3、耗时衡量</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、main函数之后的优化"><span class="nav-number">3.</span> <span class="nav-text">三、main函数之后的优化</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、概述-1"><span class="nav-number">3.1.</span> <span class="nav-text">1、概述</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、优化思路-1"><span class="nav-number">3.2.</span> <span class="nav-text">2、优化思路</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>
