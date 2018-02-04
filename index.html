@@ -234,6 +234,351 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/02/04/runloop/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/02/04/runloop/" itemprop="url">浅谈RunLoop</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-04T23:07:27+08:00">
+                2018-02-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4></blockquote>
+<ul>
+<li><p><strong>RunLoop</strong>：运行循环，和线程有关；当没有事件/消息时，RunLoop让线程休眠；当有事件/消息发生时，RunLoop唤醒线程去处理。</p>
+</li>
+<li><p><strong>每个线程都有一个对应的 Runloop 对象</strong>；主线程的RunLoop会在App运行时自动运行，<strong>子线程中需要手动获取并运行，第一次获取时，才会去创建</strong>。</p>
+</li>
+<li><p>一个RunLoop包含若干个Mode,每个<strong>Mode</strong>包含若干个<strong>Source/Timer/Observer</strong>。每次启动RunLoop时，只能指定一个Mode，如果需要切换Mode，需要退出Loop，再重新指定一个Mode进入。</p>
+</li>
+<li><p>RunLoop处理两大类事件源：<strong>Timer Source</strong>和<strong>Input Source</strong>；每个事件源都会绑定在RunLoop的某个特定Mode上，而且只有RunLoop在这个Mode运行的时候才会触发该Timer和Input Source。</p>
+</li>
+<li><p>如果没有任何事件源添加到RunLoop上，RunLoop就会立刻退出。(<em>线程结束,RunLoop也会退出</em>)。</p>
+</li>
+<li><p>操作RunLoop，Foundation层对应的是<strong>NSRunLoop</strong>，Core Foundation层对应的是<strong>CFRunLoopRef</strong>；</p>
+</li>
+</ul>
+<blockquote>
+<h4 id="二、Runloop-Mode"><a href="#二、Runloop-Mode" class="headerlink" title="二、Runloop Mode"></a>二、Runloop Mode</h4></blockquote>
+<ul>
+<li><p>一个RunLoop包含若干个Mode,每个<strong>Mode</strong>包含若干个<strong>Source/Timer/Observer</strong>。每次启动RunLoop时，只能指定一个Mode，如果需要切换Mode，需要退出Loop，再重新指定一个Mode进入。</p>
+</li>
+<li><p>Foundation暴露出来的Mode有： <strong>NSDefaultRunLoopMode</strong> 和 <strong>NSRunLoopCommonModes</strong>；NSDefaultRunLoopMode是默认的Mode；NSRunLoopCommonModes 是Mode集合，包括NSDefaultRunLoopMode、NSTaskDeathCheckMode、UITrackingRunLoopMode; 只要RunLoop运行在NSRunLoopCommonModes中任何一个模式，这个事件源都可以被触发。</p>
+</li>
+</ul>
+<pre><code>NSDefaultRunLoopMode             //默认的运行方式
+NSTaskDeathCheckMode             //task任务
+UITrackingRunLoopMode            //UI跟踪（如UITableView上下滑动）
+NSRunLoopCommonModes             //Mode集合
+
+ //其他, 很少用
+NSModalPanelRunLoopMode       //在Model Panel情况下去区分事件(OS X开发中会遇到)
+NSConnectionReplyMode             //可以监听NSConnection对象的状态，比较少用
+</code></pre><p>  <strong>说明</strong>：RunLoop不能在运行在NSRunLoopCommonModes模式，因为NSRunLoopCommonModes只是个模式集合，而不是一个具体的模式。</p>
+<blockquote>
+<h4 id="三、Runloop事件源"><a href="#三、Runloop事件源" class="headerlink" title="三、Runloop事件源"></a>三、Runloop事件源</h4></blockquote>
+<ul>
+<li><p>事件源主要由两种： <strong>Timer Source</strong>和<strong>Input Source</strong>，其中<strong>Timer Source</strong> 指的是定时器事件， Input Source细分三类如下： </p>
+<pre><code>Port-Based Sources，系统底层的Port 事件，例如 CFSocketRef ，在应用层基本用不到
+Custom Input Sources，用户手动创建的 Source
+Cocoa Perform Selector Sources， Cocoa 提供的 performSelector 系列方法
+</code></pre></li>
+<li><p>如果没有任何事件源添加到RunLoop上，RunLoop就会立刻退出；</p>
+</li>
+</ul>
+<blockquote>
+<h4 id="四、Runloop-Observer"><a href="#四、Runloop-Observer" class="headerlink" title="四、Runloop Observer"></a>四、Runloop Observer</h4></blockquote>
+<h5 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h5><ul>
+<li><p>Runloop 通过监控 Source 来决定有没有任务要做，除此之外，我们还可以用 Runloop Observer 来监控 Runloop 本身的状态。RunLoop的状态有</p>
+<pre><code>typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) {
+  kCFRunLoopEntry         = (1UL &lt;&lt; 0), // 即将进入Loop
+  kCFRunLoopBeforeTimers  = (1UL &lt;&lt; 1), // 即将处理 Timer
+  kCFRunLoopBeforeSources = (1UL &lt;&lt; 2), // 即将处理 Source
+  kCFRunLoopBeforeWaiting = (1UL &lt;&lt; 5), // 即将进入休眠
+  kCFRunLoopAfterWaiting  = (1UL &lt;&lt; 6), // 刚从休眠中唤醒
+  kCFRunLoopExit          = (1UL &lt;&lt; 7), // 即将退出Loop
+    };
+</code></pre></li>
+</ul>
+<h5 id="2、应用"><a href="#2、应用" class="headerlink" title="2、应用"></a>2、应用</h5><p><strong>1）AutoreleasePool</strong></p>
+<ul>
+<li><p>App启动后，苹果在主线程 RunLoop 里注册了两个 Observer，一个监听<strong>kCFRunLoopEntry</strong>（<em>即将进入Loop</em>），回调内会<strong>创建自动释放池</strong>(<em>_objc_autoreleasePoolPush()</em>)；优先级最高，保证创建释放池发生在其他所有回调之前；</p>
+</li>
+<li><p>另一个监听 <strong>kCFRunLoopBeforeWaiting</strong>(<em>准备进入休眠</em>) 时调用_objc_autoreleasePoolPop() 和 _objc_autoreleasePoolPush() 释放旧的池并创建新池；<strong>kCFRunLoopExit</strong>(<em>即将退出Loop</em>) 时调用 _objc_autoreleasePoolPop() 来释放自动释放池。优先级最低，保证其释放池子发生在其他所有回调之后。</p>
+</li>
+</ul>
+<p><strong>2）界面更新</strong></p>
+<ul>
+<li><p>当在操作 UI 时，比如改变了 Frame、更新了 UIView/CALayer 的层次时，或者手动调用了 UIView/CALayer 的 setNeedsLayout/setNeedsDisplay方法后，这个 UIView/CALayer 就被标记为待处理，并被提交到一个全局的容器去。</p>
+</li>
+<li><p>苹果注册了一个 Observer 监听 <strong>kCFRunLoopBeforeWaiting</strong>(<em>即将进入休眠</em>) 和 <strong>kCFRunLoopExit</strong>(<em>即将退出Loop</em>)  事件，回调执行函数，函数会遍历所有待处理的 UIView/CAlayer 以执行实际的绘制和调整，并更新 UI 界面。</p>
+</li>
+</ul>
+<blockquote>
+<h4 id="五、RunLoop手动启动和取消"><a href="#五、RunLoop手动启动和取消" class="headerlink" title="五、RunLoop手动启动和取消"></a>五、RunLoop手动启动和取消</h4></blockquote>
+<h5 id="1、手动启动"><a href="#1、手动启动" class="headerlink" title="1、手动启动"></a>1、手动启动</h5><p>主线程默认已经启动，一般在子线程中手动启动RunLoop；NSRunloop提供的三种启动方式，如下：</p>
+<pre><code>//1、无条件运行(强烈不推荐)
+- (void)run; 
+</code></pre><p><strong>说明1</strong>：如果Runloop上有事件源，RunLoop会一直运行在NSDefaultRunLoopMode模式；除非移除事件源，线程才能停止；</p>
+<pre><code>//2、启动 + 超时限制
+- (void)runUntilDate:(NSDate *)limitDate;  
+
+//Demo, RunLoop会每1秒退出一次，然后又启动RunLoop，连续10次后退出RunLoop
+NSInteger loopCount = 0;
+while (loopCount++ &lt; 10){
+      [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+      NSLog(@&quot;%@ exiting runloop.........:&quot;,@(loopCount));
+}
+</code></pre><p><strong>说明2</strong>：可以控制每次RunLoop的运行时间，但是默认是NSDefaultRunLoopMode模式；超过时间限制后可以再次运行RunLoop；</p>
+<pre><code>//3、有一个超时时间限制，而且设置运行模式 （推荐使用）
+- (BOOL)runMode:(NSString *)mode beforeDate:(NSDate *)limitDate;
+
+//Demo : 使用CFRunLoopStop暂停RunLoop
+dispatch_async(dispatch_get_global_queue(0, 0), ^{
+    NSLog(@&quot;线程开始&quot;);
+    _thread = [NSThread currentThread];
+    NSRunLoop *runloop = [NSRunLoop currentRunLoop];
+    [runloop addPort:[NSMachPort port] forMode:NSDefaultRunLoopMode];
+    //
+    [runloop runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:10]];
+    NSLog(@&quot;线程结束&quot;);
+});
+
+//延迟执行
+dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    [self performSelector:@selector(stopRunLoop) onThread:_thread withObject:nil waitUntilDone:NO];
+});
+
+- (void)stopRunLoop{
+    CFRunLoopStop(CFRunLoopGetCurrent());
+    NSLog(@&quot;暂停runloop&quot;);
+}
+</code></pre><p><strong>说明3</strong>：可以设置超时限制和运行模式，比较灵活，还可以被CFRunLoopStop(runloopRef)所停止（<em>Demo显示</em>）。</p>
+<p><strong>说明4</strong>：NSRunloop是基于CFRunloop来封装的，NSRunloop是线程不安全的，而CFRunloop则是线程安全的；CFRunloop还提供了2中启动方式(<em>CFRunLoopRun、CFRunLoopRunInMode</em>)</p>
+<p><strong>说明5</strong>：因为NSRunLoopCommonModes是个模式集合，不是一个具体的模式，RunLoop不能在运行在NSRunLoopCommonModes模式；但是可以在添加事件源的时候使用NSRunLoopCommonModes，只要RunLoop运行在NSRunLoopCommonModes中任何一个模式，这个事件源都可以被触发。</p>
+<h5 id="2、取消"><a href="#2、取消" class="headerlink" title="2、取消"></a>2、取消</h5><p><em>了解了启动方式后，取消就很清晰了</em>，主要有三种：</p>
+<ul>
+<li><p>移除掉RunLoop中的所有事件源（timer和source）</p>
+</li>
+<li><p>达到超时（limitDate）条件</p>
+</li>
+<li><p>使用CFRunLoopStop(CFRunLoopRef rl )停止（CFRunloop运行起来或通过NSRunloop的runMode:beforeDate:方法）。</p>
+</li>
+</ul>
+<blockquote>
+<h4 id="六、使用场景"><a href="#六、使用场景" class="headerlink" title="六、使用场景"></a>六、使用场景</h4></blockquote>
+<h4 id="1、NSTimer-CADisplayLink"><a href="#1、NSTimer-CADisplayLink" class="headerlink" title="1、NSTimer/CADisplayLink"></a>1、NSTimer/CADisplayLink</h4><pre><code>NSTimer *timer = [NSTimer timerWithTimeInterval:2.0 target:self selector:@selector(run) userInfo:nil repeats:YES];
+
+//1、timer运行在NSDefaultRunLoopMode下，一旦RunLoop进入其他模式，timer不会工作
+[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
+
+//2、timer运行在NSRunLoopCommonModes集合中任何模式下，timer会工作
+[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+
+//3、scheduledTimer返回的定时器，会自动被添加到当前runLoop中，默认是NSDefaultRunLoopMode
+NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(run) userInfo:nil repeats:YES];
+
+//4、创建并启动GCD定时器
+_timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_global_queue(0, 0));
+dispatch_source_set_timer(_timer, dispatch_walltime(NULL, 0), 1.0 * NSEC_PER_SEC, 0); //每秒执行
+// 事件回调
+dispatch_source_set_event_handler(_timer, ^{
+    NSLog(@&quot;gcd timer......&quot;);
+});
+dispatch_resume(_timer);
+</code></pre><p><strong>说明1</strong>：一般把NSTimer/CADisplayLink的RunLoop Mode选择NSRunLoopCommonModes集合，防止因列表滑动等导致NSTimer/CADisplayLink不工作；</p>
+<p><strong>说明2</strong>：Timer注册到RunLoop后，如果所属线程中有耗时操作，Timer回调的时间点并不十分准确；CADisplayLink是屏幕的刷新率一样的定时器。如果在两次屏幕刷新之间执行一个耗时的任务，就可能丢帧，造成界面卡顿。</p>
+<p><strong>说明3</strong>：如果希望比较准的定时器的效果。可以使用GCD的定时器。</p>
+<h4 id="2、-常驻线程"><a href="#2、-常驻线程" class="headerlink" title="2、 常驻线程"></a>2、 常驻线程</h4><pre><code>+ (NSThread *)networkRequestThread {
+  static NSThread *_networkRequestThread = nil;
+  static dispatch_once_t oncePredicate;
+  dispatch_once(&amp;oncePredicate, ^{
+      _networkRequestThread = [[NSThread alloc] initWithTarget:self selector:@selector(networkRequestThreadEntryPoint:) object:nil];
+      [_networkRequestThread start];
+  });
+  return _networkRequestThread;
+}
+
++ (void)networkRequestThreadEntryPoint:(id)__unused object {
+  @autoreleasepool {
+      [[NSThread currentThread] setName:@&quot;AFNetworking&quot;];
+
+      NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
+      //添加端口，防止runloop直接退出
+      [runLoop addPort:[NSMachPort port] forMode:NSDefaultRunLoopMode];
+      [runLoop run];
+  }
+}
+</code></pre><p><strong>说明</strong>：AF2.x维护一个常驻线程，用来发起网络请求，并且接受网络请求回调处理；NSURLSession有类似实现；在AF3.x后无常驻线程这部分代码了</p>
+<h4 id="3、子线程执行PerformSelector-或-Timer"><a href="#3、子线程执行PerformSelector-或-Timer" class="headerlink" title="3、子线程执行PerformSelector 或  Timer"></a>3、子线程执行PerformSelector 或  Timer</h4><pre><code>//1、子线程执行performSelector
+dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        NSLog(@&quot;befor&quot;);
+        [self performSelector:@selector(printLog) withObject:nil afterDelay:0];
+         //创建并启动Runloop，performSelector才有效
+         [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+        NSLog(@&quot;after&quot;);
+    });
+
+- (void)p_logAction {
+    NSLog(@&quot;p_logAction&quot;);
+}
+
+//2、子线程执行timer
+ dispatch_async(dispatch_get_global_queue(0, 0), ^{
+
+    [NSTimer scheduledTimerWithTimeInterval:0.1 repeats:YES block:^(NSTimer * _Nonnull timer) {
+        NSLog(@&quot;timer in thread ...&quot;);
+    }];
+    //创建并启动Runloop，timer才有效
+    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+});
+</code></pre><p><strong>说明1</strong>：<strong>performSelector</strong>原理是：设置一个timer，添加到当前线程Runloop，默认是NSDefaultRunLoopMode；通过NSTimer的 scheduledTimerWithTimeIntervaly创建的定时器，也是自动被添加到当前RunLoop中，默认是NSDefaultRunLoopMode；</p>
+<p><strong>说明2</strong>：<strong>在子线程中</strong>，因为默认没有RunLoop，所以他们<strong>不执行</strong>；想要执行，<strong>需要创建并启动Runloop</strong>。</p>
+<h4 id="4、卡顿检测"><a href="#4、卡顿检测" class="headerlink" title="4、卡顿检测"></a>4、卡顿检测</h4><p><strong>监听主线程(UI线程)之间的耗时，如果发现</strong>kCFRunLoopEntry<strong>(即将进入)和</strong>kCFRunLoopExit<strong>(即将退出)之间耗时过大(大于16.67ms),认为卡顿发生；</strong></p>
+<pre><code>- (void)setupRunloopObserver{
+
+    static dispatch_once_t onceToken;
+    dispatch_once(&amp;onceToken, ^{
+        CFRunLoopRef runloop = CFRunLoopGetCurrent();
+        CFRunLoopObserverRef enterObserver;
+        enterObserver = CFRunLoopObserverCreate(CFAllocatorGetDefault(),
+                                               kCFRunLoopEntry | kCFRunLoopExit,
+                                               true,
+                                               0
+                                               QSRunloopObserverCallBack, NULL);
+        CFRunLoopAddObserver(runloop, enterObserver, kCFRunLoopCommonModes);
+        CFRelease(enterObserver);
+    });
+}
+
+static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopActivity activity, void *info) {
+    switch (activity) {
+        case kCFRunLoopEntry: {
+            NSLog(@&quot;enter runloop...&quot;);
+        }
+            break;
+        case kCFRunLoopExit: {
+            NSLog(@&quot;leave runloop...&quot;);
+        }
+            break;
+        default: break;
+    }
+}
+</code></pre><p><strong>说明</strong>：如果发现卡顿，可以利用PLCrashReporter搜集各个线程的调用堆栈信息，上报到服务器,参考自<a href="http://mrpeak.cn/blog/ui-detect/" target="_blank" rel="noopener">iOS应用UI线程卡顿监控</a></p>
+<blockquote>
+<h4 id="End"><a href="#End" class="headerlink" title="End"></a>End</h4></blockquote>
+<p>想了解更多可参考<a href="http://blog.ibireme.com/2015/05/18/runloop/" target="_blank" rel="noopener">深入理解RunLoop</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/30/memory/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2238,323 +2583,6 @@ if __name__ == &apos;__main__&apos;:
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/03/AESIntro/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="南华coder">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="南华coder的空间">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/01/03/AESIntro/" itemprop="url">浅谈AES</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-03T23:23:50+08:00">
-                2018-01-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4></blockquote>
-<ul>
-<li><p><strong>对称加密</strong>比<strong>非对称加密</strong>要快。频繁的数据加密，优先考虑使用<strong>对称加密</strong>。</p>
-</li>
-<li><p>DES -&gt; 3DES -&gt; <strong>AES</strong>（Advanced Encryption Standard，高级加密标准）；目前对称加密使用<strong>AES</strong>为佳，它已经取代DES和3DES对称算法了。</p>
-</li>
-<li><p>AES是项目中使用较多的对称加密算法，本文简单介绍下AES。</p>
-</li>
-</ul>
-<blockquote>
-<h4 id="二、AES算法的重要组成"><a href="#二、AES算法的重要组成" class="headerlink" title="二、AES算法的重要组成"></a>二、AES算法的重要组成</h4></blockquote>
-<h5 id="1、密钥长度（Key-Size）"><a href="#1、密钥长度（Key-Size）" class="headerlink" title="1、密钥长度（Key Size）"></a>1、密钥长度（Key Size）</h5><p>  AES算法规定密钥长度有三种：128bits、192bits和256 bits。其中<strong>128 bits的key可以满足大部分业务需求</strong>。</p>
-<h5 id="2、加密模式（Cipher-Mode）"><a href="#2、加密模式（Cipher-Mode）" class="headerlink" title="2、加密模式（Cipher Mode）"></a>2、加密模式（Cipher Mode）</h5><p>   AES属于块加密（Block Cipher），加密数据块（Block）必须为<strong>128bits（16字节）</strong>；加密模式主要有以下<strong>六种</strong>模式：</p>
-<p><strong>1) ECB (Electronic Codebook Book，电子密码本模式)</strong></p>
-<ul>
-<li><p><strong>简介</strong>：将数据分成若干块，分别对每块进行加密，最后将这些密文块组成最后的加密结果</p>
-</li>
-<li><p><strong>说明</strong>：最简单的模式，安全性较低。因为ECB的明文分组与密文分组是一一对应的关系，如果明文中存在多个相同的明文分组，其对应的密文分组也是相同的；<strong>不推荐使用</strong>。</p>
-</li>
-</ul>
-<p><strong>2) CBC（Cipher Block Chaining，密码分组链接模式)</strong></p>
-<ul>
-<li><p><strong>简介</strong>：将数据分块后，每一块数据与上一块密文XOR（异或）后，再进行加密；</p>
-</li>
-<li><p><strong>说明</strong>：比较推荐使用的模式（但Apple已经不推荐使用CBC模式，建议使用<strong>GCM</strong>模式）。</p>
-</li>
-</ul>
-<p><strong>3) CTR(Counter，计数器模式)</strong></p>
-<ul>
-<li><p><strong>简介</strong>：通过将<strong>逐次累加的计数器</strong>进行加密来生成密钥流的流密码；最终的密文分组是通过将计数器加密得到的比特序列，与明文分组进行XOR得到的。</p>
-</li>
-<li><p><strong>说明</strong>：比较推荐使用的模式</p>
-</li>
-</ul>
-<p><strong>4) CFB(Cipher FeedBack,密码反馈模式)</strong></p>
-<ul>
-<li><p><strong>简介</strong>：和CBC类似，加密模式和CBC类似，但其可以将块密码变为自同步的流密码。</p>
-</li>
-<li><p><strong>说明</strong>：不推荐使用的模式</p>
-</li>
-</ul>
-<p><strong>5) OFB(Output FeedBack, 输出反馈模式)</strong></p>
-<ul>
-<li><p><strong>简介</strong>：将块密码变成同步的流密码，它产生密钥流的块，然后将其与明文块进行异或，得到密文。</p>
-</li>
-<li><p><strong>说明</strong>：不推荐使用的模式</p>
-</li>
-</ul>
-<p><strong>6) GCM(Galois/Counter Mode,)</strong></p>
-<ul>
-<li><p><strong>简介</strong>：GCM中的G就是指GMAC(消息验证码)，C就是指CTR(计数器模式)</p>
-</li>
-<li><p><strong>说明</strong>：GCM可以提供对消息的加密和完整性校验，AES模式最好选择。</p>
-</li>
-</ul>
-<p><strong>总结</strong>: 推荐先后顺序：<strong>GCM &gt; CTR &gt; CBC</strong>；详细内容可以参考<a href="https://xiaoxueying.gitbooks.io/graphic-cryptology/content/block_cipher_mode.html" target="_blank" rel="noopener">Block cipher mode</a>、<a href="http://blog.csdn.net/T0mato_/article/details/53160772" target="_blank" rel="noopener">AES-GCM加密算法</a></p>
-<h5 id="3、填充方式（Padding）"><a href="#3、填充方式（Padding）" class="headerlink" title="3、填充方式（Padding）"></a>3、填充方式（Padding）</h5><p>  1）<strong>块加密</strong>要求对<strong>特定长度的数据块</strong>进行加密，因此<strong>CBC模式</strong>、<strong>ECB模式</strong>需要在最后一数据块加密前进行数据填充。（CFB，OFB和CTR模式由于与key进行加密操作的是上一块加密后的密文，因此不需要对最后一段明文进行填充）。</p>
-<p>  2）iOS SDK中提供了<strong>PKCS7Padding</strong>，Java提供了<strong>PKCS5Padding</strong>。原则上PKCS5Padding限制了填充的Block Size为8 字节（大于8 字节，填充和PKCS7Padding相同），而PKCS7Padding的Block Size可以为1到255字节; 填充值的算法（需要填充x个字节，填充的值就是x）都是一样的：</p>
-<pre><code>value = k - (l mod k)  ,K = 块大小，l = 数据长度；假设k是16，I是5,那么value是11，也就是说，需要填充11个byte的 0x0B(十进制是11)
-</code></pre><p>  3）因为<strong>AES加密数据块</strong>Block Size规定为16字节(<em>128bits</em>), 大于8 字节(64 bits), 所以<strong>PKCS5Padding和PKCS7Padding填充效果</strong>是一样的。</p>
-<p>  <strong>说明</strong>：数据块的长度如果是16倍数，padding长度为16，padding值为0x10。即在输入后面补齐16字节的0x10；如果数据块的长度不是16倍数，padding长度为16-L%16，padding值为16-L%16。即在输入后面补齐16-L%16的字节，值为16-L%16。</p>
-<p>  4）平时使用最多的是PKCS7Padding，NoPadding、ISO10126Padding和ZeroPadding忽略不提。</p>
-<h5 id="4、初始向量（Initialization-Vector）"><a href="#4、初始向量（Initialization-Vector）" class="headerlink" title="4、初始向量（Initialization Vector）"></a>4、初始向量（Initialization Vector）</h5><p>  CBC、CFB和OFB这些加密模式需要传入一个初始向量，其大小与Block Size相等；当不传入初始向量时，系统将默认使用一个全0的初始向量。</p>
-<blockquote>
-<h4 id="三、AES算法Python实现"><a href="#三、AES算法Python实现" class="headerlink" title="三、AES算法Python实现"></a>三、AES算法Python实现</h4></blockquote>
-<p><strong>说明</strong>：使用Python的加密包<a href="https://pypi.python.org/pypi/pycrypto" target="_blank" rel="noopener">pycrypto</a> (下载后，执行<em>python setup.py build + python setup.py install</em>)，实现AES的ECB、CBC、CTR、CFB和OFB模式下的加密和解密；定义一个PaddingHelper类，实现PKCS7Padding；</p>
-<pre><code>#!/usr/bin/python 
-# -*- coding:utf-8 -*-
-
-import sys
-import os
-import base64
-from Crypto.Cipher import AES
-from Crypto.Util import Counter
-
-# ***** Padding Helper For AES *****
-
-class  PaddingHelper(object):
-    &quot;&quot;&quot;docstring for  Padding Helper&quot;&quot;&quot;
-    def __init__(self, arg):
-        super(PaddingHelper, self).__init__()
-        self.arg = arg
-
-    # 保证keyStr的长度是16
-    @classmethod
-    def validKeyStr(self,keyStr):    
-        keySize = 16
-        if len(keyStr) &lt; keySize:
-            zeroCount = keySize - len(keyStr) % keySize  
-            for i in range(0, zeroCount):  
-                keyStr = keyStr + &apos;\0&apos; 
-        else:
-            return keyStr[0:keySize]
-        return keyStr  
-
-
-    # 实现PKCS7Padding/PKCS7Padding
-    @classmethod
-    def PKCS7Padding(self,text,blockSize=16):    
-        count = len(text)    
-        mod_num = count % blockSize
-        add_num = blockSize - mod_num
-        return text + chr(add_num) * add_num    
-
-    @classmethod
-    def MovePKCS7Pading(self,text,blockSize=16):
-        lastChar = text[-1]    
-        paddingLen = ord(lastChar)
-        # 截取最后一部分填充快
-        lastChunk = text[-paddingLen:]
-
-        if lastChunk == chr(paddingLen) * paddingLen:
-            # 移除填充部分
-           return text[:-paddingLen]
-        return text     
-
-# AES PSK7/PSK5填充
-class AESUtil():
-    def __init__(self, key, model):
-
-        self.key = PaddingHelper.validKeyStr(key)
-        self.mode = model
-        self.iv = key   #初始向量初始化k，可以是别的值，但必须16字节
-
-    #加密函数，如果text不是16的倍数,那就补足为16的倍数
-    def encrypt(self, text):
-
-        if self.mode == AES.MODE_CTR:
-             # Create new AES CTR object #
-            cryptor = AES.new(self.key, self.mode, counter=Counter.new(128))
-        else:
-            cryptor = AES.new(self.key, self.mode, self.iv)
-
-        text = PaddingHelper.PKCS7Padding(text,16)
-        ciphertext = base64.b64encode(cryptor.encrypt(text))
-        return ciphertext
-
-    #解密后，去掉补足的空格用strip() 去掉
-    def decrypt(self, text):   
-        if self.mode == AES.MODE_CTR:
-             # Create new AES CTR object #
-            cryptor = AES.new(self.key, self.mode, counter=Counter.new(128))
-        else:    
-            cryptor = AES.new(self.key, self.mode, self.iv)
-
-        plainText = cryptor.decrypt(base64.b64decode(text))
-        return PaddingHelper.MovePKCS7Pading(plainText)
-
-if __name__ == &apos;__main__&apos;:
-
-    encrykey = &quot;0123456789abcdef&quot;
-    # plainText = &apos;1234567891234567&apos;
-    plainText = &apos;hello world&apos;
-
-    dict = {&quot;CBC模式&quot;: AES.MODE_CBC, 
-            &quot;CFB模式&quot;: AES.MODE_CFB, 
-            &quot;CTR模式&quot;: AES.MODE_CTR,
-            &quot;ECB模式&quot;: AES.MODE_ECB,
-            &quot;OFB模式&quot;: AES.MODE_OFB};
-
-    for key, value in dict.iteritems():
-        aes = AESUtil(encrykey,value)
-        encryptText = aes.encrypt(plainText)
-        print &quot;**********%s 加解密*******&quot; %(key)
-        print &quot;密文:&quot;,encryptText
-        print &quot;明文:&quot;,aes.decrypt(encryptText)
-</code></pre><p><strong>执行脚本的输出结果如下</strong></p>
-<pre><code>**********ECB模式 加解密*******
-密文: gWm+1O9JqIdFWcWyANqt5w==
-明文: hello world
-**********CFB模式 加解密*******
-密文: GsZEtzHsqRLRjxfUU6T0Zg==
-明文: hello world
-**********CBC模式 加解密*******
-密文: wem0Upqsl5MBD0Z39jWO/g==
-明文: hello world
-**********OFB模式 加解密*******
-密文: GhcS5HH8im5yy3xtfAywYA==
-明文: hello world
-**********CTR模式 加解密*******
-密文: adUgVHVGk4Y3/LZatTZf6Q==
-明文: hello world
-</code></pre><blockquote>
-<h4 id="四、AES算法使用说明"><a href="#四、AES算法使用说明" class="headerlink" title="四、AES算法使用说明"></a>四、AES算法使用说明</h4></blockquote>
-<ul>
-<li><p>对AES加密的结果，要使用<strong>Base64编码</strong>。因为其加密结果得到的字符串可能有不可见字符，保存和传输都有问题；把数据做Base64编码，统统变成可见字符。（Base64编码 将二进制流中每6个bit一组表示数据, 不足的部分补零,每两个0 用 一个 = 表示，把含有不可见字符串的信息用可见字符串表示出来 ）；对应的AES解密时，先要进行Base64解码</p>
-</li>
-<li><p>AES有很明显的优势：<strong>安全</strong>、<strong>加解密快</strong>（AES比RSA的加解密快1000倍）；但是劣势也明显，需重点保护<strong>密钥</strong>的安全；在实践中推荐组合使用<strong>AES</strong>和<em>*RSA</em>技术。</p>
-</li>
-<li><p>实践中<strong>常见的方案</strong>是：1）用AES来加密数据；2）AES的密钥通过<strong>伪随机数生成器</strong>生成；3）AES的密钥通过<strong>RSA公钥加密</strong>；4）最终将AES密钥的密文 和 数据的密文交给后台，后台利用对应的策略解密。</p>
-</li>
-<li><p>AES算法流程可以参考<a href="http://www.cnblogs.com/luop/p/4334160.html" target="_blank" rel="noopener">密码算法详解——AES</a></p>
-</li>
-</ul>
-<blockquote>
-<h4 id="End"><a href="#End" class="headerlink" title="End"></a>End</h4></blockquote>
-<p>我是<a href="https://buaa0300.github.io/" target="_blank" rel="noopener">南华coder</a>，一名北漂的iOS程序猿。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2609,7 +2637,7 @@ if __name__ == &apos;__main__&apos;:
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-count">13</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
