@@ -234,6 +234,322 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/02/06/runtime/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/02/06/runtime/" itemprop="url">浅谈OC的Runtime</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-06T22:53:28+08:00">
+                2018-02-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Objective-C利用Runtime库(底层的 C 语言 API)赋予了语言的动态特性。</p>
+<blockquote>
+<h4 id="一、Runtime基石：Objective-C对象模型"><a href="#一、Runtime基石：Objective-C对象模型" class="headerlink" title="一、Runtime基石：Objective-C对象模型"></a>一、Runtime基石：Objective-C对象模型</h4></blockquote>
+<h5 id="1、对象"><a href="#1、对象" class="headerlink" title="1、对象"></a>1、对象</h5><ul>
+<li><p>每一个对象都是<strong>类的实例</strong>, 类中保存<strong>对象的方法列表</strong>；当一个对象方法被调用时，类会首先查找它本身是否有该方法的实现，如果没有，则会向它的父类查找该方法，直到NSObject(基类)；</p>
+</li>
+<li><p>类是<strong>元类 (metaclass) 的实例</strong>；元类保存<strong>类方法列表</strong>；当一个类方法被调用时，元类会首先查找它本身是否有该类方法的实现，如果没有，则会向它的父类查找该方法，直到NSObject(基类)；</p>
+</li>
+</ul>
+<h5 id="2、isa指针"><a href="#2、isa指针" class="headerlink" title="2、isa指针"></a>2、isa指针</h5><ul>
+<li><p>对象的<strong>isa指针</strong>指向所属的类，类的<strong>isa指针</strong>指向所属的元类；所有的元类的 <strong>isa指针</strong>都会指向一个根元类 (root metaclass)。根元类的 <strong>isa指针</strong>指向自己，行成了一个闭环。</p>
+</li>
+<li><p>在64 位 CPU 下，isa 的内部结构有变化。具体查看用<a href="http://ios.jobbole.com/89485/" target="_blank" rel="noopener"> isa 承载对象的类信息</a></p>
+</li>
+</ul>
+<h5 id="3、对象布局"><a href="#3、对象布局" class="headerlink" title="3、对象布局"></a>3、对象布局</h5><ul>
+<li><p>实例变量（包括父类）都保存在对象本身的存储空间内；实例方法保存在<strong>类</strong>中，类方法保存在<strong>元类</strong>中；父类的实例方法保存在各级 super class 中，父类的类方法保存在各级 super meta class;</p>
+<pre><code>//对象组成 --start--
+isa pointer
+rootClass&apos;s vars
+penultimate superClass&apos;s vars
+...
+superClass&apos;s vars
+Class&apos;s vars
+//对象组成 --end--
+
+typedef struct objc_class *Class;
+ //类的结构
+ struct objc_class{
+  struct objc_class* isa;                              //指向元类
+  struct objc_class* super_class;                //指向父类
+  const char* name;
+  long version;
+  long info;
+  long instance_size;
+  struct objc_ivar_list* ivars;                         //实例变量列表
+  struct objc_method_list** methodLists;      //方法列表
+  struct objc_cache* cache;
+  struct objc_protocol_list* protocols;           //协议列表
+};
+
+//实例变量的结构
+struct objc_ivar {
+    char *ivar_name  OBJC2_UNAVAILABLE;
+    char *ivar_type  OBJC2_UNAVAILABLE;
+    int ivar_offset  OBJC2_UNAVAILABLE;
+#ifdef __LP64__
+    int space        OBJC2_UNAVAILABLE;
+#endif
+}
+</code></pre><p>  <strong>说明1</strong>：对象中保存指向类的<code>isa</code>指针 以及 各级的 实例变量(<code>ivar</code>)，对象在运行时动态给对象增加实例变量。</p>
+<p>  <strong>说明2</strong>：类的内存布局有<code>isa</code>指针、<code>super_class</code>指针、实例变量列表、方法列表和协议列表，其中实例变量(var)包含了变量的名称、类型、偏移等。</p>
+</li>
+</ul>
+<blockquote>
+<h4 id="二、Runtime核心：消息发送和转发"><a href="#二、Runtime核心：消息发送和转发" class="headerlink" title="二、Runtime核心：消息发送和转发"></a>二、Runtime核心：消息发送和转发</h4></blockquote>
+<p><strong>Runtime</strong>赋予了OC了诸多动态特性，使其可以在运行时可以做一些事情；主要表现为：<strong>动态类型</strong>（在运行时才检查对象类型）和 <strong>动态绑定</strong>（接到消息后，由运行环境决定执行哪部分代码）</p>
+<h5 id="1、消息发送（Message）"><a href="#1、消息发送（Message）" class="headerlink" title="1、消息发送（Message）"></a>1、消息发送（Message）</h5><ul>
+<li><p>Objective-C 中的方法调用，实质上是在底层用objc_msgSend()实现<strong>消息发送</strong>，其核心在于：<strong>根据SEL(选择器)开始找到IMP</strong>；其中SEL是实例方法的指针，可以看做方法名字符串；IMP是函数指针，指向方法实现的地址。</p>
+<pre><code>//调用方法  
+[obj doSomething];
+//在编译时候转换
+objc_msgSend(obj,@selector(doSomething))
+</code></pre></li>
+<li><p><strong>objc_msgSend</strong>的定义如下：</p>
+<pre><code>// self是接收者，接收该消息的类的实例
+    // _cmd是选择器，要处理的消息的selector
+     // ... 是需传入的参数，参数个数不定
+    objc_msgSend(id self, SEL _cmd, ...) 
+</code></pre></li>
+<li><p><strong>objc_msgSend的发送流程</strong>：先在Class中的缓存查找imp（没缓存则初始化缓存），如果没找到，则向父类的Class查找。如果一直查找到根类仍旧没有实现，就走消息转发(_objc_msgForward)了。</p>
+</li>
+<li><p>给nil发送消息不会有什么作用，但是返回值有些区别，具体如下：</p>
+<pre><code>a) 如果方法返回值是 对象，返回nil
+b) 如果方法返回值是 指针类型，其指针大小为小于或者等于sizeof(void*)，float，double，long double 或者 long long 的整型标量
+c) 如果方法返回值是 结构体，发送给 nil 的消息将返回0。结构体中各个字段的值将都是0。
+d) 如果方法返回值不是 上述提到的几种情况，那么发送给 nil 的消息的返回值将是未定义的。
+</code></pre></li>
+</ul>
+<h5 id="2-1、消息转发（Message-Forwarding）"><a href="#2-1、消息转发（Message-Forwarding）" class="headerlink" title="2-1、消息转发（Message Forwarding）"></a>2-1、消息转发（Message Forwarding）</h5><p>消息转发解决的是：查找IMP(方法实现)失败后的处理；经历<strong>动态方法解析</strong>、 <strong>备用接收者</strong>和 <strong>完整的消息转发</strong>三个过程，其流程如下图：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/201701-35938988b21e8a6c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="消息转发流程.png"></p>
+<ul>
+<li><p><strong>动态方法解析</strong>：接收到未知消息时，Runtime向当前类发送+resolveInstanceMethod:或+resolveClassMethod:消息，在这里可以<strong>添加缺失的方法</strong>，返回YES，重新发送消息，否则继续下一步；</p>
+</li>
+<li><p><strong>备用接收者</strong>：<strong>动态方法解析</strong>中没能处理，Runtime会向forwardingTargetForSelector:发消息，如果该方法返回了一个非nil或非self对象，恰好该对象实现了这个方法，那么该对象就成了消息的接收者，消息就被分发到该对象。</p>
+</li>
+<li><p><strong>完整消息转发</strong>：前两个都没能处理好，Runtime发送methodSignatureForSelector:消息，获取selector对应方法的签名；如果有方法签名返回，则根据方法签名创建描述消息的NSInvocation，向当前对象发送forwardInvocation:消息；如果没有方法签名返回，返回nil，向当前对象发送doesNotRecognizeSelector:消息，应用Crash退出。</p>
+</li>
+</ul>
+<h5 id="2-2、避免消息转发的办法"><a href="#2-2、避免消息转发的办法" class="headerlink" title="2-2、避免消息转发的办法"></a>2-2、避免消息转发的办法</h5><p><strong>在消息转发三个过程中，未知消息的处理过程越往后，代价越大</strong>；一般我们可以这么做 尽可能避免消息转发，可以这么做：</p>
+<ul>
+<li><p><strong>调用delegate 方法前检查方法是否实现</strong>(respondsToSelector:), 只有实现了(respondsToSelector:返回YES) ，才去真正调用delegate 方法。</p>
+<pre><code>if([self.delegate respondsToSelector: @selector(sayHello)]) {
+    [self.delegate sayHello];
+}
+</code></pre></li>
+<li><p><strong>直接调用方法，少用performSelector:</strong>；因为在直接调用方法时，编译自动校验，如果方法不存在，编译器会直接报错；而使用performSelector:的话一定是在运行时候才能发现，如果此方法不存在就会崩溃。</p>
+<pre><code>//直接使用方法调用,少使用performSelector
+[dog sayHello];
+// [dog performSelector:@selector(sayHello) withObject:nil];
+</code></pre></li>
+<li><p><strong>使用performSelector:，最好先判断方法是否实现(respondsToSelector:)</strong>，只有实现了(respondsToSelector:返回YES) ，才去调用performSelector：方法。</p>
+<pre><code>//respondsToSelector:和performSelector:组合使用
+    if ([dog respondsToSelector:@selector(sayHello)])         {
+    [dog performSelector:@selector(sayHello)];
+ }
+</code></pre></li>
+<li><p><strong>强制类型转换，先判断对象是否属于强制转换后的类</strong></p>
+<pre><code>if([data isKindOfClass:[NSDictionary class]]){
+  //
+}
+</code></pre></li>
+</ul>
+<blockquote>
+<h4 id="三、Runtime特性和应用"><a href="#三、Runtime特性和应用" class="headerlink" title="三、Runtime特性和应用"></a>三、Runtime特性和应用</h4></blockquote>
+<p>#####1、分类（Category） #####</p>
+<ul>
+<li><p><strong>原理</strong>：对象的<strong>方法</strong>定义都保存在类的可变区域中，修改methodLists指针指向的指针的值，就可以实现动态地为某一个类增加<strong>成员方法</strong>。(<em>但是对象布局在编译时候就固定了，结构体的大小并不能动态变化，在运行时不能增加实例变量</em>)。</p>
+</li>
+<li><p>通过关联<code>objc_setAssociatedObject</code> 和 <code>objc_getAssociatedObject</code>方法可以变相地给对象增加实例变量，并不会真正改变了对象的内存结构。</p>
+</li>
+<li><p>通过Category新增的方法，会插入到方法列表的前部；如果有和原来方法重名，在运行时，顺序查找时，一旦找到对应名字的方法，就不再查找，导致<strong>原来方法</strong>得不到机会，<em>这是Category新增的方法和原方法重名，原有方法失效的原因</em>。</p>
+</li>
+<li><p><strong>作用</strong>：给现有的类添加方法；将一个类的实现拆分成多个独立的源文件；声明私有的方法。</p>
+</li>
+</ul>
+<h5 id="2、关联对象（Associated-Objects）"><a href="#2、关联对象（Associated-Objects）" class="headerlink" title="2、关联对象（Associated Objects）"></a>2、关联对象（Associated Objects）</h5><ul>
+<li><p><strong>原理</strong>：Category不能给一个已有类添加实例变量，但是可以通过<strong>关联对象</strong>添加属性；但是关联对象不会改变对象的内存布局，新增的属性是添加到和对象地址关联的哈希表中；</p>
+</li>
+<li><p>Associated Objects 相关的三个方法</p>
+<pre><code>objc_setAssociatedObject    //添加关联对象
+objc_getAssociatedObject    //获取关联对象
+objc_removeAssociatedObjects  // 删除所有关联对象
+</code></pre></li>
+<li><p><strong>作用</strong>：为现有的类添加私有变量以帮助实现细节；为现有的类添加公有属性；为 KVO 创建一个关联的观察者</p>
+<p>具体参考：<a href="http://blog.leichunfeng.com/blog/2015/06/26/objective-c-associated-objects-implementation-principle/" target="_blank" rel="noopener">Objective-C Associated Objects 的实现原理</a></p>
+</li>
+</ul>
+<h5 id="3、方法混写-Method-Swizzling"><a href="#3、方法混写-Method-Swizzling" class="headerlink" title="3、方法混写(Method Swizzling)"></a>3、方法混写(Method Swizzling)</h5><ul>
+<li><strong>原理</strong>：在运行时交换方法实现（IMP）</li>
+</ul>
+<ul>
+<li><p><strong>作用</strong>：可以利用它hook原有的方法，插入自己的业务需求，</p>
+<p> 详细参考我写的<a href="https://www.jianshu.com/p/5f2e38a40aa4" target="_blank" rel="noopener">Method Swizzling小记</a></p>
+</li>
+</ul>
+<h5 id="4、键值观察（KVO）"><a href="#4、键值观察（KVO）" class="headerlink" title="4、键值观察（KVO）"></a>4、键值观察（KVO）</h5><p>  观察者模式在Objective-C的应用之一，借助Runtime特性，实现自动键值观察；使用了isa swizzling机制。具体描述如下：</p>
+<ul>
+<li><p>当某个类的对象第一次被观察时，系统就会在运行期动态地创建该类的一个<strong>子类</strong>，在这个子类中<strong>重写</strong>基类中被观察属性的 setter 方法，实现真正的通知机制；</p>
+</li>
+<li><p>派生类还重写了 class 方法以“欺骗”外部调用者，系统将对象的 isa 指针指向这个<strong>新诞生的子类</strong>，实质上这个对象就成为该派生类的对象了，因而在该对象上对 setter 的调用就会调用重写的 setter，从而激活键值通知机制。</p>
+</li>
+<li><p>此外，派生类还重写了 dealloc 方法来释放资源。</p>
+</li>
+</ul>
+<p><strong>说明</strong>：KVC（键值编码）是不通过存取方法，而通过属性名称字符串间接访问属性的机制，没有用到isa swizzling机制。</p>
+<h5 id="5、NSProxy"><a href="#5、NSProxy" class="headerlink" title="5、NSProxy"></a>5、NSProxy</h5><ul>
+<li><p>OC是单继承的，但是可以利用NSProxy实现一下<strong>“伪多继承”</strong>，具体参考<a href="">NSProxy——少见却神奇的类</a></p>
+</li>
+<li><p>项目中，主要是利用NSProxy做<strong>消息转发的代理类</strong>，如弱引用代理类，可以打破循环引用。</p>
+<pre><code>//代码摘自 FLAnimatedImage
+@interface FLWeakProxy : NSProxy
++ (instancetype)weakProxyForObject:(id)targetObject;
+@end
+
+@interface FLWeakProxy ()
+@property (nonatomic, weak) id target;
+@end
+
+@implementation FLWeakProxy
+
+#pragma mark Life Cycle
+//类没有定义默认的init方法.
++ (instancetype)weakProxyForObject:(id)targetObject{
+    FLWeakProxy *weakProxy = [FLWeakProxy alloc];
+    weakProxy.target = targetObject;
+    return weakProxy;
+}
+
+#pragma mark Forwarding Messages
+- (id)forwardingTargetForSelector:(SEL)selector{
+// Keep it lightweight: access the ivar directly
+return _target;
+}
+
+- (void)forwardInvocation:(NSInvocation *)invocation{
+    void *nullPointer = NULL;
+    [invocation setReturnValue:&amp;nullPointer];
+}
+
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)selector{
+    return [NSObject instanceMethodSignatureForSelector:@selector(init)];
+}
+@end
+</code></pre><p><strong>说明</strong>: NSProxy非常适合做消息转发的代理类，能自动转发<nsobject>中定义的接口和NSObject的Category中定义的方法，如果使用NSObject来做，不能自动转发NSObject的Category中定义、respondsToSelector:、isKindOfClass:这两个方法。·</nsobject></p>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/02/04/runloop/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2280,315 +2596,6 @@ varchar,password
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/04/codeConfuse/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="南华coder">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="南华coder的空间">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/01/04/codeConfuse/" itemprop="url">浅谈代码混淆</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-04T23:21:30+08:00">
-                2018-01-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>代码混淆的目的，是为了对抗<strong>反编译</strong>。</p>
-<blockquote>
-<h4 id="一、反编译工具"><a href="#一、反编译工具" class="headerlink" title="一、反编译工具"></a>一、反编译工具</h4></blockquote>
-<p>虽然AppleStore会对App加壳保护，但是在越狱手机上，破壳App并非不可能，失去保护的App，可以利用工具去反编译；常见的反编译工具有： <strong>class-dump</strong> 和 <strong>Hopper Disassembler</strong>；</p>
-<h5 id="1、class-dump简介"><a href="#1、class-dump简介" class="headerlink" title="1、class-dump简介"></a>1、class-dump简介</h5><ul>
-<li><p>下载并安装<a href="https://link.jianshu.com/?t=http://stevenygard.com/projects/class-dump/" target="_blank" rel="noopener">class-dump</a>，将class-dump复制到/usr/local/bin/目录下，使用下面命令可以反编译出头文件</p>
-<pre><code>class-dump -H xxx.app -o /Users/xxxx/Desktop/heads 
-</code></pre></li>
-</ul>
-<h5 id="2、Hopper-Disassembler简介"><a href="#2、Hopper-Disassembler简介" class="headerlink" title="2、Hopper Disassembler简介"></a>2、Hopper Disassembler简介</h5><ul>
-<li><p>下载并安装<a href="http://xclient.info/s/hopper-disassembler.html?_=ccf82bf7d0f9ec485d8d0e11710f4561" target="_blank" rel="noopener">Hopper Disassembler</a></p>
-<pre><code>//破解办法：
-将Hopper Disassembler v4.app移动至应用程序文件夹
-双击HopperV4Patcher，将应用程序中的Hopper Disassembler v4.app拖进HopperV4Patcher完成注册
-</code></pre></li>
-<li><p>解压缩App文件，获得二进制文件，直接拖进Hopper Disassembler，选择点右上角的if(b)f(x)，就可以看到类名、方法、伪代码，字符串等信息。</p>
-</li>
-</ul>
-<p><strong>说明</strong>：开发中，我们可以利用Xcode在debug下编译后产生的（.app）文件, 作为反编译练习的<strong>原材料</strong>。这个文件放在<strong>/Users/user name/Library/Developer/Xcode/DerivedData/ xx Project Name/Build/Products/Debug-iphonesimulator</strong>。</p>
-<blockquote>
-<h4 id="二、代码混淆"><a href="#二、代码混淆" class="headerlink" title="二、代码混淆"></a>二、代码混淆</h4></blockquote>
-<h5 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h5><ul>
-<li><p><strong>代码混淆</strong>： 主要是混淆重要的 <strong>方法名</strong> 、 <strong>类名</strong> 和 <strong>字符串常量</strong>。（大面积的混淆没有太大意义），手段主要是利用宏定义。</p>
-</li>
-<li><p><strong>宏定义</strong>的关键就是<strong>替换</strong>，将A替换成B；A可以是<strong>见名知意</strong>函数名、类名或字符串常量，B可以是<strong>百思不得其解</strong>的名字或 函数 等等。</p>
-</li>
-<li><p>利用宏定义，做到扰乱耳目，迷惑他人的目的。</p>
-<p><strong>说明</strong>：具体宏方便的知识，可以参考<a href="https://onevcat.com/2014/01/black-magic-in-macro/" target="_blank" rel="noopener">宏定义的黑魔法 - 宏菜鸟起飞手册</a></p>
-</li>
-</ul>
-<h5 id="2、具体方案"><a href="#2、具体方案" class="headerlink" title="2、具体方案"></a>2、具体方案</h5><ul>
-<li><p><strong>混淆方法名 和 类名</strong></p>
-<pre><code>单段的selector，如func: ，可以通过#define func 来实现字符串替换。
-多段的selector，如a:b:c: ，可以通过分别#define a 、b、c 来实现字符串替换。
-</code></pre></li>
-<li><p><strong>混淆字符串常量</strong></p>
-<p>  代码中使用的都是密文（密文通过脚本生成）；OC中定义对应的 <strong>密文转成明文</strong> 方法；这样编译出来的只有字符串常量只有密文，反编译者难以根据字符串信息，去推敲逻辑。</p>
-</li>
-</ul>
-<h5 id="3、方案实现"><a href="#3、方案实现" class="headerlink" title="3、方案实现"></a>3、方案实现</h5><ul>
-<li>脚本实现方法名 、 类名 和 字符串常量的混淆，输入是想要混淆的对象，输出是 <strong>#define 要混淆的对象  混淆内容</strong>。混淆内容可以是随机字符串等难以理解的信息。</li>
-</ul>
-<ul>
-<li>考虑到方便自己、恶心别人的目的，我们将混淆结果合并在一个.h中，在工程Prefix.pch的最前面#import这个.h文件。不导入也可以编译、导入则实现混淆。</li>
-</ul>
-<p><strong>脚本实现如下</strong>：</p>
-<pre><code>#!/usr/bin/python 
-# -*- coding: utf-8 -*-
-
-import sys
-import os
-from random import Random
-import time;  
-import base64
-
-#
-# 执行脚本命令：python Confuse.py
-#
-
-# ***** 工具类 *****
-
-class Util(object):
-    def __init__(self, arg):
-        super(Util, self).__init__()
-        self.arg = arg
-
-    # 生成随机串
-    @classmethod
-    def randomString(self,randomlength=16):
-
-        str = &apos;&apos;
-        chars = &apos;AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz&apos;
-        length = len(chars) - 1
-        random = Random()
-        for i in range(randomlength):
-            str += chars[random.randint(0, length)]
-        return str
-
-    @classmethod
-    def loadFileCotent(self,filePath):
-
-        contents = []
-        with open(filePath) as f:
-            line = f.readline()
-            while line:
-                contents.append(line.rstrip(&apos;\n&apos;)) 
-                line = f.readline()
-        return contents
-
-    #加密（可以换成你想要的加密方法）
-    @classmethod
-    def encrypt(self,content):
-        res = &apos; &apos;.join([bin(ord(c)).replace(&apos;0b&apos;, &apos;&apos;) for c in content])
-        return base64.b64encode(res)
-
-    # 解密 (需要OC代码实现一份)
-    @classmethod
-    def decrypt(self,content):
-        return &apos;&apos;.join([chr(i) for i in [int(b, 2) for b in base64.b64decode(content).split(&apos; &apos;)]])
-
-#混淆函数名和方法名
-def confuseFunc(filePath):
-
-    originContents = Util.loadFileCotent(filePath)
-    confuseRes = &apos;&apos;
-    for i in range(0,len(originContents)):
-        outStr = &quot;#define &quot; + originContents[i] + &quot; &quot; + Util.randomString() + &quot;\n&quot;
-        confuseRes = confuseRes + outStr
-
-    #返回混淆结果
-    return confuseRes
-
-#混淆字符串
-def confuseText(filePath):
-
-    originContents = Util.loadFileCotent(filePath)
-    confuseRes = &apos;&apos;
-    for i in range(0,len(originContents)):
-        text = originContents[i]
-        text_encrypted = Util.encrypt(text)
-        # print &quot;decrypt&quot;,Util.decrypt(text_encrypted)
-        outStr = &quot;#define kKBParameter%sKey  QSString(@\&quot;%s\&quot;)\n&quot; %(text.capitalize(),text_encrypted)
-        confuseRes = confuseRes + outStr
-
-    #返回混淆结果
-    return confuseRes
-
-confuse_file_name =  &quot;QSConfuseHeader&quot;
-
-if __name__ == &apos;__main__&apos;:
-
-    fileContent = &apos;&apos;&apos;//
-//  &apos;&apos;&apos; + confuse_file_name + &apos;&apos;&apos;
-//  XXProject
-//
-//  Created on&apos;&apos;&apos; + time.asctime( time.localtime(time.time()) ) + &apos;&apos;&apos;!\n 
-#ifndef &apos;&apos;&apos; + confuse_file_name + &apos;&apos;&apos;_h
-#define &apos;&apos;&apos; + confuse_file_name + &apos;&apos;&apos;_h\n\n&apos;&apos;&apos;
-
-    confuseFuncContent = confuseFunc(&quot;func_class.txt&quot;)
-    if len(confuseFuncContent) &gt; 0:
-        fileContent += &quot;\n//函数混淆\n&quot; + confuseFuncContent
-
-    confuseTextContent = confuseText(&quot;string.txt&quot;)
-    if len(confuseTextContent) &gt; 0:
-        fileContent += &quot;\n//字符串混淆\n&quot; + confuseTextContent
-
-    endFileContent = &quot;\n\n#endif /* &quot; + confuse_file_name + &quot;_h */&quot;
-
-    if len(fileContent) &gt; 0:
-        fileContent+= endFileContent
-        print fileContent
-        # 打开一个文件
-        outputFile = open(confuse_file_name + &quot;.h&quot;, &quot;wb&quot;)
-        outputFile.write(fileContent)
-        # 关闭打开的文件
-        outputFile.close()
-</code></pre><p>   <strong>说明1</strong>：目前需要混淆内容放在txt文件（需要混淆函数名和类名放在func_class.txt，需要混淆字符串常量放在string.txt中）；进一步做法是，给需要混淆的字符串打上标记，然后用脚本搜索这些需要混淆的对象，实现混淆；</p>
-<p>  <strong>说明2</strong>：代码混淆需要考虑代码的可读性，建议做法是，对应混淆后的结果使用<strong>宏定义</strong>替换，类似于</p>
-<pre><code>//QSString(x)是个宏方法，定义是解密实现，在OC中实现
-#define kKBParameterGoodKey  QSString(@&quot;MTEwMDExMSAxMTAxMTExIDExMDExMTEgMTEwMDEwMA==&quot;)
-</code></pre><p>  <strong>说明3</strong>：在脚本中，加密方法并非真正的加密，只是将字符串转成二进制，再Base64编码而已；这个根据自己业务需要增加真正的加密算法，对应的解密算法放在OC中实现。</p>
-<p>  <strong>其他参考</strong><a href="http://blog.csdn.net/yiyaaixuexi/article/details/29201699" target="_blank" rel="noopener">iOS安全攻防（二十三）：Objective-C代码混淆</a></p>
-<blockquote>
-<h4 id="三、关键逻辑混淆"><a href="#三、关键逻辑混淆" class="headerlink" title="三、关键逻辑混淆"></a>三、关键逻辑混淆</h4></blockquote>
-<p>提供两种方案</p>
-<h5 id="方案1"><a href="#方案1" class="headerlink" title="方案1"></a>方案1</h5><ul>
-<li><p>把函数名隐藏在结构体里，以函数指针成员的形式存储。</p>
-</li>
-<li><p>编译后，只留了下地址，去掉了名字和参数表，提高了逆向成本和攻击门槛。</p>
-</li>
-<li><p>具体参考<a href="http://blog.csdn.net/yiyaaixuexi/article/details/29210413" target="_blank" rel="noopener">iOS安全攻防（二十四）：敏感逻辑的保护方案（1）</a></p>
-</li>
-</ul>
-<h5 id="方案2"><a href="#方案2" class="headerlink" title="方案2"></a>方案2</h5><ul>
-<li><p>使用C/C++语言实现逻辑，这里利用到Objective-C 与 C/C++混编的知识。下面以C++为例，混编最需要注意的是<strong>OC 调用 C++</strong>和<strong>C++ 调用 OC</strong></p>
-</li>
-<li><p><strong>OC 调用 C++</strong>：这种情况比较简单，因为编译器做了优化，把 .m 文件直接改为 <strong>.mm</strong> ，然后直接用就好了。</p>
-</li>
-<li><p><strong>C++ 调用 OC</strong>：分为两种情况：1）完全的 C++ ，实现文件以 .cpp 结尾，里面不允许直接OC的方法；通过编写接口，间接调用 OC 方法，实际上 C++ 调用的是OC编译过后的 .o 文件；2）部分 C++ 部分 OC ，实现文件以 .mm 结尾，里面允许直接使用 OC 方法。</p>
-</li>
-</ul>
-<blockquote>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4></blockquote>
-<ul>
-<li>代码混淆只是提高了破解的门槛和难度，不能百分百保证代码安全，但是如果不做这些，你的核心业务无疑在裸奔，这是很危险的事情。</li>
-</ul>
-<blockquote>
-<h4 id="End"><a href="#End" class="headerlink" title="End"></a>End</h4></blockquote>
-<p>我是<a href="https://buaa0300.github.io/" target="_blank" rel="noopener">南华coder</a>，一名北漂的iOS程序猿。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2643,7 +2650,7 @@ if __name__ == &apos;__main__&apos;:
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">14</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
