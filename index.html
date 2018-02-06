@@ -253,7 +253,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/02/06/runtime/" itemprop="url">浅谈OC的Runtime</a></h1>
+                <a class="post-title-link" href="/2018/02/06/runtime/" itemprop="url">浅谈Runtime</a></h1>
         
 
         <div class="post-meta">
@@ -420,7 +420,7 @@ d) 如果方法返回值不是 上述提到的几种情况，那么发送给 nil
 </ul>
 <blockquote>
 <h4 id="三、Runtime特性和应用"><a href="#三、Runtime特性和应用" class="headerlink" title="三、Runtime特性和应用"></a>三、Runtime特性和应用</h4></blockquote>
-<p>#####1、分类（Category） #####</p>
+<p>#####1、分类（Category）#####</p>
 <ul>
 <li><p><strong>原理</strong>：对象的<strong>方法</strong>定义都保存在类的可变区域中，修改methodLists指针指向的指针的值，就可以实现动态地为某一个类增加<strong>成员方法</strong>。(<em>但是对象布局在编译时候就固定了，结构体的大小并不能动态变化，在运行时不能增加实例变量</em>)。</p>
 </li>
