@@ -1249,7 +1249,17 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
 <li><p>相比<strong>静态库</strong>而言，<strong>动态链接库</strong>在程序运行时才记载到内存，不会增加可执行文件的体积，但是会增加加载时间；而<strong>静态库</strong>虽然有利于优化加载速度，但是会增加包的体积。</p>
 </li>
 </ul>
-<h5 id="2、优化思路"><a href="#2、优化思路" class="headerlink" title="2、优化思路"></a>2、优化思路</h5><ul>
+<h5 id="2、main之前做了什么"><a href="#2、main之前做了什么" class="headerlink" title="2、main之前做了什么"></a>2、main之前做了什么</h5><ul>
+<li><p><strong>load dylibs image</strong>: 读取库静态文件</p>
+</li>
+<li><p><strong>rebase/bind image</strong>: 修复镜像中的资源指针，来指向正确的地址。rebase修复的是镜像内部的资源指针，bind指向的是镜像外部的资源指针；</p>
+</li>
+<li><p><strong>objc setup</strong>:注册objc类；将category的定义插入方法列表；保证selector的唯一；</p>
+</li>
+<li><p><strong>initializers</strong>:动态调整，执行load函数，C+++构造函数属性函数，非基本类型的C++静态全局变量的创建</p>
+</li>
+</ul>
+<h5 id="3、优化思路"><a href="#3、优化思路" class="headerlink" title="3、优化思路"></a>3、优化思路</h5><ul>
 <li><p>减少不必要的framework，因为动态链接比较耗时；</p>
 </li>
 <li><p>检查framework应当设为optional和required，如果该framework在当前App支持的所有iOS系统版本都存在，那么就设为required，否则就设为optional，因为optional会有些额外的检查；</p>
@@ -1261,18 +1271,18 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
 <li><p>尽量不要用C++虚函数(创建虚函数表有开销)；</p>
 </li>
 </ul>
-<h5 id="3、耗时衡量"><a href="#3、耗时衡量" class="headerlink" title="3、耗时衡量"></a>3、耗时衡量</h5><ul>
+<h5 id="4、耗时衡量"><a href="#4、耗时衡量" class="headerlink" title="4、耗时衡量"></a>4、耗时衡量</h5><ul>
 <li><p>Xcode 中 Edit scheme -&gt; Run -&gt; Auguments 将环境变量 DYLD_PRINT_STATISTICS 设为 1</p>
 </li>
 <li><p>Xcode 中 Edit scheme -&gt; Run -&gt; Auguments 将环境变量 DYLD_PRINT_STATISTICS_DETAILS 设为 1，可以看到更多数据</p>
-<blockquote>
-<h4 id="三、main函数之后的优化"><a href="#三、main函数之后的优化" class="headerlink" title="三、main函数之后的优化"></a>三、main函数之后的优化</h4></blockquote>
 </li>
 </ul>
+<blockquote>
+<h4 id="三、main函数之后的优化"><a href="#三、main函数之后的优化" class="headerlink" title="三、main函数之后的优化"></a>三、main函数之后的优化</h4></blockquote>
 <h5 id="1、概述-1"><a href="#1、概述-1" class="headerlink" title="1、概述"></a>1、概述</h5><ul>
 <li>这部分主要是服务初始化、闪屏（广告或引导）和首页UI渲染等工作；</li>
 </ul>
-<h5 id="2、优化思路-1"><a href="#2、优化思路-1" class="headerlink" title="2、优化思路"></a>2、优化思路</h5><ul>
+<h5 id="2、优化思路"><a href="#2、优化思路" class="headerlink" title="2、优化思路"></a>2、优化思路</h5><ul>
 <li><p><strong>视图</strong>：使用代码创建首页视图。</p>
 </li>
 <li><p><strong>服务初始化</strong>：团队间沟通优化业务逻辑，如，延迟某些服务的初始化；合并某些网络请求或减少启动时网络请求个数；</p>
