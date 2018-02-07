@@ -73,8 +73,6 @@
 
 
 
-  
-
 
   <link rel="alternate" href="/atom.xml" title="南华coder的空间" type="application/atom+xml" />
 
@@ -83,19 +81,20 @@
 
 
 
-<meta name="description" content="Objective-C利用Runtime库(底层的 C 语言 API)赋予了语言的动态特性。  一、Runtime基石：Objective-C对象模型 1、对象 每一个对象都是类的实例, 类中保存对象的方法列表；当一个对象方法被调用时，类会首先查找它本身是否有该方法的实现，如果没有，则会向它的父类查找该方法，直到NSObject(基类)；  类是元类 (metaclass) 的实例；元类保存类方法">
+<meta name="description" content="Objective-C利用Runtime库(底层的 C 语言 API)赋予了语言的动态特性。  一、Runtime基石：Objective-C对象模型 1、对象 每一个对象都是类的实例, 类中保存对象的方法列表；当一个对象方法被调用时，类会首先查找它本身是否有该方法的实现，如果没有，则会向它的父类查找该方法，直到NSObject(根类)；  类是元类 (metaclass) 的实例；元类保存类方法">
 <meta property="og:type" content="article">
 <meta property="og:title" content="浅谈Runtime">
 <meta property="og:url" content="http://buaa0300/nanhuacoder.com/2018/02/06/runtime/index.html">
 <meta property="og:site_name" content="南华coder的空间">
-<meta property="og:description" content="Objective-C利用Runtime库(底层的 C 语言 API)赋予了语言的动态特性。  一、Runtime基石：Objective-C对象模型 1、对象 每一个对象都是类的实例, 类中保存对象的方法列表；当一个对象方法被调用时，类会首先查找它本身是否有该方法的实现，如果没有，则会向它的父类查找该方法，直到NSObject(基类)；  类是元类 (metaclass) 的实例；元类保存类方法">
+<meta property="og:description" content="Objective-C利用Runtime库(底层的 C 语言 API)赋予了语言的动态特性。  一、Runtime基石：Objective-C对象模型 1、对象 每一个对象都是类的实例, 类中保存对象的方法列表；当一个对象方法被调用时，类会首先查找它本身是否有该方法的实现，如果没有，则会向它的父类查找该方法，直到NSObject(根类)；  类是元类 (metaclass) 的实例；元类保存类方法">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/201701-fa143a7c6b17b43d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/201701-35938988b21e8a6c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-02-06T15:03:25.466Z">
+<meta property="og:updated_time" content="2018-02-07T14:30:24.322Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="浅谈Runtime">
-<meta name="twitter:description" content="Objective-C利用Runtime库(底层的 C 语言 API)赋予了语言的动态特性。  一、Runtime基石：Objective-C对象模型 1、对象 每一个对象都是类的实例, 类中保存对象的方法列表；当一个对象方法被调用时，类会首先查找它本身是否有该方法的实现，如果没有，则会向它的父类查找该方法，直到NSObject(基类)；  类是元类 (metaclass) 的实例；元类保存类方法">
-<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/201701-35938988b21e8a6c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta name="twitter:description" content="Objective-C利用Runtime库(底层的 C 语言 API)赋予了语言的动态特性。  一、Runtime基石：Objective-C对象模型 1、对象 每一个对象都是类的实例, 类中保存对象的方法列表；当一个对象方法被调用时，类会首先查找它本身是否有该方法的实现，如果没有，则会向它的父类查找该方法，直到NSObject(根类)；  类是元类 (metaclass) 的实例；元类保存类方法">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/201701-fa143a7c6b17b43d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640">
 
 
 
@@ -309,9 +308,9 @@
 <blockquote>
 <h4 id="一、Runtime基石：Objective-C对象模型"><a href="#一、Runtime基石：Objective-C对象模型" class="headerlink" title="一、Runtime基石：Objective-C对象模型"></a>一、Runtime基石：Objective-C对象模型</h4></blockquote>
 <h5 id="1、对象"><a href="#1、对象" class="headerlink" title="1、对象"></a>1、对象</h5><ul>
-<li><p>每一个对象都是<strong>类的实例</strong>, 类中保存<strong>对象的方法列表</strong>；当一个对象方法被调用时，类会首先查找它本身是否有该方法的实现，如果没有，则会向它的父类查找该方法，直到NSObject(基类)；</p>
+<li><p>每一个对象都是<strong>类的实例</strong>, 类中保存<strong>对象的方法列表</strong>；当一个对象方法被调用时，类会首先查找它本身是否有该方法的实现，如果没有，则会向它的父类查找该方法，直到NSObject(根类)；</p>
 </li>
-<li><p>类是<strong>元类 (metaclass) 的实例</strong>；元类保存<strong>类方法列表</strong>；当一个类方法被调用时，元类会首先查找它本身是否有该类方法的实现，如果没有，则会向它的父类查找该方法，直到NSObject(基类)；</p>
+<li><p>类是<strong>元类 (metaclass) 的实例</strong>；元类保存<strong>类方法列表</strong>；当一个类方法被调用时，元类会首先查找它本身是否有该类方法的实现，如果没有，则会向它的父类查找该方法，直到NSObject(根类)；</p>
 </li>
 </ul>
 <h5 id="2、isa指针"><a href="#2、isa指针" class="headerlink" title="2、isa指针"></a>2、isa指针</h5><ul>
@@ -319,7 +318,10 @@
 </li>
 <li><p>在64 位 CPU 下，isa 的内部结构有变化。具体查看用<a href="http://ios.jobbole.com/89485/" target="_blank" rel="noopener"> isa 承载对象的类信息</a></p>
 </li>
+<li><p>对象、isa指针、类、元类、根元类的关系如下图：</p>
+</li>
 </ul>
+<p><img src="http://upload-images.jianshu.io/upload_images/201701-fa143a7c6b17b43d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="OC类图.png"></p>
 <h5 id="3、对象布局"><a href="#3、对象布局" class="headerlink" title="3、对象布局"></a>3、对象布局</h5><ul>
 <li><p>实例变量（包括父类）都保存在对象本身的存储空间内；实例方法保存在<strong>类</strong>中，类方法保存在<strong>元类</strong>中；父类的实例方法保存在各级 super class 中，父类的类方法保存在各级 super meta class;</p>
 <pre><code>//对象组成 --start--
@@ -355,7 +357,7 @@ struct objc_ivar {
     int space        OBJC2_UNAVAILABLE;
 #endif
 }
-</code></pre><p>  <strong>说明1</strong>：对象中保存指向类的<code>isa</code>指针 以及 各级的 实例变量(<code>ivar</code>)，对象在运行时动态给对象增加实例变量。</p>
+</code></pre><p>  <strong>说明1</strong>：对象中保存指向类的<code>isa</code>指针 以及 各级的 实例变量(<code>ivar</code>)，这个内存结构在编译时就确定下来了，不能在编译时给对象增加实例变量。</p>
 <p>  <strong>说明2</strong>：类的内存布局有<code>isa</code>指针、<code>super_class</code>指针、实例变量列表、方法列表和协议列表，其中实例变量(var)包含了变量的名称、类型、偏移等。</p>
 </li>
 </ul>
