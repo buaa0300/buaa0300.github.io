@@ -313,8 +313,7 @@
 <li><p>实际上，JavaScriptCore是iOS 7推出的<strong>JavaScript引擎</strong>，是为了实现OC和JS通信，使用场景不局限于在原生应用和Web应用间使用(<em>虽然这是大部分场景</em>)。</p>
 </li>
 </ul>
-<p>#####1、 JSContext #####</p>
-<ul>
+<h5 id="1、-JSContext"><a href="#1、-JSContext" class="headerlink" title="1、 JSContext"></a>1、 JSContext</h5><ul>
 <li><strong>JavaScript运行的上下文环境</strong>，使用JSContext对象来执行JavaScript代码，所有的JSValue对象都由JSContext对象管理。</li>
 </ul>
 <h5 id="2、JSValue"><a href="#2、JSValue" class="headerlink" title="2、JSValue"></a>2、JSValue</h5><ul>
@@ -400,8 +399,7 @@ function div(a,b){
 <blockquote>
 <h4 id="三、JavaScript调用Objective-C代码"><a href="#三、JavaScript调用Objective-C代码" class="headerlink" title="三、JavaScript调用Objective-C代码"></a>三、JavaScript调用Objective-C代码</h4></blockquote>
 <p>可以使用两种方式实现JavaScript调用Objective-C代码</p>
-<p>#####方式一：在OC中定义<strong>block</strong>，使用block代替JS的函数实现#####</p>
-<p>代码如下：</p>
+<h5 id="方式一：在OC中定义block，使用block代替JS的函数实现"><a href="#方式一：在OC中定义block，使用block代替JS的函数实现" class="headerlink" title="方式一：在OC中定义block，使用block代替JS的函数实现"></a>方式一：在OC中定义<strong>block</strong>，使用block代替JS的函数实现</h5><p>代码如下：</p>
 <p><strong>1、新建一个jscalloc1.js的文件，定义了两个方法，代码如下：</strong></p>
 <pre><code>function sayHello() {
     print(&quot;你好&quot;);
@@ -443,8 +441,7 @@ function showAlert() {
 <pre><code>context.exceptionHandler = ^(JSContext *context, JSValue *exception) {
        NSLog(@&quot;JS Error: %@&quot;, exception);
 };
-</code></pre><p>#####方式二：继承JSExport协议，定义暴露给JS的方法，将实现协议的类的对象注入到context中 #####</p>
-<p>代码如下：</p>
+</code></pre><h5 id="方式二：继承JSExport协议，定义暴露给JS的方法，将实现协议的类的对象注入到context中"><a href="#方式二：继承JSExport协议，定义暴露给JS的方法，将实现协议的类的对象注入到context中" class="headerlink" title="方式二：继承JSExport协议，定义暴露给JS的方法，将实现协议的类的对象注入到context中"></a>方式二：继承JSExport协议，定义暴露给JS的方法，将实现协议的类的对象注入到context中</h5><p>代码如下：</p>
 <p><strong>1、新建一个jscalloc2.js的文件，定义了两个方法，代码如下：</strong></p>
 <pre><code>function sayHello() {
     qsobj.print(&quot;你好&quot;);
@@ -503,8 +500,7 @@ function showAlert() {
 <blockquote>
 <h4 id="四、循环引问题"><a href="#四、循环引问题" class="headerlink" title="四、循环引问题"></a>四、循环引问题</h4></blockquote>
 <p><strong>说明</strong>：Objective-C的内存管理机制是<strong>引用计数</strong>，JavaScript的内存管理机制是<strong>垃圾回收</strong>。在大部分情况下，JavaScriptCore能做到在这两种内存管理机制之间无缝无错转换，但是有些情况下会发生循环引用。</p>
-<p>####1、block直接使用self.context 会发生循环引用 ####</p>
-<p>打破这类循环引用的办法有两种。</p>
+<h4 id="1、block直接使用self-context-会发生循环引用"><a href="#1、block直接使用self-context-会发生循环引用" class="headerlink" title="1、block直接使用self.context 会发生循环引用"></a>1、block直接使用self.context 会发生循环引用</h4><p>打破这类循环引用的办法有两种。</p>
 <p><strong>1）方法1：weakSelf和strongSelf</strong></p>
 <pre><code>[self.context evaluateScript:@&quot;function printAppVersion() { print(getAppVersion())}&quot;];
 self.context[@&quot;print&quot;] = ^(NSString *printStr){
@@ -647,8 +643,7 @@ self.context[@&quot;presentNativeAlert&quot;] = ^(NSString *title,
 <p><strong>效果图如下：</strong></p>
 <p><img src="http://upload-images.jianshu.io/upload_images/201701-b063e377adf7528c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="JS函数弹出OC警告框的效果图.png"></p>
 <h4 id="六、UIWebView中获取JSContext"><a href="#六、UIWebView中获取JSContext" class="headerlink" title="六、UIWebView中获取JSContext"></a>六、UIWebView中获取JSContext</h4><p>JavaScriptCore实现JS和OC交互是依赖<strong>JSContext对象</strong>，而在UIWebView使用中，不应该手动去创建JSContext对象，因为手动创建JSContext对象和UIWebView对应的JSContext对象并不是同一个JS上下文环境。我们应该去获取UIWebView对应的JSContext对象，虽然Apple并未提供直接的方式，但是我们可以通过KVC +  Runtime这两种方式去获取</p>
-<p>#####1、KVC #####</p>
-<pre><code>JSContext *context = [self.webView valueForKeyPath:@&quot;documentView.webView.mainFrame.javaScriptContext&quot;];
+<h5 id="1、KVC"><a href="#1、KVC" class="headerlink" title="1、KVC"></a>1、KVC</h5><pre><code>JSContext *context = [self.webView valueForKeyPath:@&quot;documentView.webView.mainFrame.javaScriptContext&quot;];
 </code></pre><p>使用简单，但是坑比较多，项目不推荐</p>
 <p><strong>原因一</strong>：方法暴力，有不被APP Store的审核通过的风险<br><strong>原因二</strong>：通过KVC获取JSContext对象的时机不好控制，</p>
 <ul>
@@ -657,8 +652,7 @@ self.context[@&quot;presentNativeAlert&quot;] = ^(NSString *title,
 <li><p>在UIWebView的<strong>webViewDidFinishLoad</strong>阶段获取context,并暴露OC方法，由于加载JS的时机在<strong>webVIewDidFinishLoad</strong>阶段之前，因此会发生JS无法调用OC方法的情况发生。</p>
 </li>
 </ul>
-<p>#####2、Runtime （项目中使用） #####</p>
-<p>UIWebViewTS_JavaScriptContet项目：通过 runtime 机制，巧妙地获取 JavaScriptContext 创建之后，生成回调。</p>
+<h5 id="2、Runtime-（项目中使用）"><a href="#2、Runtime-（项目中使用）" class="headerlink" title="2、Runtime （项目中使用）"></a>2、Runtime （项目中使用）</h5><p>UIWebViewTS_JavaScriptContet项目：通过 runtime 机制，巧妙地获取 JavaScriptContext 创建之后，生成回调。</p>
 <p>在项目中，实现TSWebViewDelegate中的didCreateJavaScriptContext方法，可以获取UIWebView对应的JSContext对象</p>
 <pre><code>- (void)webView:(UIWebView *)webView didCreateJavaScriptContext:(JSContext*) ctx{
       //ctx就是UIWebView对应的JSContext对象
@@ -676,10 +670,7 @@ self.context[@&quot;presentNativeAlert&quot;] = ^(NSString *title,
 <blockquote>
 <h4 id="End"><a href="#End" class="headerlink" title="End"></a>End</h4></blockquote>
 <ul>
-<li><p>这篇文章算是对之前写的 <a href="https://www.jianshu.com/p/a38a7c7bccbb" target="_blank" rel="noopener">网络图片的优化显示</a> 和 <a href="https://www.jianshu.com/p/26402bc4ddac" target="_blank" rel="noopener">iOS中本地图片的缩放、裁剪和压缩</a>的<strong>补充</strong>和<strong>扩展</strong>吧。</p>
-</li>
-<li><p>我是<a href="https://buaa0300.github.io/" target="_blank" rel="noopener">南华coder</a>，一名北漂的iOS程序猿。</p>
-</li>
+<li>我是<a href="https://buaa0300.github.io/" target="_blank" rel="noopener">南华coder</a>，一名北漂的iOS程序猿。</li>
 </ul>
 
           
