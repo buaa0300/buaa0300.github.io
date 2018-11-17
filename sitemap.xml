@@ -2,107 +2,128 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://buaa0300/nanhuacoder.com/2018/02/28/jscore/</loc>
+    <loc>http://buaa0300/nanhuacoder.com/2018/11/17/2018begin/</loc>
     
-    <lastmod>2018-02-27T16:14:18.996Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://buaa0300/nanhuacoder.com/2018/01/28/launchOPt/</loc>
-    
-    <lastmod>2018-02-07T14:43:22.014Z</lastmod>
+    <lastmod>2018-11-17T13:45:52.339Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://buaa0300/nanhuacoder.com/2018/02/06/runtime/</loc>
+    <loc>http://buaa0300/nanhuacoder.com/tags/index.html</loc>
     
-    <lastmod>2018-02-07T14:30:24.322Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://buaa0300/nanhuacoder.com/2018/02/04/runloop/</loc>
-    
-    <lastmod>2018-02-04T15:10:26.656Z</lastmod>
+    <lastmod>2018-09-22T03:43:08.545Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://buaa0300/nanhuacoder.com/2018/01/30/memory/</loc>
+    <loc>http://buaa0300/nanhuacoder.com/categories/index.html</loc>
     
-    <lastmod>2018-01-30T14:48:48.702Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://buaa0300/nanhuacoder.com/2018/01/26/kadunyouhua/</loc>
-    
-    <lastmod>2018-01-28T02:43:08.139Z</lastmod>
+    <lastmod>2018-09-22T03:42:43.922Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://buaa0300/nanhuacoder.com/2018/01/27/app-thinning/</loc>
+    <loc>http://buaa0300/nanhuacoder.com/2018/01/14/iOS14-readFLAnimatedImage/</loc>
     
-    <lastmod>2018-01-27T09:41:37.704Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://buaa0300/nanhuacoder.com/2018/01/21/zujianhua/</loc>
-    
-    <lastmod>2018-01-26T15:38:54.709Z</lastmod>
+    <lastmod>2018-09-22T03:41:35.874Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://buaa0300/nanhuacoder.com/2018/01/13/imageOptimize/</loc>
+    <loc>http://buaa0300/nanhuacoder.com/2018/01/21/iOS13-zujianhua/</loc>
     
-    <lastmod>2018-01-26T15:27:54.543Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://buaa0300/nanhuacoder.com/2018/01/14/read-FLAnimatedImage/</loc>
-    
-    <lastmod>2018-01-14T04:08:50.080Z</lastmod>
+    <lastmod>2018-09-22T03:41:31.855Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://buaa0300/nanhuacoder.com/2018/01/13/generateCode/</loc>
+    <loc>http://buaa0300/nanhuacoder.com/2018/01/13/iOS12-generateCode/</loc>
     
-    <lastmod>2018-01-13T12:07:46.247Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://buaa0300/nanhuacoder.com/2018/01/04/codeConfuse/</loc>
-    
-    <lastmod>2018-01-04T15:43:01.510Z</lastmod>
+    <lastmod>2018-09-22T03:41:25.133Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://buaa0300/nanhuacoder.com/2018/01/03/AESIntro/</loc>
+    <loc>http://buaa0300/nanhuacoder.com/2018/02/28/iOS11-jscore/</loc>
     
-    <lastmod>2018-01-03T15:29:50.396Z</lastmod>
+    <lastmod>2018-09-22T03:41:20.332Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://buaa0300/nanhuacoder.com/2018/01/01/dataEnctypt/</loc>
+    <loc>http://buaa0300/nanhuacoder.com/2018/02/06/iOS10-runtime/</loc>
     
-    <lastmod>2018-01-03T15:23:25.008Z</lastmod>
+    <lastmod>2018-09-22T03:41:07.436Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://buaa0300/nanhuacoder.com/2018/02/04/iOS09-runloop/</loc>
+    
+    <lastmod>2018-09-22T03:41:02.959Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://buaa0300/nanhuacoder.com/2018/01/30/iOS08-iosmemory/</loc>
+    
+    <lastmod>2018-09-22T03:40:58.676Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://buaa0300/nanhuacoder.com/2018/01/28/iOS07-launchOPt/</loc>
+    
+    <lastmod>2018-09-22T03:40:53.159Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://buaa0300/nanhuacoder.com/2018/01/27/iOS06-app-thinning/</loc>
+    
+    <lastmod>2018-09-22T03:40:47.667Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://buaa0300/nanhuacoder.com/2018/01/26/iOS05-kadunyouhua/</loc>
+    
+    <lastmod>2018-09-22T03:40:37.791Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://buaa0300/nanhuacoder.com/2018/01/04/iOS03-codeConfuse/</loc>
+    
+    <lastmod>2018-09-22T03:40:30.028Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://buaa0300/nanhuacoder.com/2018/01/03/iOS02-AESInfo/</loc>
+    
+    <lastmod>2018-09-22T03:40:12.619Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://buaa0300/nanhuacoder.com/2018/01/01/iOS01-dataEnctypt/</loc>
+    
+    <lastmod>2018-09-22T03:40:00.685Z</lastmod>
     
   </url>
   
   <url>
     <loc>http://buaa0300/nanhuacoder.com/2017/12/31/newStart/</loc>
     
-    <lastmod>2018-01-01T15:18:36.152Z</lastmod>
+    <lastmod>2018-09-22T03:27:34.530Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://buaa0300/nanhuacoder.com/2018/01/13/iOS04-imageOptimize/</loc>
+    
+    <lastmod>2018-09-22T03:23:27.019Z</lastmod>
     
   </url>
   

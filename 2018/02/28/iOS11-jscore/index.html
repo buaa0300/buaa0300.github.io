@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="iOS," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="南华coder的空间" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="一、JavaScriptCore核心类和协议  JavaScriptCore给iOS开发的第一反应是实现原生应用和Web应用之间通信  实际上，JavaScriptCore是iOS 7推出的JavaScript引擎，是为了实现OC和JS通信，使用场景不局限于在原生应用和Web应用间使用(虽然这是大部分场景)。   1、 JSContext JavaScript运行的上下文环境，使用JSConte">
+<meta name="keywords" content="iOS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅谈JavaScriptCore">
+<meta property="og:url" content="http://buaa0300/nanhuacoder.com/2018/02/28/iOS11-jscore/index.html">
+<meta property="og:site_name" content="南华coder的空间">
+<meta property="og:description" content="一、JavaScriptCore核心类和协议  JavaScriptCore给iOS开发的第一反应是实现原生应用和Web应用之间通信  实际上，JavaScriptCore是iOS 7推出的JavaScript引擎，是为了实现OC和JS通信，使用场景不局限于在原生应用和Web应用间使用(虽然这是大部分场景)。   1、 JSContext JavaScript运行的上下文环境，使用JSConte">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/201701-b063e377adf7528c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-09-22T03:41:20.332Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="浅谈JavaScriptCore">
+<meta name="twitter:description" content="一、JavaScriptCore核心类和协议  JavaScriptCore给iOS开发的第一反应是实现原生应用和Web应用之间通信  实际上，JavaScriptCore是iOS 7推出的JavaScript引擎，是为了实现OC和JS通信，使用场景不局限于在原生应用和Web应用间使用(虽然这是大部分场景)。   1、 JSContext JavaScript运行的上下文环境，使用JSConte">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/201701-b063e377adf7528c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://buaa0300/nanhuacoder.com/2018/02/28/iOS11-jscore/"/>
+
+
+
+
+
+  <title>浅谈JavaScriptCore | 南华coder的空间</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">南华coder的空间</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/02/28/iOS11-jscore/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">浅谈JavaScriptCore</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-28T00:07:41+08:00">
+                2018-02-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS回忆录/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS回忆录</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<h4 id="一、JavaScriptCore核心类和协议"><a href="#一、JavaScriptCore核心类和协议" class="headerlink" title="一、JavaScriptCore核心类和协议"></a>一、JavaScriptCore核心类和协议</h4></blockquote>
+<ul>
+<li><p>JavaScriptCore给iOS开发的第一反应是<strong>实现原生应用和Web应用之间通信</strong></p>
+</li>
+<li><p>实际上，JavaScriptCore是iOS 7推出的<strong>JavaScript引擎</strong>，是为了实现OC和JS通信，使用场景不局限于在原生应用和Web应用间使用(<em>虽然这是大部分场景</em>)。</p>
+</li>
+</ul>
+<h5 id="1、-JSContext"><a href="#1、-JSContext" class="headerlink" title="1、 JSContext"></a>1、 JSContext</h5><ul>
+<li><strong>JavaScript运行的上下文环境</strong>，使用JSContext对象来执行JavaScript代码，所有的JSValue对象都由JSContext对象管理。</li>
+</ul>
+<h5 id="2、JSValue"><a href="#2、JSValue" class="headerlink" title="2、JSValue"></a>2、JSValue</h5><ul>
+<li><p><strong>代表一个JavaScript实体</strong>，不仅可以表示JavaScript原始类型数据如boolean、Number、String等，还可以表示对象和函数。OC和JS对象之间的转换如下表：</p>
+<pre><code>|Objective-C type  |   JavaScript type|
+|--|--|
+|nil | undefined|
+|NSNull       |        null|
+|NSString      |       string|
+|NSNumber      |   number, boolean|
+|NSDictionary    |   Object object|
+|NSArray       |    Array object|
+|NSDate       |     Date object|
+|NSBlock   |   Function object |
+|id     |   Wrapper object |
+|Class | Constructor object|
+</code></pre></li>
+</ul>
+<h5 id="3、-JSManagedValue"><a href="#3、-JSManagedValue" class="headerlink" title="3、 JSManagedValue"></a>3、 JSManagedValue</h5><ul>
+<li>本质是<strong>弱引用的JSValue对象</strong>，可以处理内存管理中的一些特殊情形，它能帮助引用技术和垃圾回收这两种内存管理机制之间进行正确的转换。如代替JSValue对象被OC对象持有避免发生循环引用(<em>本文后面会讲解</em>)。</li>
+</ul>
+<h5 id="4、JSVirtualMachine"><a href="#4、JSVirtualMachine" class="headerlink" title="4、JSVirtualMachine"></a>4、JSVirtualMachine</h5><ul>
+<li><strong>JavaScript运行的虚拟机</strong>，拥有自己的堆结构和垃圾回收机制。大部分情况下不需要和它直接交互，除非要处理一些特殊的多线程或者内存管理问题。</li>
+</ul>
+<h5 id="5、JSExport"><a href="#5、JSExport" class="headerlink" title="5、JSExport"></a>5、JSExport</h5><ul>
+<li><p><strong>将OC对象直接转成JS对象的协议</strong>，可以将OC类的属性或方法转换为JS的属性或方法。使用时，继承JSExport定义自己的协议，然后在自己的协议中定义暴露给JavaScript的方法；</p>
+</li>
+<li><p><strong>方法由Objective-C中的类实现</strong>；JavaScriptCore将实现类的对象注入JSContext运行环境中，使用注入的名称调用JS方法就会自动调用这个对象对应的OC方法。</p>
+</li>
+</ul>
+<blockquote>
+<h4 id="二、Objective-C调用JavaScript代码"><a href="#二、Objective-C调用JavaScript代码" class="headerlink" title="二、Objective-C调用JavaScript代码"></a>二、Objective-C调用JavaScript代码</h4></blockquote>
+<h5 id="1、Objective-C直接执行JavaScript代码"><a href="#1、Objective-C直接执行JavaScript代码" class="headerlink" title="1、Objective-C直接执行JavaScript代码"></a>1、Objective-C直接执行JavaScript代码</h5><p><strong>1）JSContext</strong>为JavaScript提供运行的上下文环境，执行JavaScript代码前必须先创建JSContext对象，创建JSContext对象之后，才可以调用JSContext的evaluateScript:方法可以执行JavaScript代码了，如创建变量，做计算，定义方法等。</p>
+<p><strong>2）JSContext</strong>的创建都是基于<strong>JSVirtualMachine</strong>(<em>JSVirtualMachine为JavaScript的运行提供了底层资源</em>)，默认使用init进行初始化，在其内部会自动创建一个新的JSVirtualMachine对象，然后根据JSVirtualMachine对象初始化JSContext对象。</p>
+<p><strong>3）JSContext的evaluateScript:方法的返回值类型是JSValue</strong>， JSValue 封装了每一个可能的 JavaScript 值，如字符串和数字、数组、对象、方法、甚至错误和特殊的 JavaScript 值诸如 null 和 undefined等。对JSValue调用toString、toBool、toDouble、toArray等等方法把它转换成合适的Objective-C值或对象。</p>
+<p><strong>4） 示例代码如下</strong>。XCode控制台输出12，是调用add(5,7)代码执行后的结果值。</p>
+<pre><code>- (void)ocCallJsCode{
+
+    JSContext *context = [[JSContext alloc]init];
+    [context evaluateScript:@&quot;var a = 5,b = 7&quot;];
+    [context evaluateScript:@&quot;function add(a,b){return a+b}&quot;];
+    JSValue *addValue = [context evaluateScript:@&quot;add(5,7)&quot;];
+    NSLog(@&quot;addValue = %d&quot;,addValue.toInt32);    
+}
+</code></pre><h5 id="2、Objective-C执行JavaScript代码文件"><a href="#2、Objective-C执行JavaScript代码文件" class="headerlink" title="2、Objective-C执行JavaScript代码文件"></a>2、Objective-C执行JavaScript代码文件</h5><p>首先初始化了一个JSContext对象，然后执行JavaScript文件中的代码，最后从JSContext对象中取出JS函数，使用callWithArguments:调用JS函数，参数是一个数组，如果没有参数则传入空数组@[]</p>
+<p><strong>1）在项目中新建一个occalljs.js的文件，定义了加减乘除四个JS函数，代码如下：</strong></p>
+<pre><code>function add(a,b){
+    return a + b
+}
+
+function sub(a,b){
+    return a - b
+}
+
+function mul(a,b){
+    return a * b
+}
+
+function div(a,b){
+    return a / b
+}
+</code></pre><p><strong>2） OC代码中执行JS代码文件</strong></p>
+<pre><code>- (void)ocCallJsCodeInFile{
+
+    JSContext *context = [[JSContext alloc]init];
+    NSString *jsFilePath = [[NSBundle mainBundle]pathForResource:@&quot;calculate&quot; ofType:@&quot;js&quot;];
+    NSString *jsContent = [NSString stringWithContentsOfFile:jsFilePath encoding:NSUTF8StringEncoding error:nil];
+    [context evaluateScript:jsContent];
+
+    JSValue *addValue = [context[@&quot;add&quot;] callWithArguments:@[@5,@7]];
+    NSLog(@&quot;5 + 7 = %d&quot;,addValue.toInt32);
+
+    JSValue *subValue = [context[@&quot;sub&quot;] callWithArguments:@[@5,@7]];
+    NSLog(@&quot;5 - 7 = %d&quot;,subValue.toInt32);
+
+    JSValue *mulValue = [context[@&quot;mul&quot;] callWithArguments:@[@5,@7]];
+    NSLog(@&quot;5 * 7 = %d&quot;,mulValue.toInt32);
+
+    JSValue *divValue = [context[@&quot;div&quot;] callWithArguments:@[@5,@7.0]];
+    NSLog(@&quot;5 / 7 = %.2lf&quot;,divValue.toDouble);
+}
+</code></pre><p><strong>总结：</strong>通过JSContext和JSValue的配合使用，实现了Objective-C执行JavaScript代码。</p>
+<blockquote>
+<h4 id="三、JavaScript调用Objective-C代码"><a href="#三、JavaScript调用Objective-C代码" class="headerlink" title="三、JavaScript调用Objective-C代码"></a>三、JavaScript调用Objective-C代码</h4></blockquote>
+<p>可以使用两种方式实现JavaScript调用Objective-C代码</p>
+<h5 id="方式一：在OC中定义block，使用block代替JS的函数实现"><a href="#方式一：在OC中定义block，使用block代替JS的函数实现" class="headerlink" title="方式一：在OC中定义block，使用block代替JS的函数实现"></a>方式一：在OC中定义<strong>block</strong>，使用block代替JS的函数实现</h5><p>代码如下：</p>
+<p><strong>1、新建一个jscalloc1.js的文件，定义了两个方法，代码如下：</strong></p>
+<pre><code>function sayHello() {
+    print(&quot;你好&quot;);
+}
+
+function showAlert() {
+    alert(&quot;Alert!!!&quot;);
+}
+</code></pre><p><strong>2、oc中实现block代替js方法，代码如下：</strong></p>
+<pre><code>- (void)jsCalloc1{
+
+    JSContext *context = [[JSContext alloc]init];
+    NSString *jsFilePath = [[NSBundle mainBundle]pathForResource:@&quot;jscalloc&quot; ofType:@&quot;js&quot;];
+    NSString *jsContent = [NSString stringWithContentsOfFile:jsFilePath encoding:NSUTF8StringEncoding error:nil];
+    [context evaluateScript:jsContent];
+
+    //block替换js中的print方法
+    context[@&quot;print&quot;] = ^(NSString *printStr){
+
+        NSLog(@&quot;printStr = %@&quot;,printStr);
+    };
+
+    __weak typeof(self) weakSelf = self;
+    //block替换js中的alert方法
+    context[@&quot;alert&quot;] = ^(NSString *alertStr){
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        UIAlertController *vc = [UIAlertController alertControllerWithTitle:@&quot;提示&quot; message:alertStr preferredStyle:UIAlertControllerStyleAlert];
+        [vc addAction:[UIAlertAction actionWithTitle:@&quot;确定&quot; style:UIAlertActionStyleDestructive handler:nil]];
+        [strongSelf presentViewController:vc animated:YES completion:nil];
+    };
+
+    //执行
+    [context[@&quot;sayHello&quot;] callWithArguments:nil];
+    [context[@&quot;showAlert&quot;] callWithArguments:nil];
+}
+</code></pre><p><strong>说明1</strong>：在代码中，我们将两个Block分别以”print”和“alert”为名传递给JavaScript上下文。在JS中调用print函数或者alert函数，其实就是执行在oc中定义的Block；也就实现了<strong>JavaScript调用Objective-C代码</strong>。</p>
+<p><strong>说明2</strong>：JavaScript中的字符串可以无缝的桥接为NSString。</p>
+<p><strong>说明3</strong>: 当JavaScript运行时出现异常，会回调JSContext的exceptionHandler中设置的Block，我们通过Block的方式将异常信息打印处理</p>
+<pre><code>context.exceptionHandler = ^(JSContext *context, JSValue *exception) {
+       NSLog(@&quot;JS Error: %@&quot;, exception);
+};
+</code></pre><h5 id="方式二：继承JSExport协议，定义暴露给JS的方法，将实现协议的类的对象注入到context中"><a href="#方式二：继承JSExport协议，定义暴露给JS的方法，将实现协议的类的对象注入到context中" class="headerlink" title="方式二：继承JSExport协议，定义暴露给JS的方法，将实现协议的类的对象注入到context中"></a>方式二：继承JSExport协议，定义暴露给JS的方法，将实现协议的类的对象注入到context中</h5><p>代码如下：</p>
+<p><strong>1、新建一个jscalloc2.js的文件，定义了两个方法，代码如下：</strong></p>
+<pre><code>function sayHello() {
+    qsobj.print(&quot;你好&quot;);
+}
+
+function showAlert() {
+    qsobj.alert(&quot;Alert!!!&quot;);
+}
+</code></pre><p><strong>2、OC中实现QSExportObject类，将QSExportObject对象qsobj注入到JS执行的上下文环境中，JS中执行qsobj.print和qsobj.alert函数，就是执行OC对象qsobj的方法</strong>，代码如下：</p>
+<pre><code> //QSExportObject.h
+@protocol QSExport &lt;JSExport&gt;
+
+- (void)print:(NSString *)text;
+- (void)alert:(NSString *)text;
+
+//JSExportAs(print,- (void)print:(NSString *)text);
+//JSExportAs(alert,- (void)alert:(NSString *)text);
+@end
+
+@interface QSExportObject : NSObject&lt;QSExport&gt;
+@property (nonatomic,weak)UIViewController *vc;
+@end
+
+//QSExportObject.m
+@implementation QSExportObject
+
+- (void)print:(NSString *)text{
+    NSLog(@&quot;print text = %@&quot;,text);
+}
+
+- (void)alert:(NSString *)text{
+
+    UIAlertController *vc = [UIAlertController alertControllerWithTitle:@&quot;提示&quot; message:text preferredStyle:UIAlertControllerStyleAlert];
+    [vc addAction:[UIAlertAction actionWithTitle:@&quot;确定&quot; style:UIAlertActionStyleDestructive handler:nil]];
+    [self.vc presentViewController:vc animated:YES completion:nil];
+}
+@end
+
+//在ViewController中调用
+ - (void)jsCallOc2{
+
+    JSContext *context = [[JSContext alloc]init];
+    NSString *jsFilePath = [[NSBundle mainBundle]pathForResource:@&quot;jscalloc2&quot; ofType:@&quot;js&quot;];
+    NSString *jsContent = [NSString stringWithContentsOfFile:jsFilePath encoding:NSUTF8StringEncoding error:nil];
+    [context evaluateScript:jsContent];
+    //注入qsObj
+    QSExportObject *qsObj = [QSExportObject new];
+    qsObj.vc = self;
+    context[@&quot;qsobj&quot;] = qsObj;
+
+     //执行
+    [context[@&quot;sayHello&quot;] callWithArguments:nil];
+    [context[@&quot;showAlert&quot;] callWithArguments:nil];
+}
+</code></pre><p><strong>说明1</strong>：在QSExport中定义暴露给JS的接口，也可以使用宏<strong>JSExportAs</strong>，它将JS函数和OC方法绑定在一起；对于OC中多参数的方法，一般使用<strong>JSExportAs</strong>。</p>
+<blockquote>
+<h4 id="四、循环引问题"><a href="#四、循环引问题" class="headerlink" title="四、循环引问题"></a>四、循环引问题</h4></blockquote>
+<p><strong>说明</strong>：Objective-C的内存管理机制是<strong>引用计数</strong>，JavaScript的内存管理机制是<strong>垃圾回收</strong>。在大部分情况下，JavaScriptCore能做到在这两种内存管理机制之间无缝无错转换，但是有些情况下会发生循环引用。</p>
+<h4 id="1、block直接使用self-context-会发生循环引用"><a href="#1、block直接使用self-context-会发生循环引用" class="headerlink" title="1、block直接使用self.context 会发生循环引用"></a>1、block直接使用self.context 会发生循环引用</h4><p>打破这类循环引用的办法有两种。</p>
+<p><strong>1）方法1：weakSelf和strongSelf</strong></p>
+<pre><code>[self.context evaluateScript:@&quot;function printAppVersion() { print(getAppVersion())}&quot;];
+self.context[@&quot;print&quot;] = ^(NSString *printStr){
+    NSLog(@&quot;printStr = %@&quot;,printStr);
+};
+
+__weak typeof(self) weakSelf = self;
+self.context[@&quot;getAppVersion&quot;] = ^{
+    __strong typeof(weakSelf) strongSelf = weakSelf;
+    NSString* versionString = [[NSBundle mainBundle] objectForInfoDictionaryKey:@&quot;CFBundleShortVersionString&quot;];
+    versionString = [@&quot;App Version &quot; stringByAppendingString:versionString];
+    JSContext *context = strongSelf.context;
+    JSValue *version = [JSValue valueWithObject:versionString inContext:context];
+    return version;
+};
+
+//执行
+[self.context[@&quot;printAppVersion&quot;] callWithArguments:nil];
+</code></pre><p><strong>2）方法2：block内使用[JSContext currentContext]代替self.context</strong></p>
+<pre><code>[self.context evaluateScript:@&quot;function printAppVersion() { print(getAppVersion())}&quot;];
+self.context[@&quot;print&quot;] = ^(NSString *printStr){
+    NSLog(@&quot;printStr = %@&quot;,printStr);
+};
+
+self.context[@&quot;getAppVersion&quot;] = ^{
+    NSString* versionString = [[NSBundle mainBundle] objectForInfoDictionaryKey:@&quot;CFBundleShortVersionString&quot;];
+    versionString = [@&quot;App Version &quot; stringByAppendingString:versionString];
+    JSContext *context = [JSContext currentContext];
+    JSValue *version = [JSValue valueWithObject:versionString inContext:context];
+    return version;
+};
+
+//执行
+[self.context[@&quot;printAppVersion&quot;] callWithArguments:nil];
+</code></pre><h4 id="2、block中使用外部定义的JSValue对象不会发生循环引用"><a href="#2、block中使用外部定义的JSValue对象不会发生循环引用" class="headerlink" title="2、block中使用外部定义的JSValue对象不会发生循环引用"></a>2、block中使用外部定义的JSValue对象不会发生循环引用</h4><pre><code>[self.context evaluateScript:@&quot;function log() { }&quot;];
+JSValue *value = [JSValue valueWithObject:@&quot;test content&quot; inContext:self.context];
+
+self.context[@&quot;log&quot;] = ^(){
+    NSLog(@&quot;%@&quot;,value);
+};
+
+[self.context[@&quot;log&quot;] callWithArguments:nil];
+</code></pre><p><strong>原因：</strong>在block里面直接使用外部定义的JSValue对象不会发生循环引用。以上诉代码为例，JSContext强引用了一个log函数，log函数中又强引用了JSValue对象，JSValue对象强引用JSContext对象和保存的值，JSContext对象引用它管理的所有JSValue对象，这样JSContext和JSValue看上去是循环引用的，然而并不会，<strong>垃圾回收机制会打破这个循环引用</strong>。</p>
+<h4 id="3、OC对象保存JSValue容易引起循环引用"><a href="#3、OC对象保存JSValue容易引起循环引用" class="headerlink" title="3、OC对象保存JSValue容易引起循环引用"></a>3、OC对象保存JSValue容易引起循环引用</h4><p>假设下面这样的场景，定义QSAlertView类，该类中持有successHandler，failureHandler这两个JSValue对象，使用block方式注入JS方法时候</p>
+<pre><code>self.context[@&quot;presentNativeAlert&quot;] = ^(NSString *title,
+                                        NSString *message,
+                                        JSValue *successHandler,
+                                        JSValue *failureHandler) {
+    JSContext *context = [JSContext currentContext];
+    QSAlertView *alertView = [[QSAlertView alloc] initWithTitle:title
+                                                        message:message
+                                                        successHandler:successHandler
+                                                 failureHandler:failureHandler
+                                                        context:context];
+    [alertView show];
+};
+</code></pre><p><strong>说明</strong>：因为JavaScript环境中都是“强引用”（相对Objective-C的概念来说）的，这时JSContext强引用了一个presentNativeAlert函数，这个函数中又强引用了QSAlertView，等于说JSContext强引用了QSAlertView，而QSAlertView为了持有两个回调强引用了successHandler和failureHandler这两个JSValue，而JSValue又是强引用JSContext的，循环引用便出现了。</p>
+<p><strong>打破该类循环引用的方式是：JSMagagedValue对象代替JSValue对象被OC对象持有</strong></p>
+<blockquote>
+<h4 id="五、JSMagagedValue类使用"><a href="#五、JSMagagedValue类使用" class="headerlink" title="五、JSMagagedValue类使用"></a>五、JSMagagedValue类使用</h4></blockquote>
+<p><strong>JSMagagedValue类</strong>：弱引用对象，需要调用JSVirtualMachine的addManagedReference:withOwner:把它添加到JSVirtualMachine对象中，确保使用过程中JSValue不会被释放 </p>
+<pre><code>//QSAlertView.h
+@interface QSAlertView : UIAlertView
+- (instancetype)initWithTitle:(NSString *)title
+                      message:(NSString *)message
+               successHandler:(JSValue *)successHandler
+               failureHandler:(JSValue *)failureHandler
+                      context:(JSContext *)context;
+@end
+
+//QSAlertView.m
+@interface QSAlertView() &lt;UIAlertViewDelegate&gt;
+
+@property (nonatomic,strong) JSContext *context;
+@property (nonatomic,strong) JSManagedValue *successHandler;
+@property (nonatomic,strong) JSManagedValue *failureHandler;
+
+@end
+
+@implementation QSAlertView
+
+- (instancetype)initWithTitle:(NSString *)title
+                      message:(NSString *)message
+               successHandler:(JSValue *)successHandler
+               failureHandler:(JSValue *)failureHandler
+                      context:(JSContext *)context{
+
+    self = [super initWithTitle:title message:message delegate:self cancelButtonTitle:@&quot;NO&quot; otherButtonTitles:@&quot;YES&quot;, nil];
+    if (self) {
+        _context = context;
+        _successHandler = [JSManagedValue managedValueWithValue:successHandler];
+        _failureHandler = [JSManagedValue managedValueWithValue:failureHandler];
+
+        //添加JSManagedValue对象到JSVirtualMachine对象中，防止使用过程被释放
+        [_context.virtualMachine addManagedReference:_successHandler withOwner:self];
+        [_context.virtualMachine addManagedReference:_failureHandler withOwner:self];
+    }
+    return self;
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+
+    NSString *btnTitle = [alertView buttonTitleAtIndex:buttonIndex];
+    if ([btnTitle isEqualToString:@&quot;YES&quot;]) {
+
+        JSValue *function = [self.successHandler value];
+        [function callWithArguments:@[]];
+
+    }else{
+        JSValue *function = [self.failureHandler value];
+        [function callWithArguments:@[]];
+    }
+    //移除JSManagedValue对象
+    [self.context.virtualMachine removeManagedReference:_successHandler withOwner:self];
+    [self.context.virtualMachine removeManagedReference:_failureHandler withOwner:self];
+}
+@end
+</code></pre><p><strong>说明1</strong>：外部传入的JSValue对象在类内部使用JSManagedValue(弱引用对象)来保存<br><strong>说明2</strong>：JSManagedValue对象因为是弱引用对象，需要调用JSVirtualMachine的addManagedReference:withOwner:把它添加到JSVirtualMachine对象中，确保使用过程中JSValue不会被释放<br><strong>说明3</strong>：当用户点击QSAlertView上的按钮时，根据用户点击哪一个按钮，来执行对应的处理函数，这时QSAlertView也随即被销毁。 这时需要手动调用removeManagedReference:withOwner:来移除JSManagedValue对象。</p>
+<pre><code>//OC执行JS代码
+[self.context evaluateScript:@&quot;function success() {print(&apos;success&apos;) }&quot;];
+[self.context evaluateScript:@&quot;function failure() {print(&apos;failure&apos;) }&quot;];
+self.context[@&quot;print&quot;] = ^(NSString *printStr){
+    NSLog(@&quot;printStr = %@&quot;,printStr);
+};
+self.context[@&quot;presentNativeAlert&quot;] = ^(NSString *title,
+                                        NSString *message,
+                                        JSValue *successHandler,
+                                        JSValue *failureHandler) {
+    JSContext *context = [JSContext currentContext];
+    QSAlertView *alertView = [[QSAlertView alloc] initWithTitle:title
+                                                        message:message
+                                                        successHandler:successHandler
+                                                 failureHandler:failureHandler
+                                                        context:context];
+    [alertView show];
+};
+
+[self.context evaluateScript:@&quot;presentNativeAlert(&apos;提示&apos;,&apos;这是一条警告&apos;,success,failure)&quot;];
+</code></pre><p><strong>说明1</strong>：在JS中定义了success和failure函数，为JS中的print函数和presentNativeAlert函数注入OC实现。<br><strong>说明2</strong>：点击弹出框的YES，调用JS的success函数，点击弹出框的NO，调用JS的failure函数。</p>
+<p><strong>效果图如下：</strong></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/201701-b063e377adf7528c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="JS函数弹出OC警告框的效果图.png"></p>
+<h4 id="六、UIWebView中获取JSContext"><a href="#六、UIWebView中获取JSContext" class="headerlink" title="六、UIWebView中获取JSContext"></a>六、UIWebView中获取JSContext</h4><p>JavaScriptCore实现JS和OC交互是依赖<strong>JSContext对象</strong>，而在UIWebView使用中，不应该手动去创建JSContext对象，因为手动创建JSContext对象和UIWebView对应的JSContext对象并不是同一个JS上下文环境。我们应该去获取UIWebView对应的JSContext对象，虽然Apple并未提供直接的方式，但是我们可以通过KVC +  Runtime这两种方式去获取</p>
+<h5 id="1、KVC"><a href="#1、KVC" class="headerlink" title="1、KVC"></a>1、KVC</h5><pre><code>JSContext *context = [self.webView valueForKeyPath:@&quot;documentView.webView.mainFrame.javaScriptContext&quot;];
+</code></pre><p>使用简单，但是坑比较多，项目不推荐</p>
+<p><strong>原因一</strong>：方法暴力，有不被APP Store的审核通过的风险<br><strong>原因二</strong>：通过KVC获取JSContext对象的时机不好控制，</p>
+<ul>
+<li><p>在UIWebView的<strong>shouldStartLoadWithRequest</strong>或者<strong>webViewDidStartLoad</strong>阶段中获取context，由于此时页面中的JS代码并没有完全加载完，所以JS中定义的函数在OC端无法被执行。还会出现在加载一级页面时JS可以正常调用OC的方法，而跳转到二级页面中无法执行OC的方法。</p>
+</li>
+<li><p>在UIWebView的<strong>webViewDidFinishLoad</strong>阶段获取context,并暴露OC方法，由于加载JS的时机在<strong>webVIewDidFinishLoad</strong>阶段之前，因此会发生JS无法调用OC方法的情况发生。</p>
+</li>
+</ul>
+<h5 id="2、Runtime-（项目中使用）"><a href="#2、Runtime-（项目中使用）" class="headerlink" title="2、Runtime （项目中使用）"></a>2、Runtime （项目中使用）</h5><p>UIWebViewTS_JavaScriptContet项目：通过 runtime 机制，巧妙地获取 JavaScriptContext 创建之后，生成回调。</p>
+<p>在项目中，实现TSWebViewDelegate中的didCreateJavaScriptContext方法，可以获取UIWebView对应的JSContext对象</p>
+<pre><code>- (void)webView:(UIWebView *)webView didCreateJavaScriptContext:(JSContext*) ctx{
+      //ctx就是UIWebView对应的JSContext对象
+}
+</code></pre><blockquote>
+<h4 id="七、其他"><a href="#七、其他" class="headerlink" title="七、其他"></a>七、其他</h4></blockquote>
+<ul>
+<li><p>之前的笔记整理，主要介绍JavaScriptCore的使用，为后续JavaScriptCore深入使用做准备。</p>
+</li>
+<li><p>本文参考了<a href="http://liuduo.me/2015/10/24/JavaScriptCore%E5%88%9D%E6%8E%A2/" target="_blank" rel="noopener">JavaScriptCore初探</a> 和 <a href="https://segmentfault.com/a/1190000004285316" target="_blank" rel="noopener">iOS引入JavaScriptCore引擎框架</a></p>
+</li>
+<li><p><a href="https://github.com/buaa0300/QSKitDemo/tree/master/QSUseJSCoreDemo" target="_blank" rel="noopener">QSUseJSCoreDemo</a></p>
+</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS/" rel="tag"># iOS</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/02/06/iOS10-runtime/" rel="next" title="浅谈Runtime">
+                <i class="fa fa-chevron-left"></i> 浅谈Runtime
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/11/17/2018begin/" rel="prev" title="南华Coder的博客又开张了">
+                南华Coder的博客又开张了 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.jpeg"
+                alt="南华coder" />
+            
+              <p class="site-author-name" itemprop="name">南华coder</p>
+              <p class="site-description motion-element" itemprop="description">曾想仗剑走天涯,如今沉醉代码忙</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、JavaScriptCore核心类和协议"><span class="nav-number">1.</span> <span class="nav-text">一、JavaScriptCore核心类和协议</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、-JSContext"><span class="nav-number">1.1.</span> <span class="nav-text">1、 JSContext</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、JSValue"><span class="nav-number">1.2.</span> <span class="nav-text">2、JSValue</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、-JSManagedValue"><span class="nav-number">1.3.</span> <span class="nav-text">3、 JSManagedValue</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、JSVirtualMachine"><span class="nav-number">1.4.</span> <span class="nav-text">4、JSVirtualMachine</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5、JSExport"><span class="nav-number">1.5.</span> <span class="nav-text">5、JSExport</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、Objective-C调用JavaScript代码"><span class="nav-number">2.</span> <span class="nav-text">二、Objective-C调用JavaScript代码</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、Objective-C直接执行JavaScript代码"><span class="nav-number">2.1.</span> <span class="nav-text">1、Objective-C直接执行JavaScript代码</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、Objective-C执行JavaScript代码文件"><span class="nav-number">2.2.</span> <span class="nav-text">2、Objective-C执行JavaScript代码文件</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、JavaScript调用Objective-C代码"><span class="nav-number">3.</span> <span class="nav-text">三、JavaScript调用Objective-C代码</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#方式一：在OC中定义block，使用block代替JS的函数实现"><span class="nav-number">3.1.</span> <span class="nav-text">方式一：在OC中定义block，使用block代替JS的函数实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方式二：继承JSExport协议，定义暴露给JS的方法，将实现协议的类的对象注入到context中"><span class="nav-number">3.2.</span> <span class="nav-text">方式二：继承JSExport协议，定义暴露给JS的方法，将实现协议的类的对象注入到context中</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四、循环引问题"><span class="nav-number">4.</span> <span class="nav-text">四、循环引问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1、block直接使用self-context-会发生循环引用"><span class="nav-number">5.</span> <span class="nav-text">1、block直接使用self.context 会发生循环引用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、block中使用外部定义的JSValue对象不会发生循环引用"><span class="nav-number">6.</span> <span class="nav-text">2、block中使用外部定义的JSValue对象不会发生循环引用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、OC对象保存JSValue容易引起循环引用"><span class="nav-number">7.</span> <span class="nav-text">3、OC对象保存JSValue容易引起循环引用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#五、JSMagagedValue类使用"><span class="nav-number">8.</span> <span class="nav-text">五、JSMagagedValue类使用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#六、UIWebView中获取JSContext"><span class="nav-number">9.</span> <span class="nav-text">六、UIWebView中获取JSContext</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、KVC"><span class="nav-number">9.1.</span> <span class="nav-text">1、KVC</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、Runtime-（项目中使用）"><span class="nav-number">9.2.</span> <span class="nav-text">2、Runtime （项目中使用）</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#七、其他"><span class="nav-number">10.</span> <span class="nav-text">七、其他</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">南华coder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

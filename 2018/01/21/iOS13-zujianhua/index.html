@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="iOS," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="南华coder的空间" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="没有做过组件化，先自行了解下  一、概述 1、为什么用组件化 业务快速发展、复杂的业务场景、团队的快速扩展等带来的变革诉求，希望通过组件化来提高团队的协作能力、减低开发成本，提高开发质量。  组件化直接效果：代码解耦，功能模块化；代码的复用性高；代码管理更加科学。  从蘑菇街(蘑菇街 App 的组件化之路)、支付宝(从支付宝红包揭秘亿级APP的移动开发)等团队公开的信息来看：业务的增加、开发团队的">
+<meta name="keywords" content="iOS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="组件化学习笔记">
+<meta property="og:url" content="http://buaa0300/nanhuacoder.com/2018/01/21/iOS13-zujianhua/index.html">
+<meta property="og:site_name" content="南华coder的空间">
+<meta property="og:description" content="没有做过组件化，先自行了解下  一、概述 1、为什么用组件化 业务快速发展、复杂的业务场景、团队的快速扩展等带来的变革诉求，希望通过组件化来提高团队的协作能力、减低开发成本，提高开发质量。  组件化直接效果：代码解耦，功能模块化；代码的复用性高；代码管理更加科学。  从蘑菇街(蘑菇街 App 的组件化之路)、支付宝(从支付宝红包揭秘亿级APP的移动开发)等团队公开的信息来看：业务的增加、开发团队的">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-09-22T03:41:31.855Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="组件化学习笔记">
+<meta name="twitter:description" content="没有做过组件化，先自行了解下  一、概述 1、为什么用组件化 业务快速发展、复杂的业务场景、团队的快速扩展等带来的变革诉求，希望通过组件化来提高团队的协作能力、减低开发成本，提高开发质量。  组件化直接效果：代码解耦，功能模块化；代码的复用性高；代码管理更加科学。  从蘑菇街(蘑菇街 App 的组件化之路)、支付宝(从支付宝红包揭秘亿级APP的移动开发)等团队公开的信息来看：业务的增加、开发团队的">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://buaa0300/nanhuacoder.com/2018/01/21/iOS13-zujianhua/"/>
+
+
+
+
+
+  <title>组件化学习笔记 | 南华coder的空间</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">南华coder的空间</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/21/iOS13-zujianhua/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">组件化学习笔记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-21T21:29:49+08:00">
+                2018-01-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS回忆录/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS回忆录</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>没有做过组件化，先自行了解下</p>
+<blockquote>
+<h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4></blockquote>
+<h5 id="1、为什么用组件化"><a href="#1、为什么用组件化" class="headerlink" title="1、为什么用组件化"></a>1、为什么用组件化</h5><ul>
+<li><p><strong>业务快速发展、复杂的业务场景、团队的快速扩展等</strong>带来的变革诉求，希望通过<strong>组件化</strong>来提高团队的协作能力、减低开发成本，提高开发质量。</p>
+</li>
+<li><p>组件化直接效果：代码解耦，功能模块化；代码的复用性高；代码管理更加科学。</p>
+</li>
+<li><p>从<strong>蘑菇街</strong>(<a href="https://www.jianshu.com/p/cdf94a963c27" target="_blank" rel="noopener">蘑菇街 App 的组件化之路</a>)、<strong>支付宝(<a href="http://www.sohu.com/a/129493438_536622" target="_blank" rel="noopener">从支付宝红包揭秘亿级APP的移动开发</a>)</strong>等团队公开的信息来看：业务的增加、开发团队的扩张、快速迭代的要求，催生组件化方案(<em>可能有更好的架构方案</em>)快速落地。</p>
+</li>
+</ul>
+<h5 id="2、为什么还不用组件化"><a href="#2、为什么还不用组件化" class="headerlink" title="2、为什么还不用组件化"></a>2、为什么还不用组件化</h5><ul>
+<li><p>虽然组件化的风吹了好几年了，但是依然很多团队没有使用组件化方案；主要还是开发资源有限，组件化的改造成本较高，收益相对不大。</p>
+</li>
+<li><p>蘑菇街和支付宝等团队实现组件化方案，一是业务发展的必然选择；二是其技术沉淀深，能为自己和兄弟团队打造出质量上乘的组件化服务。</p>
+</li>
+</ul>
+<h5 id="3、总结"><a href="#3、总结" class="headerlink" title="3、总结"></a>3、总结</h5><ul>
+<li>组件化是趋势，是大中型App团队的选择。</li>
+</ul>
+<blockquote>
+<h4 id="二、组件化四要素"><a href="#二、组件化四要素" class="headerlink" title="二、组件化四要素"></a>二、组件化四要素</h4></blockquote>
+<p>完成组件化，先考虑四要素。</p>
+<h5 id="1、组件拆分"><a href="#1、组件拆分" class="headerlink" title="1、组件拆分"></a>1、组件拆分</h5><ul>
+<li><p>首先需要对原有的<strong>基础模块</strong>，如网络模块、存储模块、网络图片加载模块、日志上报模块从原有代码中独立出来，用Cocoapods或Submodule管理起来。（<em>这部分相对简单</em>）</p>
+</li>
+<li><p><strong>业务模块</strong>的拆分比较麻烦，这部分代码的规范性不强，文件之间的引用乱且杂，且代码阅读性较差，是个坑多的地方。</p>
+</li>
+<li><p>除了业务模块之外，还有一块代码是<strong>重灾区</strong>，是<strong>AppDelegate的初始化部分</strong>；这里包含太多的逻辑，如SDK和基础模块的初始化，参数设置，注册通知，网络请求等等。我的想法是：将不同的工作分配到不同的Category中，使其职责明确清晰。</p>
+</li>
+</ul>
+<h5 id="2、组件间通信"><a href="#2、组件间通信" class="headerlink" title="2、组件间通信"></a>2、组件间通信</h5><p>组件之前的通信，更多是指业务组件之间的通信吧。目前蘑菇街团队公开的方案是：<strong>URLRouter</strong>、<strong>Protocol Class Binding</strong>这两类方案。</p>
+<h5 id="2-1-URLRouter"><a href="#2-1-URLRouter" class="headerlink" title="2-1 URLRouter"></a>2-1 URLRouter</h5><ul>
+<li><p><strong>简介</strong>：蘑菇街团队实现<a href="https://github.com/meili/MGJRouter" target="_blank" rel="noopener">MGJRouter</a>库，可以根据URL处理执行对应的Block；其核心在于，先注册URL 和 <strong>服务Block</strong> &amp; <strong>参数字典</strong>的对应关系（<em>保存在router字典中</em>），然后利用URL找到对应的Block，将参数字典交给Block，唤起对应的服务。</p>
+<pre><code>  // 注册
+ [MGJRouter registerURLPattern:@&quot;mgj://foo/bar&quot; toHandler:^(NSDictionary *routerParameters) {
+[self appendLog:[NSString stringWithFormat:@&quot;routerParameters:%@&quot;, routerParameters]];
+ }];
+
+ //传参
+ [MGJRouter openURL:@&quot;mgj://foo/bar&quot; withUserInfo:@{@&quot;param1&quot;:@&quot;hello world&quot;} completion:nil];
+
+ //同步获取object
+ NSNumber *orderCount = [MGJRouter objectForURL:@&quot;mgj://cart/ordercount&quot;]
+</code></pre></li>
+<li><p><strong>优势</strong>：解耦方便；各个组件依赖MGJRouter就可以；打破组件间的相关依赖关系；</p>
+</li>
+<li><p><strong>不足</strong>：组件本身依赖中间件，但是分散注册又使得<strong>耦合较多</strong>。<br>需要专门维护URL(<em>蘑菇街使用后台维护，自动生成URL短链的方式</em>)；</p>
+</li>
+</ul>
+<h5 id="2-2-Protocol-Class-Binding（协议和类绑定"><a href="#2-2-Protocol-Class-Binding（协议和类绑定" class="headerlink" title="2-2 Protocol Class Binding（协议和类绑定)"></a>2-2 Protocol Class Binding（协议和类绑定)</h5><ul>
+<li><p><strong>简介</strong>：可以看做是蘑菇街团队URLRouter的升级方案。其核心在于，为组件定义Protocol，Protocol指定返回的数据，然后在组件中新建Class实现Protocol，如此将Protocol和Class关联起来。</p>
+<pre><code> //以购物车组件为例
+
+//1、组件定义MGJCart，执行返回订单数方法
+ @protocol MGJCart &lt;NSObject&gt;
+ + (NSInteger)orderCount;
+ @end
+
+//2、MGJCartImpl 实现MGJCart ，实现略
+
+ //3、关联
+[ModuleManager registerClass:MGJCartImpl forProtocol:@protocol(MGJCart)]，
+
+//4、获取MGJCartImpl，接下来可以访问到参数了
+[ModuleManager classForProtocol:@protocol(MGJCart)]
+</code></pre></li>
+<li><p><strong>优势</strong>：把公共的协议统一放到同一文件中，组件依赖该文件即可。</p>
+</li>
+</ul>
+<h5 id="3、组件的单元测试"><a href="#3、组件的单元测试" class="headerlink" title="3、组件的单元测试"></a>3、组件的单元测试</h5><p>每一个组件都需要提供单元测试，保证代码质量。</p>
+<p><em>实践后，再来补充</em></p>
+<h5 id="4、组件开发、集成、发版"><a href="#4、组件开发、集成、发版" class="headerlink" title="4、组件开发、集成、发版"></a>4、组件开发、集成、发版</h5><p><em>实践后，再来补充</em></p>
+<blockquote>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4></blockquote>
+<ul>
+<li><p>个人认为，<strong>组件化</strong>是<strong>业务、团队快速扩张</strong>下的新的<strong>合作分工方式</strong>；</p>
+</li>
+<li><p>虽然我们团队还没有这类变革诉求，但是我们能够要在各个垂直、细分领域打开局面，形成自己的<strong>产品矩阵</strong>，组件化方案或类组件化方案是必须要有人去踩坑的。</p>
+<p>参考文章：<a href="https://www.jianshu.com/p/48fbcbb36c75" target="_blank" rel="noopener">iOS App组件化开发实践</a></p>
+</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS/" rel="tag"># iOS</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/14/iOS14-readFLAnimatedImage/" rel="next" title="速览FLAnimatedImage库笔记">
+                <i class="fa fa-chevron-left"></i> 速览FLAnimatedImage库笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/26/iOS05-kadunyouhua/" rel="prev" title="浅谈卡顿优化">
+                浅谈卡顿优化 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.jpeg"
+                alt="南华coder" />
+            
+              <p class="site-author-name" itemprop="name">南华coder</p>
+              <p class="site-description motion-element" itemprop="description">曾想仗剑走天涯,如今沉醉代码忙</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、概述"><span class="nav-number">1.</span> <span class="nav-text">一、概述</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、为什么用组件化"><span class="nav-number">1.1.</span> <span class="nav-text">1、为什么用组件化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、为什么还不用组件化"><span class="nav-number">1.2.</span> <span class="nav-text">2、为什么还不用组件化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、总结"><span class="nav-number">1.3.</span> <span class="nav-text">3、总结</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、组件化四要素"><span class="nav-number">2.</span> <span class="nav-text">二、组件化四要素</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、组件拆分"><span class="nav-number">2.1.</span> <span class="nav-text">1、组件拆分</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、组件间通信"><span class="nav-number">2.2.</span> <span class="nav-text">2、组件间通信</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-1-URLRouter"><span class="nav-number">2.3.</span> <span class="nav-text">2-1 URLRouter</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-2-Protocol-Class-Binding（协议和类绑定"><span class="nav-number">2.4.</span> <span class="nav-text">2-2 Protocol Class Binding（协议和类绑定)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、组件的单元测试"><span class="nav-number">2.5.</span> <span class="nav-text">3、组件的单元测试</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、组件开发、集成、发版"><span class="nav-number">2.6.</span> <span class="nav-text">4、组件开发、集成、发版</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">南华coder</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
