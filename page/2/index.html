@@ -254,6 +254,207 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/14/iOS14-readFLAnimatedImage/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/14/iOS14-readFLAnimatedImage/" itemprop="url">速览FLAnimatedImage库笔记</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-14T12:05:17+08:00">
+                2018-01-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS回忆录/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS回忆录</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>FLAnimatedImage库很不错，分享下我的学习笔记</p>
+<blockquote>
+<h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4></blockquote>
+<ul>
+<li><p><a href="https://github.com/rs/SDWebImage" target="_blank" rel="noopener">SDWebImage</a>处理网络GIF播放，是在<a href="https://github.com/Flipboard/FLAnimatedImage" target="_blank" rel="noopener">FLAnimatedImage库</a>基础上做的。</p>
+</li>
+<li><p><a href="https://github.com/Flipboard/FLAnimatedImage" target="_blank" rel="noopener">FLAnimatedImage库</a>就主要的类是：<strong>FLAnimatedImage类</strong>和<strong>FLAnimatedImageView类</strong>。<strong>FLAnimatedImage</strong>看做个生产者，负责将GIF图片转换成一帧帧图片，提供给<strong>FLAnimatedImageView</strong>；后者可以看做是消费者，将一帧帧图片刷新显示到屏幕中。</p>
+</li>
+<li><p><a href="https://github.com/Flipboard/FLAnimatedImage" target="_blank" rel="noopener">FLAnimatedImage库</a>中涉及一些<strong>线程安全</strong>、<strong>weakProxy</strong>、<strong>内存警告处理</strong>还是很值得借鉴的。</p>
+</li>
+</ul>
+<blockquote>
+<h4 id="二、FLAnimatedImage-类"><a href="#二、FLAnimatedImage-类" class="headerlink" title="二、FLAnimatedImage 类"></a>二、FLAnimatedImage 类</h4></blockquote>
+<p>重要的两个方法，分别是<strong>initWithAnimatedGIFData:方法</strong> 和  <strong>imageLazilyCachedAtIndex:方法</strong></p>
+<h5 id="1、initWithAnimatedGIFData-方法"><a href="#1、initWithAnimatedGIFData-方法" class="headerlink" title="1、initWithAnimatedGIFData: 方法"></a>1、initWithAnimatedGIFData: 方法</h5><ul>
+<li><p>其一、获取<strong>GIF图片的信息</strong>，包括图片大小、图片帧数、首帧图片、每帧图片的属性信息(播放时间)、循环播放次数，最大缓存帧个数等。其中<strong>最大缓存帧个数</strong>是根据图片大小获得 或者 手动指定。</p>
+</li>
+<li><p>其二、设置个弱代理(weakProxy)，用来<strong>防止循环引用</strong>用的。</p>
+</li>
+<li><p>其三、将自己添加<strong>allAnimatedImagesWeak</strong>对象中（添加操作使用@synchronized保证线程安全），这是一个NSHashTable对象，当哈希表中的FLAnimatedImage对象的引用计数是0时，表中会清除该对象。</p>
+<p><strong>说明</strong>：线程同步中，一说<strong>同步锁</strong>，很多人直觉反应，性能最差，不用；但是FLAnimatedImage库和SDWebImage都在用，应该是其<strong>使用方便</strong>所致；其本身实现很有意思，利用对象的内存地址去获取互斥锁；还添加了异常处理，如果同步某对象抛出异常时，还会释放掉锁。</p>
+</li>
+</ul>
+<h5 id="2、imageLazilyCachedAtIndex-方法"><a href="#2、imageLazilyCachedAtIndex-方法" class="headerlink" title="2、imageLazilyCachedAtIndex:方法"></a>2、imageLazilyCachedAtIndex:方法</h5><ul>
+<li><p>通过<strong>imageLazilyCachedAtIndex:方法</strong>将帧每一帧图片给FLAnimatedImageView对象展示。</p>
+</li>
+<li><p>根据<strong>当前的帧号</strong>(index)和<strong>当前缓存帧数</strong>(frameCacheSizeCurrent)获取接下来需要缓存的帧图片，并异步绘制出位图，并保存在内存缓存中。</p>
+<p><strong>说明</strong>：都是提前绘制后面需要展示的图片，第一帧图片在init方法时就获得了。</p>
+</li>
+</ul>
+<h5 id="3、内存警告的处理"><a href="#3、内存警告的处理" class="headerlink" title="3、内存警告的处理"></a>3、内存警告的处理</h5><ul>
+<li><p>位图比较大，将位图缓存在内存中，即使FLAnimatedImage做了优化，当时GIF较大，或多张GIF同时播放，内存的压力会很大，很大概率收到内存警告。</p>
+</li>
+<li><p><strong>allAnimatedImagesWeak</strong>保存所有的FLAnimatedImage对象，收到内存警告时，通知所有FLAnimatedImage对象，当前只允许缓存一帧图片；如果接下来没有新的内存警告，慢慢恢复到定义的缓存的图片帧数；但是如果内存警告次数超过三次，以后只能缓存一帧图片。</p>
+</li>
+<li><p>在内存警告处理中，使用了些<strong>延迟执行</strong>的方法，防止循环引用，使用了弱代理(weakProxy)。</p>
+</li>
+<li><p>weakProxy是FLWeakProxy 对象；FLWeakProxy是NSProxy类子类，持有一个 weak 对象的代理，利用消息转发机制将消息的处理交给weak 对象；用来避免循环引用的一种方法，具体可以看我之前写的<a href="https://www.jianshu.com/p/5068b6f02238" target="_blank" rel="noopener">解决NSTimer/CADisplayLink的循环引用</a>。</p>
+</li>
+</ul>
+<blockquote>
+<h4 id="三、FLAnimatedImageView"><a href="#三、FLAnimatedImageView" class="headerlink" title="三、FLAnimatedImageView"></a>三、FLAnimatedImageView</h4></blockquote>
+<h5 id="1、CADispalyLink"><a href="#1、CADispalyLink" class="headerlink" title="1、CADispalyLink"></a>1、CADispalyLink</h5><ul>
+<li><p>CADispalyLink是个和屏幕刷新率相同的定时器，将帧图片刷新显示在屏幕上。</p>
+</li>
+<li><p>使用FLWeakProxy这类弱引用代理，打破循环引用；</p>
+</li>
+<li><p>多个处理器情况下，CADispalyLink对象默认以NSRunLoopCommonModes添加到Runloop上，避免因为列表滑动不刷新显示。</p>
+</li>
+<li><p>CADispalyLink的刷新时间是：每帧图片播放时间的最大公约数；因为不能保证每帧图片的播放时间是一样的，取他们的最大公约数，使得每一帧都尽可能获得其播放时间。当然也可以暴力使用平均停留时间作为CADispalyLink的刷新时间。</p>
+</li>
+</ul>
+<blockquote>
+<h4 id="四、后记"><a href="#四、后记" class="headerlink" title="四、后记"></a>四、后记</h4></blockquote>
+<ul>
+<li><p>这是之前阅读FLAnimatedImage库的笔记整理，一是本着学习的目的，二是为了评估 <strong>在列表页缩放裁剪播放n张GIF图的需求</strong>的可行性；</p>
+</li>
+<li><p>将<strong>GIF图片的裁剪和合成小GIF图</strong>的重任交给客户端，本身就很冒险；裁剪过程中，GIF图片的帧数多，GIF图片多，对内存的挑战是很大的，在列表中下发小的GIF图播放比较好（后台表示压力大）。</p>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/13/iOS12-generateCode/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1859,7 +2060,7 @@ scheme: Gemini
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-count">17</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1881,7 +2082,7 @@ scheme: Gemini
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
