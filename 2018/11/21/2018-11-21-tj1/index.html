@@ -88,10 +88,13 @@
 <meta property="og:site_name" content="南华coder的空间">
 <meta property="og:description" content="x 序言花非花，雾非雾。夜半来，天明去。来如春梦不多时，去似朝云无觅处。 ​    用白居易的诗作为《推荐迷雾》系列的开始，本人非推荐算法工程师，但是工作中也和算法打过些交道，也曾于13年拜读过项亮博士的《推荐系统实战》，这本12年出版的“旧”书如今再读起来，更多一番体会；虽然近些年，机器学习尤其是深度学习给传统推荐学习带来新的变化，但是这些新兴的推荐技术依旧有传统的推荐算法模型的影子。 一、开篇">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-11-26T15:57:50.338Z">
+<meta property="og:image" content="http://buaa0300/nanhuacoder.com/2018/11/21/2018-11-21-tj1/mab">
+<meta property="og:image" content="http://buaa0300/nanhuacoder.com/2018/11/21/2018-11-21-tj1/bandit-performance">
+<meta property="og:updated_time" content="2018-11-27T15:59:43.008Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="推荐迷雾(一):再见推荐系统">
 <meta name="twitter:description" content="x 序言花非花，雾非雾。夜半来，天明去。来如春梦不多时，去似朝云无觅处。 ​    用白居易的诗作为《推荐迷雾》系列的开始，本人非推荐算法工程师，但是工作中也和算法打过些交道，也曾于13年拜读过项亮博士的《推荐系统实战》，这本12年出版的“旧”书如今再读起来，更多一番体会；虽然近些年，机器学习尤其是深度学习给传统推荐学习带来新的变化，但是这些新兴的推荐技术依旧有传统的推荐算法模型的影子。 一、开篇">
+<meta name="twitter:image" content="http://buaa0300/nanhuacoder.com/2018/11/21/2018-11-21-tj1/mab">
 
 
 
@@ -337,7 +340,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1,943 字
+                  2,438 字
                 </span>
               
 
@@ -353,7 +356,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  7 分
+                  9 分
                 </span>
               
             </div>
@@ -388,13 +391,13 @@
 </li>
 </ul>
 <h5 id="1-2、TopN推荐的评估"><a href="#1-2、TopN推荐的评估" class="headerlink" title="1-2、TopN推荐的评估"></a>1-2、TopN推荐的评估</h5><ul>
-<li><p>在这里用到了<strong>准确率</strong>和<strong>召回率</strong>两个度量值</p>
-</li>
-<li><p><strong>召回率</strong>（Recall）代表：<strong>推荐对(被用户消费)的数量</strong>，占用户消费数量的比例</p>
-</li>
-<li><p><strong>准确率</strong>（Precision）代表：<strong>推荐对(被用户消费)的数量</strong>，占所有推荐数量的比例</p>
-</li>
+<li>在这里用到了<strong>准确率</strong>、<strong>召回率</strong>和<strong>F-1 Score</strong>三个度量值</li>
+<li><strong>召回率</strong>（Recall）：用户消费的内容，是由推荐提供的占比</li>
+<li><strong>准确率</strong>（Precision）：推荐的内容中，用户消费的占比</li>
+<li><strong>F-1 Score</strong> </li>
 </ul>
+<p>$$<br>F_1 Score = \frac{2 x recall * precision}{recall + precision}<br>$$</p>
+<p><strong>召回率</strong>表示在原始样本的正样本中，最后被正确预测为正样本的概率；</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#计算召回率和准确率</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">PrecisionRecall</span><span class="params">(test,N)</span>:</span></span><br><span class="line">	hit = <span class="number">0</span></span><br><span class="line">	n_recall = <span class="number">0</span></span><br><span class="line">	n_precision = <span class="number">0</span></span><br><span class="line">	<span class="keyword">for</span> user,item <span class="keyword">in</span> test.items():</span><br><span class="line">		rank = Recommend(user,N)</span><br><span class="line">		hit += len(rank &amp; items)</span><br><span class="line">		n_recall += len(items)</span><br><span class="line">		n_precision += N</span><br><span class="line">	<span class="keyword">return</span> [hit/(<span class="number">1.0</span> * n_recall),hit/(<span class="number">1.0</span>*n_precision)]</span><br></pre></td></tr></table></figure>
 <ul>
 <li>为了全面评估TopN推荐的准确率和召回率，一般选取不同推荐列表长度N，计算一组准确率/召回率，然后画出准确率/召回率曲线。</li>
@@ -417,10 +420,8 @@
 </li>
 </ul>
 <h3 id="三、推荐系统架构"><a href="#三、推荐系统架构" class="headerlink" title="三、推荐系统架构"></a>三、推荐系统架构</h3><ul>
-<li><p>推荐系统是产品的核心，而推荐算法仅仅是推荐系统中的一部分；以NetFlix的推荐系统架构为例，介绍经典的推荐系统架构。</p>
-</li>
-<li><p>在NetFlix推荐系统架构中，分为三层：Offline层（离线层）、Nearline层（近线层）和  Online层（在线层）</p>
-</li>
+<li>推荐系统是产品的核心，而推荐算法仅仅是推荐系统中的一部分；以NetFlix的推荐系统架构为例，介绍经典的推荐系统架构。</li>
+<li>在NetFlix推荐系统架构中，分为三层：Offline层（离线层）、Nearline层（近线层）和  Online层（在线层）</li>
 </ul>
 <h4 id="1、Offline层（离线层）"><a href="#1、Offline层（离线层）" class="headerlink" title="1、Offline层（离线层）"></a>1、Offline层（离线层）</h4><ul>
 <li>这一层批量、周期性地<strong>抽取数据</strong>，<strong>训练模型</strong>；训练得到的模型可以用于为用户计算推荐结果。协同过滤、矩阵分解一般在这层做，Hadoop、Spark分布式计算也在这一层。</li>
@@ -433,11 +434,20 @@
 <li>用户使用App/浏览Web，消费展示内容，产生行为事件数据，如页面曝光，按钮点击等，实时被收集走，一边进入分布式文件系统中做存储，给Offline使用，一边流向Nearline的<strong>消息队列</strong>，供Nearline的<strong>流计算</strong>使用。</li>
 <li>用户发出请求，等待推荐结果；Online层必须实施响应用户请求，要快，要有兜底，Online层处理的一般是已经预处理后的推荐结果。</li>
 </ul>
-<h3 id="四、Bandit算法"><a href="#四、Bandit算法" class="headerlink" title="四、Bandit算法"></a>四、Bandit算法</h3><ul>
-<li>在推荐系统中有两个经典问题：<strong>冷启动</strong>和<strong>EE</strong>(探索和利用问题)，Bandit算法提供了一种解决办法；其中<strong>冷启动</strong>的本质是：推荐系统没有历史数据，无法预测用户偏好；可分为用户冷启动，物品冷启动和系统冷启动。<strong>EE问题</strong>是指，是选择现在不确定的一些方案，但未来可能会有高收益的方案；还是选择现在可能最佳的方案；本质是一个选择的问题。</li>
-<li>Bandit 算法的思想是：看看选择会带来多少遗憾，遗憾越少越好。</li>
+<h3 id="四、推荐系统中的冷启动和EE问题"><a href="#四、推荐系统中的冷启动和EE问题" class="headerlink" title="四、推荐系统中的冷启动和EE问题"></a>四、推荐系统中的冷启动和EE问题</h3><ul>
+<li>在推荐系统中有两个经典问题：<strong>冷启动</strong>和<strong>EE</strong>(探索和利用问题)。</li>
+<li>Bandit算法提供了一种有效的解决办法；其中<strong>冷启动</strong>的本质是：推荐系统没有历史数据，无法预测用户偏好；可分为用户冷启动，物品冷启动和系统冷启动。<strong>EE问题</strong>是指，是选择现在不确定的一些方案，但未来可能会有高收益的方案；还是选择现在可能最佳的方案；本质是一个选择的问题。</li>
+<li>Bandit 算法来源于历史悠久的赌博学，它要解决这样的问题：一个赌徒去摇老虎机，赌场中有的老虎机一模一样，但是每个老虎机吐钱的概率不一样，他不知道每个老虎机吐钱的概率分布是什么，那么每次该选择哪个老虎机可以做到最大化收益呢？这就是<strong>多臂赌博机问题</strong>（Multi-armed bandit problem, K-armed bandit problem, MAB）</li>
 </ul>
-<h4 id="1、汤普森采样算法"><a href="#1、汤普森采样算法" class="headerlink" title="1、汤普森采样算法"></a>1、汤普森采样算法</h4><p><strong>原理</strong>：</p>
+<p><img src="/nanhuacoder.com/2018/11/21/2018-11-21-tj1/mab" alt="MAB问题"></p>
+<ul>
+<li><p>假设我们已经经过一些试验，得到了当前每个老虎机的吐钱的概率，如果想要获得最大的收益，我们会一直摇哪个吐钱概率最高的老虎机，这就是Exploitation。但是，当前获得的信息并不是老虎机吐钱的真实概率，可能还有更好的老虎机吐钱概率更高，因此还需要进一步探索，这就是Exploration问题。</p>
+</li>
+<li><p>Bandit解决MAB或者EE问题的策略是：有策略地走一步看一步，这些策略就是Bandit算法，经典的Bandit算法分别是：<strong>朴素Bandit、汤普森采样、UCB和Epsilon贪婪算法</strong>。</p>
+</li>
+</ul>
+<h4 id="1、朴素Bandit"><a href="#1、朴素Bandit" class="headerlink" title="1、朴素Bandit"></a>1、朴素Bandit</h4><p><strong>原理</strong>：先随机试若干次，计算每个臂的平均收益，一直选均值最大那个臂。</p>
+<h4 id="2、汤普森采样-Thompson-sampling-算法"><a href="#2、汤普森采样-Thompson-sampling-算法" class="headerlink" title="2、汤普森采样(Thompson sampling)算法"></a>2、汤普森采样(Thompson sampling)算法</h4><p><strong>原理</strong>：</p>
 <ul>
 <li>每个臂维护一个beta(a，b)分布，每次用现有的beta分布产生一个随机数，输出随机数最大的臂（较快，随机性高）</li>
 </ul>
@@ -463,24 +473,31 @@
 <li>如果a+b很大，a/(a+b)也很大，那么分布产生的随机数越接近1，平均收益很好，进入利用阶段；</li>
 <li>如果a+b很小，说明候选的好坏不能确定，分布很宽，可能得到一个较大的随机数，排序时候可能被优先输出，起到了探索的目的。</li>
 </ul>
-<h4 id="2、UCB算法"><a href="#2、UCB算法" class="headerlink" title="2、UCB算法"></a>2、UCB算法</h4><p><strong>原理</strong>：</p>
+<h4 id="3、UCB算法"><a href="#3、UCB算法" class="headerlink" title="3、UCB算法"></a>3、UCB算法</h4><p><strong>原理</strong>：</p>
 <ul>
 <li>以每个候选的平均收益作为基准线进行选择</li>
 <li>对于每次被选择不足的给与照顾</li>
 <li>选择倾向于那些确定收益较好的候选</li>
 </ul>
 <p><strong>简言之</strong>，均值越大，标准差越小，被选中的概率会越来越大 (相对慢一点，确定性高)</p>
-<h4 id="3、Epsilon贪婪算法"><a href="#3、Epsilon贪婪算法" class="headerlink" title="3、Epsilon贪婪算法"></a>3、Epsilon贪婪算法</h4><p><strong>原理：</strong></p>
+<h4 id="4、Epsilon贪婪-Epsilon-Greedy-算法"><a href="#4、Epsilon贪婪-Epsilon-Greedy-算法" class="headerlink" title="4、Epsilon贪婪(Epsilon-Greedy)算法"></a>4、Epsilon贪婪(Epsilon-Greedy)算法</h4><p><strong>原理：</strong></p>
 <ul>
 <li>先选一个(0,1)之间较小的值，作为Epsilon，然后每次以1-epsilon的概率选取当前收益最大的臂，以epsilon的随机概率选取一个臂。（后期不需要较大探索，epsilon需要衰减）</li>
 <li>Epsilon可以控制探索和利用的程度，Epsilon越接近0，在探索上就越保守；Epsilon越接近1，在探索上就越激进。</li>
 </ul>
+<p><img src="/nanhuacoder.com/2018/11/21/2018-11-21-tj1/bandit-performance" alt="Bandit算法算法模拟试验效果"></p>
 <p><strong>总结</strong>：UCB算法和汤普森采样算法效果更好些。</p>
-<h3 id="五、Bandit算法应用"><a href="#五、Bandit算法应用" class="headerlink" title="五、Bandit算法应用"></a>五、Bandit算法应用</h3><h4 id="1、LinUCB"><a href="#1、LinUCB" class="headerlink" title="1、LinUCB"></a>1、LinUCB</h4><ul>
+<h3 id="五、Bandit算法的工程实现"><a href="#五、Bandit算法的工程实现" class="headerlink" title="五、Bandit算法的工程实现"></a>五、Bandit算法的工程实现</h3><p>​    上面介绍的<strong>朴素Bandit、汤普森采样、UCB和Epsilon贪婪算法</strong>都是经典的Bandit算法，在工程中很少使用；实际中，我们采用的是上下文Bandit算法，比较常见的是LinUCB算法和COFIBA算法</p>
+<h4 id="1、LinUCB"><a href="#1、LinUCB" class="headerlink" title="1、LinUCB"></a>1、LinUCB</h4><ul>
+<li>UCB算法的扩展</li>
+<li>根据p’ + ∆来选择合适的老虎机。p’的计算基于有监督的学习方法。我们为每个老虎机维护一个特征向量D，同时上下文特征我们写作θ，然后通过收集的反馈进行有监督学习：</li>
 <li>加入特征信息，用User和Item的特征预估回报及其置信区间，选择置信区间上界最大的Item推荐，观察回报后更新线性关系的参数，以此达到试验学习的目的。</li>
+<li><a href="http://www.naodongopen.com/908.html" target="_blank" rel="noopener">http://www.naodongopen.com/908.html</a></li>
 </ul>
 <h4 id="2、COFIBA"><a href="#2、COFIBA" class="headerlink" title="2、COFIBA"></a>2、COFIBA</h4><ul>
-<li>bandit结合协同过滤。</li>
+<li><p>bandit结合协同过滤。</p>
+<p><a href="https://blog.csdn.net/heyc861221/article/details/80129310" target="_blank" rel="noopener">https://blog.csdn.net/heyc861221/article/details/80129310</a></p>
+</li>
 </ul>
 <h3 id="Todo"><a href="#Todo" class="headerlink" title="Todo"></a>Todo</h3><ul>
 <li>ABTest的分层实验设计</li>
@@ -663,7 +680,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#序言"><span class="nav-number">1.</span> <span class="nav-text">序言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一、开篇"><span class="nav-number">2.</span> <span class="nav-text">一、开篇</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、推荐系统的评估指标和方法"><span class="nav-number">3.</span> <span class="nav-text">二、推荐系统的评估指标和方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、评估指标"><span class="nav-number">3.1.</span> <span class="nav-text">1、评估指标</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-1、评分预测的评估"><span class="nav-number">3.1.1.</span> <span class="nav-text">1-1、评分预测的评估</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2、TopN推荐的评估"><span class="nav-number">3.1.2.</span> <span class="nav-text">1-2、TopN推荐的评估</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3、覆盖率"><span class="nav-number">3.1.3.</span> <span class="nav-text">1-3、覆盖率</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3、其他指标"><span class="nav-number">3.1.4.</span> <span class="nav-text">1-3、其他指标</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、评估方法"><span class="nav-number">3.2.</span> <span class="nav-text">2、评估方法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、推荐系统架构"><span class="nav-number">4.</span> <span class="nav-text">三、推荐系统架构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、Offline层（离线层）"><span class="nav-number">4.1.</span> <span class="nav-text">1、Offline层（离线层）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、Nearline层（近线层）"><span class="nav-number">4.2.</span> <span class="nav-text">2、Nearline层（近线层）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、Online层（在线层）"><span class="nav-number">4.3.</span> <span class="nav-text">3、Online层（在线层）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四、Bandit算法"><span class="nav-number">5.</span> <span class="nav-text">四、Bandit算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、汤普森采样算法"><span class="nav-number">5.1.</span> <span class="nav-text">1、汤普森采样算法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、UCB算法"><span class="nav-number">5.2.</span> <span class="nav-text">2、UCB算法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、Epsilon贪婪算法"><span class="nav-number">5.3.</span> <span class="nav-text">3、Epsilon贪婪算法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#五、Bandit算法应用"><span class="nav-number">6.</span> <span class="nav-text">五、Bandit算法应用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、LinUCB"><span class="nav-number">6.1.</span> <span class="nav-text">1、LinUCB</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、COFIBA"><span class="nav-number">6.2.</span> <span class="nav-text">2、COFIBA</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Todo"><span class="nav-number">7.</span> <span class="nav-text">Todo</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#序言"><span class="nav-number">1.</span> <span class="nav-text">序言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一、开篇"><span class="nav-number">2.</span> <span class="nav-text">一、开篇</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、推荐系统的评估指标和方法"><span class="nav-number">3.</span> <span class="nav-text">二、推荐系统的评估指标和方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、评估指标"><span class="nav-number">3.1.</span> <span class="nav-text">1、评估指标</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-1、评分预测的评估"><span class="nav-number">3.1.1.</span> <span class="nav-text">1-1、评分预测的评估</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2、TopN推荐的评估"><span class="nav-number">3.1.2.</span> <span class="nav-text">1-2、TopN推荐的评估</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3、覆盖率"><span class="nav-number">3.1.3.</span> <span class="nav-text">1-3、覆盖率</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-3、其他指标"><span class="nav-number">3.1.4.</span> <span class="nav-text">1-3、其他指标</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、评估方法"><span class="nav-number">3.2.</span> <span class="nav-text">2、评估方法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、推荐系统架构"><span class="nav-number">4.</span> <span class="nav-text">三、推荐系统架构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、Offline层（离线层）"><span class="nav-number">4.1.</span> <span class="nav-text">1、Offline层（离线层）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、Nearline层（近线层）"><span class="nav-number">4.2.</span> <span class="nav-text">2、Nearline层（近线层）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、Online层（在线层）"><span class="nav-number">4.3.</span> <span class="nav-text">3、Online层（在线层）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四、推荐系统中的冷启动和EE问题"><span class="nav-number">5.</span> <span class="nav-text">四、推荐系统中的冷启动和EE问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、朴素Bandit"><span class="nav-number">5.1.</span> <span class="nav-text">1、朴素Bandit</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、汤普森采样-Thompson-sampling-算法"><span class="nav-number">5.2.</span> <span class="nav-text">2、汤普森采样(Thompson sampling)算法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、UCB算法"><span class="nav-number">5.3.</span> <span class="nav-text">3、UCB算法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、Epsilon贪婪-Epsilon-Greedy-算法"><span class="nav-number">5.4.</span> <span class="nav-text">4、Epsilon贪婪(Epsilon-Greedy)算法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#五、Bandit算法的工程实现"><span class="nav-number">6.</span> <span class="nav-text">五、Bandit算法的工程实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、LinUCB"><span class="nav-number">6.1.</span> <span class="nav-text">1、LinUCB</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、COFIBA"><span class="nav-number">6.2.</span> <span class="nav-text">2、COFIBA</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Todo"><span class="nav-number">7.</span> <span class="nav-text">Todo</span></a></li></ol></div>
             
 
           </div>
@@ -697,7 +714,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">28.5k</span>
+    <span title="Site words total count">29.0k</span>
   
 </div>
 
