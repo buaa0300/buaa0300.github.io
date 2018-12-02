@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>南华coder的空间</title>
+  <title>南华coder的菜园子</title>
   
   
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://buaa0300/nanhuacoder.com/"/>
-  <updated>2018-11-28T15:49:17.163Z</updated>
+  <updated>2018-12-02T03:26:06.586Z</updated>
   <id>http://buaa0300/nanhuacoder.com/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>推荐迷雾(一):话说ABTest实验</title>
+    <link href="http://buaa0300/nanhuacoder.com/2018/11/30/2018-11-30-tl2/"/>
+    <id>http://buaa0300/nanhuacoder.com/2018/11/30/2018-11-30-tl2/</id>
+    <published>2018-11-30T15:17:13.000Z</published>
+    <updated>2018-12-02T03:26:06.586Z</updated>
+    
+    <content type="html"><![CDATA[<p><em>雄兔脚扑朔，雌兔眼迷离；双兔傍地走，安能辨我是雄雌？</em></p><h3 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h3><h4 id="1、什么是ABTest实验"><a href="#1、什么是ABTest实验" class="headerlink" title="1、什么是ABTest实验"></a>1、什么是ABTest实验</h4><ul><li>今天ABTest已经是一门显学了，主流的产品，无论是算法模型优化，还是UI或体验的调整，上线后都会做ABTest实验，这种线上实验离用户更近，收益大于离线评估方案；</li><li>ABTest实验是为了避免盲目决策带来不确定性和随机性，将各种不同的实验同时放到线上，然后利用数据分析来辅助决策，总之一句话，让数据说话 (data talk)。</li></ul><h4 id="2、ABTest实验的条件"><a href="#2、ABTest实验的条件" class="headerlink" title="2、ABTest实验的条件"></a>2、ABTest实验的条件</h4><ul><li><strong>比较好的两个及以上备选方案</strong>，毕竟 ABTest实验不是银弹，它只是辅助我们做<strong>更好的选择</strong>。</li><li><strong>量化的指标</strong>，比如App中PV、UV、CTR、CVR、CPM等</li><li><strong>用户群体稳定 且 用户量足够</strong></li></ul><h4 id="3、ABTest实验需要注意的问题"><a href="#3、ABTest实验需要注意的问题" class="headerlink" title="3、ABTest实验需要注意的问题"></a>3、ABTest实验需要注意的问题</h4><ul><li><strong>实验流量合理分配</strong>: 保证每组实验流量分配的正交性、均匀性和充足性</li><li><strong>排查实验自身干扰</strong>：实验中可能引入不确定因素，导致结果不可预估</li></ul><p><strong>参考</strong>：<a href="http://uxren.cn/?p=58841" target="_blank" rel="noopener">你的AB测试平台和方案，真的可靠么</a></p><h3 id="二、单层模型和分层模型"><a href="#二、单层模型和分层模型" class="headerlink" title="二、单层模型和分层模型"></a>二、单层模型和分层模型</h3><h4 id="1、单层模型"><a href="#1、单层模型" class="headerlink" title="1、单层模型"></a>1、单层模型</h4><ul><li>不同组实验在同一层拆分流量，不同组的流量是不重叠的</li><li>只能支持少量的实验，不利于迭代</li><li>实验之间不独立，策略之间可能相互影响</li><li>分流方式不灵活</li></ul><h4 id="2、分层模型"><a href="#2、分层模型" class="headerlink" title="2、分层模型"></a>2、分层模型</h4><ul><li>主流的流量分配方案，来自2010年谷歌公布的的《Overlapping Experiment Infrastructure More, Better, Faster Experimentation》论文；</li><li>谷歌提出将实验空间横向、纵向划分，纵向流量可以独占实验区域，可以独享实验流量，不被其他实验影响；横向分若干层，每一个可以做同一组的实验，每个独立实验为一层，层与层之间流量是正交的，一份流量穿越每层实验时，都会再次随机打散，且随机效果离散。</li></ul><p><strong>参考</strong>：<a href="http://www.woshipm.com/pd/1080730.html" target="_blank" rel="noopener">一文搞懂AB Testing的分层分流</a></p><h3 id="三、分层模型方案"><a href="#三、分层模型方案" class="headerlink" title="三、分层模型方案"></a>三、分层模型方案</h3><h4 id="1、技术关键点"><a href="#1、技术关键点" class="headerlink" title="1、技术关键点"></a>1、技术关键点</h4><ul><li><p>分流函数（流量如何在每层被打散）如何设计，如果保证每层流量分配的均匀性和正交性</p></li><li><p>如何处理实验样本的过滤(如 只选取某个地区的用户、只选取新用户)</p></li><li><p>分配多大的流量可以使实验置信</p></li></ul><h4 id="2、设计"><a href="#2、设计" class="headerlink" title="2、设计"></a>2、设计</h4><ul><li>域（domain）：划分的一部分流量</li><li>层（layer）：系统参数的一个子集</li><li>实验（exp）：在一个域上，对一个或者多个参数修改，改变请求路径的过程</li></ul><ul><li>相关联的策略参数位于同一实验层；</li><li>相互独立的策略参数分属于不同的实验层；</li><li>一个实验参数只能在一个实验层中出现；</li><li><p>不同实验层间进行独立的流量划分和独立的实验，互不影响。</p></li><li><p>每一实验层享有 100% 流量，可以避免流量切分过细，保证实验间的可对比性、客观性；</p></li><li>不同实验层之间流量正交，可以避免不同试验间的流量依赖和流量不均匀情况的出现。为了更好地评估实验的效果，每一实验层还引入了基准实验。该基准实验会采用该实验层的默认策略取值，流量配比会设定在一个合适的水平。</li></ul><h3 id="四、业内ABTest实验平台"><a href="#四、业内ABTest实验平台" class="headerlink" title="四、业内ABTest实验平台"></a>四、业内ABTest实验平台</h3><p>基于Google的分层模型，美团和微博的ABTest平台实现</p><h4 id="1、美团点评-的-Gemini"><a href="#1、美团点评-的-Gemini" class="headerlink" title="1、美团点评 的 Gemini"></a>1、美团点评 的 Gemini</h4><p><a href="https://www.csdn.net/article/2015-03-24/2824303" target="_blank" rel="noopener">https://www.csdn.net/article/2015-03-24/2824303</a></p><h4 id="2、微博的-Faraday"><a href="#2、微博的-Faraday" class="headerlink" title="2、微博的 Faraday"></a>2、微博的 Faraday</h4><p>微博广告法拉第（Faraday）全流量分层实验平台。该实验平台支持大规模广告策略并发实验，提供了多种流量均匀分流模式，全面的广告指标跟踪评估，实验效果实时反馈等。</p><p><a href="http://www.yunweipai.com/archives/19535.html" target="_blank" rel="noopener">http://www.yunweipai.com/archives/19535.html</a></p><ul><li><a href="https://zhuanlan.zhihu.com/p/25685006" target="_blank" rel="noopener">携程机票的ABTest实践</a></li><li><a href="https://yq.aliyun.com/articles/5837" target="_blank" rel="noopener">10分钟搞懂分层实验原理</a></li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;&lt;em&gt;雄兔脚扑朔，雌兔眼迷离；双兔傍地走，安能辨我是雄雌？&lt;/em&gt;&lt;/p&gt;
+&lt;h3 id=&quot;一、概述&quot;&gt;&lt;a href=&quot;#一、概述&quot; class=&quot;headerlink&quot; title=&quot;一、概述&quot;&gt;&lt;/a&gt;一、概述&lt;/h3&gt;&lt;h4 id=&quot;1、什么是ABTest实验&quot;
+      
+    
+    </summary>
+    
+      <category term="推荐迷雾" scheme="http://buaa0300/nanhuacoder.com/categories/%E6%8E%A8%E8%8D%90%E8%BF%B7%E9%9B%BE/"/>
+    
+    
+  </entry>
   
   <entry>
     <title>推荐迷雾(一):再见推荐系统</title>
@@ -92,9 +116,9 @@
     <link href="http://buaa0300/nanhuacoder.com/2018/11/17/2018-11-17begin/"/>
     <id>http://buaa0300/nanhuacoder.com/2018/11/17/2018-11-17begin/</id>
     <published>2018-11-17T13:29:45.000Z</published>
-    <updated>2018-11-21T14:54:36.555Z</updated>
+    <updated>2018-12-02T03:08:37.059Z</updated>
     
-    <content type="html"><![CDATA[<h3 id="一、先定个小目标"><a href="#一、先定个小目标" class="headerlink" title="一、先定个小目标"></a>一、先定个小目标</h3><ul><li>10月份已经过了27岁生日，工作两年多了；挫败过，努力过，迷茫过；17年4月到18年年初断断续续写了些iOS方面的博客，到现在已经停更足足7个月了，最近又有了些博客的冲动。</li><li>从11月份到春节前，大约3个月的时间，计划写些算法方面的文章，分为两个专题：”<strong>算法一重境</strong>“ 和 “<strong>推荐迷雾</strong>“</li><li>在”<strong>算法一重境</strong>“中将会有3-4篇文章，这里会有数据结构、机器学习、深度学习的东西；随着自己的性子写，写到哪是哪。</li><li>在”<strong>推荐迷雾</strong>“中将会有3-4篇文章，这里只有推荐相关的内容，会比”<strong>算法一重境</strong>“中文章更深入。</li></ul><h3 id="二、两点说明"><a href="#二、两点说明" class="headerlink" title="二、两点说明"></a>二、两点说明</h3><ul><li>本人不是算法方向的工程师，只是因为在读书阶段学过些算法知识，加上自己本身对算法也有兴趣；就斗胆写写我的个人见解。</li><li>平时工作也挺忙的，再加上家里还有事，写文章的时间也挺有限，但是文章会好好写，时间的关系，很多文章会先挖坑，再慢慢填上；甚至文章有些地方会反复修改。</li></ul><h3 id="三、其他"><a href="#三、其他" class="headerlink" title="三、其他"></a>三、其他</h3><ul><li>以前喜欢和人争对错，现在越发佛系。</li></ul>]]></content>
+    <content type="html"><![CDATA[<h3 id="一、先定个小目标"><a href="#一、先定个小目标" class="headerlink" title="一、先定个小目标"></a>一、先定个小目标</h3><ul><li>10月份已经过了27岁生日，工作两年多了；挫败过，努力过，迷茫过；17年4月到18年年初断断续续写了些iOS方面的博客，到现在已经停更足足7个月了，最近又有了些博客的冲动。</li><li>从11月份到春节前，大约3个月的时间，计划写些算法方面的文章，分为两个专题：”<strong>算法一重境</strong>“ 和 “<strong>推荐迷雾</strong>“</li><li>在”<strong>算法一重境</strong>“中将会有3-4篇文章，这里会有数据结构、机器学习、深度学习的东西；随着自己的性子写，写到哪是哪。</li><li>在”<strong>推荐迷雾</strong>“中将会有5-6篇文章，这里只有推荐相关的内容，会比”<strong>算法一重境</strong>“中文章更深入。</li></ul><h3 id="二、往事"><a href="#二、往事" class="headerlink" title="二、往事"></a>二、往事</h3><ul><li>2018年算法招聘很火很火，但是移动端、前端招聘门口罗雀；其实在12、13年的时候，算法招聘也很冷，听一位算法前辈说，当年组里招不到，好不容易陆陆续续招了一些对算法感兴趣的应届生，然后专门给他们上课培训，希望他们能长期做下去，但是最终还是有很多人转岗去做研发了。</li><li>时过境迁，今天的算法招聘明显过大于求；可以预料的是，未来1-2年还会是这种情况。</li></ul>]]></content>
     
     <summary type="html">
     
