@@ -89,7 +89,7 @@
 <meta property="og:site_name" content="南华coder的空间">
 <meta property="og:description" content="一、概述 1、内存管理 引用计数：OC对象都有个引用计数(retaincount)、表明当前有多少个对象希望该对象存活；当对象的retaincount &amp;gt; 0,对象存活；当对象的retaincount = 0,对象销毁；  创建对象，retaincount至少为1；retain操作，retaincount加1；release操作，retaincount减1；autorelease操作，清理">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-09-22T03:40:58.000Z">
+<meta property="og:updated_time" content="2019-03-23T05:07:03.827Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="浅谈OC的内存问题">
 <meta name="twitter:description" content="一、概述 1、内存管理 引用计数：OC对象都有个引用计数(retaincount)、表明当前有多少个对象希望该对象存活；当对象的retaincount &amp;gt; 0,对象存活；当对象的retaincount = 0,对象销毁；  创建对象，retaincount至少为1；retain操作，retaincount加1；release操作，retaincount减1；autorelease操作，清理">
@@ -307,8 +307,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS回忆录/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS回忆录</span>
+                  <a href="/categories/iOS2018/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS2018</span>
                   </a>
                 </span>
 
@@ -468,6 +468,7 @@
 }
 
 - (void)assertNotDealloc {
+
   if ([MLeakedObjectProxy isAnyObjectLeakedAtPtrs:[self parentPtrs]]) {
       return;
   }
@@ -647,7 +648,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>

@@ -1627,8 +1627,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/算法一重境/" itemprop="url" rel="index">
-                    <span itemprop="name">算法一重境</span>
+                  <a href="/categories/机器学习/" itemprop="url" rel="index">
+                    <span itemprop="name">机器学习</span>
                   </a>
                 </span>
 
@@ -1849,8 +1849,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS回忆录/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS回忆录</span>
+                  <a href="/categories/iOS2018/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS2018</span>
                   </a>
                 </span>
 
@@ -2383,8 +2383,8 @@ self.context[@&quot;presentNativeAlert&quot;] = ^(NSString *title,
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS回忆录/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS回忆录</span>
+                  <a href="/categories/iOS2018/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS2018</span>
                   </a>
                 </span>
 
@@ -2618,7 +2618,7 @@ objc_removeAssociatedObjects  // 删除所有关联对象
 <pre><code>//代码摘自 FLAnimatedImage
 @interface FLWeakProxy : NSProxy
 + (instancetype)weakProxyForObject:(id)targetObject;
-@end
+   @end
 
 @interface FLWeakProxy ()
 @property (nonatomic, weak) id target;
@@ -2629,6 +2629,7 @@ objc_removeAssociatedObjects  // 删除所有关联对象
 #pragma mark Life Cycle
 //类没有定义默认的init方法.
 + (instancetype)weakProxyForObject:(id)targetObject{
+
     FLWeakProxy *weakProxy = [FLWeakProxy alloc];
     weakProxy.target = targetObject;
     return weakProxy;
@@ -2638,17 +2639,18 @@ objc_removeAssociatedObjects  // 删除所有关联对象
 - (id)forwardingTargetForSelector:(SEL)selector{
 // Keep it lightweight: access the ivar directly
 return _target;
-}
+   }
 
 - (void)forwardInvocation:(NSInvocation *)invocation{
+
     void *nullPointer = NULL;
     [invocation setReturnValue:&amp;nullPointer];
 }
 
 - (NSMethodSignature *)methodSignatureForSelector:(SEL)selector{
     return [NSObject instanceMethodSignatureForSelector:@selector(init)];
-}
-@end
+   }
+   @end
 </code></pre><p><strong>说明</strong>: NSProxy非常适合做消息转发的代理类，能自动转发<nsobject>中定义的接口和NSObject的Category中定义的方法，如果使用NSObject来做，不能自动转发NSObject的Category中定义、respondsToSelector:、isKindOfClass:这两个方法。·</nsobject></p>
 </li>
 </ul>
@@ -2754,8 +2756,8 @@ return _target;
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS回忆录/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS回忆录</span>
+                  <a href="/categories/iOS2018/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS2018</span>
                   </a>
                 </span>
 
@@ -2879,7 +2881,7 @@ Cocoa Perform Selector Sources， Cocoa 提供的 performSelector 系列方法
   kCFRunLoopBeforeWaiting = (1UL &lt;&lt; 5), // 即将进入休眠
   kCFRunLoopAfterWaiting  = (1UL &lt;&lt; 6), // 刚从休眠中唤醒
   kCFRunLoopExit          = (1UL &lt;&lt; 7), // 即将退出Loop
-    };
+       };
 </code></pre></li>
 </ul>
 <h5 id="2、应用"><a href="#2、应用" class="headerlink" title="2、应用"></a>2、应用</h5><p><strong>1）AutoreleasePool</strong></p>
@@ -3152,8 +3154,8 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS回忆录/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS回忆录</span>
+                  <a href="/categories/iOS2018/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS2018</span>
                   </a>
                 </span>
 
@@ -3315,6 +3317,7 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
 }
 
 - (void)assertNotDealloc {
+
   if ([MLeakedObjectProxy isAnyObjectLeakedAtPtrs:[self parentPtrs]]) {
       return;
   }
@@ -3460,7 +3463,7 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>

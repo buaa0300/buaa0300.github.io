@@ -91,7 +91,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/201701-fa143a7c6b17b43d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/201701-35938988b21e8a6c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-09-22T03:41:07.000Z">
+<meta property="og:updated_time" content="2019-03-23T05:07:10.387Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="浅谈Runtime">
 <meta name="twitter:description" content="Objective-C利用Runtime库(底层的 C 语言 API)赋予了语言的动态特性。  一、Runtime基石：Objective-C对象模型 1、对象 每一个对象都是类的实例, 类中保存对象的方法列表；当一个对象方法被调用时，类会首先查找它本身是否有该方法的实现，如果没有，则会向它的父类查找该方法，直到NSObject(根类)；  类是元类 (metaclass) 的实例；元类保存类方法">
@@ -310,8 +310,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS回忆录/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS回忆录</span>
+                  <a href="/categories/iOS2018/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS2018</span>
                   </a>
                 </span>
 
@@ -543,7 +543,7 @@ objc_removeAssociatedObjects  // 删除所有关联对象
 <pre><code>//代码摘自 FLAnimatedImage
 @interface FLWeakProxy : NSProxy
 + (instancetype)weakProxyForObject:(id)targetObject;
-@end
+   @end
 
 @interface FLWeakProxy ()
 @property (nonatomic, weak) id target;
@@ -554,6 +554,7 @@ objc_removeAssociatedObjects  // 删除所有关联对象
 #pragma mark Life Cycle
 //类没有定义默认的init方法.
 + (instancetype)weakProxyForObject:(id)targetObject{
+
     FLWeakProxy *weakProxy = [FLWeakProxy alloc];
     weakProxy.target = targetObject;
     return weakProxy;
@@ -563,17 +564,18 @@ objc_removeAssociatedObjects  // 删除所有关联对象
 - (id)forwardingTargetForSelector:(SEL)selector{
 // Keep it lightweight: access the ivar directly
 return _target;
-}
+   }
 
 - (void)forwardInvocation:(NSInvocation *)invocation{
+
     void *nullPointer = NULL;
     [invocation setReturnValue:&amp;nullPointer];
 }
 
 - (NSMethodSignature *)methodSignatureForSelector:(SEL)selector{
     return [NSObject instanceMethodSignatureForSelector:@selector(init)];
-}
-@end
+   }
+   @end
 </code></pre><p><strong>说明</strong>: NSProxy非常适合做消息转发的代理类，能自动转发<nsobject>中定义的接口和NSObject的Category中定义的方法，如果使用NSObject来做，不能自动转发NSObject的Category中定义、respondsToSelector:、isKindOfClass:这两个方法。·</nsobject></p>
 </li>
 </ul>
@@ -711,7 +713,7 @@ return _target;
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
