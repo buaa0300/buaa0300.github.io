@@ -254,7 +254,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2019/03/23/iOS16-system-basic/">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2019/03/23/iOS17-core-aniamtion/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="南华coder">
@@ -273,7 +273,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/03/23/iOS16-system-basic/" itemprop="url">OSX/iOS 的系统架构</a></h1>
+                <a class="post-title-link" href="/2019/03/23/iOS17-core-aniamtion/" itemprop="url">Core Animation</a></h1>
         
 
         <div class="post-meta">
@@ -285,8 +285,265 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-23T12:57:13+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-23T15:36:48+08:00">
                 2019-03-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS知识小集/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS知识小集</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,065 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  7 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h3><ul>
+<li><p>iOS主要的<strong>绘图系统</strong>有UIKit、<strong>Core Animation</strong>、Core Graphics、OpenGL ES和Core Image等。</p>
+</li>
+<li><p>Core Animation并非是搞高端动画的库。它是一个用于管理视图排版、合成、渲染以及动画的基础 库，最终的渲染工作是交给Graphics Hardware(GPU)处理。</p>
+</li>
+<li><p><strong>UIKit 建立在 Core Animation 基础之上，在 Core Animation 之下是 OpenGL ES 和 Core Graphics，分别对应 GPU 和 CPU。</strong></p>
+</li>
+</ul>
+<p><img src="https://upload-images.jianshu.io/upload_images/201701-e511da597e5f480b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
+<p>​              </p>
+<h3 id="二、Core-Animation-Pipeline（流水线）"><a href="#二、Core-Animation-Pipeline（流水线）" class="headerlink" title="二、Core Animation Pipeline（流水线）"></a>二、Core Animation Pipeline（流水线）</h3><p><img src="https://upload-images.jianshu.io/upload_images/201701-b91953f039c0ddf6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
+<p>Core Animation的<strong>绘制和渲染</strong>是通过<strong>Core Animation Pipeline</strong>实现，它以流水线的形式进行渲染，具体分为四个步骤：</p>
+<h4 id="1）Commit-Transaction"><a href="#1）Commit-Transaction" class="headerlink" title="1）Commit Transaction"></a>1）Commit Transaction</h4><p>​      具体可以细分为四个阶段</p>
+<ul>
+<li><ul>
+<li><strong>Layout</strong>: 构建视图层级，设置图层属性（如位置，背景色，边框等）</li>
+</ul>
+</li>
+<li><ul>
+<li><strong>Display</strong>: 图层的寄宿图片被绘制的阶段。绘制有可能涉及你的-drawRect:和-drawLayer:inContext:方法的调用路径。</li>
+</ul>
+</li>
+<li><ul>
+<li><strong>Prepare</strong>: 这是Core Animation准备发送动画数据到渲染服务的阶段。这同时也是Core Animation将要执行一些别的事务例如解码动画过程中将要显示的图片的时间点。</li>
+</ul>
+</li>
+<li><ul>
+<li><strong>Commit</strong>: 这是最后的阶段，Core Animation打包所有图层和动画属性，然后通过IPC（内部处理通信）发送到渲染服务进行显示。</li>
+</ul>
+</li>
+</ul>
+<h4 id="2）Render-Server"><a href="#2）Render-Server" class="headerlink" title="2）Render Server"></a>2）Render Server</h4><p>​    负责渲染工作，会解析上一步Commit Transaction中提交的信息并<strong>反序列化成渲染树</strong>（render tree)，随后根据layer的各种属性生成绘制指令，并在下一次VSync(垂直同步)信号到来时调用OpenGL进行渲染。</p>
+<h4 id="3）GPU"><a href="#3）GPU" class="headerlink" title="3）GPU"></a>3）GPU</h4><ul>
+<li>GPU会等待显示器的VSync信号发出后才进行OpenGL渲染管线，将3D几何数据转化成2D的像素图像和光栅处理，随后进行新的一帧的渲染，并将其输出到缓冲区。</li>
+</ul>
+<h4 id="4）Display"><a href="#4）Display" class="headerlink" title="4）Display"></a>4）Display</h4><ul>
+<li>从缓冲区中取出画面，并输出到屏幕上</li>
+</ul>
+<p><strong>说明1</strong>：开发者真正能做的，只是在<strong>Layout</strong>(布局)<strong>和Display</strong>(显示)环节</p>
+<p><strong>说明2</strong>：</p>
+<ul>
+<li><p>某个视图的图层属性所做的修改，都是在当前Runloop结束之前，Core Animation才将修改提交；</p>
+</li>
+<li><p>因为Core Animation的Commit Transaction是在主线程完成的，虽然Core Animation也支持异步渲染，但是UIKit就是把这些个事情放在主线程做。</p>
+</li>
+</ul>
+<blockquote>
+<p>VSync（vertical sync）是指垂直同步，在玩游戏的时候在设置的时候应该会看见过这个选项，这个机制能够让显卡和显示器保持在一个相同的刷新率从而避免画面撕裂。在iOS中，屏幕具有60Hz的刷新率，这意味着它每秒需要显示60张不同的图片（帧），但GPU并没有一个确定的刷新率，在某些时候GPU可能被要求更强力的数据输出来确保渲染能力，这时候他们可能比屏幕刷新率（60Hz）更快，就会导致屏幕不能完整的渲染所有GPU给他的数据，因为它不够快，屏幕的上一帧还没渲染完，下一帧就已经到来了，这就导致画面的撕裂。</p>
+<p>这个时候我们就要引入VSync了，简单来说它就是让显卡保持他的输出速率不高于屏幕的刷新率，启用了VSync后，GPU不再会给你可怜的60Hz屏幕每秒发送100帧了，它会增加每一帧的发送间隔，确保显示器能够有充足的时间去处理每一帧。</p>
+</blockquote>
+<h3 id="三、UIKit"><a href="#三、UIKit" class="headerlink" title="三、UIKit"></a>三、UIKit</h3><h4 id="1、UIKit不是线程安全的"><a href="#1、UIKit不是线程安全的" class="headerlink" title="1、UIKit不是线程安全的"></a>1、UIKit不是线程安全的</h4><ul>
+<li>UIKit中，很多类中大部分的属性都被修饰为<strong>nonatomic</strong>，这意味着它们不能在多线程的环境下工作，而对于UIKit这样一个庞大的框架，将其所有属性都设计为线程安全是不现实的，这可不仅仅是简单的将nonatomic改成atomic或者是加锁解锁的操作，还涉及到很多的方面：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1) 假设能够异步设置view的属性，那我们究竟是希望这些改动能够同时生效，还是按照各自runloop的进度去改变这个view的属性呢？</span><br><span class="line"></span><br><span class="line">2) 假设UITableView在其他线程去移除了一个cell，而在另一个线程却对这个cell所在的index进行一些操作，这时候可能就会引发crash。</span><br><span class="line"></span><br><span class="line">3) 如果在后台线程移除了一个view，这个时候runloop周期还没有完结，用户在主线程点击了这个“将要”消失的view，那么究竟该不该响应事件？在哪条线程进行响应？</span><br></pre></td></tr></table></figure>
+<p> <strong>总结</strong>：</p>
+<ul>
+<li><p>将UIKit设置为线程安全并不能带来太多便利，也不会提升太多的性能表现，甚至会因为加锁解锁而耗费大量的时间。</p>
+</li>
+<li><p>事实上并发编程也没有因为UIKit是线程不安全而变得困难，我们所需要做的只是要确保UI操作在主线程进行就可以了。</p>
+</li>
+</ul>
+<p>2、UIKit为什么选择主线程</p>
+<ul>
+<li>UIApplication在<strong>主线程</strong>所初始化的Runloop我们称为<strong>Main Runloop</strong>，它负责处理app存活期间的大部分事件，如<strong>用户交互</strong>等，它一直处于不断处理事件和休眠的循环之中，以确保能尽快的将用户事件传递给GPU进行渲染，使用户行为能够得到响应，画面之所以能够得到不断刷新也是因为Main Runloop在驱动着。</li>
+</ul>
+<ul>
+<li>而每一个<strong>view的变化的修改并不是立刻变化，相反的会在当前RunLoop的结束的时候统一进行重绘</strong>，这样设计的目的是为了能够在一个Runloop里面处理好所有需要变化的view，包括resize、hide、reposition等等，所有view的改变都能在同一时间生效，这样能够更高效的处理绘制，这个机制被称为<strong>绘图循环（View Drawing Cycle</strong>)。</li>
+</ul>
+<ul>
+<li><strong>如果我们的UIKit并不是在主线程，所以Main Runloop中的事件需要跨线程进行传输，这样会导致显示与用户事件并不同步；</strong></li>
+</ul>
+<ul>
+<li>这是因为点击等事件是由系统传递给UIApplication中，并在Main Runloop中进行处理与响应，但是由于UI在后台线程中进行处理，所以他跟事件响应并不同步。即使在UI所在的后台线程也自己维护了一个Runloop，在Runloop结束时候进行渲染。</li>
+</ul>
+<ul>
+<li>UI操作涉及到渲染访问各种View对象的属性，如果异步操作下会存在读写问题，而为其加锁则会耗费大量资源并拖慢运行速度。另一方面因为整个程序的起点UIApplication是在主线程进行初始化，所有的用户事件都是在主线程上进行传递（如点击、拖动），所以view只能在主线程上才能对事件进行响应。而在渲染方面由于图像的渲染需要以60帧的刷新率在屏幕上 同时 更新，在非主线程异步化的情况下无法确定这个处理过程能够实现同步更新。</li>
+</ul>
+<p>3、其他</p>
+<ul>
+<li>AsyncDisplayKit（现命名为Texture，建立在UIKit之上的iOS框架简述如下：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Texture的基本单位就是node。 **ASDisplayNode**是一个抽象UIView，j就想UIView是一个抽象CALayer。不同于只能在主线程上使用的视图，nodes是线程安全的：您可以在后台线程上并行实例化和配置它们的整个层次结构。</span><br><span class="line"></span><br><span class="line">为了保持其用户界面的流畅和响应，您的应用程序应该以每秒60帧的速度呈现 - iOS上的黄金标准。这意味着主线程有一秒钟的时间推动每个帧。这是执行所有布局和绘图代码的16毫秒！并且由于系统开销，您的代码通常在导致帧丢失之前运行不到10毫秒。</span><br><span class="line"></span><br><span class="line">Texture使您可以从主线程移除图像解码，文本大小和渲染以及其他昂贵的UI操作到其它线程，以保持主线程可用于响应用户交互。</span><br></pre></td></tr></table></figure>
+<p><strong>更多参考：</strong></p>
+<p><a href="https://www.jianshu.com/p/cd4b445a6a35" target="_blank" rel="noopener">Texture——保持最复杂的用户界面的流畅和响应</a></p>
+<p><a href="http://www.cocoachina.com/ios/20180209/22243.html" target="_blank" rel="noopener">iOS 开发一定要尝试的 Texture(ASDK)</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2019/03/20/iOS16-system-basic/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/20/iOS16-system-basic/" itemprop="url">OSX/iOS 的系统架构</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-20T12:00:13+08:00">
+                2019-03-20
               </time>
             
 
@@ -378,7 +635,7 @@
       
         
           
-            <h3 id="一、系统架构"><a href="#一、系统架构" class="headerlink" title="一、系统架构"></a>一、系统架构</h3><p>苹果官方将整个系统大致划分为上述4个层次</p>
+            <h3 id="一、系统架构"><a href="#一、系统架构" class="headerlink" title="一、系统架构"></a>一、系统架构</h3><p>苹果官方将整个系统大致划分为下述4个层次</p>
 <h4 id="1、-应用层"><a href="#1、-应用层" class="headerlink" title="1、 应用层"></a>1、 应用层</h4><p>包括用户能接触到的图形应用，例如 Spotlight、Aqua、SpringBoard 等</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SpringBoard：iOS的桌面</span><br><span class="line">Spotlight：搜索界面</span><br><span class="line">Aqua：Mac OS X的桌面 ？？</span><br></pre></td></tr></table></figure>
 <h4 id="2、应用框架层"><a href="#2、应用框架层" class="headerlink" title="2、应用框架层"></a>2、应用框架层</h4><p>即开发人员接触到的 Cocoa 等框架</p>
@@ -456,7 +713,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2019/03/23/iOS15-pic-decode/">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2019/03/13/iOS15-pic-decode/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="南华coder">
@@ -475,7 +732,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/03/23/iOS15-pic-decode/" itemprop="url">浅谈图片解码</a></h1>
+                <a class="post-title-link" href="/2019/03/13/iOS15-pic-decode/" itemprop="url">浅谈图片解码</a></h1>
         
 
         <div class="post-meta">
@@ -487,8 +744,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-23T12:48:46+08:00">
-                2019-03-23
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-13T12:56:46+08:00">
+                2019-03-13
               </time>
             
 
@@ -3087,317 +3344,6 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/30/iOS08-iosmemory/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="南华coder">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="南华coder的空间">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/01/30/iOS08-iosmemory/" itemprop="url">浅谈OC的内存问题</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-30T22:43:26+08:00">
-                2018-01-30
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS2018/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS2018</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,727 字
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  6 分
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4></blockquote>
-<h5 id="1、内存管理"><a href="#1、内存管理" class="headerlink" title="1、内存管理"></a>1、内存管理</h5><ul>
-<li><p><strong>引用计数</strong>：OC对象都有个引用计数(retaincount)、表明当前有多少个对象<strong>希望该对象存活</strong>；当对象的retaincount &gt; 0,对象存活；当对象的retaincount = 0,对象销毁；</p>
-</li>
-<li><p><strong>创建对象</strong>，retaincount至少为1；<strong>retain操作</strong>，retaincount加1；<strong>release操作</strong>，retaincount减1；<strong>autorelease操作</strong>，清理autorelease pool后，再递减retaincount；为了简化引用计数的管理，ARC应运而生。</p>
-</li>
-<li><p><strong>ARC</strong>（自动引用计数）通过编译器，在合适的地方插入<strong>retain、release和autorelease</strong>等操作；变量的内存管理通过<strong>修饰符(<strong>strong、</strong>weak、__autoreleasing)</strong>指明；以<strong>alloc、new、copy和mutableCopy</strong>方法名开头返回的对象归调用者所有。</p>
-</li>
-<li><p><strong>ARC只管理Objective-C对象的内存</strong>，CoreFoundation对象、CoreGraphics对象、还有C/C++的内存分配还是需要开发者自己管理。</p>
-</li>
-</ul>
-<h5 id="2、内存泄漏"><a href="#2、内存泄漏" class="headerlink" title="2、内存泄漏"></a>2、内存泄漏</h5><ul>
-<li><p>Objective-C对象分配在内存的<strong>堆区</strong>，这部分内存需要开发者自己回收；如果没有释放，就造成<strong>内存泄漏</strong>；在ARC帮助下，当前内存泄漏最大可能是<strong>循环引用</strong>，导致对象的retaincount &gt; 0,系统无法回收这部分内存。</p>
-</li>
-<li><p>此外，CoreFoundation对象、CoreGraphics对象、还有C/C++的内存分配还是需要开发者自己管理，否则也会发生内存泄漏。</p>
-</li>
-<li><p><strong>循环引用</strong>，简单来说，就是堆内存中对象相互引用，彼此都得不到释放的机会；解决办法无非是使用<strong>弱引用</strong>；比较典型的场景有三：</p>
-<pre><code> 1、一般申明代理(delegate)为weak；
- 2、使用weakSelf和strongSelf处理Block的循环引用；
-3、实现NSProxy(虚拟类)的子类，然后在子类中定义weak修饰的target，然后实现消息转发方法，使target处理业务逻辑；一般用于解决NSTimer、CADisplayLink的循环引用。
-</code></pre></li>
-</ul>
-<h5 id="3、其他内存问题"><a href="#3、其他内存问题" class="headerlink" title="3、其他内存问题"></a>3、其他内存问题</h5><ul>
-<li><p>高清图片解码、内存暴增，可以将大图裁成小图，然后分别加载显示；</p>
-</li>
-<li><p>添加NSNotification监听，记得在dealloc中移除。</p>
-</li>
-<li><p>捕获异常时，一定要注意把try块内创建的对象清理干净。</p>
-</li>
-</ul>
-<blockquote>
-<h4 id="二、三个概念"><a href="#二、三个概念" class="headerlink" title="二、三个概念"></a>二、三个概念</h4></blockquote>
-<h5 id="1、weak的实现原理"><a href="#1、weak的实现原理" class="headerlink" title="1、weak的实现原理"></a>1、weak的实现原理</h5><p>Runtime维护一个<strong>weak表</strong>，用于存储执行某个对象的<strong>所有weak指针</strong>；Key是对象地址，Value是weak指针的地址数组；实现分三步：</p>
-<ul>
-<li><p><strong>初始化时</strong>，Runtime会调用<strong>objc_initWeak</strong>函数，初始化一个新的weak指针指向对象的地址；</p>
-</li>
-<li><p><strong>添加引用时</strong>，调用<strong>objc_storeWeak</strong>函数，更新指针指向，创建对应的弱引用表；</p>
-</li>
-<li><p><strong>释放时</strong>，调用<strong>clearDeallocating</strong>函数，根据对象地址获得所有weak指针地址数组，然后遍历这个数组把其中指针置为nil，把这组对应关系从weak表中删除。</p>
-<p><strong>说明</strong>：详细可了解下<a href="http://ios.jobbole.com/89012/" target="_blank" rel="noopener">weak 弱引用的实现方式</a></p>
-</li>
-</ul>
-<h5 id="2、autoreleasepool"><a href="#2、autoreleasepool" class="headerlink" title="2、autoreleasepool"></a>2、autoreleasepool</h5><ul>
-<li><p>在没有手动添加自动释放池的情况下，autorelease对象<strong>会自动在当前的runloop迭代中加入自动释放池push和pop</strong>，在当前的runloop迭代结束时释放；如果加了，在添加自动释放池结束后，autorelease对象释放；</p>
-<pre><code> @autorealsepool{
-   //todo
-}
-</code></pre></li>
-<li><p><strong>合理使用@autorealsepool，能降低内存峰值</strong>；如容器的block版本的枚举器时，内部会自动添加一个autoreleasepool（<em>普通for循环和for in循环中没有</em>）：</p>
-<pre><code>[array enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-  // 这里被一个局部@autoreleasepool包围着
-}];
-</code></pre><p>  <strong>说明</strong>：详细可了解下<a href="http://blog.sunnyxx.com/2014/10/15/behind-autorelease/" target="_blank" rel="noopener">黑幕背后的Autorelease</a></p>
-</li>
-</ul>
-<h5 id="3、Block"><a href="#3、Block" class="headerlink" title="3、Block"></a>3、Block</h5><ul>
-<li><p>Block在C语言层面就是结构体，结构体存储了<strong>isa（Class对象的指针）</strong>、<strong>函数指针</strong>(invoke指针，指向块的实现)和<strong>捕获的变量列表</strong>等;</p>
-</li>
-<li><p>Block可以分配在<strong>栈上</strong>、<strong>堆上</strong>或<strong>全局</strong>上；<strong>栈上分配的Block</strong>，作用域结束后自动释放；<strong>堆上分配的Block</strong>，和Objective-C对象一样有引用计数了；<strong>全局分配的Block</strong>分配在全局内存中，不会被系统回收，相当于单例；</p>
-</li>
-<li><p>ARC开启时，会自动把栈上的Block拷贝到堆上；</p>
-</li>
-<li><p>Block捕获对象的时候会增加对象的引用计数。</p>
-<p><strong>说明</strong>： <a href="http://blog.csdn.net/hello_hwc/article/details/70210549" target="_blank" rel="noopener">Objective C block背后的黑魔法</a></p>
-</li>
-</ul>
-<blockquote>
-<h4 id="三、发现循环引用"><a href="#三、发现循环引用" class="headerlink" title="三、发现循环引用"></a>三、发现循环引用</h4></blockquote>
-<p><em>有一定开发经验后，开发中可以避免绝大多数的循环引用问题，但是代码多了之后，不能保证代码中没有循环引用问题；</em>这时候就要靠工具了。</p>
-<h5 id="1、Instrument"><a href="#1、Instrument" class="headerlink" title="1、Instrument"></a>1、Instrument</h5><ul>
-<li><p>App内存中有三类：<strong>Abandoned memory</strong>、<strong>Leaked memory</strong>和<strong>Cached memory</strong>；有了ARC帮助管理内存，Leaked memory很少了，Leaks工具效果不大；</p>
-</li>
-<li><p>目前用得比较多的是<strong>Allocation</strong>，利用它观察在App运行中，业务相关类的创建和销毁情况。如进入底层页后退出，底层页相关的Controller、View等是否会销毁。</p>
-</li>
-<li><p>使用<strong>Allocation</strong>，需要一个个场景去跑，比较费时，但是可信度最高，可以作为其他方案补充；人力够的话，可以安排单人跑（<em>感觉有点奢侈</em>）。</p>
-</li>
-</ul>
-<h5 id="2、MLeaksFinder"><a href="#2、MLeaksFinder" class="headerlink" title="2、MLeaksFinder"></a>2、<a href="https://github.com/Tencent/MLeaksFinder" target="_blank" rel="noopener">MLeaksFinder</a></h5><ul>
-<li><p><em>微信阅读推出的内存泄漏检测工具</em>；它通过利用Method Swizzling，<strong>hook</strong> 掉 UIViewController 和 UINavigationController 的dismiss和pop方法，当对象即将释放时，调用<strong>willDealloc</strong>方法; 该方法先用一个弱指针指向 self，并在一小段时间(2秒)后，通过这个弱指针调用<strong>assertNotDealloc</strong>，而<strong>assertNotDealloc</strong>主要是利用<strong>FBRetainCycleDetector</strong>找出<strong>循环引用链</strong>，以此定位循环引用的位置。</p>
-<pre><code>- (BOOL)willDealloc {
-
-  // 白名单机制，消除某些场景的内存泄漏警告...（略）
-
-  __weak id weakSelf = self;
-  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-      __strong id strongSelf = weakSelf;
-      [strongSelf assertNotDealloc];
-  });
-  return YES;
-}
-
-- (void)assertNotDealloc {
-
-  if ([MLeakedObjectProxy isAnyObjectLeakedAtPtrs:[self parentPtrs]]) {
-      return;
-  }
-  //检查循环引用链
-  [MLeakedObjectProxy addLeakedObject:self];
-      //输出日志...（略）
-}
-</code></pre></li>
-<li><p>有可能误判的情形，</p>
-</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>场景</th>
-<th>解决</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td><strong>单例和Cache 起来复用的 View 或 ViewController</strong></td>
-<td>可以将willDealloc返回NO，以消除内存泄漏的警告。</td>
-</tr>
-<tr>
-<td>2</td>
-<td><strong>释放不及时的 View 或 ViewController</strong></td>
-<td>可能是网络请求返回慢的原因，可以在网络请求回调的 block 里弱引用 ViewController（比较合理）</td>
-</tr>
-</tbody>
-</table>
-<p>  <strong>说明</strong>：具体可以参考<a href="http://wereadteam.github.io/2016/02/22/MLeaksFinder/" target="_blank" rel="noopener">MLeaksFinder：精准 iOS 内存泄露检测工具</a>、<a href="http://wereadteam.github.io/2016/07/20/MLeaksFinder2/" target="_blank" rel="noopener">MLeaksFinder 新特性</a></p>
-<h5 id="3、FBMemoryProfiler"><a href="#3、FBMemoryProfiler" class="headerlink" title="3、FBMemoryProfiler"></a>3、<a href="https://github.com/facebook/FBMemoryProfiler" target="_blank" rel="noopener">FBMemoryProfiler</a></h5><ul>
-<li><p>Facebook发布的内存检查工具，FBMemoryProfiler包括<strong>FBAllocationTracker</strong> 、 <strong>FBRetainCycleDetector</strong>和 <strong>UI界面</strong>。</p>
-</li>
-<li><p><strong>FBAllocationTracker</strong>利用Method Swizzling 替换原本的 alloc 方法，记录检测所有的实例分配；而<strong>FBRetainCycleDetector</strong>用来递归遍历对象中的所有强引用的对象，以检测以该对象为根结点的强引用树有没有循环引用。</p>
-</li>
-<li><p><strong>FBMemoryProfiler</strong> 除了可以手动调试之外，它还可以进行自动化检测。 通过它内置的两个组件 FBRetainCycleDetector 和 FBAllocationTracker，直接检测出内存中的循环引用，然后把数据发送到自己的服务器上，可以形成一个自动化检测系统。 </p>
-<p><strong>说明</strong>：详细了解可见<a href="https://code.facebook.com/posts/583946315094347/automatic-memory-leak-detection-on-ios/" target="_blank" rel="noopener">automatic-memory-leak-detection-on-ios</a></p>
-</li>
-</ul>
-<h5 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h5><ul>
-<li>保持良好编程习惯的同时，搭配工具来及时纠错；推荐<strong>MLeaksFinder + Instrument</strong> 或 <strong>FBMemoryProfiler + Instrument</strong>组合使用。通过MLeaksFinder/FBMemoryProfiler发现后。然后使用Instrument再验证下。</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3452,7 +3398,7 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-count">22</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -3532,7 +3478,7 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">33.6k</span>
+    <span title="Site words total count">35.7k</span>
   
 </div>
 

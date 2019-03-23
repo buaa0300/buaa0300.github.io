@@ -254,6 +254,214 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/01/iOS01-dataEnctypt/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/01/iOS01-dataEnctypt/" itemprop="url">浅谈数据加密</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-01T23:17:34+08:00">
+                2018-01-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS2018/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS2018</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  740 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  3 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong>导语：</strong>本文介绍常用的数据加密方式（不仅仅局限在iOS中使用）。</p>
+<blockquote>
+<h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4></blockquote>
+<p>加密是用来避免攻击这盗取信息的一种手段，加密算法主要有三类：<strong>Hash算法</strong>、<strong>对称加密算法</strong> 和 <strong>非对称加密算法</strong>。</p>
+<h5 id="1、Hash算法"><a href="#1、Hash算法" class="headerlink" title="1、Hash算法"></a>1、Hash算法</h5><ul>
+<li><p><strong>Hash算法</strong> 把一个任意长度的字节串映射 为一定长度的十六进制的数字串；这个数字串称为<strong>哈希值</strong>。</p>
+</li>
+<li><p>Hash算法一种<strong>单向算法</strong>，不能通过这个Hash值重新获得目标信息；一般用来<strong>存储不可还原的密码</strong> 或 <strong>检验数据的完整性</strong>，常见的Hash算法有MD2、MD4、MD5、HAVAL、SHA</p>
+</li>
+<li><p><strong>重点说明</strong>：MD2、MD4、MD5还有SHA-1都已经被碰撞攻击突破，Apple已经移除对MD5和SHA-1签名证书的信任，对于安全性较高的数据，建议使用<strong>SHA-2 Family</strong> 或其他能避免碰撞攻击的算法。</p>
+</li>
+</ul>
+<h5 id="2、对称加密算法"><a href="#2、对称加密算法" class="headerlink" title="2、对称加密算法"></a>2、对称加密算法</h5><ul>
+<li><p><strong>对称加密算法</strong>是指：加密和解密使用<strong>相同密钥</strong>的加密算法。对称加密算法的加解密的速度快，通常在大量数据加密时使用。</p>
+</li>
+<li><p>常见的对称加密算法有DES算法，3DES算法，TDEA算法，Blowfish算法，RC5算法，IDEA算法和AES算法。</p>
+</li>
+<li><p><strong>重点说明</strong>：DES 、3DES 已经被AES（Advanced Encryption Standard，高级加密标准）替代了；<strong>AES-ECB</strong>(电子密码本模式)最简单，安全性差，不建议使用，可以使用<strong>AES-CBC</strong>、<strong>AES-CTR</strong>、<strong>AES-GCM</strong>（Apple推荐的）；对称密钥的安全是必须要考虑并且解决的事情。</p>
+</li>
+</ul>
+<h5 id="3、非对称加密"><a href="#3、非对称加密" class="headerlink" title="3、非对称加密"></a>3、非对称加密</h5><ul>
+<li><p><strong>非对称加密算法</strong>是指：加密和解密使用<strong>不同密钥</strong>的加密算法，也称为公私钥加密，适合对少量数据的加密。</p>
+</li>
+<li><p>非对称加密算法的公钥是公开的，秘钥是自己保存的，比对称加密有更好的安全性，但是加解密速度要远远慢于对称加密；常见的非对称加密算法有：RSA、Elgamal、背包算法、Rabin、D-H、ECC（椭圆曲线加密算法）等。</p>
+</li>
+<li><p><strong>重点说明</strong>：<strong>RSA</strong>是使用最广的非对称加密算法，但是小于1024位的RSA私钥很容易被分解攻击，出于安全的考虑，建议在项目中使用大于等于2048位的RSA私钥。</p>
+</li>
+</ul>
+<blockquote>
+<h4 id="二、总结"><a href="#二、总结" class="headerlink" title="二、总结"></a>二、总结</h4></blockquote>
+<ul>
+<li><p>对<strong>大量数据(较大量的上报信息)</strong>加密，建议使用AES；对于<strong>少量数据（手机号、邮箱等）</strong>加密，建议使用RSA；对于比较重要的<strong>资源下载（如运营活动图片、配置数据等）</strong>，对下载下来的数据，要校验hash值，防止数据被篡改，保证数据的完整性。</p>
+</li>
+<li><p>对于核心的业务功能的数据，仅仅靠一种加密算法是不够的，综合利用<strong>两三种加解密算法</strong>，实现业务目标的同时，<strong>提高被破解的难度</strong>。</p>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2017/12/31/newStart/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -545,7 +753,7 @@ scheme: Gemini
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-count">22</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -625,7 +833,7 @@ scheme: Gemini
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">33.6k</span>
+    <span title="Site words total count">35.7k</span>
   
 </div>
 
