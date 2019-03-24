@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="iOS,加密," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="南华coder的空间" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="一、概述 对称加密比非对称加密要快。频繁的数据加密，优先考虑使用对称加密。  DES -&amp;gt; 3DES -&amp;gt; AES（Advanced Encryption Standard，高级加密标准）；目前对称加密使用AES为佳，它已经取代DES和3DES对称算法了。  AES是项目中使用较多的对称加密算法，本文简单介绍下AES。   二、AES算法的重要组成1、密钥长度（Key Size）  A">
+<meta name="keywords" content="iOS,加密">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅谈AES">
+<meta property="og:url" content="http://buaa0300/nanhuacoder.com/2018/01/03/iOS-UseAES/index.html">
+<meta property="og:site_name" content="南华coder的空间">
+<meta property="og:description" content="一、概述 对称加密比非对称加密要快。频繁的数据加密，优先考虑使用对称加密。  DES -&amp;gt; 3DES -&amp;gt; AES（Advanced Encryption Standard，高级加密标准）；目前对称加密使用AES为佳，它已经取代DES和3DES对称算法了。  AES是项目中使用较多的对称加密算法，本文简单介绍下AES。   二、AES算法的重要组成1、密钥长度（Key Size）  A">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-24T13:35:20.125Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="浅谈AES">
+<meta name="twitter:description" content="一、概述 对称加密比非对称加密要快。频繁的数据加密，优先考虑使用对称加密。  DES -&amp;gt; 3DES -&amp;gt; AES（Advanced Encryption Standard，高级加密标准）；目前对称加密使用AES为佳，它已经取代DES和3DES对称算法了。  AES是项目中使用较多的对称加密算法，本文简单介绍下AES。   二、AES算法的重要组成1、密钥长度（Key Size）  A">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://buaa0300/nanhuacoder.com/2018/01/03/iOS-UseAES/"/>
+
+
+
+
+
+  <title>浅谈AES | 南华coder的空间</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">南华coder的空间</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/03/iOS-UseAES/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">浅谈AES</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-03T23:23:50+08:00">
+                2018-01-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS实践/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS实践</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,829 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  8 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4><ul>
+<li><p><strong>对称加密</strong>比<strong>非对称加密</strong>要快。频繁的数据加密，优先考虑使用<strong>对称加密</strong>。</p>
+</li>
+<li><p>DES -&gt; 3DES -&gt; <strong>AES</strong>（Advanced Encryption Standard，高级加密标准）；目前对称加密使用<strong>AES</strong>为佳，它已经取代DES和3DES对称算法了。</p>
+</li>
+<li><p>AES是项目中使用较多的对称加密算法，本文简单介绍下AES。</p>
+</li>
+</ul>
+<h4 id="二、AES算法的重要组成"><a href="#二、AES算法的重要组成" class="headerlink" title="二、AES算法的重要组成"></a>二、AES算法的重要组成</h4><h5 id="1、密钥长度（Key-Size）"><a href="#1、密钥长度（Key-Size）" class="headerlink" title="1、密钥长度（Key Size）"></a>1、密钥长度（Key Size）</h5><p>  AES算法规定密钥长度有三种：128bits、192bits和256 bits。其中<strong>128 bits的key可以满足大部分业务需求</strong>。</p>
+<h5 id="2、加密模式（Cipher-Mode）"><a href="#2、加密模式（Cipher-Mode）" class="headerlink" title="2、加密模式（Cipher Mode）"></a>2、加密模式（Cipher Mode）</h5><p>   AES属于块加密（Block Cipher），加密数据块（Block）必须为<strong>128bits（16字节）</strong>；加密模式主要有以下<strong>六种</strong>模式：</p>
+<p><strong>1) ECB (Electronic Codebook Book，电子密码本模式)</strong></p>
+<ul>
+<li><p><strong>简介</strong>：将数据分成若干块，分别对每块进行加密，最后将这些密文块组成最后的加密结果</p>
+</li>
+<li><p><strong>说明</strong>：最简单的模式，安全性较低。因为ECB的明文分组与密文分组是一一对应的关系，如果明文中存在多个相同的明文分组，其对应的密文分组也是相同的；<strong>不推荐使用</strong>。</p>
+</li>
+</ul>
+<p><strong>2) CBC（Cipher Block Chaining，密码分组链接模式)</strong></p>
+<ul>
+<li><p><strong>简介</strong>：将数据分块后，每一块数据与上一块密文XOR（异或）后，再进行加密；</p>
+</li>
+<li><p><strong>说明</strong>：比较推荐使用的模式（但Apple已经不推荐使用CBC模式，建议使用<strong>GCM</strong>模式）。</p>
+</li>
+</ul>
+<p><strong>3) CTR(Counter，计数器模式)</strong></p>
+<ul>
+<li><p><strong>简介</strong>：通过将<strong>逐次累加的计数器</strong>进行加密来生成密钥流的流密码；最终的密文分组是通过将计数器加密得到的比特序列，与明文分组进行XOR得到的。</p>
+</li>
+<li><p><strong>说明</strong>：比较推荐使用的模式</p>
+</li>
+</ul>
+<p><strong>4) CFB(Cipher FeedBack,密码反馈模式)</strong></p>
+<ul>
+<li><p><strong>简介</strong>：和CBC类似，加密模式和CBC类似，但其可以将块密码变为自同步的流密码。</p>
+</li>
+<li><p><strong>说明</strong>：不推荐使用的模式</p>
+</li>
+</ul>
+<p><strong>5) OFB(Output FeedBack, 输出反馈模式)</strong></p>
+<ul>
+<li><p><strong>简介</strong>：将块密码变成同步的流密码，它产生密钥流的块，然后将其与明文块进行异或，得到密文。</p>
+</li>
+<li><p><strong>说明</strong>：不推荐使用的模式</p>
+</li>
+</ul>
+<p><strong>6) GCM(Galois/Counter Mode,)</strong></p>
+<ul>
+<li><p><strong>简介</strong>：GCM中的G就是指GMAC(消息验证码)，C就是指CTR(计数器模式)</p>
+</li>
+<li><p><strong>说明</strong>：GCM可以提供对消息的加密和完整性校验，AES模式最好选择。</p>
+</li>
+</ul>
+<p><strong>总结</strong>: 推荐先后顺序：<strong>GCM &gt; CTR &gt; CBC</strong>；详细内容可以参考<a href="https://xiaoxueying.gitbooks.io/graphic-cryptology/content/block_cipher_mode.html" target="_blank" rel="noopener">Block cipher mode</a>、<a href="http://blog.csdn.net/T0mato_/article/details/53160772" target="_blank" rel="noopener">AES-GCM加密算法</a></p>
+<h5 id="3、填充方式（Padding）"><a href="#3、填充方式（Padding）" class="headerlink" title="3、填充方式（Padding）"></a>3、填充方式（Padding）</h5><p>  1）<strong>块加密</strong>要求对<strong>特定长度的数据块</strong>进行加密，因此<strong>CBC模式</strong>、<strong>ECB模式</strong>需要在最后一数据块加密前进行数据填充。（CFB，OFB和CTR模式由于与key进行加密操作的是上一块加密后的密文，因此不需要对最后一段明文进行填充）。</p>
+<p>  2）iOS SDK中提供了<strong>PKCS7Padding</strong>，Java提供了<strong>PKCS5Padding</strong>。原则上PKCS5Padding限制了填充的Block Size为8 字节（大于8 字节，填充和PKCS7Padding相同），而PKCS7Padding的Block Size可以为1到255字节; 填充值的算法（需要填充x个字节，填充的值就是x）都是一样的：</p>
+<pre><code>value = k - (l mod k)  ,K = 块大小，l = 数据长度；假设k是16，I是5,那么value是11，也就是说，需要填充11个byte的 0x0B(十进制是11)
+</code></pre><p>  3）因为<strong>AES加密数据块</strong>Block Size规定为16字节(<em>128bits</em>), 大于8 字节(64 bits), 所以<strong>PKCS5Padding和PKCS7Padding填充效果</strong>是一样的。</p>
+<p>  <strong>说明</strong>：数据块的长度如果是16倍数，padding长度为16，padding值为0x10。即在输入后面补齐16字节的0x10；如果数据块的长度不是16倍数，padding长度为16-L%16，padding值为16-L%16。即在输入后面补齐16-L%16的字节，值为16-L%16。</p>
+<p>  4）平时使用最多的是PKCS7Padding，NoPadding、ISO10126Padding和ZeroPadding忽略不提。</p>
+<h5 id="4、初始向量（Initialization-Vector）"><a href="#4、初始向量（Initialization-Vector）" class="headerlink" title="4、初始向量（Initialization Vector）"></a>4、初始向量（Initialization Vector）</h5><p>  CBC、CFB和OFB这些加密模式需要传入一个初始向量，其大小与Block Size相等；当不传入初始向量时，系统将默认使用一个全0的初始向量。</p>
+<h4 id="三、AES算法Python实现"><a href="#三、AES算法Python实现" class="headerlink" title="三、AES算法Python实现"></a>三、AES算法Python实现</h4><p><strong>说明</strong>：使用Python的加密包<a href="https://pypi.python.org/pypi/pycrypto" target="_blank" rel="noopener">pycrypto</a> (下载后，执行<em>python setup.py build + python setup.py install</em>)，实现AES的ECB、CBC、CTR、CFB和OFB模式下的加密和解密；定义一个PaddingHelper类，实现PKCS7Padding；</p>
+<pre><code>#!/usr/bin/python 
+# -*- coding:utf-8 -*-
+
+import sys
+import os
+import base64
+from Crypto.Cipher import AES
+from Crypto.Util import Counter
+
+# ***** Padding Helper For AES *****
+
+class  PaddingHelper(object):
+    &quot;&quot;&quot;docstring for  Padding Helper&quot;&quot;&quot;
+    def __init__(self, arg):
+        super(PaddingHelper, self).__init__()
+        self.arg = arg
+
+    # 保证keyStr的长度是16
+    @classmethod
+    def validKeyStr(self,keyStr):    
+        keySize = 16
+        if len(keyStr) &lt; keySize:
+            zeroCount = keySize - len(keyStr) % keySize  
+            for i in range(0, zeroCount):  
+                keyStr = keyStr + &apos;\0&apos; 
+        else:
+            return keyStr[0:keySize]
+        return keyStr  
+
+
+    # 实现PKCS7Padding/PKCS7Padding
+    @classmethod
+    def PKCS7Padding(self,text,blockSize=16):    
+        count = len(text)    
+        mod_num = count % blockSize
+        add_num = blockSize - mod_num
+        return text + chr(add_num) * add_num    
+
+    @classmethod
+    def MovePKCS7Pading(self,text,blockSize=16):
+        lastChar = text[-1]    
+        paddingLen = ord(lastChar)
+        # 截取最后一部分填充快
+        lastChunk = text[-paddingLen:]
+
+        if lastChunk == chr(paddingLen) * paddingLen:
+            # 移除填充部分
+           return text[:-paddingLen]
+        return text     
+
+# AES PSK7/PSK5填充
+class AESUtil():
+    def __init__(self, key, model):
+
+        self.key = PaddingHelper.validKeyStr(key)
+        self.mode = model
+        self.iv = key   #初始向量初始化k，可以是别的值，但必须16字节
+
+    #加密函数，如果text不是16的倍数,那就补足为16的倍数
+    def encrypt(self, text):
+
+        if self.mode == AES.MODE_CTR:
+             # Create new AES CTR object #
+            cryptor = AES.new(self.key, self.mode, counter=Counter.new(128))
+        else:
+            cryptor = AES.new(self.key, self.mode, self.iv)
+
+        text = PaddingHelper.PKCS7Padding(text,16)
+        ciphertext = base64.b64encode(cryptor.encrypt(text))
+        return ciphertext
+
+    #解密后，去掉补足的空格用strip() 去掉
+    def decrypt(self, text):   
+        if self.mode == AES.MODE_CTR:
+             # Create new AES CTR object #
+            cryptor = AES.new(self.key, self.mode, counter=Counter.new(128))
+        else:    
+            cryptor = AES.new(self.key, self.mode, self.iv)
+
+        plainText = cryptor.decrypt(base64.b64decode(text))
+        return PaddingHelper.MovePKCS7Pading(plainText)
+
+if __name__ == &apos;__main__&apos;:
+
+    encrykey = &quot;0123456789abcdef&quot;
+    # plainText = &apos;1234567891234567&apos;
+    plainText = &apos;hello world&apos;
+
+    dict = {&quot;CBC模式&quot;: AES.MODE_CBC, 
+            &quot;CFB模式&quot;: AES.MODE_CFB, 
+            &quot;CTR模式&quot;: AES.MODE_CTR,
+            &quot;ECB模式&quot;: AES.MODE_ECB,
+            &quot;OFB模式&quot;: AES.MODE_OFB};
+
+    for key, value in dict.iteritems():
+        aes = AESUtil(encrykey,value)
+        encryptText = aes.encrypt(plainText)
+        print &quot;**********%s 加解密*******&quot; %(key)
+        print &quot;密文:&quot;,encryptText
+        print &quot;明文:&quot;,aes.decrypt(encryptText)
+</code></pre><p><strong>执行脚本的输出结果如下</strong></p>
+<pre><code>**********ECB模式 加解密*******
+密文: gWm+1O9JqIdFWcWyANqt5w==
+明文: hello world
+**********CFB模式 加解密*******
+密文: GsZEtzHsqRLRjxfUU6T0Zg==
+明文: hello world
+**********CBC模式 加解密*******
+密文: wem0Upqsl5MBD0Z39jWO/g==
+明文: hello world
+**********OFB模式 加解密*******
+密文: GhcS5HH8im5yy3xtfAywYA==
+明文: hello world
+**********CTR模式 加解密*******
+密文: adUgVHVGk4Y3/LZatTZf6Q==
+明文: hello world
+</code></pre><h4 id="四、AES算法使用说明"><a href="#四、AES算法使用说明" class="headerlink" title="四、AES算法使用说明"></a>四、AES算法使用说明</h4><ul>
+<li><p>对AES加密的结果，要使用<strong>Base64编码</strong>。因为其加密结果得到的字符串可能有不可见字符，保存和传输都有问题；把数据做Base64编码，统统变成可见字符。（Base64编码 将二进制流中每6个bit一组表示数据, 不足的部分补零,每两个0 用 一个 = 表示，把含有不可见字符串的信息用可见字符串表示出来 ）；对应的AES解密时，先要进行Base64解码</p>
+</li>
+<li><p>AES有很明显的优势：<strong>安全</strong>、<strong>加解密快</strong>（AES比RSA的加解密快1000倍）；但是劣势也明显，需重点保护<strong>密钥</strong>的安全；在实践中推荐组合使用<strong>AES</strong>和<em>*RSA</em>技术。</p>
+</li>
+<li><p>实践中<strong>常见的方案</strong>是：1）用AES来加密数据；2）AES的密钥通过<strong>伪随机数生成器</strong>生成；3）AES的密钥通过<strong>RSA公钥加密</strong>；4）最终将AES密钥的密文 和 数据的密文交给后台，后台利用对应的策略解密。</p>
+</li>
+<li><p>AES算法流程可以参考<a href="http://www.cnblogs.com/luop/p/4334160.html" target="_blank" rel="noopener">密码算法详解——AES</a></p>
+</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS/" rel="tag"># iOS</a>
+          
+            <a href="/tags/加密/" rel="tag"># 加密</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/01/iOS-DataEnctypt/" rel="next" title="浅谈数据加密">
+                <i class="fa fa-chevron-left"></i> 浅谈数据加密
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/04/iOS-CodeConfuse/" rel="prev" title="浅谈代码混淆">
+                浅谈代码混淆 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.jpeg"
+                alt="南华coder" />
+            
+              <p class="site-author-name" itemprop="name">南华coder</p>
+              <p class="site-description motion-element" itemprop="description">天之道，损有余而补不足</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、概述"><span class="nav-number">1.</span> <span class="nav-text">一、概述</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、AES算法的重要组成"><span class="nav-number">2.</span> <span class="nav-text">二、AES算法的重要组成</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、密钥长度（Key-Size）"><span class="nav-number">2.1.</span> <span class="nav-text">1、密钥长度（Key Size）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、加密模式（Cipher-Mode）"><span class="nav-number">2.2.</span> <span class="nav-text">2、加密模式（Cipher Mode）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、填充方式（Padding）"><span class="nav-number">2.3.</span> <span class="nav-text">3、填充方式（Padding）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、初始向量（Initialization-Vector）"><span class="nav-number">2.4.</span> <span class="nav-text">4、初始向量（Initialization Vector）</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、AES算法Python实现"><span class="nav-number">3.</span> <span class="nav-text">三、AES算法Python实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四、AES算法使用说明"><span class="nav-number">4.</span> <span class="nav-text">四、AES算法使用说明</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">南华coder</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">45.9k</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

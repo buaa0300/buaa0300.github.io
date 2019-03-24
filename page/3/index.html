@@ -254,7 +254,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/01/iOS01-dataEnctypt/">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/04/iOS-CodeConfuse/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="南华coder">
@@ -273,7 +273,725 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/01/01/iOS01-dataEnctypt/" itemprop="url">浅谈数据加密</a></h1>
+                <a class="post-title-link" href="/2018/01/04/iOS-CodeConfuse/" itemprop="url">浅谈代码混淆</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-04T23:21:30+08:00">
+                2018-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS实践/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS实践</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,614 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  7 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>代码混淆的目的，是为了对抗<strong>反编译</strong>。</p>
+<blockquote>
+<h4 id="一、反编译工具"><a href="#一、反编译工具" class="headerlink" title="一、反编译工具"></a>一、反编译工具</h4></blockquote>
+<p>虽然AppleStore会对App加壳保护，但是在越狱手机上，破壳App并非不可能，失去保护的App，可以利用工具去反编译；常见的反编译工具有： <strong>class-dump</strong> 和 <strong>Hopper Disassembler</strong>；</p>
+<h5 id="1、class-dump简介"><a href="#1、class-dump简介" class="headerlink" title="1、class-dump简介"></a>1、class-dump简介</h5><ul>
+<li><p>下载并安装<a href="https://link.jianshu.com/?t=http://stevenygard.com/projects/class-dump/" target="_blank" rel="noopener">class-dump</a>，将class-dump复制到/usr/local/bin/目录下，使用下面命令可以反编译出头文件</p>
+<pre><code>class-dump -H xxx.app -o /Users/xxxx/Desktop/heads 
+</code></pre></li>
+</ul>
+<h5 id="2、Hopper-Disassembler简介"><a href="#2、Hopper-Disassembler简介" class="headerlink" title="2、Hopper Disassembler简介"></a>2、Hopper Disassembler简介</h5><ul>
+<li><p>下载并安装<a href="http://xclient.info/s/hopper-disassembler.html?_=ccf82bf7d0f9ec485d8d0e11710f4561" target="_blank" rel="noopener">Hopper Disassembler</a></p>
+<pre><code>//破解办法：
+将Hopper Disassembler v4.app移动至应用程序文件夹
+双击HopperV4Patcher，将应用程序中的Hopper Disassembler v4.app拖进HopperV4Patcher完成注册
+</code></pre></li>
+<li><p>解压缩App文件，获得二进制文件，直接拖进Hopper Disassembler，选择点右上角的if(b)f(x)，就可以看到类名、方法、伪代码，字符串等信息。</p>
+</li>
+</ul>
+<p><strong>说明</strong>：开发中，我们可以利用Xcode在debug下编译后产生的（.app）文件, 作为反编译练习的<strong>原材料</strong>。这个文件放在<strong>/Users/user name/Library/Developer/Xcode/DerivedData/ xx Project Name/Build/Products/Debug-iphonesimulator</strong>。</p>
+<blockquote>
+<h4 id="二、代码混淆"><a href="#二、代码混淆" class="headerlink" title="二、代码混淆"></a>二、代码混淆</h4></blockquote>
+<h5 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h5><ul>
+<li><p><strong>代码混淆</strong>： 主要是混淆重要的 <strong>方法名</strong> 、 <strong>类名</strong> 和 <strong>字符串常量</strong>。（大面积的混淆没有太大意义），手段主要是利用宏定义。</p>
+</li>
+<li><p><strong>宏定义</strong>的关键就是<strong>替换</strong>，将A替换成B；A可以是<strong>见名知意</strong>函数名、类名或字符串常量，B可以是<strong>百思不得其解</strong>的名字或 函数 等等。</p>
+</li>
+<li><p>利用宏定义，做到扰乱耳目，迷惑他人的目的。</p>
+<p><strong>说明</strong>：具体宏方便的知识，可以参考<a href="https://onevcat.com/2014/01/black-magic-in-macro/" target="_blank" rel="noopener">宏定义的黑魔法 - 宏菜鸟起飞手册</a></p>
+</li>
+</ul>
+<h5 id="2、具体方案"><a href="#2、具体方案" class="headerlink" title="2、具体方案"></a>2、具体方案</h5><ul>
+<li><p><strong>混淆方法名 和 类名</strong></p>
+<pre><code>单段的selector，如func: ，可以通过#define func 来实现字符串替换。
+多段的selector，如a:b:c: ，可以通过分别#define a 、b、c 来实现字符串替换。
+</code></pre></li>
+<li><p><strong>混淆字符串常量</strong></p>
+<p>  代码中使用的都是密文（密文通过脚本生成）；OC中定义对应的 <strong>密文转成明文</strong> 方法；这样编译出来的只有字符串常量只有密文，反编译者难以根据字符串信息，去推敲逻辑。</p>
+</li>
+</ul>
+<h5 id="3、方案实现"><a href="#3、方案实现" class="headerlink" title="3、方案实现"></a>3、方案实现</h5><ul>
+<li>脚本实现方法名 、 类名 和 字符串常量的混淆，输入是想要混淆的对象，输出是 <strong>#define 要混淆的对象  混淆内容</strong>。混淆内容可以是随机字符串等难以理解的信息。</li>
+</ul>
+<ul>
+<li>考虑到方便自己、恶心别人的目的，我们将混淆结果合并在一个.h中，在工程Prefix.pch的最前面#import这个.h文件。不导入也可以编译、导入则实现混淆。</li>
+</ul>
+<p><strong>脚本实现如下</strong>：</p>
+<pre><code>#!/usr/bin/python 
+# -*- coding: utf-8 -*-
+
+import sys
+import os
+from random import Random
+import time;  
+import base64
+
+#
+# 执行脚本命令：python Confuse.py
+#
+
+# ***** 工具类 *****
+
+class Util(object):
+    def __init__(self, arg):
+        super(Util, self).__init__()
+        self.arg = arg
+
+    # 生成随机串
+    @classmethod
+    def randomString(self,randomlength=16):
+
+        str = &apos;&apos;
+        chars = &apos;AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz&apos;
+        length = len(chars) - 1
+        random = Random()
+        for i in range(randomlength):
+            str += chars[random.randint(0, length)]
+        return str
+
+    @classmethod
+    def loadFileCotent(self,filePath):
+
+        contents = []
+        with open(filePath) as f:
+            line = f.readline()
+            while line:
+                contents.append(line.rstrip(&apos;\n&apos;)) 
+                line = f.readline()
+        return contents
+
+    #加密（可以换成你想要的加密方法）
+    @classmethod
+    def encrypt(self,content):
+        res = &apos; &apos;.join([bin(ord(c)).replace(&apos;0b&apos;, &apos;&apos;) for c in content])
+        return base64.b64encode(res)
+
+    # 解密 (需要OC代码实现一份)
+    @classmethod
+    def decrypt(self,content):
+        return &apos;&apos;.join([chr(i) for i in [int(b, 2) for b in base64.b64decode(content).split(&apos; &apos;)]])
+
+#混淆函数名和方法名
+def confuseFunc(filePath):
+
+    originContents = Util.loadFileCotent(filePath)
+    confuseRes = &apos;&apos;
+    for i in range(0,len(originContents)):
+        outStr = &quot;#define &quot; + originContents[i] + &quot; &quot; + Util.randomString() + &quot;\n&quot;
+        confuseRes = confuseRes + outStr
+
+    #返回混淆结果
+    return confuseRes
+
+#混淆字符串
+def confuseText(filePath):
+
+    originContents = Util.loadFileCotent(filePath)
+    confuseRes = &apos;&apos;
+    for i in range(0,len(originContents)):
+        text = originContents[i]
+        text_encrypted = Util.encrypt(text)
+        # print &quot;decrypt&quot;,Util.decrypt(text_encrypted)
+        outStr = &quot;#define kKBParameter%sKey  QSString(@\&quot;%s\&quot;)\n&quot; %(text.capitalize(),text_encrypted)
+        confuseRes = confuseRes + outStr
+
+    #返回混淆结果
+    return confuseRes
+
+confuse_file_name =  &quot;QSConfuseHeader&quot;
+
+if __name__ == &apos;__main__&apos;:
+
+    fileContent = &apos;&apos;&apos;//
+//  &apos;&apos;&apos; + confuse_file_name + &apos;&apos;&apos;
+//  XXProject
+//
+//  Created on&apos;&apos;&apos; + time.asctime( time.localtime(time.time()) ) + &apos;&apos;&apos;!\n 
+#ifndef &apos;&apos;&apos; + confuse_file_name + &apos;&apos;&apos;_h
+#define &apos;&apos;&apos; + confuse_file_name + &apos;&apos;&apos;_h\n\n&apos;&apos;&apos;
+
+    confuseFuncContent = confuseFunc(&quot;func_class.txt&quot;)
+    if len(confuseFuncContent) &gt; 0:
+        fileContent += &quot;\n//函数混淆\n&quot; + confuseFuncContent
+
+    confuseTextContent = confuseText(&quot;string.txt&quot;)
+    if len(confuseTextContent) &gt; 0:
+        fileContent += &quot;\n//字符串混淆\n&quot; + confuseTextContent
+
+    endFileContent = &quot;\n\n#endif /* &quot; + confuse_file_name + &quot;_h */&quot;
+
+    if len(fileContent) &gt; 0:
+        fileContent+= endFileContent
+        print fileContent
+        # 打开一个文件
+        outputFile = open(confuse_file_name + &quot;.h&quot;, &quot;wb&quot;)
+        outputFile.write(fileContent)
+        # 关闭打开的文件
+        outputFile.close()
+</code></pre><p>​<br>   <strong>说明1</strong>：目前需要混淆内容放在txt文件（需要混淆函数名和类名放在func_class.txt，需要混淆字符串常量放在string.txt中）；进一步做法是，给需要混淆的字符串打上标记，然后用脚本搜索这些需要混淆的对象，实现混淆；</p>
+<p>  <strong>说明2</strong>：代码混淆需要考虑代码的可读性，建议做法是，对应混淆后的结果使用<strong>宏定义</strong>替换，类似于</p>
+<pre><code>//QSString(x)是个宏方法，定义是解密实现，在OC中实现
+#define kKBParameterGoodKey  QSString(@&quot;MTEwMDExMSAxMTAxMTExIDExMDExMTEgMTEwMDEwMA==&quot;)
+</code></pre><p>  <strong>说明3</strong>：在脚本中，加密方法并非真正的加密，只是将字符串转成二进制，再Base64编码而已；这个根据自己业务需要增加真正的加密算法，对应的解密算法放在OC中实现。</p>
+<p>  <strong>其他参考</strong><a href="http://blog.csdn.net/yiyaaixuexi/article/details/29201699" target="_blank" rel="noopener">iOS安全攻防（二十三）：Objective-C代码混淆</a></p>
+<blockquote>
+<h4 id="三、关键逻辑混淆"><a href="#三、关键逻辑混淆" class="headerlink" title="三、关键逻辑混淆"></a>三、关键逻辑混淆</h4></blockquote>
+<p>提供两种方案</p>
+<h5 id="方案1"><a href="#方案1" class="headerlink" title="方案1"></a>方案1</h5><ul>
+<li><p>把函数名隐藏在结构体里，以函数指针成员的形式存储。</p>
+</li>
+<li><p>编译后，只留了下地址，去掉了名字和参数表，提高了逆向成本和攻击门槛。</p>
+</li>
+<li><p>具体参考<a href="http://blog.csdn.net/yiyaaixuexi/article/details/29210413" target="_blank" rel="noopener">iOS安全攻防（二十四）：敏感逻辑的保护方案（1）</a></p>
+</li>
+</ul>
+<h5 id="方案2"><a href="#方案2" class="headerlink" title="方案2"></a>方案2</h5><ul>
+<li><p>使用C/C++语言实现逻辑，这里利用到Objective-C 与 C/C++混编的知识。下面以C++为例，混编最需要注意的是<strong>OC 调用 C++</strong>和<strong>C++ 调用 OC</strong></p>
+</li>
+<li><p><strong>OC 调用 C++</strong>：这种情况比较简单，因为编译器做了优化，把 .m 文件直接改为 <strong>.mm</strong> ，然后直接用就好了。</p>
+</li>
+<li><p><strong>C++ 调用 OC</strong>：分为两种情况：1）完全的 C++ ，实现文件以 .cpp 结尾，里面不允许直接OC的方法；通过编写接口，间接调用 OC 方法，实际上 C++ 调用的是OC编译过后的 .o 文件；2）部分 C++ 部分 OC ，实现文件以 .mm 结尾，里面允许直接使用 OC 方法。</p>
+</li>
+</ul>
+<blockquote>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4></blockquote>
+<ul>
+<li>代码混淆只是提高了破解的门槛和难度，不能百分百保证代码安全，但是如果不做这些，你的核心业务无疑在裸奔，这是很危险的事情。</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/03/iOS-UseAES/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/03/iOS-UseAES/" itemprop="url">浅谈AES</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-03T23:23:50+08:00">
+                2018-01-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS实践/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS实践</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,829 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  8 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4><ul>
+<li><p><strong>对称加密</strong>比<strong>非对称加密</strong>要快。频繁的数据加密，优先考虑使用<strong>对称加密</strong>。</p>
+</li>
+<li><p>DES -&gt; 3DES -&gt; <strong>AES</strong>（Advanced Encryption Standard，高级加密标准）；目前对称加密使用<strong>AES</strong>为佳，它已经取代DES和3DES对称算法了。</p>
+</li>
+<li><p>AES是项目中使用较多的对称加密算法，本文简单介绍下AES。</p>
+</li>
+</ul>
+<h4 id="二、AES算法的重要组成"><a href="#二、AES算法的重要组成" class="headerlink" title="二、AES算法的重要组成"></a>二、AES算法的重要组成</h4><h5 id="1、密钥长度（Key-Size）"><a href="#1、密钥长度（Key-Size）" class="headerlink" title="1、密钥长度（Key Size）"></a>1、密钥长度（Key Size）</h5><p>  AES算法规定密钥长度有三种：128bits、192bits和256 bits。其中<strong>128 bits的key可以满足大部分业务需求</strong>。</p>
+<h5 id="2、加密模式（Cipher-Mode）"><a href="#2、加密模式（Cipher-Mode）" class="headerlink" title="2、加密模式（Cipher Mode）"></a>2、加密模式（Cipher Mode）</h5><p>   AES属于块加密（Block Cipher），加密数据块（Block）必须为<strong>128bits（16字节）</strong>；加密模式主要有以下<strong>六种</strong>模式：</p>
+<p><strong>1) ECB (Electronic Codebook Book，电子密码本模式)</strong></p>
+<ul>
+<li><p><strong>简介</strong>：将数据分成若干块，分别对每块进行加密，最后将这些密文块组成最后的加密结果</p>
+</li>
+<li><p><strong>说明</strong>：最简单的模式，安全性较低。因为ECB的明文分组与密文分组是一一对应的关系，如果明文中存在多个相同的明文分组，其对应的密文分组也是相同的；<strong>不推荐使用</strong>。</p>
+</li>
+</ul>
+<p><strong>2) CBC（Cipher Block Chaining，密码分组链接模式)</strong></p>
+<ul>
+<li><p><strong>简介</strong>：将数据分块后，每一块数据与上一块密文XOR（异或）后，再进行加密；</p>
+</li>
+<li><p><strong>说明</strong>：比较推荐使用的模式（但Apple已经不推荐使用CBC模式，建议使用<strong>GCM</strong>模式）。</p>
+</li>
+</ul>
+<p><strong>3) CTR(Counter，计数器模式)</strong></p>
+<ul>
+<li><p><strong>简介</strong>：通过将<strong>逐次累加的计数器</strong>进行加密来生成密钥流的流密码；最终的密文分组是通过将计数器加密得到的比特序列，与明文分组进行XOR得到的。</p>
+</li>
+<li><p><strong>说明</strong>：比较推荐使用的模式</p>
+</li>
+</ul>
+<p><strong>4) CFB(Cipher FeedBack,密码反馈模式)</strong></p>
+<ul>
+<li><p><strong>简介</strong>：和CBC类似，加密模式和CBC类似，但其可以将块密码变为自同步的流密码。</p>
+</li>
+<li><p><strong>说明</strong>：不推荐使用的模式</p>
+</li>
+</ul>
+<p><strong>5) OFB(Output FeedBack, 输出反馈模式)</strong></p>
+<ul>
+<li><p><strong>简介</strong>：将块密码变成同步的流密码，它产生密钥流的块，然后将其与明文块进行异或，得到密文。</p>
+</li>
+<li><p><strong>说明</strong>：不推荐使用的模式</p>
+</li>
+</ul>
+<p><strong>6) GCM(Galois/Counter Mode,)</strong></p>
+<ul>
+<li><p><strong>简介</strong>：GCM中的G就是指GMAC(消息验证码)，C就是指CTR(计数器模式)</p>
+</li>
+<li><p><strong>说明</strong>：GCM可以提供对消息的加密和完整性校验，AES模式最好选择。</p>
+</li>
+</ul>
+<p><strong>总结</strong>: 推荐先后顺序：<strong>GCM &gt; CTR &gt; CBC</strong>；详细内容可以参考<a href="https://xiaoxueying.gitbooks.io/graphic-cryptology/content/block_cipher_mode.html" target="_blank" rel="noopener">Block cipher mode</a>、<a href="http://blog.csdn.net/T0mato_/article/details/53160772" target="_blank" rel="noopener">AES-GCM加密算法</a></p>
+<h5 id="3、填充方式（Padding）"><a href="#3、填充方式（Padding）" class="headerlink" title="3、填充方式（Padding）"></a>3、填充方式（Padding）</h5><p>  1）<strong>块加密</strong>要求对<strong>特定长度的数据块</strong>进行加密，因此<strong>CBC模式</strong>、<strong>ECB模式</strong>需要在最后一数据块加密前进行数据填充。（CFB，OFB和CTR模式由于与key进行加密操作的是上一块加密后的密文，因此不需要对最后一段明文进行填充）。</p>
+<p>  2）iOS SDK中提供了<strong>PKCS7Padding</strong>，Java提供了<strong>PKCS5Padding</strong>。原则上PKCS5Padding限制了填充的Block Size为8 字节（大于8 字节，填充和PKCS7Padding相同），而PKCS7Padding的Block Size可以为1到255字节; 填充值的算法（需要填充x个字节，填充的值就是x）都是一样的：</p>
+<pre><code>value = k - (l mod k)  ,K = 块大小，l = 数据长度；假设k是16，I是5,那么value是11，也就是说，需要填充11个byte的 0x0B(十进制是11)
+</code></pre><p>  3）因为<strong>AES加密数据块</strong>Block Size规定为16字节(<em>128bits</em>), 大于8 字节(64 bits), 所以<strong>PKCS5Padding和PKCS7Padding填充效果</strong>是一样的。</p>
+<p>  <strong>说明</strong>：数据块的长度如果是16倍数，padding长度为16，padding值为0x10。即在输入后面补齐16字节的0x10；如果数据块的长度不是16倍数，padding长度为16-L%16，padding值为16-L%16。即在输入后面补齐16-L%16的字节，值为16-L%16。</p>
+<p>  4）平时使用最多的是PKCS7Padding，NoPadding、ISO10126Padding和ZeroPadding忽略不提。</p>
+<h5 id="4、初始向量（Initialization-Vector）"><a href="#4、初始向量（Initialization-Vector）" class="headerlink" title="4、初始向量（Initialization Vector）"></a>4、初始向量（Initialization Vector）</h5><p>  CBC、CFB和OFB这些加密模式需要传入一个初始向量，其大小与Block Size相等；当不传入初始向量时，系统将默认使用一个全0的初始向量。</p>
+<h4 id="三、AES算法Python实现"><a href="#三、AES算法Python实现" class="headerlink" title="三、AES算法Python实现"></a>三、AES算法Python实现</h4><p><strong>说明</strong>：使用Python的加密包<a href="https://pypi.python.org/pypi/pycrypto" target="_blank" rel="noopener">pycrypto</a> (下载后，执行<em>python setup.py build + python setup.py install</em>)，实现AES的ECB、CBC、CTR、CFB和OFB模式下的加密和解密；定义一个PaddingHelper类，实现PKCS7Padding；</p>
+<pre><code>#!/usr/bin/python 
+# -*- coding:utf-8 -*-
+
+import sys
+import os
+import base64
+from Crypto.Cipher import AES
+from Crypto.Util import Counter
+
+# ***** Padding Helper For AES *****
+
+class  PaddingHelper(object):
+    &quot;&quot;&quot;docstring for  Padding Helper&quot;&quot;&quot;
+    def __init__(self, arg):
+        super(PaddingHelper, self).__init__()
+        self.arg = arg
+
+    # 保证keyStr的长度是16
+    @classmethod
+    def validKeyStr(self,keyStr):    
+        keySize = 16
+        if len(keyStr) &lt; keySize:
+            zeroCount = keySize - len(keyStr) % keySize  
+            for i in range(0, zeroCount):  
+                keyStr = keyStr + &apos;\0&apos; 
+        else:
+            return keyStr[0:keySize]
+        return keyStr  
+
+
+    # 实现PKCS7Padding/PKCS7Padding
+    @classmethod
+    def PKCS7Padding(self,text,blockSize=16):    
+        count = len(text)    
+        mod_num = count % blockSize
+        add_num = blockSize - mod_num
+        return text + chr(add_num) * add_num    
+
+    @classmethod
+    def MovePKCS7Pading(self,text,blockSize=16):
+        lastChar = text[-1]    
+        paddingLen = ord(lastChar)
+        # 截取最后一部分填充快
+        lastChunk = text[-paddingLen:]
+
+        if lastChunk == chr(paddingLen) * paddingLen:
+            # 移除填充部分
+           return text[:-paddingLen]
+        return text     
+
+# AES PSK7/PSK5填充
+class AESUtil():
+    def __init__(self, key, model):
+
+        self.key = PaddingHelper.validKeyStr(key)
+        self.mode = model
+        self.iv = key   #初始向量初始化k，可以是别的值，但必须16字节
+
+    #加密函数，如果text不是16的倍数,那就补足为16的倍数
+    def encrypt(self, text):
+
+        if self.mode == AES.MODE_CTR:
+             # Create new AES CTR object #
+            cryptor = AES.new(self.key, self.mode, counter=Counter.new(128))
+        else:
+            cryptor = AES.new(self.key, self.mode, self.iv)
+
+        text = PaddingHelper.PKCS7Padding(text,16)
+        ciphertext = base64.b64encode(cryptor.encrypt(text))
+        return ciphertext
+
+    #解密后，去掉补足的空格用strip() 去掉
+    def decrypt(self, text):   
+        if self.mode == AES.MODE_CTR:
+             # Create new AES CTR object #
+            cryptor = AES.new(self.key, self.mode, counter=Counter.new(128))
+        else:    
+            cryptor = AES.new(self.key, self.mode, self.iv)
+
+        plainText = cryptor.decrypt(base64.b64decode(text))
+        return PaddingHelper.MovePKCS7Pading(plainText)
+
+if __name__ == &apos;__main__&apos;:
+
+    encrykey = &quot;0123456789abcdef&quot;
+    # plainText = &apos;1234567891234567&apos;
+    plainText = &apos;hello world&apos;
+
+    dict = {&quot;CBC模式&quot;: AES.MODE_CBC, 
+            &quot;CFB模式&quot;: AES.MODE_CFB, 
+            &quot;CTR模式&quot;: AES.MODE_CTR,
+            &quot;ECB模式&quot;: AES.MODE_ECB,
+            &quot;OFB模式&quot;: AES.MODE_OFB};
+
+    for key, value in dict.iteritems():
+        aes = AESUtil(encrykey,value)
+        encryptText = aes.encrypt(plainText)
+        print &quot;**********%s 加解密*******&quot; %(key)
+        print &quot;密文:&quot;,encryptText
+        print &quot;明文:&quot;,aes.decrypt(encryptText)
+</code></pre><p><strong>执行脚本的输出结果如下</strong></p>
+<pre><code>**********ECB模式 加解密*******
+密文: gWm+1O9JqIdFWcWyANqt5w==
+明文: hello world
+**********CFB模式 加解密*******
+密文: GsZEtzHsqRLRjxfUU6T0Zg==
+明文: hello world
+**********CBC模式 加解密*******
+密文: wem0Upqsl5MBD0Z39jWO/g==
+明文: hello world
+**********OFB模式 加解密*******
+密文: GhcS5HH8im5yy3xtfAywYA==
+明文: hello world
+**********CTR模式 加解密*******
+密文: adUgVHVGk4Y3/LZatTZf6Q==
+明文: hello world
+</code></pre><h4 id="四、AES算法使用说明"><a href="#四、AES算法使用说明" class="headerlink" title="四、AES算法使用说明"></a>四、AES算法使用说明</h4><ul>
+<li><p>对AES加密的结果，要使用<strong>Base64编码</strong>。因为其加密结果得到的字符串可能有不可见字符，保存和传输都有问题；把数据做Base64编码，统统变成可见字符。（Base64编码 将二进制流中每6个bit一组表示数据, 不足的部分补零,每两个0 用 一个 = 表示，把含有不可见字符串的信息用可见字符串表示出来 ）；对应的AES解密时，先要进行Base64解码</p>
+</li>
+<li><p>AES有很明显的优势：<strong>安全</strong>、<strong>加解密快</strong>（AES比RSA的加解密快1000倍）；但是劣势也明显，需重点保护<strong>密钥</strong>的安全；在实践中推荐组合使用<strong>AES</strong>和<em>*RSA</em>技术。</p>
+</li>
+<li><p>实践中<strong>常见的方案</strong>是：1）用AES来加密数据；2）AES的密钥通过<strong>伪随机数生成器</strong>生成；3）AES的密钥通过<strong>RSA公钥加密</strong>；4）最终将AES密钥的密文 和 数据的密文交给后台，后台利用对应的策略解密。</p>
+</li>
+<li><p>AES算法流程可以参考<a href="http://www.cnblogs.com/luop/p/4334160.html" target="_blank" rel="noopener">密码算法详解——AES</a></p>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/01/iOS-DataEnctypt/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/01/iOS-DataEnctypt/" itemprop="url">浅谈数据加密</a></h1>
         
 
         <div class="post-meta">
@@ -308,8 +1026,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS2018/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS2018</span>
+                  <a href="/categories/iOS实践/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS实践</span>
                   </a>
                 </span>
 
@@ -379,9 +1097,7 @@
         
           
             <p><strong>导语：</strong>本文介绍常用的数据加密方式（不仅仅局限在iOS中使用）。</p>
-<blockquote>
-<h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4></blockquote>
-<p>加密是用来避免攻击这盗取信息的一种手段，加密算法主要有三类：<strong>Hash算法</strong>、<strong>对称加密算法</strong> 和 <strong>非对称加密算法</strong>。</p>
+<h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4><p>加密是用来避免攻击这盗取信息的一种手段，加密算法主要有三类：<strong>Hash算法</strong>、<strong>对称加密算法</strong> 和 <strong>非对称加密算法</strong>。</p>
 <h5 id="1、Hash算法"><a href="#1、Hash算法" class="headerlink" title="1、Hash算法"></a>1、Hash算法</h5><ul>
 <li><p><strong>Hash算法</strong> 把一个任意长度的字节串映射 为一定长度的十六进制的数字串；这个数字串称为<strong>哈希值</strong>。</p>
 </li>
@@ -406,9 +1122,7 @@
 <li><p><strong>重点说明</strong>：<strong>RSA</strong>是使用最广的非对称加密算法，但是小于1024位的RSA私钥很容易被分解攻击，出于安全的考虑，建议在项目中使用大于等于2048位的RSA私钥。</p>
 </li>
 </ul>
-<blockquote>
-<h4 id="二、总结"><a href="#二、总结" class="headerlink" title="二、总结"></a>二、总结</h4></blockquote>
-<ul>
+<h4 id="二、总结"><a href="#二、总结" class="headerlink" title="二、总结"></a>二、总结</h4><ul>
 <li><p>对<strong>大量数据(较大量的上报信息)</strong>加密，建议使用AES；对于<strong>少量数据（手机号、邮箱等）</strong>加密，建议使用RSA；对于比较重要的<strong>资源下载（如运营活动图片、配置数据等）</strong>，对下载下来的数据，要校验hash值，防止数据被篡改，保证数据的完整性。</p>
 </li>
 <li><p>对于核心的业务功能的数据，仅仅靠一种加密算法是不够的，综合利用<strong>两三种加解密算法</strong>，实现业务目标的同时，<strong>提高被破解的难度</strong>。</p>
@@ -462,7 +1176,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2017/12/31/newStart/">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2017/12/31/begin/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="南华coder">
@@ -481,7 +1195,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2017/12/31/newStart/" itemprop="url">再见2017</a></h1>
+                <a class="post-title-link" href="/2017/12/31/begin/" itemprop="url">再见2017</a></h1>
         
 
         <div class="post-meta">
@@ -753,7 +1467,7 @@ scheme: Gemini
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-count">24</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -764,7 +1478,7 @@ scheme: Gemini
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -833,7 +1547,7 @@ scheme: Gemini
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">37.1k</span>
+    <span title="Site words total count">45.9k</span>
   
 </div>
 

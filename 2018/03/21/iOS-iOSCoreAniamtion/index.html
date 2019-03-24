@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="iOS," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="南华coder的空间" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="一、概述1、基础 iOS主要的绘图系统有UIKit、Core Animation、Core Graphics、OpenGL ES和Core Image等。  Core Animation并非是做高端动画的库。它是一个用于管理视图排版、合成、渲染以及动画的基础 库，最终的渲染工作是交给Graphics Hardware(GPU)处理。  UIKit 建立在 Core Animation 基础之上，在">
+<meta name="keywords" content="iOS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Core Animation小记">
+<meta property="og:url" content="http://buaa0300/nanhuacoder.com/2018/03/21/iOS-iOSCoreAniamtion/index.html">
+<meta property="og:site_name" content="南华coder的空间">
+<meta property="og:description" content="一、概述1、基础 iOS主要的绘图系统有UIKit、Core Animation、Core Graphics、OpenGL ES和Core Image等。  Core Animation并非是做高端动画的库。它是一个用于管理视图排版、合成、渲染以及动画的基础 库，最终的渲染工作是交给Graphics Hardware(GPU)处理。  UIKit 建立在 Core Animation 基础之上，在">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/201701-e511da597e5f480b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/201701-b91953f039c0ddf6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/201701-3dee035ee05bc931.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/201701-679b066a9523a748.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640">
+<meta property="og:updated_time" content="2019-03-24T10:34:24.873Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Core Animation小记">
+<meta name="twitter:description" content="一、概述1、基础 iOS主要的绘图系统有UIKit、Core Animation、Core Graphics、OpenGL ES和Core Image等。  Core Animation并非是做高端动画的库。它是一个用于管理视图排版、合成、渲染以及动画的基础 库，最终的渲染工作是交给Graphics Hardware(GPU)处理。  UIKit 建立在 Core Animation 基础之上，在">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/201701-e511da597e5f480b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://buaa0300/nanhuacoder.com/2018/03/21/iOS-iOSCoreAniamtion/"/>
+
+
+
+
+
+  <title>Core Animation小记 | 南华coder的空间</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">南华coder的空间</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/03/21/iOS-iOSCoreAniamtion/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Core Animation小记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-21T15:36:48+08:00">
+                2018-03-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS基础/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  4,430 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  16 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4><h5 id="1、基础"><a href="#1、基础" class="headerlink" title="1、基础"></a>1、基础</h5><ul>
+<li><p>iOS主要的<strong>绘图系统</strong>有UIKit、<strong>Core Animation</strong>、Core Graphics、OpenGL ES和Core Image等。</p>
+</li>
+<li><p>Core Animation并非是做高端动画的库。它是一个用于管理视图排版、合成、渲染以及动画的基础 库，最终的渲染工作是交给Graphics Hardware(GPU)处理。</p>
+</li>
+<li><p><strong>UIKit 建立在 Core Animation 基础之上，在 Core Animation 之下是 OpenGL ES 和 Core Graphics，分别对应 GPU 和 CPU。</strong></p>
+</li>
+</ul>
+<p><img src="https://upload-images.jianshu.io/upload_images/201701-e511da597e5f480b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
+<h5 id="2、图层概念"><a href="#2、图层概念" class="headerlink" title="2、图层概念"></a>2、图层概念</h5><ul>
+<li><p>在Core Animaiton中有个重要的概念，就是<strong>图层</strong>（CALayer)，它不仅可以显示一些内容（如图片，文本或者背景色）、还可以管理子图层，甚至还可以做动画和变换；</p>
+</li>
+<li><p>不同于在UIKit中的视图基类UIView，CALayer并不清楚具体的<em>响应链</em>（<strong>iOS通过视图层级关系用来传送触摸事件的机制），</strong>不能够响应事件，不能处理和用户的交互，但是它依然可以使用<strong>hitTest</strong>来判断是否一个触点在图层的范围之内。</p>
+</li>
+<li><p>每一个UIView都有一个<strong>CALayer实例</strong>，UIView的职责是创建并管理这个图层，以确保当子视图在层级关系中添加或者被移除的时候，他们关联的图层也同样对应在层级关系树当中有相同的操作。</p>
+</li>
+</ul>
+<h5 id="3、图层的意义"><a href="#3、图层的意义" class="headerlink" title="3、图层的意义"></a>3、图层的意义</h5><p>UIView对 CALayer大部分属性做了高级封装，大部分场景下，使用UIView的高级API（比如自动排版，布局和事件处理）就足够了，但是在某些情况下，需要使用到CALayer</p>
+<ul>
+<li><p>开发同时可以在Mac OS上运行的跨平台应用</p>
+</li>
+<li><p>追求更好的性能，使用多种CALayer的子类，如CAShapeLayer、CAGradientLayer和CATextLayer</p>
+</li>
+<li><p>完成一些视觉效果，如<strong>阴影</strong>，<strong>圆角</strong>，<strong>边框</strong>、<strong>3D变换</strong>、<strong>非矩形范围</strong>、<strong>透明遮罩</strong>、<strong>多级非线性动画</strong>等。​             </p>
+</li>
+</ul>
+<h4 id="二、Core-Animation-Pipeline"><a href="#二、Core-Animation-Pipeline" class="headerlink" title="二、Core Animation Pipeline"></a>二、Core Animation Pipeline</h4><p><img src="https://upload-images.jianshu.io/upload_images/201701-b91953f039c0ddf6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
+<p>Core Animation的<strong>绘制和渲染</strong>是通过<strong>Core Animation Pipeline</strong>实现，它以流水线的形式进行渲染，具体分为四个步骤：</p>
+<h5 id="1、Commit-Transaction"><a href="#1、Commit-Transaction" class="headerlink" title="1、Commit Transaction"></a>1、Commit Transaction</h5><p>​      具体可以细分为四个阶段</p>
+<ul>
+<li><p><strong>Layout</strong>: 构建视图层级，设置图层属性（如位置，背景色，边框等）</p>
+</li>
+<li><p><strong>Display</strong>: 图层的寄宿图片被绘制的阶段。绘制有可能涉及你的-drawRect:和-drawLayer:inContext:方法的调用路径。</p>
+</li>
+<li><p><strong>Prepare</strong>: 这是Core Animation准备发送动画数据到渲染服务的阶段。这同时也是Core Animation将要执行一些别的事务例如解码动画过程中将要显示的图片的时间点。</p>
+</li>
+<li><p><strong>Commit</strong>: 这是最后的阶段，Core Animation打包所有图层和动画属性，然后通过IPC（内部处理通信）发送到渲染服务进行显示。</p>
+</li>
+</ul>
+<h5 id="2、Render-Server"><a href="#2、Render-Server" class="headerlink" title="2、Render Server"></a>2、Render Server</h5><p>​    负责渲染工作，会解析上一步Commit Transaction中提交的信息并<strong>反序列化成渲染树</strong>（render tree)，随后根据layer的各种属性生成绘制指令，并在下一次VSync(垂直同步)信号到来时调用OpenGL进行渲染。</p>
+<h5 id="3、GPU"><a href="#3、GPU" class="headerlink" title="3、GPU"></a>3、GPU</h5><ul>
+<li>GPU会等待显示器的VSync信号发出后才进行OpenGL渲染管线，将3D几何数据转化成2D的像素图像和光栅处理，随后进行新的一帧的渲染，并将其输出到缓冲区。</li>
+</ul>
+<h5 id="4、Display"><a href="#4、Display" class="headerlink" title="4、Display"></a>4、Display</h5><ul>
+<li>从缓冲区中取出画面，并输出到屏幕上</li>
+</ul>
+<p><strong>说明1</strong>：开发者真正能做的，只是在<strong>Layout</strong>(布局)<strong>和Display</strong>(显示)环节</p>
+<p><strong>说明2</strong>：</p>
+<ul>
+<li><p>某个视图的图层属性所做的修改，都是在当前Runloop结束之前，Core Animation才将修改提交；</p>
+</li>
+<li><p>因为Core Animation的Commit Transaction是在主线程完成的，虽然Core Animation也支持异步渲染，但是UIKit就是把这些个事情放在主线程做。</p>
+</li>
+</ul>
+<blockquote>
+<p>VSync（vertical sync）是指垂直同步，在玩游戏的时候在设置的时候应该会看见过这个选项，这个机制能够让显卡和显示器保持在一个相同的刷新率从而避免画面撕裂。在iOS中，屏幕具有60Hz的刷新率，这意味着它每秒需要显示60张不同的图片（帧），但GPU并没有一个确定的刷新率，在某些时候GPU可能被要求更强力的数据输出来确保渲染能力，这时候他们可能比屏幕刷新率（60Hz）更快，就会导致屏幕不能完整的渲染所有GPU给他的数据，因为它不够快，屏幕的上一帧还没渲染完，下一帧就已经到来了，这就导致画面的撕裂。</p>
+<p>这个时候我们就要引入VSync了，简单来说它就是让显卡保持他的输出速率不高于屏幕的刷新率，启用了VSync后，GPU不再会给你可怜的60Hz屏幕每秒发送100帧了，它会增加每一帧的发送间隔，确保显示器能够有充足的时间去处理每一帧。</p>
+</blockquote>
+<h4 id="三、CATransaction"><a href="#三、CATransaction" class="headerlink" title="三、CATransaction"></a>三、CATransaction</h4><h5 id="1、概念"><a href="#1、概念" class="headerlink" title="1、概念"></a>1、概念</h5><ul>
+<li><strong>CATransaction</strong>是 Core Animation 中的<strong>事务类</strong>，在iOS中的图层中，图层的每个改变都是事务的一部分，CATransaction可以对多个layer的属性同时进行修改，负责成批地把多个图层树的修改作为 一个原子操作 更新到<strong>渲染树</strong>。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[CATransaction begin];</span><br><span class="line">[CATransaction setCompletionBlock:^&#123;</span><br><span class="line">    //complete block</span><br><span class="line">&#125;];</span><br><span class="line">// do animation</span><br><span class="line">[CATransaction commit];</span><br></pre></td></tr></table></figure>
+<h5 id="2、事务的特性"><a href="#2、事务的特性" class="headerlink" title="2、事务的特性"></a>2、事务的特性</h5><ul>
+<li><p><strong>事务允许嵌套</strong>。但是嵌套在内层的事务不会立即commit，会在最外层的事务结束后统一commit。</p>
+</li>
+<li><p>事务分显式事务和隐式事务两种，如果当前没有显式创建过CATransaction，则系统会<strong>创建一个隐式的CATransaction，</strong>CATransaction会在下一个RunLoop自动提交。</p>
+</li>
+<li><p>CATransaction会在背后独立完成图层树属性计算的工作。系统提供API来显式的使用事务类，并且手动提交给渲染服务进程，这种做法被称作推进过渡。推进过渡会生成一个默认时长为0.25s时长的动画效果来完成属性值的修改。</p>
+</li>
+<li><p>CATransaction可以设置完成块，允许在动画结束之后执行一个完成动作，类似UIView动画的block。</p>
+</li>
+</ul>
+<h5 id="3、CATransaction的使用"><a href="#3、CATransaction的使用" class="headerlink" title="3、CATransaction的使用"></a>3、CATransaction的使用</h5><ul>
+<li><strong>禁止隐式动画</strong></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//1、禁止隐式动画</span><br><span class="line">[CATransaction beign];</span><br><span class="line">[CATransaction setDisableActions:Yes];</span><br><span class="line">[self.tableview reloadData];</span><br><span class="line">[CATransaction commit];</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>设置动画参数</strong></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">//2、设置动画参数</span><br><span class="line">[CATransaction begin];</span><br><span class="line">[CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithControlPoints:.15 :.12 :0 :1]];</span><br><span class="line">[UIView animateWithDuration:.42 delay:0 options:7 animations:^&#123;</span><br><span class="line">     //opearator</span><br><span class="line"> &#125; completion:nil];</span><br><span class="line"> [CATransaction commit];</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>处理动画结束后操作</strong></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">//3、处理动画结束后操作</span><br><span class="line">[CATransaction begin];</span><br><span class="line">[tableView beginUpdates];</span><br><span class="line">[CATransaction setCompletionBlock:^&#123;</span><br><span class="line">    //动画执行结束后更新操作,注意放在动画开始之前</span><br><span class="line">&#125;];  </span><br><span class="line">[self.tableView insertRowsAtIndexPaths:insertIndexPaths withRowAnimation:UITableViewRowAnimationFade];</span><br><span class="line">[tableView endUpdates];</span><br><span class="line">[CATransaction commit];</span><br><span class="line">//说明：beginUpdates和endUpdates可以在改变一些行（row）的高度时自带动画，并且不需要Reload row（不用调用cellForRow，仅仅需要调用heightForRow，这样效率最高）。</span><br></pre></td></tr></table></figure>
+<p><strong>说明</strong>：setCompletionBlock设置在动画之前，才会在动画执行后执行completionBlock。</p>
+<h4 id="四、模型图层和呈现图层"><a href="#四、模型图层和呈现图层" class="headerlink" title="四、模型图层和呈现图层"></a>四、模型图层和呈现图层</h4><p>Core Animation作为一个复合引擎，将不同的视图层组合在屏幕中，并且存储在图层树中，向我们展示了所有屏幕上的一切。整个过程其实经历了模型树–&gt;呈现树–&gt;渲染树，才显示到了屏幕上。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/201701-3dee035ee05bc931.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
+<h5 id="1、模型图层-和-模型树"><a href="#1、模型图层-和-模型树" class="headerlink" title="1、模型图层 和 模型树"></a>1、模型图层 和 模型树</h5><ul>
+<li><p>当设置CALayer的属性，实际上是在定义当前事务结束之后<strong>图层如何显示的**</strong>模型，<strong>在一个图层上调用调用-</strong>modelLayer<strong>会返回self; （在呈现图层(presentationLayer)上调用–</strong>modelLayer<strong>将会返回它正在呈现所依赖的</strong>CALayer**）</p>
+</li>
+<li><p>当你改变一个图层的属性，属性值是立刻更新的，但是<strong>屏幕上没有马上发生改变</strong>，因为设置的属性是代表图层动画结束<strong>(默动画时间0.25s</strong>)后将要达到的外观。(换种方式表达)</p>
+</li>
+<li><p>在当前RunLoop结束后，会将<strong>模型树</strong>相关内容（层次结构、图层属性和动画）序列化，通过IPC传递给专门负责屏幕渲染的渲染进程(Render Server)。渲染进程(Render Server)拿到数据并反序列化出树状结构–<strong>呈现树</strong>。呈现树中的呈现图层实际上是模型图层的复制，但是它的属性值<strong>代表了在任何指定时刻当前外观效果</strong>。</p>
+</li>
+</ul>
+<h5 id="2、呈现图层-和-呈现树"><a href="#2、呈现图层-和-呈现树" class="headerlink" title="2、呈现图层 和 呈现树"></a>2、呈现图层 和 呈现树</h5><ul>
+<li><p>每个图层属性的<strong>显示值</strong>都被存储在一个叫做<strong>呈现图层</strong>的独立图层当中，他可以通过-presentationLayer方法来访问。这个<strong>呈现图层实际上是模型图层的复制</strong>，<strong>但是它的属性值代表了在任何指定时刻当前外观效果</strong>。换句话说，你可以<strong>通过呈现图层的值来获取当前屏幕上真正显示出来的值。</strong></p>
+</li>
+<li><p>呈现树通过<strong>图层树</strong>中<strong>所有图层的呈现图层</strong>所形成。<strong>注意</strong>呈现图层仅仅当图层首次被<em>提交</em>（就是首次第一次在屏幕上显示）的时候创建，所以在那之前调用-presentationLayer将会返回nil。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//打印某layer本身、layer.modelLayer、self.colorLayer.presentationLayer.modelLayer，指的都是同一个CALayer对象</span><br><span class="line">self.colorLayer = &lt;CALayer: 0x600003035540&gt;</span><br><span class="line">self.colorLayer.modelLayer = &lt;CALayer: 0x600003035540&gt;</span><br><span class="line">self.colorLayer.presentationLayer.modelLayer = &lt;CALayer: 0x600003035540&gt;</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/201701-679b066a9523a748.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
+<h5 id="3、呈现图层的应用"><a href="#3、呈现图层的应用" class="headerlink" title="3、呈现图层的应用"></a>3、呈现图层的应用</h5><p>大多数情况下，你不需要直接访问呈现图层，可以通过和模型图层的交互，来让Core Animation更新显示。两种情况下会变得很有用，一个是同步动画，一个是处理用户交互。</p>
+<ul>
+<li><p>如果你在实现一个基于定时器的动画，而不仅仅是基于事务的动画，这个时候<strong>准确地知道在某一时刻图层显示在什么位置就需要用到 呈现图层；</strong></p>
+</li>
+<li><p>让动画的图层响应用户输入，使用<em>呈现</em>图层的-hitTest:来判断指定图层是否被触摸，因为呈现图层代表了用户当前看到的图层位置，而不是当前动画结束之后的位置。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">//...</span><br><span class="line">- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event</span><br><span class="line">&#123;</span><br><span class="line">    //get the touch point</span><br><span class="line">    CGPoint point = [[touches anyObject] locationInView:self.view];</span><br><span class="line">    //check if we&apos;ve tapped the moving layer</span><br><span class="line">    if ([self.colorLayer.presentationLayer hitTest:point]) &#123;</span><br><span class="line">        //randomize the layer background color</span><br><span class="line">        CGFloat red = arc4random() / (CGFloat)INT_MAX;</span><br><span class="line">        CGFloat green = arc4random() / (CGFloat)INT_MAX;</span><br><span class="line">        CGFloat blue = arc4random() / (CGFloat)INT_MAX;</span><br><span class="line">        self.colorLayer.backgroundColor = [UIColor colorWithRed:red green:green blue:blue alpha:1.0].CGColor;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        //otherwise (slowly) move the layer to new position</span><br><span class="line">        [CATransaction begin];</span><br><span class="line">        [CATransaction setAnimationDuration:3.0];</span><br><span class="line">        self.colorLayer.position = point;</span><br><span class="line">        [CATransaction commit];</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p><strong>说明</strong>：如果-hitTest:直接作用于<em>colorLayer</em>而不是呈现图层，在图层移动时候不能修改颜色。</p>
+<h4 id="五、隐式动画"><a href="#五、隐式动画" class="headerlink" title="五、隐式动画"></a>五、隐式动画</h4><h5 id="1、什么是隐式动画"><a href="#1、什么是隐式动画" class="headerlink" title="1、什么是隐式动画"></a>1、什么是隐式动画</h5><ul>
+<li><strong>修改CALayer的部分属性，如</strong>bounds、backgroundColor、position，默认会自动产生一些动画效果(如 缩放、背景色渐变和平移)。</li>
+</ul>
+<h5 id="2、隐式动画的实现"><a href="#2、隐式动画的实现" class="headerlink" title="2、隐式动画的实现"></a>2、隐式动画的实现</h5><p>当CALayer的(可做动画的)属性被改变时候，CALayer通过调用actionForKey:方法来查找对应的action对象(实现了CAAction协议的对象)，查找顺序如下：</p>
+<ul>
+<li><p>如果设置了CALayer的代理，可以通过执行代理方法actionForLayer:forKey:返回一个action对象。该方法可以返回CAAnimation对象、nil、[NSNull null]。其中nil表示结束actionForLayer:forKey:方法的执行，继续搜索下一个阶段，[NSNull null]表示结束搜索，即结束actionForLayer:forKey:，也结束其他阶段，将不会有隐式动画。</p>
+</li>
+<li><p>查找CALayer的actions属性，看key是否有对应的值。</p>
+</li>
+<li><p>查找CALayer style属性</p>
+</li>
+<li><p>调用CALayer的defaultActionForKey方法</p>
+</li>
+<li><p>如果搜索到了最后阶段，layer会执行一个默认的action对象，一般是CABasicAnimation。</p>
+</li>
+</ul>
+<p><strong>说明</strong>：经过一轮完整的搜索后，-<strong>actionForKey</strong>:要么返回空(nil，这种情况下将不会有动画发生），要么是CAAction协议对应的对象，最后CALayer拿这个结果去对先前和当前的值做动画。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@protocol CAAction</span><br><span class="line">- (void)runActionForKey:(NSString *)event object:(id)anObject</span><br><span class="line">    arguments:(nullable NSDictionary *)dict;</span><br><span class="line">@end</span><br></pre></td></tr></table></figure>
+<h5 id="3、UIKit如何禁止掉隐式动画"><a href="#3、UIKit如何禁止掉隐式动画" class="headerlink" title="3、UIKit如何禁止掉隐式动画"></a>3、UIKit如何禁止掉隐式动画</h5><ul>
+<li><p>在Core Animation库中，对CALayer的所有属性（可动画的属性）都做了动画，但是在UIKit中的UIView把它关联的图层的这个特性关闭了</p>
+</li>
+<li><p>每个UIView对它关联的图层都扮演了一个委托，并且提供了-<strong>actionForLayer:forKey</strong>的实现方法。当不在一个动画块的实现中，UIView对所有图层行为返回[NSNull null]，但是在动画block范围之内，它就返回了一个非空值。</p>
+</li>
+<li><p>还可以通过CATransacition的setDisableActions:方法关闭隐式动画。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[CATransaction begin];</span><br><span class="line">[CATransaction setDisableActions:YES];</span><br><span class="line"> //...</span><br><span class="line">[CATransaction commit];</span><br></pre></td></tr></table></figure>
+<p><strong>说明</strong>：设置setDisableActionsYES后，CALayer的actionForKey:方法将不会被调用，隐式动画也不会生成。</p>
+<h5 id="4、actionForKey-和actionForLayer-的区别"><a href="#4、actionForKey-和actionForLayer-的区别" class="headerlink" title="4、actionForKey:和actionForLayer:的区别"></a>4、actionForKey:和actionForLayer:的区别</h5><ul>
+<li><p>两个方法都返回action对象，但是actionForLayer:需要设置代理，由代理实现；</p>
+</li>
+<li><p>如果在<strong>actionForKey :</strong>里返回<code>nil</code>或<code>[NSNull null]</code>，那么搜索会停止，而如果在<strong>actionForLayer:</strong>里返回<code>nil</code>会停止<code>actionForLayer:</code>去搜索下一阶段，返回<code>[NSNull null]</code>才会停止搜索。</p>
+</li>
+</ul>
+<h4 id="六、其他"><a href="#六、其他" class="headerlink" title="六、其他"></a>六、其他</h4><h5 id="1、UIKit不是线程安全的"><a href="#1、UIKit不是线程安全的" class="headerlink" title="1、UIKit不是线程安全的"></a>1、UIKit不是线程安全的</h5><ul>
+<li>UIKit中，很多类中大部分的属性都被修饰为<strong>nonatomic</strong>，这意味着它们不能在多线程的环境下工作，而对于UIKit这样一个庞大的框架，将其所有属性都设计为线程安全是不现实的，这可不仅仅是简单的将nonatomic改成atomic或者是加锁解锁的操作，还涉及到很多的方面：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1) 假设能够异步设置view的属性，那我们究竟是希望这些改动能够同时生效，还是按照各自runloop的进度去改变这个view的属性呢？</span><br><span class="line"></span><br><span class="line">2) 假设UITableView在其他线程去移除了一个cell，而在另一个线程却对这个cell所在的index进行一些操作，这时候可能就会引发crash。</span><br><span class="line"></span><br><span class="line">3) 如果在后台线程移除了一个view，这个时候runloop周期还没有完结，用户在主线程点击了这个“将要”消失的view，那么究竟该不该响应事件？在哪条线程进行响应？</span><br></pre></td></tr></table></figure>
+<p> <strong>总结</strong>：</p>
+<ul>
+<li><p>将UIKit设置为线程安全并不能带来太多便利，也不会提升太多的性能表现，甚至会因为加锁解锁而耗费大量的时间。</p>
+</li>
+<li><p>事实上并发编程也没有因为UIKit是线程不安全而变得困难，我们所需要做的只是要确保UI操作在主线程进行就可以了。</p>
+</li>
+</ul>
+<h5 id="2、UIKit为什么选择主线程"><a href="#2、UIKit为什么选择主线程" class="headerlink" title="2、UIKit为什么选择主线程"></a>2、UIKit为什么选择主线程</h5><ul>
+<li><p>UIApplication在<strong>主线程</strong>所初始化的Runloop我们称为<strong>Main Runloop</strong>，它负责处理app存活期间的大部分事件，如<strong>用户交互</strong>等，它一直处于不断处理事件和休眠的循环之中，以确保能尽快的将用户事件传递给GPU进行渲染，使用户行为能够得到响应，画面之所以能够得到不断刷新也是因为Main Runloop在驱动着。</p>
+</li>
+<li><p>而每一个<strong>view的变化的修改并不是立刻变化，相反的会在当前RunLoop的结束的时候统一进行重绘</strong>，这样设计的目的是为了能够在一个Runloop里面处理好所有需要变化的view，包括resize、hide、reposition等等，所有view的改变都能在同一时间生效，这样能够更高效的处理绘制，这个机制被称为<strong>绘图循环（View Drawing Cycle</strong>)。</p>
+</li>
+<li><p><strong>如果我们的UIKit并不是在主线程，所以Main Runloop中的事件需要跨线程进行传输，这样会导致显示与用户事件并不同步；</strong></p>
+</li>
+<li><p>这是因为点击等事件是由系统传递给UIApplication中，并在Main Runloop中进行处理与响应，但是由于UI在后台线程中进行处理，所以他跟事件响应并不同步。即使在UI所在的后台线程也自己维护了一个Runloop，在Runloop结束时候进行渲染。</p>
+</li>
+<li><p>UI操作涉及到渲染访问各种View对象的属性，如果异步操作下会存在读写问题，而为其加锁则会耗费大量资源并拖慢运行速度。另一方面因为整个程序的起点UIApplication是在主线程进行初始化，所有的用户事件都是在主线程上进行传递（如点击、拖动），所以view只能在主线程上才能对事件进行响应。而在渲染方面由于图像的渲染需要以60帧的刷新率在屏幕上 同时 更新，在非主线程异步化的情况下无法确定这个处理过程能够实现同步更新。</p>
+</li>
+</ul>
+<h5 id="3、AsyncDisplayKit"><a href="#3、AsyncDisplayKit" class="headerlink" title="3、AsyncDisplayKit"></a>3、AsyncDisplayKit</h5><ul>
+<li>AsyncDisplayKit（现命名为Texture，建立在UIKit之上的iOS框架简述如下：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Texture的基本单位就是node。 **ASDisplayNode**是一个抽象UIView，j就想UIView是一个抽象CALayer。不同于只能在主线程上使用的视图，nodes是线程安全的：您可以在后台线程上并行实例化和配置它们的整个层次结构。</span><br><span class="line"></span><br><span class="line">为了保持其用户界面的流畅和响应，您的应用程序应该以每秒60帧的速度呈现 - iOS上的黄金标准。这意味着主线程有一秒钟的时间推动每个帧。这是执行所有布局和绘图代码的16毫秒！并且由于系统开销，您的代码通常在导致帧丢失之前运行不到10毫秒。</span><br><span class="line"></span><br><span class="line">Texture使您可以从主线程移除图像解码，文本大小和渲染以及其他昂贵的UI操作到其它线程，以保持主线程可用于响应用户交互。</span><br></pre></td></tr></table></figure>
+<p><strong>更多参考：</strong></p>
+<p><a href="https://www.jianshu.com/p/cd4b445a6a35" target="_blank" rel="noopener">Texture——保持最复杂的用户界面的流畅和响应</a></p>
+<p><a href="http://www.cocoachina.com/ios/20180209/22243.html" target="_blank" rel="noopener">iOS 开发一定要尝试的 Texture(ASDK)</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS/" rel="tag"># iOS</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/20/iOS-SystemBasic/" rel="next" title="OSX/iOS 的系统架构">
+                <i class="fa fa-chevron-left"></i> OSX/iOS 的系统架构
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/24/iOS-iOSLock/" rel="prev" title="多线程锁小记">
+                多线程锁小记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.jpeg"
+                alt="南华coder" />
+            
+              <p class="site-author-name" itemprop="name">南华coder</p>
+              <p class="site-description motion-element" itemprop="description">天之道，损有余而补不足</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、概述"><span class="nav-number">1.</span> <span class="nav-text">一、概述</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、基础"><span class="nav-number">1.1.</span> <span class="nav-text">1、基础</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、图层概念"><span class="nav-number">1.2.</span> <span class="nav-text">2、图层概念</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、图层的意义"><span class="nav-number">1.3.</span> <span class="nav-text">3、图层的意义</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、Core-Animation-Pipeline"><span class="nav-number">2.</span> <span class="nav-text">二、Core Animation Pipeline</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、Commit-Transaction"><span class="nav-number">2.1.</span> <span class="nav-text">1、Commit Transaction</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、Render-Server"><span class="nav-number">2.2.</span> <span class="nav-text">2、Render Server</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、GPU"><span class="nav-number">2.3.</span> <span class="nav-text">3、GPU</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、Display"><span class="nav-number">2.4.</span> <span class="nav-text">4、Display</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、CATransaction"><span class="nav-number">3.</span> <span class="nav-text">三、CATransaction</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、概念"><span class="nav-number">3.1.</span> <span class="nav-text">1、概念</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、事务的特性"><span class="nav-number">3.2.</span> <span class="nav-text">2、事务的特性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、CATransaction的使用"><span class="nav-number">3.3.</span> <span class="nav-text">3、CATransaction的使用</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四、模型图层和呈现图层"><span class="nav-number">4.</span> <span class="nav-text">四、模型图层和呈现图层</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、模型图层-和-模型树"><span class="nav-number">4.1.</span> <span class="nav-text">1、模型图层 和 模型树</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、呈现图层-和-呈现树"><span class="nav-number">4.2.</span> <span class="nav-text">2、呈现图层 和 呈现树</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、呈现图层的应用"><span class="nav-number">4.3.</span> <span class="nav-text">3、呈现图层的应用</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#五、隐式动画"><span class="nav-number">5.</span> <span class="nav-text">五、隐式动画</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、什么是隐式动画"><span class="nav-number">5.1.</span> <span class="nav-text">1、什么是隐式动画</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、隐式动画的实现"><span class="nav-number">5.2.</span> <span class="nav-text">2、隐式动画的实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、UIKit如何禁止掉隐式动画"><span class="nav-number">5.3.</span> <span class="nav-text">3、UIKit如何禁止掉隐式动画</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、actionForKey-和actionForLayer-的区别"><span class="nav-number">5.4.</span> <span class="nav-text">4、actionForKey:和actionForLayer:的区别</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#六、其他"><span class="nav-number">6.</span> <span class="nav-text">六、其他</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、UIKit不是线程安全的"><span class="nav-number">6.1.</span> <span class="nav-text">1、UIKit不是线程安全的</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、UIKit为什么选择主线程"><span class="nav-number">6.2.</span> <span class="nav-text">2、UIKit为什么选择主线程</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、AsyncDisplayKit"><span class="nav-number">6.3.</span> <span class="nav-text">3、AsyncDisplayKit</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">南华coder</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">45.9k</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

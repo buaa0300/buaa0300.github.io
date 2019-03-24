@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="南华coder的空间" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="一、开篇1、概述 在数据结构中，有树这种结构；在机器学习中，有决策树；咋一看，感觉是一回事，其实不然； 数据结构的树关注的事查找，插入，删除的效率，二叉树，平衡二叉树都是为了解决这些效率而产生的；  机器学习中的决策树关注的是，如何找到最佳分解节点，ID3算法(按最大信息增益划分)，C4.5（按信息增益比划分），CART算法（按最小基尼指数划分）都是为了达到最佳分裂的效果。  最大信息增益会倾向于">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习中的树模型">
+<meta property="og:url" content="http://buaa0300/nanhuacoder.com/2018/11/20/ML02-DTree/index.html">
+<meta property="og:site_name" content="南华coder的空间">
+<meta property="og:description" content="一、开篇1、概述 在数据结构中，有树这种结构；在机器学习中，有决策树；咋一看，感觉是一回事，其实不然； 数据结构的树关注的事查找，插入，删除的效率，二叉树，平衡二叉树都是为了解决这些效率而产生的；  机器学习中的决策树关注的是，如何找到最佳分解节点，ID3算法(按最大信息增益划分)，C4.5（按信息增益比划分），CART算法（按最小基尼指数划分）都是为了达到最佳分裂的效果。  最大信息增益会倾向于">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-23T04:41:49.593Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="机器学习中的树模型">
+<meta name="twitter:description" content="一、开篇1、概述 在数据结构中，有树这种结构；在机器学习中，有决策树；咋一看，感觉是一回事，其实不然； 数据结构的树关注的事查找，插入，删除的效率，二叉树，平衡二叉树都是为了解决这些效率而产生的；  机器学习中的决策树关注的是，如何找到最佳分解节点，ID3算法(按最大信息增益划分)，C4.5（按信息增益比划分），CART算法（按最小基尼指数划分）都是为了达到最佳分裂的效果。  最大信息增益会倾向于">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://buaa0300/nanhuacoder.com/2018/11/20/ML02-DTree/"/>
+
+
+
+
+
+  <title>机器学习中的树模型 | 南华coder的空间</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">南华coder的空间</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/11/20/ML02-DTree/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">机器学习中的树模型</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-20T23:33:16+08:00">
+                2018-11-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/机器学习/" itemprop="url" rel="index">
+                    <span itemprop="name">机器学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,345 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  5 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="一、开篇"><a href="#一、开篇" class="headerlink" title="一、开篇"></a>一、开篇</h3><h4 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h4><ul>
+<li>在数据结构中，有树这种结构；在机器学习中，有决策树；咋一看，感觉是一回事，其实不然；</li>
+<li><p>数据结构的树关注的事查找，插入，删除的效率，二叉树，平衡二叉树都是为了解决这些效率而产生的；</p>
+</li>
+<li><p>机器学习中的决策树关注的是，如何找到最佳分解节点，<strong>ID3算法</strong>(按最大信息增益划分)，<strong>C4.5</strong>（按信息增益比划分），<strong>CART算法</strong>（按最小基尼指数划分）都是为了达到最佳分裂的效果。</p>
+</li>
+<li>最大信息增益会倾向于<strong>可取值较多</strong>的特征，最大信息增益比会倾向于<strong>可取值较少的特征</strong>。</li>
+</ul>
+<h4 id="2、决策树和集成学习"><a href="#2、决策树和集成学习" class="headerlink" title="2、决策树和集成学习"></a>2、决策树和集成学习</h4><ul>
+<li>决策树模型很简单，简单到即使你不懂机器学习，也能很快了解他，可能有人会说，这么简单的模型有什么用。哈哈，数学的伟大，在于复杂的问题简单化，深度学习的强大在于利用将简单的神经网络不断加深；决策树虽然简单，但是很多个决策树在一起，就足够让很多浅层机器学习算法忘而却步。</li>
+<li><p>这个将许多决策树整合一起的方式就是集成学习，在集成学习中，决策树是个体学习器，当然个体学习器可以是别的弱学习器。</p>
+</li>
+<li><p>而根据个体学习器生成方式的不同，目前集成学习方法大致可分为两大类，即个体学习器间存在<strong>强依赖关系</strong>、必须串行生成的序列化方法，以及个体学习器间<strong>不存在强依赖关系</strong>、可同时生成的并行化方法；前者的代表是<strong>Boosting </strong> 和 <strong>梯度提升树</strong>(GBDT)，后者的代表是和<strong>Bagging</strong>和 <strong>随机森林</strong>（Random Forest）</p>
+</li>
+</ul>
+<h3 id="二、决策树"><a href="#二、决策树" class="headerlink" title="二、决策树"></a>二、决策树</h3><h4 id="1、决策树中需关注问题"><a href="#1、决策树中需关注问题" class="headerlink" title="1、决策树中需关注问题"></a>1、决策树中需关注问题</h4><ul>
+<li><p>一棵树是如何构建的？建树过程中，树分裂节点时，如何选出最优的属性作为分裂节点。</p>
+</li>
+<li><p>如何用树的减枝来避免过拟合问题。</p>
+</li>
+<li><p>对于含有空值的数据，如何构建树。</p>
+</li>
+<li><p>构建树可能存在的问题，过拟合问题，如何解决</p>
+</li>
+</ul>
+<h4 id="2、如何构建一棵树"><a href="#2、如何构建一棵树" class="headerlink" title="2、如何构建一棵树"></a>2、如何构建一棵树</h4><p>简言之：<strong>选择最优划分属性作为分裂结点，使得分支结点中所包含的样本尽可能属于同一类</strong>。树的生成算法有三种：ID3、C4.5和CART.</p>
+<h5 id="1、ID3"><a href="#1、ID3" class="headerlink" title="1、ID3"></a>1、ID3</h5><p>选择<strong>最大信息增益(Information Gain)</strong>规则去寻找最优分裂节点</p>
+<h5 id="1-1、基础概念"><a href="#1-1、基础概念" class="headerlink" title="1-1、基础概念"></a>1-1、基础概念</h5><ul>
+<li><p>信息熵(Information entropy)：表示随机变量不确定性的度量；<strong>熵越大，随机变量的不确定性就越大</strong>；(我们希望分类后的结果熵越小越好)。</p>
+</li>
+<li><p>信息增益(Information gain)：表示因特征X的信息而使得类Y信息不确定性减少的程度。(当然是越大越好）；<br>$$<br>g(D,A) = H(D) - H(D|A)<br>$$</p>
+</li>
+</ul>
+<p>在划分过程中，找到信息增益最大的特征将样本根据此特征划分不同的结点中，新的结点中继续划分。</p>
+<h5 id="1-2、不足"><a href="#1-2、不足" class="headerlink" title="1-2、不足"></a>1-2、不足</h5><ul>
+<li>信息增益反应的是：给点条件后，不确定性减少的程度，<strong>特征取值越多，意味着确定性越高，也就是条件熵越小，信息增益越大。</strong>这就造成信息增益对<strong>可取值较多</strong>的属性有所偏好。</li>
+<li>ID3只能处理离散型变量，只能处理分类任务</li>
+<li>对样本特征缺失值比较敏感</li>
+</ul>
+<h5 id="2、C4-5"><a href="#2、C4-5" class="headerlink" title="2、C4.5"></a>2、C4.5</h5><p>选择<strong>最大信息增益比(Information Gain Ratio)</strong>规则去寻找最优分裂节点</p>
+<h5 id="2-1、基础概念"><a href="#2-1、基础概念" class="headerlink" title="2-1、基础概念"></a>2-1、基础概念</h5><ul>
+<li><strong>信息增益比(Information Gain Ratio)</strong>: 特征A对训练数据集D的信息增益比为其 信息增益与训练数据集D关于特征A的值的熵之比。<br>$$<br>g_R(D,A) =\frac{g(D,A)}{H_A(D)}<br>$$</li>
+</ul>
+<p>在划分过程中，找到信息增益比最大的特征将样本根据此特征划分不同的结点中，新的结点中继续划分。</p>
+<h5 id="2-2、不足"><a href="#2-2、不足" class="headerlink" title="2-2、不足"></a>2-2、不足</h5><ul>
+<li>C4.5 对ID3做了优化，使用信息增益比在一定程度上对取值较多的特征进行了惩罚，避免ID3出现的过拟合特性，提升了决策树的泛化能力。</li>
+<li>C4.5 能处理连续型变量和离散型变量，但是只能处理分类任务。</li>
+</ul>
+<h5 id="3、CART"><a href="#3、CART" class="headerlink" title="3、CART"></a>3、CART</h5><p>选择<strong>最小基尼指数(Gini index)</strong>规则去寻找最优分裂节点</p>
+<h5 id="3-1、基础概念"><a href="#3-1、基础概念" class="headerlink" title="3-1、基础概念"></a>3-1、基础概念</h5><ul>
+<li>基尼指数：表示数据的纯度<br>$$<br>Cini(D) = 1 - \sum_{k=1}^n(\frac{|C_k|}{|D|})^2<br>$$</li>
+</ul>
+<p>利用基尼指数最小选择最优分裂点，采用二元切割法</p>
+<h5 id="3-2、特点"><a href="#3-2、特点" class="headerlink" title="3-2、特点"></a>3-2、特点</h5><ul>
+<li>不仅能处理分类任务，还能处理回归任务</li>
+<li>不仅能处理离散型变量，还能处理连续型变量</li>
+<li>能够处理样本特征数据缺失的情况</li>
+</ul>
+<h4 id="3、树的剪枝"><a href="#3、树的剪枝" class="headerlink" title="3、树的剪枝"></a>3、树的剪枝</h4><h5 id="3-1、预剪枝"><a href="#3-1、预剪枝" class="headerlink" title="3-1、预剪枝"></a>3-1、预剪枝</h5><p>阈值、</p>
+<h5 id="3-2、后剪枝"><a href="#3-2、后剪枝" class="headerlink" title="3-2、后剪枝"></a>3-2、后剪枝</h5><h3 id="三、梯度提升树-和-随机森林"><a href="#三、梯度提升树-和-随机森林" class="headerlink" title="三、梯度提升树 和 随机森林"></a>三、梯度提升树 和 随机森林</h3><ul>
+<li><p>梯度提升树，GBDT，特征组合的一把好手</p>
+</li>
+<li><p>随机森林 RF</p>
+</li>
+<li><p>基于决策树实现的GBDT、RF（随机森林）、Xgboost 和 lightGBM都在数据竞赛和工程中都大展身手。</p>
+</li>
+<li><p><a href="https://github.com/e-snail/understanding_machine_learning/tree/master/3_decision_tree" target="_blank" rel="noopener">https://github.com/e-snail/understanding_machine_learning/tree/master/3_decision_tree</a></p>
+</li>
+<li><p><a href="http://sklearn.apachecn.org/cn/0.19.0/modules/tree.html" target="_blank" rel="noopener">决策树API</a></p>
+</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/11/17/ML01/" rel="next" title="机器学习杂谈">
+                <i class="fa fa-chevron-left"></i> 机器学习杂谈
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/11/21/Recommend01/" rel="prev" title="推荐迷雾(一):再见推荐系统">
+                推荐迷雾(一):再见推荐系统 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.jpeg"
+                alt="南华coder" />
+            
+              <p class="site-author-name" itemprop="name">南华coder</p>
+              <p class="site-description motion-element" itemprop="description">天之道，损有余而补不足</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、开篇"><span class="nav-number">1.</span> <span class="nav-text">一、开篇</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、概述"><span class="nav-number">1.1.</span> <span class="nav-text">1、概述</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、决策树和集成学习"><span class="nav-number">1.2.</span> <span class="nav-text">2、决策树和集成学习</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、决策树"><span class="nav-number">2.</span> <span class="nav-text">二、决策树</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、决策树中需关注问题"><span class="nav-number">2.1.</span> <span class="nav-text">1、决策树中需关注问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、如何构建一棵树"><span class="nav-number">2.2.</span> <span class="nav-text">2、如何构建一棵树</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、ID3"><span class="nav-number">2.2.1.</span> <span class="nav-text">1、ID3</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-1、基础概念"><span class="nav-number">2.2.2.</span> <span class="nav-text">1-1、基础概念</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2、不足"><span class="nav-number">2.2.3.</span> <span class="nav-text">1-2、不足</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、C4-5"><span class="nav-number">2.2.4.</span> <span class="nav-text">2、C4.5</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-1、基础概念"><span class="nav-number">2.2.5.</span> <span class="nav-text">2-1、基础概念</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-2、不足"><span class="nav-number">2.2.6.</span> <span class="nav-text">2-2、不足</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、CART"><span class="nav-number">2.2.7.</span> <span class="nav-text">3、CART</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-1、基础概念"><span class="nav-number">2.2.8.</span> <span class="nav-text">3-1、基础概念</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2、特点"><span class="nav-number">2.2.9.</span> <span class="nav-text">3-2、特点</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、树的剪枝"><span class="nav-number">2.3.</span> <span class="nav-text">3、树的剪枝</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-1、预剪枝"><span class="nav-number">2.3.1.</span> <span class="nav-text">3-1、预剪枝</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2、后剪枝"><span class="nav-number">2.3.2.</span> <span class="nav-text">3-2、后剪枝</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、梯度提升树-和-随机森林"><span class="nav-number">3.</span> <span class="nav-text">三、梯度提升树 和 随机森林</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">南华coder</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">45.9k</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

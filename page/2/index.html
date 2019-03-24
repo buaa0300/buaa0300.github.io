@@ -254,7 +254,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/30/iOS08-iOSMemory/">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/02/06/iOS-iOSRuntime/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="南华coder">
@@ -273,7 +273,715 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/01/30/iOS08-iOSMemory/" itemprop="url">浅谈OC的内存</a></h1>
+                <a class="post-title-link" href="/2018/02/06/iOS-iOSRuntime/" itemprop="url">iOS Runtime 小记</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-06T22:53:28+08:00">
+                2018-02-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS基础/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,286 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  13 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Objective-C利用Runtime库(底层的 C 语言 API)赋予了语言的动态特性。</p>
+<h4 id="一、Runtime基石：Objective-C对象模型"><a href="#一、Runtime基石：Objective-C对象模型" class="headerlink" title="一、Runtime基石：Objective-C对象模型"></a>一、Runtime基石：Objective-C对象模型</h4><h5 id="1、对象"><a href="#1、对象" class="headerlink" title="1、对象"></a>1、对象</h5><ul>
+<li><p>每一个对象都是<strong>类的实例</strong>, 类中保存<strong>对象的方法列表</strong>；当一个对象方法被调用时，类会首先查找它本身是否有该方法的实现，如果没有，则会向它的父类查找该方法，直到NSObject(根类)；</p>
+</li>
+<li><p>类是<strong>元类 (metaclass) 的实例</strong>；元类保存<strong>类方法列表</strong>；当一个类方法被调用时，元类会首先查找它本身是否有该类方法的实现，如果没有，则会向它的父类查找该方法，直到NSObject(根类)；</p>
+</li>
+</ul>
+<h5 id="2、isa指针"><a href="#2、isa指针" class="headerlink" title="2、isa指针"></a>2、isa指针</h5><ul>
+<li><p>对象的<strong>isa指针</strong>指向所属的类，类的<strong>isa指针</strong>指向所属的元类；所有的元类的 <strong>isa指针</strong>都会指向一个根元类 (root metaclass)。根元类的 <strong>isa指针</strong>指向自己，行成了一个闭环。</p>
+</li>
+<li><p>在64 位 CPU 下，isa 的内部结构有变化。具体查看用<a href="http://ios.jobbole.com/89485/" target="_blank" rel="noopener"> isa 承载对象的类信息</a></p>
+</li>
+<li><p>对象、isa指针、类、元类、根元类的关系如下图：</p>
+</li>
+</ul>
+<p><img src="http://upload-images.jianshu.io/upload_images/201701-fa143a7c6b17b43d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="OC类图.png"></p>
+<h5 id="3、对象布局"><a href="#3、对象布局" class="headerlink" title="3、对象布局"></a>3、对象布局</h5><ul>
+<li>实例变量（包括父类）都保存在对象本身的存储空间内；实例方法保存在<strong>类</strong>中，类方法保存在<strong>元类</strong>中；父类的实例方法保存在各级 super class 中，父类的类方法保存在各级 super meta class;</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">//对象组成 --start--</span><br><span class="line">   	isa pointer</span><br><span class="line">   	rootClass&apos;s vars</span><br><span class="line">   	penultimate superClass&apos;s vars</span><br><span class="line">   	...</span><br><span class="line">   	superClass&apos;s vars</span><br><span class="line">   	Class&apos;s vars</span><br><span class="line">   	//对象组成 --end--</span><br><span class="line"></span><br><span class="line">   	typedef struct objc_class *Class;</span><br><span class="line">    	//类的结构</span><br><span class="line">    	struct objc_class&#123;</span><br><span class="line">     	struct objc_class* isa;                              //指向元类</span><br><span class="line">     	struct objc_class* super_class;                //指向父类</span><br><span class="line">     	const char* name;</span><br><span class="line">     	long version;</span><br><span class="line">     	long info;</span><br><span class="line">     	long instance_size;</span><br><span class="line">     	struct objc_ivar_list* ivars;                         //实例变量列表</span><br><span class="line">     	struct objc_method_list** methodLists;      //方法列表</span><br><span class="line">     	struct objc_cache* cache;</span><br><span class="line">     	struct objc_protocol_list* protocols;           //协议列表</span><br><span class="line">   	&#125;;</span><br><span class="line"></span><br><span class="line">   	//实例变量的结构</span><br><span class="line">   	struct objc_ivar &#123;</span><br><span class="line">       	char *ivar_name  OBJC2_UNAVAILABLE;</span><br><span class="line">       	char *ivar_type  OBJC2_UNAVAILABLE;</span><br><span class="line">       	int ivar_offset  OBJC2_UNAVAILABLE;</span><br><span class="line">    # ifdef __LP64__</span><br><span class="line">	   int space        OBJC2_UNAVAILABLE;</span><br><span class="line">    # endif</span><br><span class="line">   	&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>说明1</strong>：对象中保存指向类的<code>isa</code>指针 以及 各级的 实例变量(<code>ivar</code>)，这个内存结构在编译时就确定下来了，不能在编译时给对象增加实例变量。</p>
+<p><strong>说明2</strong>：类的内存布局有<code>isa</code>指针、<code>super_class</code>指针、实例变量列表、方法列表和协议列表，其中实例变量(var)包含了变量的名称、类型、偏移等。</p>
+<h5 id="4、其他"><a href="#4、其他" class="headerlink" title="4、其他"></a>4、其他</h5><ul>
+<li><strong>Runtime</strong> 就是<strong>动态库</strong>(运行时库)的一部分。比如 C 语言中 glibc 动态链接库通常会被很多操作依赖，包括字符串处理(strlen、strcpy)、信号处理、socket、线程、IO、动态内存分配等等。由于每个程序都依赖于运行时库，这些库一般都是动态链接的。这样一来，运行时库可以存储在操作系统中，很多程序共享一个动态库，这样就可以节省内存占用空间和应用程序大小。</li>
+<li>链接一般分为静态链接和动态链接；一般说的预编译、编译、汇编、链接，其中的链接是指静态链接。所谓的动态链接是指: 链接过程被推迟到运行时再进行。</li>
+</ul>
+<h4 id="二、Runtime核心：消息发送和转发"><a href="#二、Runtime核心：消息发送和转发" class="headerlink" title="二、Runtime核心：消息发送和转发"></a>二、Runtime核心：消息发送和转发</h4><p><strong>Runtime</strong>赋予了OC了诸多动态特性，使其可以在运行时可以做一些事情；主要表现为：<strong>动态类型</strong>（在运行时才检查对象类型）和 <strong>动态绑定</strong>（接到消息后，由运行环境决定执行哪部分代码）</p>
+<h5 id="1、消息发送（Message）"><a href="#1、消息发送（Message）" class="headerlink" title="1、消息发送（Message）"></a>1、消息发送（Message）</h5><ul>
+<li><p>Objective-C 中的方法调用，实质上是在底层用objc_msgSend()实现<strong>消息发送</strong>，其核心在于：<strong>根据SEL(选择器)开始找到IMP</strong>；其中SEL是实例方法的指针，可以看做方法名字符串；IMP是函数指针，指向方法实现的地址。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//调用方法  </span><br><span class="line">[obj doSomething];</span><br><span class="line">//在编译时候转换</span><br><span class="line">objc_msgSend(obj,@selector(doSomething))</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>objc_msgSend</strong>的定义如下：</p>
+<pre><code>// self是接收者，接收该消息的类的实例
+// _cmd是选择器，要处理的消息的selector
+// ... 是需传入的参数，参数个数不定
+objc_msgSend(id self, SEL _cmd, ...) 
+</code></pre></li>
+<li><p><strong>objc_msgSend的发送流程</strong>：先在Class中的<strong>缓存</strong>查找imp（没缓存则初始化缓存），如果没找到，在类的方法列表中查找，如果还没有，则向Class的父类的方法列表中查找，如果还没有找到，继续向上查找，直至根类，如果还没有找到对应的IMP，就走消息转发(_objc_msgForward)了。</p>
+</li>
+<li><p>给nil发送消息不会有什么作用，但是返回值有些区别，具体如下：</p>
+<pre><code>a) 如果方法返回值是 对象，返回nil
+b) 如果方法返回值是 指针类型，其指针大小为小于或者等于sizeof(void*)，float，double，long double 或者 long long 的整型标量
+c) 如果方法返回值是 结构体，发送给 nil 的消息将返回0。结构体中各个字段的值将都是0。
+d) 如果方法返回值不是 上述提到的几种情况，那么发送给 nil 的消息的返回值将是未定义的。
+</code></pre></li>
+</ul>
+<h5 id="2、消息转发（Message-Forwarding）"><a href="#2、消息转发（Message-Forwarding）" class="headerlink" title="2、消息转发（Message Forwarding）"></a>2、消息转发（Message Forwarding）</h5><p>消息转发解决的是：查找IMP(方法实现)失败后的处理；经历<strong>动态方法解析</strong>、 <strong>备用接收者</strong>和 <strong>完整的消息转发</strong>三个过程，其流程如下图：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/201701-35938988b21e8a6c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="消息转发流程.png"></p>
+<ul>
+<li><p><strong>动态方法解析</strong>：接收到未知消息时，Runtime向当前类发送+resolveInstanceMethod:或+resolveClassMethod:消息，在这里可以<strong>添加缺失的方法</strong>，返回YES，重新发送消息，否则继续下一步；</p>
+</li>
+<li><p><strong>备用接收者</strong>：<strong>动态方法解析</strong>中没能处理，Runtime会向forwardingTargetForSelector:发消息，如果该方法返回了一个非nil或非self对象，恰好该对象实现了这个方法，那么该对象就成了消息的接收者，消息就被分发到该对象。</p>
+</li>
+<li><p><strong>完整消息转发</strong>：前两个都没能处理好，Runtime发送methodSignatureForSelector:消息，获取selector对应方法的签名；如果有方法签名返回，则根据方法签名创建描述消息的NSInvocation，向当前对象发送forwardInvocation:消息；如果没有方法签名返回，返回nil，向当前对象发送doesNotRecognizeSelector:消息，应用Crash退出。</p>
+</li>
+</ul>
+<h5 id="3、避免消息转发的办法"><a href="#3、避免消息转发的办法" class="headerlink" title="3、避免消息转发的办法"></a>3、避免消息转发的办法</h5><p><strong>在消息转发三个过程中，未知消息的处理过程越往后，代价越大</strong>；一般我们可以这么做 尽可能避免消息转发，可以这么做：</p>
+<ul>
+<li><p><strong>调用delegate 方法前检查方法是否实现</strong>(respondsToSelector:), 只有实现了(respondsToSelector:返回YES) ，才去真正调用delegate 方法。</p>
+<pre><code>if([self.delegate respondsToSelector: @selector(sayHello)]) {
+   [self.delegate sayHello];
+}
+</code></pre></li>
+<li><p><strong>直接调用方法，少用performSelector:</strong>；因为在直接调用方法时，编译自动校验，如果方法不存在，编译器会直接报错；而使用performSelector:的话一定是在运行时候才能发现，如果此方法不存在就会崩溃。</p>
+<pre><code>//直接使用方法调用,少使用performSelector
+[dog sayHello];
+// [dog performSelector:@selector(sayHello) withObject:nil];
+</code></pre></li>
+<li><p><strong>使用performSelector:，最好先判断方法是否实现(respondsToSelector:)</strong>，只有实现了(respondsToSelector:返回YES) ，才去调用performSelector：方法。</p>
+<pre><code>//respondsToSelector:和performSelector:组合使用
+      if ([dog respondsToSelector:@selector(sayHello)])         {
+      [dog performSelector:@selector(sayHello)];
+   }
+</code></pre></li>
+<li><p><strong>强制类型转换，先判断对象是否属于强制转换后的类</strong></p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if([data isKindOfClass:[NSDictionary class]])&#123;</span><br><span class="line">   //</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h5 id="4、super本质"><a href="#4、super本质" class="headerlink" title="4、super本质"></a>4、super本质</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">@implementation Cat</span><br><span class="line">- (instancetype)init&#123;</span><br><span class="line">    self = [super init];</span><br><span class="line">    if (self) &#123;</span><br><span class="line">        NSLog(@&quot;%@&quot;,[self class]);      //Cat</span><br><span class="line">        NSLog(@&quot;%@&quot;,[self superclass]); //Animal</span><br><span class="line">        NSLog(@&quot;%@&quot;,[super class]);     //Cat</span><br><span class="line">        NSLog(@&quot;%@&quot;,[super superclass]);//Animal</span><br><span class="line">    &#125;</span><br><span class="line">    return self;</span><br><span class="line">&#125;@end</span><br></pre></td></tr></table></figure>
+<ul>
+<li>super 调用底层会转换为<strong>objc_msgSendSuper</strong>函数的调用，objc_msgSendSuper 函数接收 2 个参数 <strong>objc_super</strong> 结构体和 <strong>SEL</strong> ，objc_super结构如下：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">struct objc_super &#123;</span><br><span class="line">    __unsafe_unretained _Nonnull id receiver; // 消息接收者</span><br><span class="line">    __unsafe_unretained _Nonnull Class super_class; // 消息接收者的父类</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>[super class] 在调用过程中，底层转化为 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objc_msgSendSuper(&#123;self, [Animal class]&#125;, @selector(class));</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>同 objc_msgSend 函数相比，多了第二个参数，但<strong>消息接收仍然是 self</strong> ，所以打印结果为 Cat。</p>
+</li>
+<li><p>objc_msgSendSuper 方法中的第二个参数主要作用是告诉从哪里开始搜索方法实现，一般传入的是父类。这也是实际开发中 [super superClassMethod] 直接调用父类方法的原因。</p>
+</li>
+</ul>
+<h4 id="三、Runtime特性和应用"><a href="#三、Runtime特性和应用" class="headerlink" title="三、Runtime特性和应用"></a>三、Runtime特性和应用</h4><h5 id="1、分类（Category）"><a href="#1、分类（Category）" class="headerlink" title="1、分类（Category）"></a>1、分类（Category）</h5><ul>
+<li><p><strong>原理</strong>：对象的<strong>方法</strong>定义都保存在类的可变区域中，修改methodLists指针指向的指针的值，就可以实现动态地为某一个类增加<strong>成员方法</strong>。(<em>但是对象布局在编译时候就固定了，结构体的大小并不能动态变化，在运行时不能增加实例变量</em>)。</p>
+</li>
+<li><p>通过关联<code>objc_setAssociatedObject</code> 和 <code>objc_getAssociatedObject</code>方法可以变相地给对象增加实例变量，并不会真正改变了对象的内存结构。</p>
+</li>
+<li><p>通过Category新增的方法，会插入到方法列表的前部；如果有和原来方法重名，在运行时，顺序查找时，一旦找到对应名字的方法，就不再查找，导致<strong>原来方法</strong>得不到机会，<em>这是Category新增的方法和原方法重名，原有方法失效的原因</em>。</p>
+</li>
+<li><p><strong>作用</strong>：给现有的类添加方法；将一个类的实现拆分成多个独立的源文件；声明私有的方法。</p>
+</li>
+</ul>
+<h5 id="2、关联对象（Associated-Objects）"><a href="#2、关联对象（Associated-Objects）" class="headerlink" title="2、关联对象（Associated Objects）"></a>2、关联对象（Associated Objects）</h5><ul>
+<li><p><strong>原理</strong>：Category不能给一个已有类添加实例变量，但是可以通过<strong>关联对象</strong>添加属性；但是关联对象不会改变对象的内存布局，新增的属性是添加到和对象地址关联的哈希表中；</p>
+</li>
+<li><p>Associated Objects 相关的三个方法</p>
+<pre><code>objc_setAssociatedObject    //添加关联对象
+objc_getAssociatedObject    //获取关联对象
+objc_removeAssociatedObjects  // 删除所有关联对象
+</code></pre></li>
+<li><p><strong>作用</strong>：为现有的类添加私有变量以帮助实现细节；为现有的类添加公有属性；为 KVO 创建一个关联的观察者</p>
+<p>具体参考：<a href="http://blog.leichunfeng.com/blog/2015/06/26/objective-c-associated-objects-implementation-principle/" target="_blank" rel="noopener">Objective-C Associated Objects 的实现原理</a></p>
+</li>
+</ul>
+<h5 id="3、方法混写-Method-Swizzling"><a href="#3、方法混写-Method-Swizzling" class="headerlink" title="3、方法混写(Method Swizzling)"></a>3、方法混写(Method Swizzling)</h5><p>在Objective-C中调用一个方法，其实是向一个对象发送消息，<strong>查找消息的唯一依据是selector的名字</strong>。利用Objective-C的动态特性，<strong>可以实现在运行时偷换selector对应的方法实现，达到给方法挂钩的目的。</strong> </p>
+<p>每个类都有一个方法列表，存放着<strong>selector的名字</strong>和<strong>方法实现</strong>的映射关系。IMP有点类似函数指针，指向具体的Method实现。</p>
+<ul>
+<li><strong>原理</strong>：在运行时交换方法实现（IMP）</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">利用 method_exchangeImplementations 来交换2个方法中的IMP，</span><br><span class="line">利用 class_replaceMethod 来修改类，</span><br><span class="line">利用 method_setImplementation 来直接设置某个方法的IMP，</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>作用</strong>：可以利用它hook原有的方法，插入自己的业务需求</li>
+</ul>
+<p>详细参考我写的<a href="https://www.jianshu.com/p/5f2e38a40aa4" target="_blank" rel="noopener">Method Swizzling小记</a></p>
+<h5 id="4、键值观察（KVO）"><a href="#4、键值观察（KVO）" class="headerlink" title="4、键值观察（KVO）"></a>4、键值观察（KVO）</h5><p>  观察者模式在Objective-C的应用之一，借助Runtime特性，实现自动键值观察；使用了isa swizzling机制。具体描述如下：</p>
+<ul>
+<li><p>当某个类的对象第一次被观察时，系统就会在运行期动态地创建该类的一个<strong>子类</strong>，在这个子类中<strong>重写</strong>基类中被观察属性的 setter 方法，实现真正的通知机制；</p>
+</li>
+<li><p>派生类还重写了 class 方法以“欺骗”外部调用者，系统将对象的 isa 指针指向这个<strong>新诞生的子类</strong>，实质上这个对象就成为该派生类的对象了，因而在该对象上对 setter 的调用就会调用重写的 setter，从而激活键值通知机制。</p>
+</li>
+<li><p>此外，派生类还重写了 dealloc 方法来释放资源。</p>
+</li>
+</ul>
+<p><strong>说明</strong>：KVC（键值编码）是不通过存取方法，而通过属性名称字符串间接访问属性的机制，没有用到isa swizzling机制。</p>
+<h5 id="5、NSProxy"><a href="#5、NSProxy" class="headerlink" title="5、NSProxy"></a>5、NSProxy</h5><ul>
+<li><p>OC是单继承的，但是可以利用NSProxy实现一下<strong>“伪多继承”</strong>，具体参考<a href="">NSProxy——少见却神奇的类</a></p>
+</li>
+<li><p>项目中，主要是利用NSProxy做<strong>消息转发的代理类</strong>，如弱引用代理类，可以打破循环引用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">//代码摘自 FLAnimatedImage</span><br><span class="line">@interface FLWeakProxy : NSProxy</span><br><span class="line">- (instancetype)weakProxyForObject:(id)targetObject;</span><br><span class="line">@end</span><br><span class="line"></span><br><span class="line">@interface FLWeakProxy ()</span><br><span class="line">@property (nonatomic, weak) id target;</span><br><span class="line">@end</span><br><span class="line">	</span><br><span class="line">@implementation FLWeakProxy</span><br><span class="line">	</span><br><span class="line"># pragma mark Life Cycle</span><br><span class="line"></span><br><span class="line">//类没有定义默认的init方法.</span><br><span class="line">- (instancetype)weakProxyForObject:(id)targetObject&#123;</span><br><span class="line">	FLWeakProxy *weakProxy = [FLWeakProxy alloc];</span><br><span class="line">   	weakProxy.target = targetObject;</span><br><span class="line">   	return weakProxy;</span><br><span class="line"> &#125;</span><br><span class="line">	</span><br><span class="line"></span><br><span class="line"># pragma mark Forwarding Messages</span><br><span class="line">- (id)forwardingTargetForSelector:(SEL)selector&#123;</span><br><span class="line">  // Keep it lightweight: access the ivar directly</span><br><span class="line">  	return _target;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)forwardInvocation:(NSInvocation *)invocation&#123;</span><br><span class="line"> 	 void *nullPointer = NULL;</span><br><span class="line">  	 [invocation setReturnValue:&amp;nullPointer];</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line">- (NSMethodSignature *)methodSignatureForSelector:(SEL)selector&#123;</span><br><span class="line"> 	 return [NSObject instanceMethodSignatureForSelector:@selector(init)];</span><br><span class="line">&#125;</span><br><span class="line">@end</span><br></pre></td></tr></table></figure>
+<p><strong>说明</strong>: NSProxy非常适合做消息转发的代理类，能自动转发<nsobject>中定义的接口和NSObject的Category中定义的方法，如果使用NSObject来做，不能自动转发NSObject的Category中定义、respondsToSelector:、isKindOfClass:这两个方法。·</nsobject></p>
+</li>
+</ul>
+<h5 id="6、load和initialize"><a href="#6、load和initialize" class="headerlink" title="6、load和initialize"></a>6、load和initialize</h5><ul>
+<li>在Objective-C中，runtime会自动调用每个类的两个方法。+load会在<strong>类初始加载时</strong>调用，+initialize会在<strong>第一次调用类的类方法或实例方法之前</strong>被调用。</li>
+<li>这两个方法是可选的，且只有在实现了它们时才会被调用。 </li>
+<li><strong>共同点：两个方法都只会被调用一次。</strong></li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/02/04/iOS-iOSRunloop/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/02/04/iOS-iOSRunloop/" itemprop="url">iOS RunLoop小记</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-04T23:07:27+08:00">
+                2018-02-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS基础/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,741 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  11 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4><ul>
+<li><strong>RunLoop</strong>：运行循环，和线程有关；当没有事件/消息时，RunLoop让线程休眠；当有事件/消息发生时，RunLoop唤醒线程去处理。</li>
+<li><strong>每个线程都有一个对应的 Runloop 对象</strong>；主线程的RunLoop会在App运行时自动运行，<strong>子线程中需要手动获取并运行，第一次获取时，才会去创建</strong>。</li>
+<li><p>一个RunLoop包含若干个Mode,每个<strong>Mode</strong>包含若干个<strong>Source/Timer/Observer</strong>。每次启动RunLoop时，只能指定一个Mode，如果需要切换Mode，需要退出Loop，再重新指定一个Mode进入。</p>
+</li>
+<li><p>RunLoop，Foundation层对应的是<strong>NSRunLoop</strong>，Core Foundation层对应的是<strong>CFRunLoopRef</strong>；</p>
+</li>
+</ul>
+<h4 id="二、Runloop-Mode"><a href="#二、Runloop-Mode" class="headerlink" title="二、Runloop Mode"></a>二、Runloop Mode</h4><h5 id="1、概念"><a href="#1、概念" class="headerlink" title="1、概念"></a>1、概念</h5><ul>
+<li><p>一个RunLoop包含若干个Mode,每个<strong>Mode</strong>包含若干个<strong>Source/Timer/Observer</strong>。每次启动RunLoop时，只能指定一个Mode，如果需要切换Mode，需要退出Loop，再重新指定一个Mode进入。</p>
+</li>
+<li><p>Foundation暴露出来的Mode有： <strong>NSDefaultRunLoopMode</strong> 和 <strong>NSRunLoopCommonModes</strong>；NSDefaultRunLoopMode是默认的Mode；NSRunLoopCommonModes 是Mode集合，包括NSDefaultRunLoopMode、NSTaskDeathCheckMode、UITrackingRunLoopMode; 只要RunLoop运行在NSRunLoopCommonModes中任何一个模式，这个事件源都可以被触发。</p>
+</li>
+</ul>
+<pre><code>NSDefaultRunLoopMode             //默认的运行方式
+NSTaskDeathCheckMode             //task任务
+UITrackingRunLoopMode            //UI跟踪（如UITableView上下滑动）
+NSRunLoopCommonModes             //Mode集合
+
+ //其他, 很少用
+NSModalPanelRunLoopMode       //在Model Panel情况下去区分事件(OS X开发中会遇到)
+NSConnectionReplyMode             //可以监听NSConnection对象的状态，比较少用
+</code></pre><p>  <strong>说明</strong>：RunLoop不能在运行在NSRunLoopCommonModes模式，因为NSRunLoopCommonModes只是个模式集合，而不是一个具体的模式。</p>
+<h5 id="2、Source-Timer-Observer"><a href="#2、Source-Timer-Observer" class="headerlink" title="2、Source/Timer/Observer"></a>2、Source/Timer/Observer</h5><ul>
+<li><p><strong>CFRunLoopSourceRef</strong></p>
+<p>CFRunLoopSourceRef 是事件产生的地方。Source有两个版本：Source0 和 Source1。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Source0 只包含了一个回调（函数指针），它并不能主动触发事件。使用时，你需要先调用 CFRunLoopSourceSignal(source)，将这个 Source 标记为待处理，然后手动调用 CFRunLoopWakeUp(runloop) 来唤醒 RunLoop，让其处理这个事件。</span><br><span class="line"></span><br><span class="line">Source1 包含了一个 mach_port 和一个回调（函数指针），被用于通过内核和其他线程相互发送消息。这种 Source 能主动唤醒 RunLoop 的线程，其原理在下面会讲到。</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>CFRunLoopTimerRef</strong></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">基于时间的触发器，它和 NSTimer 是toll-free bridged 的，可以混用。其包含一个时间长度和一个回调（函数指针）。当其加入到 RunLoop 时，RunLoop会注册对应的时间点，当时间点到时，RunLoop会被唤醒以执行那个回调。</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>CFRunLoopObserverRef</strong></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">观察者，每个 Observer 都包含了一个回调（函数指针），当 RunLoop 的状态发生变化时，观察者就能通过回调接受到这个变化。可以观测的时间点有以下几个：</span><br><span class="line">typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) &#123;</span><br><span class="line">     kCFRunLoopEntry         = (1UL &lt;&lt; 0), // 即将进入Loop</span><br><span class="line">     kCFRunLoopBeforeTimers  = (1UL &lt;&lt; 1), // 即将处理 Timer</span><br><span class="line">     kCFRunLoopBeforeSources = (1UL &lt;&lt; 2), // 即将处理 Source</span><br><span class="line">     kCFRunLoopBeforeWaiting = (1UL &lt;&lt; 5), // 即将进入休眠</span><br><span class="line">     kCFRunLoopAfterWaiting  = (1UL &lt;&lt; 6), // 刚从休眠中唤醒</span><br><span class="line">     kCFRunLoopExit          = (1UL &lt;&lt; 7), // 即将退出Loop</span><br><span class="line"> &#125;;</span><br></pre></td></tr></table></figure>
+<h4 id="三、Runloop-Observer"><a href="#三、Runloop-Observer" class="headerlink" title="三、Runloop Observer"></a>三、Runloop Observer</h4><h5 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h5><ul>
+<li><p>Runloop 通过监控 Source 来决定有没有任务要做，除此之外，我们还可以用 Runloop Observer 来监控 Runloop 本身的状态。RunLoop的状态有</p>
+   <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) &#123;</span><br><span class="line">     kCFRunLoopEntry         = (1UL &lt;&lt; 0), // 即将进入Loop</span><br><span class="line">     kCFRunLoopBeforeTimers  = (1UL &lt;&lt; 1), // 即将处理 Timer</span><br><span class="line">     kCFRunLoopBeforeSources = (1UL &lt;&lt; 2), // 即将处理 Source</span><br><span class="line">     kCFRunLoopBeforeWaiting = (1UL &lt;&lt; 5), // 即将进入休眠</span><br><span class="line">     kCFRunLoopAfterWaiting  = (1UL &lt;&lt; 6), // 刚从休眠中唤醒</span><br><span class="line">     kCFRunLoopExit          = (1UL &lt;&lt; 7), // 即将退出Loop</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h5 id="2、AutoreleasePool"><a href="#2、AutoreleasePool" class="headerlink" title="2、AutoreleasePool"></a>2、AutoreleasePool</h5><ul>
+<li><p>App启动后，苹果在主线程 RunLoop 里注册了两个 Observer，一个监听<strong>kCFRunLoopEntry</strong>（<em>即将进入Loop</em>），回调内会<strong>创建自动释放池</strong>(<em>_objc_autoreleasePoolPush()</em>)；优先级最高，保证创建释放池发生在其他所有回调之前；</p>
+</li>
+<li><p>另一个监听 <strong>kCFRunLoopBeforeWaiting</strong>(<em>准备进入休眠</em>) 时调用_objc_autoreleasePoolPop() 和 _objc_autoreleasePoolPush() 释放旧的池并创建新池；<strong>kCFRunLoopExit</strong>(<em>即将退出Loop</em>) 时调用 _objc_autoreleasePoolPop() 来释放自动释放池。优先级最低，保证其释放池子发生在其他所有回调之后。</p>
+</li>
+</ul>
+<h5 id="3、界面更新"><a href="#3、界面更新" class="headerlink" title="3、界面更新"></a>3、界面更新</h5><ul>
+<li>当在操作 UI 时，比如改变了 Frame、更新了 UIView/CALayer 的层次时，或者手动调用了 UIView/CALayer 的 setNeedsLayout/setNeedsDisplay方法后，这个 UIView/CALayer 就被标记为待处理，并被提交到一个全局的容器去。</li>
+<li>苹果注册了一个 Observer 监听 <strong>kCFRunLoopBeforeWaiting</strong>(<em>即将进入休眠</em>) 和 <strong>kCFRunLoopExit</strong>(<em>即将退出Loop</em>)  事件，回调执行函数，函数会遍历所有待处理的 UIView/CAlayer 以执行实际的绘制和调整，并更新 UI 界面。</li>
+</ul>
+<h5 id="4、-定时器"><a href="#4、-定时器" class="headerlink" title="4、 定时器"></a>4、 定时器</h5><ul>
+<li>NSTimer 其实就是 CFRunLoopTimerRef，他们之间是 toll-free bridged 的。一个 NSTimer 注册到 RunLoop 后，RunLoop 会为其重复的时间点注册好事件。例如 10:00, 10:10, 10:20 这几个时间点。</li>
+<li><p>RunLoop为了节省资源，并不会在非常准确的时间点回调这个Timer。Timer 有个属性叫做 Tolerance (宽容度)，标示了当时间点到后，容许有多少最大误差。</p>
+</li>
+<li><p>如果某个时间点被错过了，例如执行了一个很长的任务，则那个时间点的回调也会跳过去，不会延后执行。就比如等公交，如果 10:10 时我忙着玩手机错过了那个点的公交，那我只能等 10:20 这一趟了。</p>
+</li>
+<li><p>CADisplayLink 是一个和屏幕刷新率一致的定时器（但实际实现原理更复杂，和 NSTimer 并不一样，其内部实际是操作了一个 Source）。如果在两次屏幕刷新之间执行了一个长任务，那其中就会有一帧被跳过去（和 NSTimer 相似），造成界面卡顿的感觉。在快速滑动TableView时，即使一帧的卡顿也会让用户有所察觉。Facebook 开源的 AsyncDisplayLink 就是为了解决界面卡顿的问题，其内部也用到了 RunLoop，这个稍后我会再单独写一页博客来分析。</p>
+</li>
+</ul>
+<h5 id="5、PerformSelecter"><a href="#5、PerformSelecter" class="headerlink" title="5、PerformSelecter"></a>5、PerformSelecter</h5><ul>
+<li><p>当调用 NSObject 的 performSelecter:afterDelay: 后，实际上其内部会创建一个 Timer 并添加到当前线程的 RunLoop 中。所以如果当前线程没有 RunLoop，则这个方法会失效。</p>
+</li>
+<li><p>当调用 performSelector:onThread: 时，实际上其会创建一个 Timer 加到对应的线程去，同样的，如果对应线程没有 RunLoop 该方法也会失效。</p>
+</li>
+</ul>
+<h4 id="五、RunLoop手动启动和取消"><a href="#五、RunLoop手动启动和取消" class="headerlink" title="五、RunLoop手动启动和取消"></a>五、RunLoop手动启动和取消</h4><h5 id="1、手动启动"><a href="#1、手动启动" class="headerlink" title="1、手动启动"></a>1、手动启动</h5><p>主线程默认已经启动，一般在子线程中手动启动RunLoop；NSRunloop提供的三种启动方式，如下：</p>
+<pre><code>//1、无条件运行(强烈不推荐)
+- (void)run; 
+</code></pre><p><strong>说明1</strong>：如果Runloop上有事件源，RunLoop会一直运行在NSDefaultRunLoopMode模式；除非移除事件源，线程才能停止；</p>
+<pre><code>//2、启动 + 超时限制
+- (void)runUntilDate:(NSDate *)limitDate;  
+
+//Demo, RunLoop会每1秒退出一次，然后又启动RunLoop，连续10次后退出RunLoop
+NSInteger loopCount = 0;
+while (loopCount++ &lt; 10){
+      [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+      NSLog(@&quot;%@ exiting runloop.........:&quot;,@(loopCount));
+}
+</code></pre><p><strong>说明2</strong>：可以控制每次RunLoop的运行时间，但是默认是NSDefaultRunLoopMode模式；超过时间限制后可以再次运行RunLoop；</p>
+<pre><code>//3、有一个超时时间限制，而且设置运行模式 （推荐使用）
+- (BOOL)runMode:(NSString *)mode beforeDate:(NSDate *)limitDate;
+
+//Demo : 使用CFRunLoopStop暂停RunLoop
+dispatch_async(dispatch_get_global_queue(0, 0), ^{
+    NSLog(@&quot;线程开始&quot;);
+    _thread = [NSThread currentThread];
+    NSRunLoop *runloop = [NSRunLoop currentRunLoop];
+    [runloop addPort:[NSMachPort port] forMode:NSDefaultRunLoopMode];
+    //
+    [runloop runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:10]];
+    NSLog(@&quot;线程结束&quot;);
+});
+
+//延迟执行
+dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    [self performSelector:@selector(stopRunLoop) onThread:_thread withObject:nil waitUntilDone:NO];
+});
+
+- (void)stopRunLoop{
+    CFRunLoopStop(CFRunLoopGetCurrent());
+    NSLog(@&quot;暂停runloop&quot;);
+}
+</code></pre><p><strong>说明3</strong>：可以设置超时限制和运行模式，比较灵活，还可以被CFRunLoopStop(runloopRef)所停止（<em>Demo显示</em>）。</p>
+<p><strong>说明4</strong>：NSRunloop是基于CFRunloop来封装的，NSRunloop是线程不安全的，而CFRunloop则是线程安全的；CFRunloop还提供了2中启动方式(<em>CFRunLoopRun、CFRunLoopRunInMode</em>)</p>
+<p><strong>说明5</strong>：因为NSRunLoopCommonModes是个模式集合，不是一个具体的模式，RunLoop不能在运行在NSRunLoopCommonModes模式；但是可以在添加事件源的时候使用NSRunLoopCommonModes，只要RunLoop运行在NSRunLoopCommonModes中任何一个模式，这个事件源都可以被触发。</p>
+<h5 id="2、取消"><a href="#2、取消" class="headerlink" title="2、取消"></a>2、取消</h5><p><em>了解了启动方式后，取消就很清晰了</em>，主要有三种：</p>
+<ul>
+<li><p>移除掉RunLoop中的所有事件源（timer和source）</p>
+</li>
+<li><p>达到超时（limitDate）条件</p>
+</li>
+<li><p>使用CFRunLoopStop(CFRunLoopRef rl )停止（CFRunloop运行起来或通过NSRunloop的runMode:beforeDate:方法）。</p>
+</li>
+</ul>
+<h4 id="六、使用场景"><a href="#六、使用场景" class="headerlink" title="六、使用场景"></a>六、使用场景</h4><h5 id="1、NSTimer-CADisplayLink"><a href="#1、NSTimer-CADisplayLink" class="headerlink" title="1、NSTimer/CADisplayLink"></a>1、NSTimer/CADisplayLink</h5><pre><code>NSTimer *timer = [NSTimer timerWithTimeInterval:2.0 target:self selector:@selector(run) userInfo:nil repeats:YES];
+
+//1、timer运行在NSDefaultRunLoopMode下，一旦RunLoop进入其他模式，timer不会工作
+[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
+
+//2、timer运行在NSRunLoopCommonModes集合中任何模式下，timer会工作
+[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+
+//3、scheduledTimer返回的定时器，会自动被添加到当前runLoop中，默认是NSDefaultRunLoopMode
+NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(run) userInfo:nil repeats:YES];
+
+//4、创建并启动GCD定时器
+_timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_global_queue(0, 0));
+dispatch_source_set_timer(_timer, dispatch_walltime(NULL, 0), 1.0 * NSEC_PER_SEC, 0); //每秒执行
+// 事件回调
+dispatch_source_set_event_handler(_timer, ^{
+    NSLog(@&quot;gcd timer......&quot;);
+});
+dispatch_resume(_timer);
+</code></pre><p><strong>说明1</strong>：一般把NSTimer/CADisplayLink的RunLoop Mode选择NSRunLoopCommonModes集合，防止因列表滑动等导致NSTimer/CADisplayLink不工作；</p>
+<p><strong>说明2</strong>：Timer注册到RunLoop后，如果所属线程中有耗时操作，Timer回调的时间点并不十分准确；CADisplayLink是屏幕的刷新率一样的定时器。如果在两次屏幕刷新之间执行一个耗时的任务，就可能丢帧，造成界面卡顿。</p>
+<p><strong>说明3</strong>：如果希望比较准的定时器的效果。可以使用GCD的定时器。</p>
+<h5 id="2、-常驻线程"><a href="#2、-常驻线程" class="headerlink" title="2、 常驻线程"></a>2、 常驻线程</h5><pre><code>+ (NSThread *)networkRequestThread {
+  static NSThread *_networkRequestThread = nil;
+  static dispatch_once_t oncePredicate;
+  dispatch_once(&amp;oncePredicate, ^{
+      _networkRequestThread = [[NSThread alloc] initWithTarget:self selector:@selector(networkRequestThreadEntryPoint:) object:nil];
+      [_networkRequestThread start];
+  });
+  return _networkRequestThread;
+}
+
++ (void)networkRequestThreadEntryPoint:(id)__unused object {
+  @autoreleasepool {
+      [[NSThread currentThread] setName:@&quot;AFNetworking&quot;];
+
+      NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
+      //添加端口，防止runloop直接退出
+      [runLoop addPort:[NSMachPort port] forMode:NSDefaultRunLoopMode];
+      [runLoop run];
+  }
+}
+</code></pre><p><strong>说明</strong>：AF2.x维护一个常驻线程，用来发起网络请求，并且接受网络请求回调处理；NSURLSession有类似实现；在AF3.x后无常驻线程这部分代码了</p>
+<h5 id="3、子线程执行PerformSelector-或-Timer"><a href="#3、子线程执行PerformSelector-或-Timer" class="headerlink" title="3、子线程执行PerformSelector 或  Timer"></a>3、子线程执行PerformSelector 或  Timer</h5><pre><code>//1、子线程执行performSelector
+dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        NSLog(@&quot;befor&quot;);
+        [self performSelector:@selector(printLog) withObject:nil afterDelay:0];
+         //创建并启动Runloop，performSelector才有效
+         [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+        NSLog(@&quot;after&quot;);
+    });
+
+- (void)p_logAction {
+    NSLog(@&quot;p_logAction&quot;);
+}
+
+//2、子线程执行timer
+ dispatch_async(dispatch_get_global_queue(0, 0), ^{
+
+    [NSTimer scheduledTimerWithTimeInterval:0.1 repeats:YES block:^(NSTimer * _Nonnull timer) {
+        NSLog(@&quot;timer in thread ...&quot;);
+    }];
+    //创建并启动Runloop，timer才有效
+    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+});
+</code></pre><p><strong>说明1</strong>：<strong>performSelector</strong>原理是：设置一个timer，添加到当前线程Runloop，默认是NSDefaultRunLoopMode；通过NSTimer的 scheduledTimerWithTimeIntervaly创建的定时器，也是自动被添加到当前RunLoop中，默认是NSDefaultRunLoopMode；</p>
+<p><strong>说明2</strong>：<strong>在子线程中</strong>，因为默认没有RunLoop，所以他们<strong>不执行</strong>；想要执行，<strong>需要创建并启动Runloop</strong>。</p>
+<h5 id="4、卡顿检测"><a href="#4、卡顿检测" class="headerlink" title="4、卡顿检测"></a>4、卡顿检测</h5><p><strong>监听主线程(UI线程)之间的耗时，如果发现</strong>kCFRunLoopEntry<strong>(即将进入)和</strong>kCFRunLoopExit<strong>(即将退出)之间耗时过大(大于10ms),认为卡顿发生；</strong></p>
+<pre><code>- (void)setupRunloopObserver{
+
+    static dispatch_once_t onceToken;
+    dispatch_once(&amp;onceToken, ^{
+        CFRunLoopRef runloop = CFRunLoopGetCurrent();
+        CFRunLoopObserverRef enterObserver;
+        enterObserver = CFRunLoopObserverCreate(CFAllocatorGetDefault(),
+                                               kCFRunLoopEntry | kCFRunLoopExit,
+                                               true,
+                                               0
+                                               QSRunloopObserverCallBack, NULL);
+        CFRunLoopAddObserver(runloop, enterObserver, kCFRunLoopCommonModes);
+        CFRelease(enterObserver);
+    });
+}
+
+static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopActivity activity, void *info) {
+    switch (activity) {
+        case kCFRunLoopEntry: {
+            NSLog(@&quot;enter runloop...&quot;);
+        }
+            break;
+        case kCFRunLoopExit: {
+            NSLog(@&quot;leave runloop...&quot;);
+        }
+            break;
+        default: break;
+    }
+}
+</code></pre><p><strong>说明</strong>：如果发现卡顿，可以利用PLCrashReporter搜集各个线程的调用堆栈信息，上报到服务器,参考自<a href="http://mrpeak.cn/blog/ui-detect/" target="_blank" rel="noopener">iOS应用UI线程卡顿监控</a></p>
+<blockquote>
+<h4 id="End"><a href="#End" class="headerlink" title="End"></a>End</h4></blockquote>
+<p>想了解更多可参考<a href="http://blog.ibireme.com/2015/05/18/runloop/" target="_blank" rel="noopener">深入理解RunLoop</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/30/iOS-iOSMemory/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/30/iOS-iOSMemory/" itemprop="url">OC对象内存小记</a></h1>
         
 
         <div class="post-meta">
@@ -339,7 +1047,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  3,156 字
+                  4,232 字
                 </span>
               
 
@@ -355,7 +1063,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  12 分
+                  15 分
                 </span>
               
             </div>
@@ -479,6 +1187,8 @@
 <li><p>在没有手动添加自动释放池的情况下，autorelease对象<strong>会自动在当前的runloop迭代中加入自动释放池push和pop</strong>，在当前的runloop迭代结束时释放；如果加了，在添加自动释放池结束后，autorelease对象释放；</p>
  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@autorealsepool&#123;</span><br><span class="line"> 	 //todo</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
+<li><p>当我们访问占内存大的对象，如果交于默认的 autoreleasepool 去管理生命周期，会有因为内存飙升产生crash的风险，比如访问realm对象，进行数据库增删查改操作时候，可以在操作代码外加上@autoreleasepool，保证退出@autoreleasepool作用域，该作用域内的变量占用的内存空间能释放出来。</p>
+</li>
 <li><p><strong>合理使用@autorealsepool，能降低内存峰值</strong>；如容器的block版本的枚举器时，内部会自动添加一个autoreleasepool（<em>普通for循环和for in循环中没有</em>）：</p>
  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[array enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) &#123;</span><br><span class="line">   // 这里被一个局部@autoreleasepool包围着</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
 <p>  <strong>说明</strong>：详细可了解下<a href="http://blog.sunnyxx.com/2014/10/15/behind-autorelease/" target="_blank" rel="noopener">黑幕背后的Autorelease</a></p>
@@ -504,11 +1214,28 @@
 </li>
 </ul>
 <h5 id="3、-block在ARC和MRC下含义"><a href="#3、-block在ARC和MRC下含义" class="headerlink" title="3、__block在ARC和MRC下含义"></a>3、__block在ARC和MRC下含义</h5><ul>
-<li><p>不一样的。 </p>
+<li>在MRC中<code>__block</code> variable在block中使用是不会retain的；但是ARC中__block則是会Retain的。</li>
+</ul>
+<h5 id="4、函数指针-VS-Block"><a href="#4、函数指针-VS-Block" class="headerlink" title="4、函数指针 VS  Block"></a>4、函数指针 VS  Block</h5><p><strong>相同点:</strong></p>
+<ul>
+<li><p>二者都可以看成是一个代码片段。</p>
 </li>
-<li><p>在MRC中<code>__block</code> variable在block中使用是不会retain的；但是ARC中__block則是会Retain的。</p>
+<li><p>函数指针类型和 Block 类型都可以作为<strong>变量和函数参数</strong>的类型（typedef定义别名之后，这个别名就是一个类型）。</p>
 </li>
 </ul>
+<p><strong>不同点：</strong></p>
+<ul>
+<li>函数指针只能指向预先定义好的函数代码块，函数地址是在编译链接时就已经确定好的。从内存的角度看，函数指针只不过是指向代码区的一段可执行代码；</li>
+<li>Block 本质是 OC对象，是 NSObject的子类，是程序运行过程中在栈内存动态创建的对象，可以向其发送copy消息将block对象拷贝到堆内存，以延长其生命周期。</li>
+</ul>
+<h5 id="5、指针函数-VS-函数指针"><a href="#5、指针函数-VS-函数指针" class="headerlink" title="5、指针函数 VS 函数指针"></a>5、指针函数 VS 函数指针</h5><ul>
+<li><strong>指针函数</strong>是指<strong>带指针的函数</strong>，即本质是一个函数，函数返回类型是某一类型的指针。它是一个函数，只不过这个函数的返回值是一个地址值。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int *f(x，y);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>函数指针</strong>是指向函数的指针变量，即本质是一个<strong>指针变量</strong>。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">int (*f) (int x); /*声明一个函数指针 */</span><br><span class="line">f = func; /* 将func函数的首地址赋给指针f */</span><br></pre></td></tr></table></figure>
 <h4 id="五、发现循环引用"><a href="#五、发现循环引用" class="headerlink" title="五、发现循环引用"></a>五、发现循环引用</h4><p><em>有一定开发经验后，开发中可以避免绝大多数的循环引用问题，但是代码多了之后，不能保证代码中没有循环引用问题；</em>这时候就要靠工具了。</p>
 <h5 id="1、Instrument"><a href="#1、Instrument" class="headerlink" title="1、Instrument"></a>1、Instrument</h5><ul>
 <li><p>App内存中有三类：<strong>Abandoned memory</strong>、<strong>Leaked memory</strong>和<strong>Cached memory</strong>；有了ARC帮助管理内存，Leaked memory很少了，Leaks工具效果不大；</p>
@@ -559,6 +1286,30 @@
 <h5 id="4、总结"><a href="#4、总结" class="headerlink" title="4、总结"></a>4、总结</h5><ul>
 <li>保持良好编程习惯的同时，搭配工具来及时纠错；推荐<strong>MLeaksFinder + Instrument</strong> 或 <strong>FBMemoryProfiler + Instrument</strong>组合使用。通过MLeaksFinder/FBMemoryProfiler发现后。然后使用Instrument再验证下。</li>
 </ul>
+<h4 id="六、其他"><a href="#六、其他" class="headerlink" title="六、其他"></a>六、其他</h4><h5 id="1、对象的深浅拷贝问题"><a href="#1、对象的深浅拷贝问题" class="headerlink" title="1、对象的深浅拷贝问题"></a>1、对象的深浅拷贝问题</h5><ul>
+<li>浅拷贝：对象的引用复制，指向相同的一块内存空间</li>
+<li>深拷贝：拷贝对象本身，系统会随机给拷贝的对象重新分配一块内存，深拷贝以后，<code>两份对象的内存地址不一样，指针指向也不一样</code>。</li>
+<li>可变对象的 的copy和mutableCopy 都是深拷贝</li>
+<li>不可变对象的 copy是 浅拷贝。不可变对象的 mutableCopy是深拷贝</li>
+<li>自定义类需要分别遵守 <nscopying>协议和<nsmutablecopying>协议，分别实现copyWithZone方法和mutableCopyWithZone方法，实现该类对象的copy和mutableCopy操作, 否则会无法响应copy和mutableCopy消息(<strong>unrecognized selector sent to instance</strong>)</nsmutablecopying></nscopying></li>
+</ul>
+<h5 id="2、内联函数的问题"><a href="#2、内联函数的问题" class="headerlink" title="2、内联函数的问题"></a>2、内联函数的问题</h5><ul>
+<li>内联函数关键字是 <strong>inline</strong> ，普通函数使用的申明或实现使用<strong>inline</strong> 修饰后，即为内联函数。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">inline int sum(int a, int b)&#123;</span><br><span class="line">    return a + b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>注意：递归函数即使被 <strong>inline</strong> 修饰后也不是内联函数，依然是普通函数。</p>
+</li>
+<li><p>普通函数调用会<strong>开辟一段栈空间</strong>执行相关代码，函数执行完再将对应的栈空间回收。而内联函数调用中，编译器会<strong>将函数调用直接展开为函数代码</strong>。如cout &lt;&lt; sum(1, 2) &lt;&lt; endl会直接转换为cout &lt;&lt; 1 + 2&lt;&lt; endl，由此可见内联函数和一般的宏很类似，都是<strong>直接替换相关代码</strong>。同宏相比，内联函数只是多了一些函数特性和语法检测功能。</p>
+</li>
+<li><p>OC 中可以通过关键字 NS_INLINE 使用内联函数。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">NS_INLINE void log(int value) &#123;</span><br><span class="line">    NSLog(@&quot;%d&quot;, value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>内联函数或宏省去了</strong> <strong>参数压栈、生成汇编语言的CALL调用、返回参数、执行return等</strong> <strong>过程</strong>，可以<strong>减少函数调用的开销。但是会增加代码体积</strong>，所以减少内联函数或宏的使用一定程度上可以减少包体积。 并不是说为了减小包体积完全不去使用内联函数，建议经常会被调用的代码，且代码量不是很多的时候(不超过10行)，为减少函数调用的开销，可适当使用内联函数。</li>
+</ul>
+<h5 id="3、-import和-include区别"><a href="#3、-import和-include区别" class="headerlink" title="3、#import和#include区别"></a>3、#import和#include区别</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#import与#include的类似，都是把其后面的文件拷贝到该指令所在的地方</span><br><span class="line">#import可以自动防止重复导入</span><br><span class="line">#import &lt;&gt; 用于包含系统文件</span><br><span class="line">#import&quot;&quot;用于包含本项目中的文件</span><br><span class="line">#import, 告诉编译器找到并处理名为Foundation.h文件,这是一个系统文件,</span><br><span class="line">#import表示将该文件的信息导入到程序中</span><br></pre></td></tr></table></figure>
 
           
         
@@ -607,7 +1358,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/28/iOS07-launchOPt/">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/28/iOS-AppLaunchOptimize/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="南华coder">
@@ -626,7 +1377,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/01/28/iOS07-launchOPt/" itemprop="url">浅谈启动优化</a></h1>
+                <a class="post-title-link" href="/2018/01/28/iOS-AppLaunchOptimize/" itemprop="url">启动优化小记</a></h1>
         
 
         <div class="post-meta">
@@ -661,8 +1412,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS2018/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS2018</span>
+                  <a href="/categories/App优化/" itemprop="url" rel="index">
+                    <span itemprop="name">App优化</span>
                   </a>
                 </span>
 
@@ -732,9 +1483,7 @@
         
           
             <p>目前iOS优化主要包括三方面：<strong>卡顿优化</strong>、<strong>启动优化</strong>和<strong>瘦身优化</strong>，本文简单说下<strong>启动优化</strong></p>
-<blockquote>
-<h4 id="一、启动时间"><a href="#一、启动时间" class="headerlink" title="一、启动时间"></a>一、启动时间</h4></blockquote>
-<ul>
+<h4 id="一、启动时间"><a href="#一、启动时间" class="headerlink" title="一、启动时间"></a>一、启动时间</h4><ul>
 <li><p>如果你的App启动超过20s，是时候考虑换个工作了(<em>开个玩笑</em>)；启动优化是<strong>基于当下的业务复杂度和代码复杂度的近似最优处理</strong>。</p>
 </li>
 <li><p><strong>App总启动时间</strong> = t1(main函数之前的加载时间) + t2(main函数之后的加载时间)</p>
@@ -743,9 +1492,7 @@
 </li>
 <li><strong>t2</strong> = main方法执行之后到AppDelegate类中的- (BOOL)Application:(UIApplication <em>)Application didFinishLaunchingWithOptions:(NSDictionary </em>)launchOptions方法执行结束前这段时间，主要是构建第一个界面，并完成渲染展示。</li>
 </ul>
-<blockquote>
-<h4 id="二、main函数之前的优化"><a href="#二、main函数之前的优化" class="headerlink" title="二、main函数之前的优化"></a>二、main函数之前的优化</h4></blockquote>
-<h5 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h5><ul>
+<h4 id="二、main函数之前的优化"><a href="#二、main函数之前的优化" class="headerlink" title="二、main函数之前的优化"></a>二、main函数之前的优化</h4><h5 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h5><ul>
 <li><p><strong>加载过程</strong>：先加载<strong>可执行文件</strong>；然后<strong>加载dyld</strong>(dynamic link editor)动态链接器；最后dyld从可执行文件的依赖开始，递归加载所有依赖的动态链接库。</p>
 </li>
 <li><p><strong>动态链接库</strong>包括：系统的framework、加载OC Runtime的libobjc、系统级别的libSystem、如libdispatch(GCD)和libsystem_blocks(Block)。</p>
@@ -783,9 +1530,7 @@
 <li><p>Xcode 中 Edit scheme -&gt; Run -&gt; Auguments 将环境变量 DYLD_PRINT_STATISTICS_DETAILS 设为 1，可以看到更多数据</p>
 </li>
 </ul>
-<blockquote>
-<h4 id="三、main函数之后的优化"><a href="#三、main函数之后的优化" class="headerlink" title="三、main函数之后的优化"></a>三、main函数之后的优化</h4></blockquote>
-<h5 id="1、概述-1"><a href="#1、概述-1" class="headerlink" title="1、概述"></a>1、概述</h5><ul>
+<h4 id="三、main函数之后的优化"><a href="#三、main函数之后的优化" class="headerlink" title="三、main函数之后的优化"></a>三、main函数之后的优化</h4><h5 id="1、概述-1"><a href="#1、概述-1" class="headerlink" title="1、概述"></a>1、概述</h5><ul>
 <li>这部分主要是服务初始化、闪屏（广告或引导）和首页UI渲染等工作；</li>
 </ul>
 <h5 id="2、优化思路"><a href="#2、优化思路" class="headerlink" title="2、优化思路"></a>2、优化思路</h5><ul>
@@ -796,9 +1541,7 @@
 <li><p><strong>其他</strong>：减少NSLog输出，因为其会隐似创建个NSCalender，比较耗时；网络请求和数据读取等耗时操作放在子线程；图片子线程解码等。</p>
 </li>
 </ul>
-<blockquote>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4></blockquote>
-<ul>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><ul>
 <li><p>一个比较靠谱团队，启动这块耗时不会太糟糕，动不动就优化效果显著，要么是太牛逼，要么是团队太坑；做启动优化这块，需要平常心和耐心。</p>
 </li>
 <li><p><strong>main函数之后优化空间比较大，主要在业务上</strong>；所以要先需要熟悉业务，优化之前和各方沟通好，如XX提供的SDK能否延迟初始化，XXX效果设计团队能否接受；XXXX处理会不会给其他团队人员的工作带来困扰….</p>
@@ -854,7 +1597,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/27/iOS06-app-thinning/">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/27/iOS-AppThinning/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="南华coder">
@@ -873,7 +1616,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/01/27/iOS06-app-thinning/" itemprop="url">浅谈瘦身优化</a></h1>
+                <a class="post-title-link" href="/2018/01/27/iOS-AppThinning/" itemprop="url">瘦身优化小记</a></h1>
         
 
         <div class="post-meta">
@@ -908,8 +1651,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS2018/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS2018</span>
+                  <a href="/categories/App优化/" itemprop="url" rel="index">
+                    <span itemprop="name">App优化</span>
                   </a>
                 </span>
 
@@ -939,7 +1682,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1,084 字
+                  1,089 字
                 </span>
               
 
@@ -1053,6 +1796,7 @@
 </ul>
 <h5 id="2、其他"><a href="#2、其他" class="headerlink" title="2、其他"></a>2、其他</h5><ul>
 <li>使用工具分析冗余的代码，如AppCode工具，<strong>其分析结果只是作为参考</strong>。</li>
+<li>编译项优化: </li>
 </ul>
 <blockquote>
 <h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4></blockquote>
@@ -1112,7 +1856,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/26/iOS05-kadunyouhua/">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/26/iOS-AppFPSOptimize/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="南华coder">
@@ -1131,7 +1875,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/01/26/iOS05-kadunyouhua/" itemprop="url">浅谈卡顿优化</a></h1>
+                <a class="post-title-link" href="/2018/01/26/iOS-AppFPSOptimize/" itemprop="url">卡顿优化小记</a></h1>
         
 
         <div class="post-meta">
@@ -1166,8 +1910,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS2018/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS2018</span>
+                  <a href="/categories/App优化/" itemprop="url" rel="index">
+                    <span itemprop="name">App优化</span>
                   </a>
                 </span>
 
@@ -1237,9 +1981,7 @@
         
           
             <p>目前iOS优化主要包括三方面：<strong>卡顿优化</strong>、<strong>启动优化</strong>和<strong>瘦身优化</strong>，本文简单说下<strong>卡顿优化</strong>。</p>
-<blockquote>
-<h4 id="一、卡顿"><a href="#一、卡顿" class="headerlink" title="一、卡顿"></a>一、卡顿</h4></blockquote>
-<h5 id="1、简述"><a href="#1、简述" class="headerlink" title="1、简述"></a>1、简述</h5><ul>
+<h4 id="一、卡顿"><a href="#一、卡顿" class="headerlink" title="一、卡顿"></a>一、卡顿</h4><h5 id="1、简述"><a href="#1、简述" class="headerlink" title="1、简述"></a>1、简述</h5><ul>
 <li><p>iOS设备使用双缓存，以<strong>60HZ</strong>的频率刷新屏幕，这就意味着，在<strong>1/60s(16.67ms)</strong>内要将完成<strong>下一帧</strong>的图片的绘制，并存在缓存区中；</p>
 </li>
 <li><p>在这1/60s(16.67ms)内，<strong>CPU要计算显示内容</strong>，然后将这些内容交给<strong>GPU去变换、合成和渲染</strong>，GPU把渲染后的内容提交到帧缓存区，等待更新信号；</p>
@@ -1257,9 +1999,7 @@
 <p>参考：<a href="http://mrpeak.cn/blog/ui-detect/" target="_blank" rel="noopener">iOS应用UI线程卡顿监控</a></p>
 </li>
 </ul>
-<blockquote>
-<h4 id="二、CPU方面优化"><a href="#二、CPU方面优化" class="headerlink" title="二、CPU方面优化"></a>二、CPU方面优化</h4></blockquote>
-<p>CPU做计算显示的内容，主要包括：视图创建、视图布局、图片解码、文本绘制、图像绘制等。</p>
+<h4 id="二、CPU方面优化"><a href="#二、CPU方面优化" class="headerlink" title="二、CPU方面优化"></a>二、CPU方面优化</h4><p>CPU做计算显示的内容，主要包括：视图创建、视图布局、图片解码、文本绘制、图像绘制等。</p>
 <h5 id="1、视图创建"><a href="#1、视图创建" class="headerlink" title="1、视图创建"></a>1、视图创建</h5><ul>
 <li><p><strong>对象复用</strong>，复用对象的代价比创建新对象的成本要低；比较典型的是：<strong>UITableViewCell对象的复用</strong>，需要UITableViewCell对象，先从缓存池取，如果取不到，才去创建新对象；</p>
 </li>
@@ -1287,9 +2027,7 @@
 <p><strong>总结</strong>：因为<strong>主线程占用CPU高、子线程占用CPU低</strong>；优化时，把不是必须要在主线程中做的事情 放在子线程中做，但是要防止线程爆炸，参考<a href="https://www.jianshu.com/p/5d51a367ed62" target="_blank" rel="noopener">GCD小结之控制最大并发数</a>。</p>
 </li>
 </ul>
-<blockquote>
-<h4 id="三、GPU方面优化"><a href="#三、GPU方面优化" class="headerlink" title="三、GPU方面优化"></a>三、GPU方面优化</h4></blockquote>
-<p>GPU接收提交的纹理(Texture) 和顶点数据信息，应用变换(transform)、混合并渲染等，然后输出到屏幕上。</p>
+<h4 id="三、GPU方面优化"><a href="#三、GPU方面优化" class="headerlink" title="三、GPU方面优化"></a>三、GPU方面优化</h4><p>GPU接收提交的纹理(Texture) 和顶点数据信息，应用变换(transform)、混合并渲染等，然后输出到屏幕上。</p>
 <h5 id="1、纹理的渲染"><a href="#1、纹理的渲染" class="headerlink" title="1、纹理的渲染"></a>1、纹理的渲染</h5><ul>
 <li><p>GPU的消耗主要在：所有Bitmap由内存提交到显存、绑定为GPU Texture；GPU的调整；渲染Texture等。尽量避免短时间显示大量图片，否则会造成CPU使用率低，而GPU使用率飙升；可以合成多张图片，做一张显示。</p>
 </li>
@@ -1318,9 +2056,7 @@
 <h5 id="4、像素不对齐"><a href="#4、像素不对齐" class="headerlink" title="4、像素不对齐"></a>4、像素不对齐</h5><ul>
 <li>图片显示前，在子线程中可以按目标显示大小裁剪，使图片符合展示大小，避免拉伸缩放(像素不对齐)。</li>
 </ul>
-<blockquote>
-<h4 id="四、其他"><a href="#四、其他" class="headerlink" title="四、其他"></a>四、其他</h4></blockquote>
-<ul>
+<h4 id="四、其他"><a href="#四、其他" class="headerlink" title="四、其他"></a>四、其他</h4><ul>
 <li><p>优化工作视具体业务来做，没必要过早优化；</p>
 </li>
 <li><p>如果没做过优化方面工作的同学，可以仔细阅读<strong>ibireme</strong>的<a href="https://blog.ibireme.com/2015/11/12/smooth_user_interfaces_for_ios/" target="_blank" rel="noopener">iOS 保持界面流畅的技巧</a>，后续很多团队的分享经验都没有跳出ibireme的框架。</p>
@@ -1376,7 +2112,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/21/iOS13-zujianhua/">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/21/iOS-zujianhua/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="南华coder">
@@ -1395,7 +2131,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/01/21/iOS13-zujianhua/" itemprop="url">组件化学习笔记</a></h1>
+                <a class="post-title-link" href="/2018/01/21/iOS-zujianhua/" itemprop="url">组件化学习笔记</a></h1>
         
 
         <div class="post-meta">
@@ -1430,8 +2166,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS2018/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS2018</span>
+                  <a href="/categories/iOS进阶/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS进阶</span>
                   </a>
                 </span>
 
@@ -1501,9 +2237,7 @@
         
           
             <p>没有做过组件化，先自行了解下</p>
-<blockquote>
-<h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4></blockquote>
-<h5 id="1、为什么用组件化"><a href="#1、为什么用组件化" class="headerlink" title="1、为什么用组件化"></a>1、为什么用组件化</h5><ul>
+<h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4><h5 id="1、为什么用组件化"><a href="#1、为什么用组件化" class="headerlink" title="1、为什么用组件化"></a>1、为什么用组件化</h5><ul>
 <li><p><strong>业务快速发展、复杂的业务场景、团队的快速扩展等</strong>带来的变革诉求，希望通过<strong>组件化</strong>来提高团队的协作能力、减低开发成本，提高开发质量。</p>
 </li>
 <li><p>组件化直接效果：代码解耦，功能模块化；代码的复用性高；代码管理更加科学。</p>
@@ -1520,9 +2254,7 @@
 <h5 id="3、总结"><a href="#3、总结" class="headerlink" title="3、总结"></a>3、总结</h5><ul>
 <li>组件化是趋势，是大中型App团队的选择。</li>
 </ul>
-<blockquote>
-<h4 id="二、组件化四要素"><a href="#二、组件化四要素" class="headerlink" title="二、组件化四要素"></a>二、组件化四要素</h4></blockquote>
-<p>完成组件化，先考虑四要素。</p>
+<h4 id="二、组件化四要素"><a href="#二、组件化四要素" class="headerlink" title="二、组件化四要素"></a>二、组件化四要素</h4><p>完成组件化，先考虑四要素。</p>
 <h5 id="1、组件拆分"><a href="#1、组件拆分" class="headerlink" title="1、组件拆分"></a>1、组件拆分</h5><ul>
 <li><p>首先需要对原有的<strong>基础模块</strong>，如网络模块、存储模块、网络图片加载模块、日志上报模块从原有代码中独立出来，用Cocoapods或Submodule管理起来。（<em>这部分相对简单</em>）</p>
 </li>
@@ -1557,6 +2289,7 @@
 //1、组件定义MGJCart，执行返回订单数方法
  @protocol MGJCart &lt;NSObject&gt;
  + (NSInteger)orderCount;
+
    @end
 
 //2、MGJCartImpl 实现MGJCart ，实现略
@@ -1573,9 +2306,7 @@
 <h5 id="3、组件的单元测试"><a href="#3、组件的单元测试" class="headerlink" title="3、组件的单元测试"></a>3、组件的单元测试</h5><p>每一个组件都需要提供单元测试，保证代码质量。</p>
 <p><em>实践后，再来补充</em></p>
 <h5 id="4、组件开发、集成、发版"><a href="#4、组件开发、集成、发版" class="headerlink" title="4、组件开发、集成、发版"></a>4、组件开发、集成、发版</h5><p><em>实践后，再来补充</em></p>
-<blockquote>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4></blockquote>
-<ul>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><ul>
 <li><p>个人认为，<strong>组件化</strong>是<strong>业务、团队快速扩张</strong>下的新的<strong>合作分工方式</strong>；</p>
 </li>
 <li><p>虽然我们团队还没有这类变革诉求，但是我们能够要在各个垂直、细分领域打开局面，形成自己的<strong>产品矩阵</strong>，组件化方案或类组件化方案是必须要有人去踩坑的。</p>
@@ -1630,7 +2361,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/14/iOS14-readFLAnimatedImage/">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/14/iOS-FLAnimatedImage/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="南华coder">
@@ -1649,7 +2380,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/01/14/iOS14-readFLAnimatedImage/" itemprop="url">速览FLAnimatedImage库笔记</a></h1>
+                <a class="post-title-link" href="/2018/01/14/iOS-FLAnimatedImage/" itemprop="url">速览FLAnimatedImage库笔记</a></h1>
         
 
         <div class="post-meta">
@@ -1684,8 +2415,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS2018/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS2018</span>
+                  <a href="/categories/iOS第三方库/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS第三方库</span>
                   </a>
                 </span>
 
@@ -1862,7 +2593,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/13/iOS12-generateCode/">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/13/iOS-GenerateCode/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="南华coder">
@@ -1881,7 +2612,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/01/13/iOS12-generateCode/" itemprop="url">代码自动生成笔记</a></h1>
+                <a class="post-title-link" href="/2018/01/13/iOS-GenerateCode/" itemprop="url">代码自动生成笔记</a></h1>
         
 
         <div class="post-meta">
@@ -1916,8 +2647,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS2018/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS2018</span>
+                  <a href="/categories/iOS实践/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS实践</span>
                   </a>
                 </span>
 
@@ -2162,7 +2893,7 @@ varchar,password
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/13/iOS04-imageOptimize/">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/13/iOS-AppImageOptimize/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="南华coder">
@@ -2181,7 +2912,7 @@ varchar,password
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/01/13/iOS04-imageOptimize/" itemprop="url">浅谈iOS图片优化</a></h1>
+                <a class="post-title-link" href="/2018/01/13/iOS-AppImageOptimize/" itemprop="url">iOS图片优化小记</a></h1>
         
 
         <div class="post-meta">
@@ -2216,8 +2947,8 @@ varchar,password
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS2018/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS2018</span>
+                  <a href="/categories/App优化/" itemprop="url" rel="index">
+                    <span itemprop="name">App优化</span>
                   </a>
                 </span>
 
@@ -2287,9 +3018,7 @@ varchar,password
         
           
             <p>根据我自己的经验，说一下我对图片优化的理解。</p>
-<blockquote>
-<h4 id="一、他山之石"><a href="#一、他山之石" class="headerlink" title="一、他山之石"></a>一、他山之石</h4></blockquote>
-<h5 id="1、图片的加载步骤"><a href="#1、图片的加载步骤" class="headerlink" title="1、图片的加载步骤"></a>1、图片的加载步骤</h5><p>从磁盘中加载图片，并通过UIImageVIew显示在屏幕上，需要经过以下步骤：</p>
+<h4 id="一、他山之石"><a href="#一、他山之石" class="headerlink" title="一、他山之石"></a>一、他山之石</h4><h5 id="1、图片的加载步骤"><a href="#1、图片的加载步骤" class="headerlink" title="1、图片的加载步骤"></a>1、图片的加载步骤</h5><p>从磁盘中加载图片，并通过UIImageVIew显示在屏幕上，需要经过以下步骤：</p>
 <pre><code>1、从磁盘拷贝数据到内核缓冲区
 2、从内核缓冲区复制数据到用户空间
 3、生成UIImageView，把图像数据赋值给UIImageView
@@ -2325,9 +3054,7 @@ varchar,password
 <li><p>优化工作需要考虑 <strong>低代价高回报</strong> 这件事。</p>
 </li>
 </ul>
-<blockquote>
-<h4 id="二、本地图片加载的优化"><a href="#二、本地图片加载的优化" class="headerlink" title="二、本地图片加载的优化"></a>二、本地图片加载的优化</h4></blockquote>
-<h5 id="1、优化的目的"><a href="#1、优化的目的" class="headerlink" title="1、优化的目的"></a>1、优化的目的</h5><p><em>目的有三：</em></p>
+<h4 id="二、本地图片加载的优化"><a href="#二、本地图片加载的优化" class="headerlink" title="二、本地图片加载的优化"></a>二、本地图片加载的优化</h4><h5 id="1、优化的目的"><a href="#1、优化的目的" class="headerlink" title="1、优化的目的"></a>1、优化的目的</h5><p><em>目的有三：</em></p>
 <ul>
 <li><p><strong>减少App包的大小</strong>；图片体积的暴增最大原因之一；可能是新业务引入大量图片资源。</p>
 </li>
@@ -2346,9 +3073,7 @@ varchar,password
 <p><strong>说明</strong>：导入项目中的图片记得压缩。</p>
 </li>
 </ul>
-<blockquote>
-<h4 id="三、网络图片的优化"><a href="#三、网络图片的优化" class="headerlink" title="三、网络图片的优化"></a>三、网络图片的优化</h4></blockquote>
-<p>相比较本地图片，它面临复杂的网络环境、复杂的图片来源。</p>
+<h4 id="三、网络图片的优化"><a href="#三、网络图片的优化" class="headerlink" title="三、网络图片的优化"></a>三、网络图片的优化</h4><p>相比较本地图片，它面临复杂的网络环境、复杂的图片来源。</p>
 <h5 id="1、优化目的"><a href="#1、优化目的" class="headerlink" title="1、优化目的"></a>1、优化目的</h5><p><em>目的有三：</em></p>
 <ul>
 <li><p><strong>异步下载</strong>，不阻塞主线程操作；</p>
@@ -2374,736 +3099,8 @@ varchar,password
 <li><p>纯显示的视图，CALayer代替UIImageVIew，可以减少GPU计算（去透明/像素对齐）</p>
 </li>
 </ul>
-<blockquote>
-<h4 id="End"><a href="#End" class="headerlink" title="End"></a>End</h4></blockquote>
-<ul>
+<h4 id="End"><a href="#End" class="headerlink" title="End"></a>End</h4><ul>
 <li>这篇文章算是对之前写的 <a href="https://www.jianshu.com/p/a38a7c7bccbb" target="_blank" rel="noopener">网络图片的优化显示</a> 和 <a href="https://www.jianshu.com/p/26402bc4ddac" target="_blank" rel="noopener">iOS中本地图片的缩放、裁剪和压缩</a>的<strong>补充</strong>和<strong>扩展</strong>吧。</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/04/iOS03-codeConfuse/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="南华coder">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="南华coder的空间">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/01/04/iOS03-codeConfuse/" itemprop="url">浅谈代码混淆</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-04T23:21:30+08:00">
-                2018-01-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS2018/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS2018</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,614 字
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  7 分
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>代码混淆的目的，是为了对抗<strong>反编译</strong>。</p>
-<blockquote>
-<h4 id="一、反编译工具"><a href="#一、反编译工具" class="headerlink" title="一、反编译工具"></a>一、反编译工具</h4></blockquote>
-<p>虽然AppleStore会对App加壳保护，但是在越狱手机上，破壳App并非不可能，失去保护的App，可以利用工具去反编译；常见的反编译工具有： <strong>class-dump</strong> 和 <strong>Hopper Disassembler</strong>；</p>
-<h5 id="1、class-dump简介"><a href="#1、class-dump简介" class="headerlink" title="1、class-dump简介"></a>1、class-dump简介</h5><ul>
-<li><p>下载并安装<a href="https://link.jianshu.com/?t=http://stevenygard.com/projects/class-dump/" target="_blank" rel="noopener">class-dump</a>，将class-dump复制到/usr/local/bin/目录下，使用下面命令可以反编译出头文件</p>
-<pre><code>class-dump -H xxx.app -o /Users/xxxx/Desktop/heads 
-</code></pre></li>
-</ul>
-<h5 id="2、Hopper-Disassembler简介"><a href="#2、Hopper-Disassembler简介" class="headerlink" title="2、Hopper Disassembler简介"></a>2、Hopper Disassembler简介</h5><ul>
-<li><p>下载并安装<a href="http://xclient.info/s/hopper-disassembler.html?_=ccf82bf7d0f9ec485d8d0e11710f4561" target="_blank" rel="noopener">Hopper Disassembler</a></p>
-<pre><code>//破解办法：
-将Hopper Disassembler v4.app移动至应用程序文件夹
-双击HopperV4Patcher，将应用程序中的Hopper Disassembler v4.app拖进HopperV4Patcher完成注册
-</code></pre></li>
-<li><p>解压缩App文件，获得二进制文件，直接拖进Hopper Disassembler，选择点右上角的if(b)f(x)，就可以看到类名、方法、伪代码，字符串等信息。</p>
-</li>
-</ul>
-<p><strong>说明</strong>：开发中，我们可以利用Xcode在debug下编译后产生的（.app）文件, 作为反编译练习的<strong>原材料</strong>。这个文件放在<strong>/Users/user name/Library/Developer/Xcode/DerivedData/ xx Project Name/Build/Products/Debug-iphonesimulator</strong>。</p>
-<blockquote>
-<h4 id="二、代码混淆"><a href="#二、代码混淆" class="headerlink" title="二、代码混淆"></a>二、代码混淆</h4></blockquote>
-<h5 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h5><ul>
-<li><p><strong>代码混淆</strong>： 主要是混淆重要的 <strong>方法名</strong> 、 <strong>类名</strong> 和 <strong>字符串常量</strong>。（大面积的混淆没有太大意义），手段主要是利用宏定义。</p>
-</li>
-<li><p><strong>宏定义</strong>的关键就是<strong>替换</strong>，将A替换成B；A可以是<strong>见名知意</strong>函数名、类名或字符串常量，B可以是<strong>百思不得其解</strong>的名字或 函数 等等。</p>
-</li>
-<li><p>利用宏定义，做到扰乱耳目，迷惑他人的目的。</p>
-<p><strong>说明</strong>：具体宏方便的知识，可以参考<a href="https://onevcat.com/2014/01/black-magic-in-macro/" target="_blank" rel="noopener">宏定义的黑魔法 - 宏菜鸟起飞手册</a></p>
-</li>
-</ul>
-<h5 id="2、具体方案"><a href="#2、具体方案" class="headerlink" title="2、具体方案"></a>2、具体方案</h5><ul>
-<li><p><strong>混淆方法名 和 类名</strong></p>
-<pre><code>单段的selector，如func: ，可以通过#define func 来实现字符串替换。
-多段的selector，如a:b:c: ，可以通过分别#define a 、b、c 来实现字符串替换。
-</code></pre></li>
-<li><p><strong>混淆字符串常量</strong></p>
-<p>  代码中使用的都是密文（密文通过脚本生成）；OC中定义对应的 <strong>密文转成明文</strong> 方法；这样编译出来的只有字符串常量只有密文，反编译者难以根据字符串信息，去推敲逻辑。</p>
-</li>
-</ul>
-<h5 id="3、方案实现"><a href="#3、方案实现" class="headerlink" title="3、方案实现"></a>3、方案实现</h5><ul>
-<li>脚本实现方法名 、 类名 和 字符串常量的混淆，输入是想要混淆的对象，输出是 <strong>#define 要混淆的对象  混淆内容</strong>。混淆内容可以是随机字符串等难以理解的信息。</li>
-</ul>
-<ul>
-<li>考虑到方便自己、恶心别人的目的，我们将混淆结果合并在一个.h中，在工程Prefix.pch的最前面#import这个.h文件。不导入也可以编译、导入则实现混淆。</li>
-</ul>
-<p><strong>脚本实现如下</strong>：</p>
-<pre><code>#!/usr/bin/python 
-# -*- coding: utf-8 -*-
-
-import sys
-import os
-from random import Random
-import time;  
-import base64
-
-#
-# 执行脚本命令：python Confuse.py
-#
-
-# ***** 工具类 *****
-
-class Util(object):
-    def __init__(self, arg):
-        super(Util, self).__init__()
-        self.arg = arg
-
-    # 生成随机串
-    @classmethod
-    def randomString(self,randomlength=16):
-
-        str = &apos;&apos;
-        chars = &apos;AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz&apos;
-        length = len(chars) - 1
-        random = Random()
-        for i in range(randomlength):
-            str += chars[random.randint(0, length)]
-        return str
-
-    @classmethod
-    def loadFileCotent(self,filePath):
-
-        contents = []
-        with open(filePath) as f:
-            line = f.readline()
-            while line:
-                contents.append(line.rstrip(&apos;\n&apos;)) 
-                line = f.readline()
-        return contents
-
-    #加密（可以换成你想要的加密方法）
-    @classmethod
-    def encrypt(self,content):
-        res = &apos; &apos;.join([bin(ord(c)).replace(&apos;0b&apos;, &apos;&apos;) for c in content])
-        return base64.b64encode(res)
-
-    # 解密 (需要OC代码实现一份)
-    @classmethod
-    def decrypt(self,content):
-        return &apos;&apos;.join([chr(i) for i in [int(b, 2) for b in base64.b64decode(content).split(&apos; &apos;)]])
-
-#混淆函数名和方法名
-def confuseFunc(filePath):
-
-    originContents = Util.loadFileCotent(filePath)
-    confuseRes = &apos;&apos;
-    for i in range(0,len(originContents)):
-        outStr = &quot;#define &quot; + originContents[i] + &quot; &quot; + Util.randomString() + &quot;\n&quot;
-        confuseRes = confuseRes + outStr
-
-    #返回混淆结果
-    return confuseRes
-
-#混淆字符串
-def confuseText(filePath):
-
-    originContents = Util.loadFileCotent(filePath)
-    confuseRes = &apos;&apos;
-    for i in range(0,len(originContents)):
-        text = originContents[i]
-        text_encrypted = Util.encrypt(text)
-        # print &quot;decrypt&quot;,Util.decrypt(text_encrypted)
-        outStr = &quot;#define kKBParameter%sKey  QSString(@\&quot;%s\&quot;)\n&quot; %(text.capitalize(),text_encrypted)
-        confuseRes = confuseRes + outStr
-
-    #返回混淆结果
-    return confuseRes
-
-confuse_file_name =  &quot;QSConfuseHeader&quot;
-
-if __name__ == &apos;__main__&apos;:
-
-    fileContent = &apos;&apos;&apos;//
-//  &apos;&apos;&apos; + confuse_file_name + &apos;&apos;&apos;
-//  XXProject
-//
-//  Created on&apos;&apos;&apos; + time.asctime( time.localtime(time.time()) ) + &apos;&apos;&apos;!\n 
-#ifndef &apos;&apos;&apos; + confuse_file_name + &apos;&apos;&apos;_h
-#define &apos;&apos;&apos; + confuse_file_name + &apos;&apos;&apos;_h\n\n&apos;&apos;&apos;
-
-    confuseFuncContent = confuseFunc(&quot;func_class.txt&quot;)
-    if len(confuseFuncContent) &gt; 0:
-        fileContent += &quot;\n//函数混淆\n&quot; + confuseFuncContent
-
-    confuseTextContent = confuseText(&quot;string.txt&quot;)
-    if len(confuseTextContent) &gt; 0:
-        fileContent += &quot;\n//字符串混淆\n&quot; + confuseTextContent
-
-    endFileContent = &quot;\n\n#endif /* &quot; + confuse_file_name + &quot;_h */&quot;
-
-    if len(fileContent) &gt; 0:
-        fileContent+= endFileContent
-        print fileContent
-        # 打开一个文件
-        outputFile = open(confuse_file_name + &quot;.h&quot;, &quot;wb&quot;)
-        outputFile.write(fileContent)
-        # 关闭打开的文件
-        outputFile.close()
-</code></pre><p>​<br>   <strong>说明1</strong>：目前需要混淆内容放在txt文件（需要混淆函数名和类名放在func_class.txt，需要混淆字符串常量放在string.txt中）；进一步做法是，给需要混淆的字符串打上标记，然后用脚本搜索这些需要混淆的对象，实现混淆；</p>
-<p>  <strong>说明2</strong>：代码混淆需要考虑代码的可读性，建议做法是，对应混淆后的结果使用<strong>宏定义</strong>替换，类似于</p>
-<pre><code>//QSString(x)是个宏方法，定义是解密实现，在OC中实现
-#define kKBParameterGoodKey  QSString(@&quot;MTEwMDExMSAxMTAxMTExIDExMDExMTEgMTEwMDEwMA==&quot;)
-</code></pre><p>  <strong>说明3</strong>：在脚本中，加密方法并非真正的加密，只是将字符串转成二进制，再Base64编码而已；这个根据自己业务需要增加真正的加密算法，对应的解密算法放在OC中实现。</p>
-<p>  <strong>其他参考</strong><a href="http://blog.csdn.net/yiyaaixuexi/article/details/29201699" target="_blank" rel="noopener">iOS安全攻防（二十三）：Objective-C代码混淆</a></p>
-<blockquote>
-<h4 id="三、关键逻辑混淆"><a href="#三、关键逻辑混淆" class="headerlink" title="三、关键逻辑混淆"></a>三、关键逻辑混淆</h4></blockquote>
-<p>提供两种方案</p>
-<h5 id="方案1"><a href="#方案1" class="headerlink" title="方案1"></a>方案1</h5><ul>
-<li><p>把函数名隐藏在结构体里，以函数指针成员的形式存储。</p>
-</li>
-<li><p>编译后，只留了下地址，去掉了名字和参数表，提高了逆向成本和攻击门槛。</p>
-</li>
-<li><p>具体参考<a href="http://blog.csdn.net/yiyaaixuexi/article/details/29210413" target="_blank" rel="noopener">iOS安全攻防（二十四）：敏感逻辑的保护方案（1）</a></p>
-</li>
-</ul>
-<h5 id="方案2"><a href="#方案2" class="headerlink" title="方案2"></a>方案2</h5><ul>
-<li><p>使用C/C++语言实现逻辑，这里利用到Objective-C 与 C/C++混编的知识。下面以C++为例，混编最需要注意的是<strong>OC 调用 C++</strong>和<strong>C++ 调用 OC</strong></p>
-</li>
-<li><p><strong>OC 调用 C++</strong>：这种情况比较简单，因为编译器做了优化，把 .m 文件直接改为 <strong>.mm</strong> ，然后直接用就好了。</p>
-</li>
-<li><p><strong>C++ 调用 OC</strong>：分为两种情况：1）完全的 C++ ，实现文件以 .cpp 结尾，里面不允许直接OC的方法；通过编写接口，间接调用 OC 方法，实际上 C++ 调用的是OC编译过后的 .o 文件；2）部分 C++ 部分 OC ，实现文件以 .mm 结尾，里面允许直接使用 OC 方法。</p>
-</li>
-</ul>
-<blockquote>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4></blockquote>
-<ul>
-<li>代码混淆只是提高了破解的门槛和难度，不能百分百保证代码安全，但是如果不做这些，你的核心业务无疑在裸奔，这是很危险的事情。</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/03/iOS02-AESInfo/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="南华coder">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="南华coder的空间">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/01/03/iOS02-AESInfo/" itemprop="url">浅谈AES</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-03T23:23:50+08:00">
-                2018-01-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS2018/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS2018</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,829 字
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  8 分
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4></blockquote>
-<ul>
-<li><p><strong>对称加密</strong>比<strong>非对称加密</strong>要快。频繁的数据加密，优先考虑使用<strong>对称加密</strong>。</p>
-</li>
-<li><p>DES -&gt; 3DES -&gt; <strong>AES</strong>（Advanced Encryption Standard，高级加密标准）；目前对称加密使用<strong>AES</strong>为佳，它已经取代DES和3DES对称算法了。</p>
-</li>
-<li><p>AES是项目中使用较多的对称加密算法，本文简单介绍下AES。</p>
-</li>
-</ul>
-<blockquote>
-<h4 id="二、AES算法的重要组成"><a href="#二、AES算法的重要组成" class="headerlink" title="二、AES算法的重要组成"></a>二、AES算法的重要组成</h4></blockquote>
-<h5 id="1、密钥长度（Key-Size）"><a href="#1、密钥长度（Key-Size）" class="headerlink" title="1、密钥长度（Key Size）"></a>1、密钥长度（Key Size）</h5><p>  AES算法规定密钥长度有三种：128bits、192bits和256 bits。其中<strong>128 bits的key可以满足大部分业务需求</strong>。</p>
-<h5 id="2、加密模式（Cipher-Mode）"><a href="#2、加密模式（Cipher-Mode）" class="headerlink" title="2、加密模式（Cipher Mode）"></a>2、加密模式（Cipher Mode）</h5><p>   AES属于块加密（Block Cipher），加密数据块（Block）必须为<strong>128bits（16字节）</strong>；加密模式主要有以下<strong>六种</strong>模式：</p>
-<p><strong>1) ECB (Electronic Codebook Book，电子密码本模式)</strong></p>
-<ul>
-<li><p><strong>简介</strong>：将数据分成若干块，分别对每块进行加密，最后将这些密文块组成最后的加密结果</p>
-</li>
-<li><p><strong>说明</strong>：最简单的模式，安全性较低。因为ECB的明文分组与密文分组是一一对应的关系，如果明文中存在多个相同的明文分组，其对应的密文分组也是相同的；<strong>不推荐使用</strong>。</p>
-</li>
-</ul>
-<p><strong>2) CBC（Cipher Block Chaining，密码分组链接模式)</strong></p>
-<ul>
-<li><p><strong>简介</strong>：将数据分块后，每一块数据与上一块密文XOR（异或）后，再进行加密；</p>
-</li>
-<li><p><strong>说明</strong>：比较推荐使用的模式（但Apple已经不推荐使用CBC模式，建议使用<strong>GCM</strong>模式）。</p>
-</li>
-</ul>
-<p><strong>3) CTR(Counter，计数器模式)</strong></p>
-<ul>
-<li><p><strong>简介</strong>：通过将<strong>逐次累加的计数器</strong>进行加密来生成密钥流的流密码；最终的密文分组是通过将计数器加密得到的比特序列，与明文分组进行XOR得到的。</p>
-</li>
-<li><p><strong>说明</strong>：比较推荐使用的模式</p>
-</li>
-</ul>
-<p><strong>4) CFB(Cipher FeedBack,密码反馈模式)</strong></p>
-<ul>
-<li><p><strong>简介</strong>：和CBC类似，加密模式和CBC类似，但其可以将块密码变为自同步的流密码。</p>
-</li>
-<li><p><strong>说明</strong>：不推荐使用的模式</p>
-</li>
-</ul>
-<p><strong>5) OFB(Output FeedBack, 输出反馈模式)</strong></p>
-<ul>
-<li><p><strong>简介</strong>：将块密码变成同步的流密码，它产生密钥流的块，然后将其与明文块进行异或，得到密文。</p>
-</li>
-<li><p><strong>说明</strong>：不推荐使用的模式</p>
-</li>
-</ul>
-<p><strong>6) GCM(Galois/Counter Mode,)</strong></p>
-<ul>
-<li><p><strong>简介</strong>：GCM中的G就是指GMAC(消息验证码)，C就是指CTR(计数器模式)</p>
-</li>
-<li><p><strong>说明</strong>：GCM可以提供对消息的加密和完整性校验，AES模式最好选择。</p>
-</li>
-</ul>
-<p><strong>总结</strong>: 推荐先后顺序：<strong>GCM &gt; CTR &gt; CBC</strong>；详细内容可以参考<a href="https://xiaoxueying.gitbooks.io/graphic-cryptology/content/block_cipher_mode.html" target="_blank" rel="noopener">Block cipher mode</a>、<a href="http://blog.csdn.net/T0mato_/article/details/53160772" target="_blank" rel="noopener">AES-GCM加密算法</a></p>
-<h5 id="3、填充方式（Padding）"><a href="#3、填充方式（Padding）" class="headerlink" title="3、填充方式（Padding）"></a>3、填充方式（Padding）</h5><p>  1）<strong>块加密</strong>要求对<strong>特定长度的数据块</strong>进行加密，因此<strong>CBC模式</strong>、<strong>ECB模式</strong>需要在最后一数据块加密前进行数据填充。（CFB，OFB和CTR模式由于与key进行加密操作的是上一块加密后的密文，因此不需要对最后一段明文进行填充）。</p>
-<p>  2）iOS SDK中提供了<strong>PKCS7Padding</strong>，Java提供了<strong>PKCS5Padding</strong>。原则上PKCS5Padding限制了填充的Block Size为8 字节（大于8 字节，填充和PKCS7Padding相同），而PKCS7Padding的Block Size可以为1到255字节; 填充值的算法（需要填充x个字节，填充的值就是x）都是一样的：</p>
-<pre><code>value = k - (l mod k)  ,K = 块大小，l = 数据长度；假设k是16，I是5,那么value是11，也就是说，需要填充11个byte的 0x0B(十进制是11)
-</code></pre><p>  3）因为<strong>AES加密数据块</strong>Block Size规定为16字节(<em>128bits</em>), 大于8 字节(64 bits), 所以<strong>PKCS5Padding和PKCS7Padding填充效果</strong>是一样的。</p>
-<p>  <strong>说明</strong>：数据块的长度如果是16倍数，padding长度为16，padding值为0x10。即在输入后面补齐16字节的0x10；如果数据块的长度不是16倍数，padding长度为16-L%16，padding值为16-L%16。即在输入后面补齐16-L%16的字节，值为16-L%16。</p>
-<p>  4）平时使用最多的是PKCS7Padding，NoPadding、ISO10126Padding和ZeroPadding忽略不提。</p>
-<h5 id="4、初始向量（Initialization-Vector）"><a href="#4、初始向量（Initialization-Vector）" class="headerlink" title="4、初始向量（Initialization Vector）"></a>4、初始向量（Initialization Vector）</h5><p>  CBC、CFB和OFB这些加密模式需要传入一个初始向量，其大小与Block Size相等；当不传入初始向量时，系统将默认使用一个全0的初始向量。</p>
-<blockquote>
-<h4 id="三、AES算法Python实现"><a href="#三、AES算法Python实现" class="headerlink" title="三、AES算法Python实现"></a>三、AES算法Python实现</h4></blockquote>
-<p><strong>说明</strong>：使用Python的加密包<a href="https://pypi.python.org/pypi/pycrypto" target="_blank" rel="noopener">pycrypto</a> (下载后，执行<em>python setup.py build + python setup.py install</em>)，实现AES的ECB、CBC、CTR、CFB和OFB模式下的加密和解密；定义一个PaddingHelper类，实现PKCS7Padding；</p>
-<pre><code>#!/usr/bin/python 
-# -*- coding:utf-8 -*-
-
-import sys
-import os
-import base64
-from Crypto.Cipher import AES
-from Crypto.Util import Counter
-
-# ***** Padding Helper For AES *****
-
-class  PaddingHelper(object):
-    &quot;&quot;&quot;docstring for  Padding Helper&quot;&quot;&quot;
-    def __init__(self, arg):
-        super(PaddingHelper, self).__init__()
-        self.arg = arg
-
-    # 保证keyStr的长度是16
-    @classmethod
-    def validKeyStr(self,keyStr):    
-        keySize = 16
-        if len(keyStr) &lt; keySize:
-            zeroCount = keySize - len(keyStr) % keySize  
-            for i in range(0, zeroCount):  
-                keyStr = keyStr + &apos;\0&apos; 
-        else:
-            return keyStr[0:keySize]
-        return keyStr  
-
-
-    # 实现PKCS7Padding/PKCS7Padding
-    @classmethod
-    def PKCS7Padding(self,text,blockSize=16):    
-        count = len(text)    
-        mod_num = count % blockSize
-        add_num = blockSize - mod_num
-        return text + chr(add_num) * add_num    
-
-    @classmethod
-    def MovePKCS7Pading(self,text,blockSize=16):
-        lastChar = text[-1]    
-        paddingLen = ord(lastChar)
-        # 截取最后一部分填充快
-        lastChunk = text[-paddingLen:]
-
-        if lastChunk == chr(paddingLen) * paddingLen:
-            # 移除填充部分
-           return text[:-paddingLen]
-        return text     
-
-# AES PSK7/PSK5填充
-class AESUtil():
-    def __init__(self, key, model):
-
-        self.key = PaddingHelper.validKeyStr(key)
-        self.mode = model
-        self.iv = key   #初始向量初始化k，可以是别的值，但必须16字节
-
-    #加密函数，如果text不是16的倍数,那就补足为16的倍数
-    def encrypt(self, text):
-
-        if self.mode == AES.MODE_CTR:
-             # Create new AES CTR object #
-            cryptor = AES.new(self.key, self.mode, counter=Counter.new(128))
-        else:
-            cryptor = AES.new(self.key, self.mode, self.iv)
-
-        text = PaddingHelper.PKCS7Padding(text,16)
-        ciphertext = base64.b64encode(cryptor.encrypt(text))
-        return ciphertext
-
-    #解密后，去掉补足的空格用strip() 去掉
-    def decrypt(self, text):   
-        if self.mode == AES.MODE_CTR:
-             # Create new AES CTR object #
-            cryptor = AES.new(self.key, self.mode, counter=Counter.new(128))
-        else:    
-            cryptor = AES.new(self.key, self.mode, self.iv)
-
-        plainText = cryptor.decrypt(base64.b64decode(text))
-        return PaddingHelper.MovePKCS7Pading(plainText)
-
-if __name__ == &apos;__main__&apos;:
-
-    encrykey = &quot;0123456789abcdef&quot;
-    # plainText = &apos;1234567891234567&apos;
-    plainText = &apos;hello world&apos;
-
-    dict = {&quot;CBC模式&quot;: AES.MODE_CBC, 
-            &quot;CFB模式&quot;: AES.MODE_CFB, 
-            &quot;CTR模式&quot;: AES.MODE_CTR,
-            &quot;ECB模式&quot;: AES.MODE_ECB,
-            &quot;OFB模式&quot;: AES.MODE_OFB};
-
-    for key, value in dict.iteritems():
-        aes = AESUtil(encrykey,value)
-        encryptText = aes.encrypt(plainText)
-        print &quot;**********%s 加解密*******&quot; %(key)
-        print &quot;密文:&quot;,encryptText
-        print &quot;明文:&quot;,aes.decrypt(encryptText)
-</code></pre><p><strong>执行脚本的输出结果如下</strong></p>
-<pre><code>**********ECB模式 加解密*******
-密文: gWm+1O9JqIdFWcWyANqt5w==
-明文: hello world
-**********CFB模式 加解密*******
-密文: GsZEtzHsqRLRjxfUU6T0Zg==
-明文: hello world
-**********CBC模式 加解密*******
-密文: wem0Upqsl5MBD0Z39jWO/g==
-明文: hello world
-**********OFB模式 加解密*******
-密文: GhcS5HH8im5yy3xtfAywYA==
-明文: hello world
-**********CTR模式 加解密*******
-密文: adUgVHVGk4Y3/LZatTZf6Q==
-明文: hello world
-</code></pre><blockquote>
-<h4 id="四、AES算法使用说明"><a href="#四、AES算法使用说明" class="headerlink" title="四、AES算法使用说明"></a>四、AES算法使用说明</h4></blockquote>
-<ul>
-<li><p>对AES加密的结果，要使用<strong>Base64编码</strong>。因为其加密结果得到的字符串可能有不可见字符，保存和传输都有问题；把数据做Base64编码，统统变成可见字符。（Base64编码 将二进制流中每6个bit一组表示数据, 不足的部分补零,每两个0 用 一个 = 表示，把含有不可见字符串的信息用可见字符串表示出来 ）；对应的AES解密时，先要进行Base64解码</p>
-</li>
-<li><p>AES有很明显的优势：<strong>安全</strong>、<strong>加解密快</strong>（AES比RSA的加解密快1000倍）；但是劣势也明显，需重点保护<strong>密钥</strong>的安全；在实践中推荐组合使用<strong>AES</strong>和<em>*RSA</em>技术。</p>
-</li>
-<li><p>实践中<strong>常见的方案</strong>是：1）用AES来加密数据；2）AES的密钥通过<strong>伪随机数生成器</strong>生成；3）AES的密钥通过<strong>RSA公钥加密</strong>；4）最终将AES密钥的密文 和 数据的密文交给后台，后台利用对应的策略解密。</p>
-</li>
-<li><p>AES算法流程可以参考<a href="http://www.cnblogs.com/luop/p/4334160.html" target="_blank" rel="noopener">密码算法详解——AES</a></p>
-</li>
 </ul>
 
           
@@ -3194,7 +3191,7 @@ if __name__ == &apos;__main__&apos;:
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-count">24</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -3205,7 +3202,7 @@ if __name__ == &apos;__main__&apos;:
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -3274,7 +3271,7 @@ if __name__ == &apos;__main__&apos;:
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">37.1k</span>
+    <span title="Site words total count">45.9k</span>
   
 </div>
 

@@ -254,7 +254,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2019/03/23/iOS17-core-aniamtion/">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2019/03/13/iOS-PicDecode/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="南华coder">
@@ -273,466 +273,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/03/23/iOS17-core-aniamtion/" itemprop="url">Core Animation</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-23T15:36:48+08:00">
-                2019-03-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS知识小集/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS知识小集</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  2,065 字
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  7 分
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h3><ul>
-<li><p>iOS主要的<strong>绘图系统</strong>有UIKit、<strong>Core Animation</strong>、Core Graphics、OpenGL ES和Core Image等。</p>
-</li>
-<li><p>Core Animation并非是搞高端动画的库。它是一个用于管理视图排版、合成、渲染以及动画的基础 库，最终的渲染工作是交给Graphics Hardware(GPU)处理。</p>
-</li>
-<li><p><strong>UIKit 建立在 Core Animation 基础之上，在 Core Animation 之下是 OpenGL ES 和 Core Graphics，分别对应 GPU 和 CPU。</strong></p>
-</li>
-</ul>
-<p><img src="https://upload-images.jianshu.io/upload_images/201701-e511da597e5f480b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
-<p>​              </p>
-<h3 id="二、Core-Animation-Pipeline（流水线）"><a href="#二、Core-Animation-Pipeline（流水线）" class="headerlink" title="二、Core Animation Pipeline（流水线）"></a>二、Core Animation Pipeline（流水线）</h3><p><img src="https://upload-images.jianshu.io/upload_images/201701-b91953f039c0ddf6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
-<p>Core Animation的<strong>绘制和渲染</strong>是通过<strong>Core Animation Pipeline</strong>实现，它以流水线的形式进行渲染，具体分为四个步骤：</p>
-<h4 id="1）Commit-Transaction"><a href="#1）Commit-Transaction" class="headerlink" title="1）Commit Transaction"></a>1）Commit Transaction</h4><p>​      具体可以细分为四个阶段</p>
-<ul>
-<li><ul>
-<li><strong>Layout</strong>: 构建视图层级，设置图层属性（如位置，背景色，边框等）</li>
-</ul>
-</li>
-<li><ul>
-<li><strong>Display</strong>: 图层的寄宿图片被绘制的阶段。绘制有可能涉及你的-drawRect:和-drawLayer:inContext:方法的调用路径。</li>
-</ul>
-</li>
-<li><ul>
-<li><strong>Prepare</strong>: 这是Core Animation准备发送动画数据到渲染服务的阶段。这同时也是Core Animation将要执行一些别的事务例如解码动画过程中将要显示的图片的时间点。</li>
-</ul>
-</li>
-<li><ul>
-<li><strong>Commit</strong>: 这是最后的阶段，Core Animation打包所有图层和动画属性，然后通过IPC（内部处理通信）发送到渲染服务进行显示。</li>
-</ul>
-</li>
-</ul>
-<h4 id="2）Render-Server"><a href="#2）Render-Server" class="headerlink" title="2）Render Server"></a>2）Render Server</h4><p>​    负责渲染工作，会解析上一步Commit Transaction中提交的信息并<strong>反序列化成渲染树</strong>（render tree)，随后根据layer的各种属性生成绘制指令，并在下一次VSync(垂直同步)信号到来时调用OpenGL进行渲染。</p>
-<h4 id="3）GPU"><a href="#3）GPU" class="headerlink" title="3）GPU"></a>3）GPU</h4><ul>
-<li>GPU会等待显示器的VSync信号发出后才进行OpenGL渲染管线，将3D几何数据转化成2D的像素图像和光栅处理，随后进行新的一帧的渲染，并将其输出到缓冲区。</li>
-</ul>
-<h4 id="4）Display"><a href="#4）Display" class="headerlink" title="4）Display"></a>4）Display</h4><ul>
-<li>从缓冲区中取出画面，并输出到屏幕上</li>
-</ul>
-<p><strong>说明1</strong>：开发者真正能做的，只是在<strong>Layout</strong>(布局)<strong>和Display</strong>(显示)环节</p>
-<p><strong>说明2</strong>：</p>
-<ul>
-<li><p>某个视图的图层属性所做的修改，都是在当前Runloop结束之前，Core Animation才将修改提交；</p>
-</li>
-<li><p>因为Core Animation的Commit Transaction是在主线程完成的，虽然Core Animation也支持异步渲染，但是UIKit就是把这些个事情放在主线程做。</p>
-</li>
-</ul>
-<blockquote>
-<p>VSync（vertical sync）是指垂直同步，在玩游戏的时候在设置的时候应该会看见过这个选项，这个机制能够让显卡和显示器保持在一个相同的刷新率从而避免画面撕裂。在iOS中，屏幕具有60Hz的刷新率，这意味着它每秒需要显示60张不同的图片（帧），但GPU并没有一个确定的刷新率，在某些时候GPU可能被要求更强力的数据输出来确保渲染能力，这时候他们可能比屏幕刷新率（60Hz）更快，就会导致屏幕不能完整的渲染所有GPU给他的数据，因为它不够快，屏幕的上一帧还没渲染完，下一帧就已经到来了，这就导致画面的撕裂。</p>
-<p>这个时候我们就要引入VSync了，简单来说它就是让显卡保持他的输出速率不高于屏幕的刷新率，启用了VSync后，GPU不再会给你可怜的60Hz屏幕每秒发送100帧了，它会增加每一帧的发送间隔，确保显示器能够有充足的时间去处理每一帧。</p>
-</blockquote>
-<h3 id="三、UIKit"><a href="#三、UIKit" class="headerlink" title="三、UIKit"></a>三、UIKit</h3><h4 id="1、UIKit不是线程安全的"><a href="#1、UIKit不是线程安全的" class="headerlink" title="1、UIKit不是线程安全的"></a>1、UIKit不是线程安全的</h4><ul>
-<li>UIKit中，很多类中大部分的属性都被修饰为<strong>nonatomic</strong>，这意味着它们不能在多线程的环境下工作，而对于UIKit这样一个庞大的框架，将其所有属性都设计为线程安全是不现实的，这可不仅仅是简单的将nonatomic改成atomic或者是加锁解锁的操作，还涉及到很多的方面：</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1) 假设能够异步设置view的属性，那我们究竟是希望这些改动能够同时生效，还是按照各自runloop的进度去改变这个view的属性呢？</span><br><span class="line"></span><br><span class="line">2) 假设UITableView在其他线程去移除了一个cell，而在另一个线程却对这个cell所在的index进行一些操作，这时候可能就会引发crash。</span><br><span class="line"></span><br><span class="line">3) 如果在后台线程移除了一个view，这个时候runloop周期还没有完结，用户在主线程点击了这个“将要”消失的view，那么究竟该不该响应事件？在哪条线程进行响应？</span><br></pre></td></tr></table></figure>
-<p> <strong>总结</strong>：</p>
-<ul>
-<li><p>将UIKit设置为线程安全并不能带来太多便利，也不会提升太多的性能表现，甚至会因为加锁解锁而耗费大量的时间。</p>
-</li>
-<li><p>事实上并发编程也没有因为UIKit是线程不安全而变得困难，我们所需要做的只是要确保UI操作在主线程进行就可以了。</p>
-</li>
-</ul>
-<p>2、UIKit为什么选择主线程</p>
-<ul>
-<li>UIApplication在<strong>主线程</strong>所初始化的Runloop我们称为<strong>Main Runloop</strong>，它负责处理app存活期间的大部分事件，如<strong>用户交互</strong>等，它一直处于不断处理事件和休眠的循环之中，以确保能尽快的将用户事件传递给GPU进行渲染，使用户行为能够得到响应，画面之所以能够得到不断刷新也是因为Main Runloop在驱动着。</li>
-</ul>
-<ul>
-<li>而每一个<strong>view的变化的修改并不是立刻变化，相反的会在当前RunLoop的结束的时候统一进行重绘</strong>，这样设计的目的是为了能够在一个Runloop里面处理好所有需要变化的view，包括resize、hide、reposition等等，所有view的改变都能在同一时间生效，这样能够更高效的处理绘制，这个机制被称为<strong>绘图循环（View Drawing Cycle</strong>)。</li>
-</ul>
-<ul>
-<li><strong>如果我们的UIKit并不是在主线程，所以Main Runloop中的事件需要跨线程进行传输，这样会导致显示与用户事件并不同步；</strong></li>
-</ul>
-<ul>
-<li>这是因为点击等事件是由系统传递给UIApplication中，并在Main Runloop中进行处理与响应，但是由于UI在后台线程中进行处理，所以他跟事件响应并不同步。即使在UI所在的后台线程也自己维护了一个Runloop，在Runloop结束时候进行渲染。</li>
-</ul>
-<ul>
-<li>UI操作涉及到渲染访问各种View对象的属性，如果异步操作下会存在读写问题，而为其加锁则会耗费大量资源并拖慢运行速度。另一方面因为整个程序的起点UIApplication是在主线程进行初始化，所有的用户事件都是在主线程上进行传递（如点击、拖动），所以view只能在主线程上才能对事件进行响应。而在渲染方面由于图像的渲染需要以60帧的刷新率在屏幕上 同时 更新，在非主线程异步化的情况下无法确定这个处理过程能够实现同步更新。</li>
-</ul>
-<p>3、其他</p>
-<ul>
-<li>AsyncDisplayKit（现命名为Texture，建立在UIKit之上的iOS框架简述如下：</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Texture的基本单位就是node。 **ASDisplayNode**是一个抽象UIView，j就想UIView是一个抽象CALayer。不同于只能在主线程上使用的视图，nodes是线程安全的：您可以在后台线程上并行实例化和配置它们的整个层次结构。</span><br><span class="line"></span><br><span class="line">为了保持其用户界面的流畅和响应，您的应用程序应该以每秒60帧的速度呈现 - iOS上的黄金标准。这意味着主线程有一秒钟的时间推动每个帧。这是执行所有布局和绘图代码的16毫秒！并且由于系统开销，您的代码通常在导致帧丢失之前运行不到10毫秒。</span><br><span class="line"></span><br><span class="line">Texture使您可以从主线程移除图像解码，文本大小和渲染以及其他昂贵的UI操作到其它线程，以保持主线程可用于响应用户交互。</span><br></pre></td></tr></table></figure>
-<p><strong>更多参考：</strong></p>
-<p><a href="https://www.jianshu.com/p/cd4b445a6a35" target="_blank" rel="noopener">Texture——保持最复杂的用户界面的流畅和响应</a></p>
-<p><a href="http://www.cocoachina.com/ios/20180209/22243.html" target="_blank" rel="noopener">iOS 开发一定要尝试的 Texture(ASDK)</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2019/03/20/iOS16-system-basic/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="南华coder">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="南华coder的空间">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/20/iOS16-system-basic/" itemprop="url">OSX/iOS 的系统架构</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-20T12:00:13+08:00">
-                2019-03-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS知识小集/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS知识小集</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  710 字
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  3 分
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="一、系统架构"><a href="#一、系统架构" class="headerlink" title="一、系统架构"></a>一、系统架构</h3><p>苹果官方将整个系统大致划分为下述4个层次</p>
-<h4 id="1、-应用层"><a href="#1、-应用层" class="headerlink" title="1、 应用层"></a>1、 应用层</h4><p>包括用户能接触到的图形应用，例如 Spotlight、Aqua、SpringBoard 等</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SpringBoard：iOS的桌面</span><br><span class="line">Spotlight：搜索界面</span><br><span class="line">Aqua：Mac OS X的桌面 ？？</span><br></pre></td></tr></table></figure>
-<h4 id="2、应用框架层"><a href="#2、应用框架层" class="headerlink" title="2、应用框架层"></a>2、应用框架层</h4><p>即开发人员接触到的 Cocoa 等框架</p>
-<h4 id="3、核心框架层"><a href="#3、核心框架层" class="headerlink" title="3、核心框架层"></a>3、核心框架层</h4><p>各种核心框架、OpenGL 等内容</p>
-<h4 id="4、Darwin"><a href="#4、Darwin" class="headerlink" title="4、Darwin"></a>4、Darwin</h4><p>操作系统的核心，包括系统内核、驱动、Shell 等内容，源码可以访问<a href="http://opensource.apple.com" target="_blank" rel="noopener">opensource.apple.com</a> </p>
-<p><img src="https://upload-images.jianshu.io/upload_images/201701-8d4708bdfac3da31.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
-<h3 id="二、Darwin-核心的架构"><a href="#二、Darwin-核心的架构" class="headerlink" title="二、Darwin 核心的架构"></a>二、Darwin 核心的架构</h3><p><img src="https://upload-images.jianshu.io/upload_images/201701-f69c10b12fcdc42f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
-<ul>
-<li><p>XNU是Darwin操作系统的一部分，是操作系统的内核，主要有<strong>Mach</strong>、<strong>BSD</strong>、<strong>IOKit**</strong>,** </p>
-</li>
-<li><p>XNU内核的内环被称作 Mach，其作为一个微内核，仅提供了诸如<strong>处理器调度</strong>、<strong>IPC</strong> (进程间通信)等非常少量的基础服务。 </p>
-</li>
-<li><p>BSD 层可以看作围绕 Mach 层的一个外环，其提供了诸如进程管理、文件系统和网络等功能</p>
-</li>
-<li><p>IOKit 层是为设备驱动提供了一个面向对象(C++)的一个框架。</p>
-</li>
-<li><p><strong>Mach</strong> 本身提供的 API 非常有限，而且苹果也不鼓励使用 Mach 的 API，但是这些API非常基础，如果没有这些API的话，其他任何工作都无法实施。</p>
-</li>
-<li><p>在 Mach 中，所有的东西都是通过自己的对象实现的，<strong>进程、线程和虚拟内存都被称为”对象”。和其他架构不同， Mach 的对象间不能直接调用，只能通过消息传递的方式实现对象间的通信。”消息”是 Mach 中最基础的概念，消息在两个端口 (port) 之间传递，这就是 Mach 的 IPC (进程间通信) 的核心。</strong></p>
-</li>
-</ul>
-<h3 id="三、Mach-消息"><a href="#三、Mach-消息" class="headerlink" title="三、Mach 消息"></a>三、Mach 消息</h3><h4 id="1、消息的定义"><a href="#1、消息的定义" class="headerlink" title="1、消息的定义"></a>1、消息的定义</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">typedef struct &#123;</span><br><span class="line">  mach_msg_header_t header;</span><br><span class="line">  mach_msg_body_t body;</span><br><span class="line">&#125; mach_msg_base_t;</span><br><span class="line">  </span><br><span class="line">typedef struct &#123;</span><br><span class="line">  mach_msg_bits_t msgh_bits;</span><br><span class="line">  mach_msg_size_t msgh_size;</span><br><span class="line">  mach_port_t msgh_remote_port;</span><br><span class="line">  mach_port_t msgh_local_port;</span><br><span class="line">  mach_port_name_t msgh_voucher_port;</span><br><span class="line">  mach_msg_id_t msgh_id;</span><br><span class="line">&#125; mach_msg_header_t;</span><br></pre></td></tr></table></figure>
-<p>一条 Mach 消息实际上就是一个二进制数据包 (BLOB)，其头部定义了当前端口 local_port 和目标端口 remote_port， 发送和接受消息是通过同一个 API 进行的，其 option 标记了消息传递的方向：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mach_msg_return_t mach_msg(</span><br><span class="line">    mach_msg_header_t *msg,</span><br><span class="line">    mach_msg_option_t option,</span><br><span class="line">    mach_msg_size_t send_size,</span><br><span class="line">    mach_msg_size_t rcv_size,</span><br><span class="line">    mach_port_name_t rcv_name,</span><br><span class="line">    mach_msg_timeout_t timeout,</span><br><span class="line">    mach_port_name_t notify);</span><br></pre></td></tr></table></figure>
-<h4 id="2、消息发送和接收"><a href="#2、消息发送和接收" class="headerlink" title="2、消息发送和接收"></a>2、消息发送和接收</h4><p>为了实现消息的<strong>发送</strong>和<strong>接收</strong>，mach_msg() 函数实际上是调用了一个 Mach 陷阱 (trap)，即函数<strong>mach_msg_trap</strong>()，trap这个概念在 Mach 中等同于系统调用。当你在用户态调用 mach_msg_trap() 时会触发陷阱机制，切换到内核态；内核态中内核实现的 mach_msg() 函数会完成实际的工作，如下图：</p>
-<p><img src="https://upload-images.jianshu.io/upload_images/201701-09914a1f3cdd0484.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
-<ul>
-<li>RunLoop 的核心就是一个 mach_msg()，RunLoop 调用这个函数去接收消息，<strong>如果没有别人发送 port 消息过来，内核会将线程置于等待状态</strong>。</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2019/03/13/iOS15-pic-decode/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="南华coder">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="南华coder的空间">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/13/iOS15-pic-decode/" itemprop="url">浅谈图片解码</a></h1>
+                <a class="post-title-link" href="/2019/03/13/iOS-PicDecode/" itemprop="url">图片解码小记</a></h1>
         
 
         <div class="post-meta">
@@ -767,8 +308,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS知识小集/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS知识小集</span>
+                  <a href="/categories/iOS基础/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS基础</span>
                   </a>
                 </span>
 
@@ -798,7 +339,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  2,345 字
+                  2,325 字
                 </span>
               
 
@@ -940,7 +481,7 @@
 <li><p>Image/IO是Appple提供的<strong>图片编码解码库，使用简单，性能也有保证，</strong> 但是对于不支持的格式如webp，编解码是无能为力。</p>
 </li>
 </ul>
-<h3 id="四、子线程解码方案"><a href="#四、子线程解码方案" class="headerlink" title="四、子线程解码方案"></a>四、子线程解码方案</h3><h5 id="1、空间换时间"><a href="#1、空间换时间" class="headerlink" title="1、空间换时间"></a>1、空间换时间</h5><ul>
+<h4 id="四、子线程解码方案"><a href="#四、子线程解码方案" class="headerlink" title="四、子线程解码方案"></a>四、子线程解码方案</h4><h5 id="1、空间换时间"><a href="#1、空间换时间" class="headerlink" title="1、空间换时间"></a>1、空间换时间</h5><ul>
 <li><p>通过CGContext创建一个位图画布 <strong>CGBitmapContextCreate</strong></p>
 </li>
 <li><p>通过<strong>CGContextDrawImage</strong>绘制位图，CGContextDrawImage在执行过程中会触发Image/IO进行解码并分配Bitmap内存。得到的产物用来真正产出一个CGImage-based的UIImage，交由UIImageView渲染。</p>
@@ -969,10 +510,7 @@
 </li>
 <li><p>图片编解中遇到的图像方面的知识</p>
 </li>
-<li><p>Core Animation的深入</p>
-</li>
 </ul>
-<p><a href="https://mp.weixin.qq.com/s/HVpX6yie4Cas-d6nkt9k6Q" target="_blank" rel="noopener">探讨iOS 中图片的解压缩到渲染过程</a></p>
 
           
         
@@ -1021,7 +559,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/11/30/2018-11-30-tl2/">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/11/30/Recommend02/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="南华coder">
@@ -1040,7 +578,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/11/30/2018-11-30-tl2/" itemprop="url">推荐迷雾(一):话说ABTest实验</a></h1>
+                <a class="post-title-link" href="/2018/11/30/Recommend02/" itemprop="url">推荐迷雾(一):话说ABTest实验</a></h1>
         
 
         <div class="post-meta">
@@ -1250,7 +788,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/11/21/2018-11-21-tj1/">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/11/21/Recommend01/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="南华coder">
@@ -1269,7 +807,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/11/21/2018-11-21-tj1/" itemprop="url">推荐迷雾(一):再见推荐系统</a></h1>
+                <a class="post-title-link" href="/2018/11/21/Recommend01/" itemprop="url">推荐迷雾(一):再见推荐系统</a></h1>
         
 
         <div class="post-meta">
@@ -1376,7 +914,7 @@
           
             <h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><p><em>花非花，雾非雾。夜半来，天明去。来如春梦不多时，去似朝云无觅处。</em></p>
 <p>​    用白居易的诗作为《推荐迷雾》系列的开始，本人非推荐算法工程师，但是工作中也和算法打过些交道，也曾于13年粗读过项亮博士的《推荐系统实战》，这本12年出版的“旧”书如今再读起来，更多一番体会；虽然近些年，机器学习尤其是深度学习给传统推荐学习带来新的变化，但是这些新兴的推荐技术依旧有传统的推荐算法模型的影子。</p>
-<p><img src="/nanhuacoder.com/2018/11/21/2018-11-21-tj1/jianghu.jpeg" alt="江湖"></p>
+<p><img src="/nanhuacoder.com/2018/11/21/Recommend01/jianghu.jpeg" alt="江湖"></p>
 <h3 id="一、开篇"><a href="#一、开篇" class="headerlink" title="一、开篇"></a>一、开篇</h3><ul>
 <li>推荐产生的背景：信息过载，用户需求不确定</li>
 <li>推荐三步骤：召回，预估和排序</li>
@@ -1436,7 +974,7 @@
 <li>Bandit算法提供了一种有效的解决办法；其中<strong>冷启动</strong>的本质是：推荐系统没有历史数据，无法预测用户偏好；可分为用户冷启动，物品冷启动和系统冷启动。<strong>EE问题</strong>是指，是选择现在不确定的一些方案，但未来可能会有高收益的方案；还是选择现在可能最佳的方案；本质是一个选择的问题。</li>
 <li>Bandit 算法来源于历史悠久的赌博学，它要解决这样的问题：一个赌徒去摇老虎机，赌场中有的老虎机一模一样，但是每个老虎机吐钱的概率不一样，他不知道每个老虎机吐钱的概率分布是什么，那么每次该选择哪个老虎机可以做到最大化收益呢？这就是<strong>多臂赌博机问题</strong>（Multi-armed bandit problem, K-armed bandit problem, MAB）</li>
 </ul>
-<p><img src="/nanhuacoder.com/2018/11/21/2018-11-21-tj1/mab.png" alt="MAB问题"></p>
+<p><img src="/nanhuacoder.com/2018/11/21/Recommend01/mab.png" alt="MAB问题"></p>
 <ul>
 <li><p>假设我们已经经过一些试验，得到了当前每个老虎机的吐钱的概率，如果想要获得最大的收益，我们会一直摇哪个吐钱概率最高的老虎机，这就是Exploitation。但是，当前获得的信息并不是老虎机吐钱的真实概率，可能还有更好的老虎机吐钱概率更高，因此还需要进一步探索，这就是Exploration问题。</p>
 </li>
@@ -1482,7 +1020,7 @@
 <li>先选一个(0,1)之间较小的值，作为Epsilon，然后每次以1-epsilon的概率选取当前收益最大的臂，以epsilon的随机概率选取一个臂。（后期不需要较大探索，epsilon需要衰减）</li>
 <li>Epsilon可以控制探索和利用的程度，Epsilon越接近0，在探索上就越保守；Epsilon越接近1，在探索上就越激进。</li>
 </ul>
-<p><img src="/nanhuacoder.com/2018/11/21/2018-11-21-tj1/bandit-performance.png" alt="Bandit算法算法模拟试验效果"></p>
+<p><img src="/nanhuacoder.com/2018/11/21/Recommend01/bandit-performance.png" alt="Bandit算法算法模拟试验效果"></p>
 <p><strong>总结</strong>：UCB算法和汤普森采样算法效果更好些。</p>
 <h3 id="五、Bandit算法的工程实现"><a href="#五、Bandit算法的工程实现" class="headerlink" title="五、Bandit算法的工程实现"></a>五、Bandit算法的工程实现</h3><p>​    上面介绍的<strong>朴素Bandit、汤普森采样、UCB和Epsilon贪婪算法</strong>都是经典的Bandit算法，在工程中很少使用；实际中，我们采用的是上下文Bandit算法，比较常见的是LinUCB算法和COFIBA算法</p>
 <h4 id="1、LinUCB"><a href="#1、LinUCB" class="headerlink" title="1、LinUCB"></a>1、LinUCB</h4><p><strong>概述</strong>：</p>
@@ -1587,7 +1125,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/11/20/2018-11-20-dtree/">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/11/20/ML02-DTree/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="南华coder">
@@ -1606,7 +1144,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/11/20/2018-11-20-dtree/" itemprop="url">机器学习中的树模型</a></h1>
+                <a class="post-title-link" href="/2018/11/20/ML02-DTree/" itemprop="url">机器学习中的树模型</a></h1>
         
 
         <div class="post-meta">
@@ -1830,7 +1368,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/11/17/2018-11-17-ml/">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/11/17/ML01/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="南华coder">
@@ -1849,7 +1387,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/11/17/2018-11-17-ml/" itemprop="url">机器学习杂谈</a></h1>
+                <a class="post-title-link" href="/2018/11/17/ML01/" itemprop="url">机器学习杂谈</a></h1>
         
 
         <div class="post-meta">
@@ -2052,7 +1590,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/02/28/iOS11-jscore/">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/03/24/iOS-iOSLock/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="南华coder">
@@ -2071,7 +1609,822 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/02/28/iOS11-jscore/" itemprop="url">浅谈JavaScriptCore</a></h1>
+                <a class="post-title-link" href="/2018/03/24/iOS-iOSLock/" itemprop="url">多线程锁小记</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-24T18:21:40+08:00">
+                2018-03-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS基础/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,439 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  9 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4><p>在并发编程中，<strong>锁是一种同步机制</strong>，用于限制多线程环境中对资源的访问。 ibireme 在《<a href="https://link.jianshu.com/?t=https://blog.ibireme.com/2016/01/16/spinlock_is_unsafe_in_ios/" target="_blank" rel="noopener">不再安全的 OSSpinLock</a>》中的一张图片说明加解锁的效率：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/201701-514c86e036c415bc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="lock"></p>
+<p><strong>说明</strong>：锁的效率并不值的是加解锁的速度，而是加解锁操作在执行时的复杂程度。</p>
+<h5 id="1、OSSpinLock-自旋锁"><a href="#1、OSSpinLock-自旋锁" class="headerlink" title="1、OSSpinLock(自旋锁)"></a>1、OSSpinLock(自旋锁)</h5><ul>
+<li><p>OSSpinLock存在优先级反转的问题，在iOS10之后已经废弃，使用os_unfair_lock替代(中间有段时间用了pthread_mutex ), os_unfair_lock 是iOS 10.0新推出的锁，用于解决OSSpinLock优先级反转问题。</p>
+</li>
+<li><p>自旋锁会忙等，不会进入睡眠状态</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">OSSpinLock oslock = OS_SPINLOCK_INIT;</span><br><span class="line">OSSpinLockLock(&amp;oslock);</span><br><span class="line">OSSpinLockUnlock(&amp;oslock);</span><br></pre></td></tr></table></figure>
+<h5 id="2、pthread-mutex-互斥锁"><a href="#2、pthread-mutex-互斥锁" class="headerlink" title="2、pthread_mutex (互斥锁)"></a>2、pthread_mutex (互斥锁)</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">pthread_mutex_t _lock;</span><br><span class="line">//初始化</span><br><span class="line">pthread_mutex_init(&amp;pLock, NULL);</span><br><span class="line">//加锁和释放锁</span><br><span class="line">pthread_mutex_lock(&amp;pLock);</span><br><span class="line">pthread_mutex_unlock(&amp;pLock);</span><br><span class="line">//销毁</span><br><span class="line">pthread_mutex_destroy(&amp;_lock);</span><br></pre></td></tr></table></figure>
+<p><strong>说明1</strong>：加锁后，加锁后同一个时间点只能有一个线程能访问，后面的线程需要排队，并且 lock 和 unlock 是对应出现的，**同一线程多次 lock 是不允许的。</p>
+<p><strong>说明2</strong>：一般情况下，一个线程只能申请一次锁，也只能在获得锁的情况下才能释放锁，多次申请锁或释放未获得的锁都会导致崩溃(死锁)。如果需要在同一线程多次获取一个锁，就需要递归锁。</p>
+<p><strong>说明3</strong>：对于互斥锁，假设在已经获得锁的情况下再次申请锁，线程会<strong>因为等待锁的释放而进入睡眠状态</strong>，因此就不可能再释放锁，从而导致死锁。</p>
+<h5 id="3、-pthread-mutex-recursive"><a href="#3、-pthread-mutex-recursive" class="headerlink" title="3、 pthread_mutex(recursive)"></a>3、 pthread_mutex(recursive)</h5><ul>
+<li>同一个线程可以多次获取同一个递归锁，不会产生死锁。</li>
+<li>如果一个线程多次获取同一个非递归锁，则会产生死锁。</li>
+<li>递归锁允许同一个线程在未释放其拥有的锁时反复对该锁进行加锁操作。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objc_sync_enter/objc_sync_exit</span><br></pre></td></tr></table></figure>
+<h5 id="4、NSLock"><a href="#4、NSLock" class="headerlink" title="4、NSLock"></a>4、NSLock</h5><ul>
+<li><p>NSLock 只是在内部封装了一个 <strong>pthread_mutex</strong>，属性为 <strong>PTHREAD_MUTEX_ERRORCHECK</strong>，它会损失一定性能换来错误提示。</p>
+</li>
+<li><p>NSLock 比 pthread_mutex 略慢的原因在于它需要经过方法调用，同时由于缓存的存在，多次方法调用不会对性能产生太大的影响。</p>
+</li>
+</ul>
+<h5 id="5、NSCondition"><a href="#5、NSCondition" class="headerlink" title="5、NSCondition"></a>5、NSCondition</h5><ul>
+<li>NSCondition的底层是通过条件变量(condition variable) <strong>pthread_cond_t</strong> 来实现的。条件变量有点像信号量，提供了线程阻塞与信号机制，因此可以用来阻塞某个线程，并等待某个数据就绪，随后唤醒线程，比如常见的生产者-消费者模式。</li>
+</ul>
+<h5 id="6、NSRecursiveLock"><a href="#6、NSRecursiveLock" class="headerlink" title="6、NSRecursiveLock"></a>6、NSRecursiveLock</h5><ul>
+<li><p>递归锁也是通过 <strong>pthread_mutex_lock</strong> 函数来实现，在函数内部会判断锁的类型，如果显示是递归锁，就允许递归调用，仅仅将一个计数器加一，锁的释放过程也是同理。</p>
+</li>
+<li><p>NSRecursiveLock 与 NSLock 的区别在于内部封装的 <strong>pthread_mutex_t</strong> <strong>对象的类型不同</strong>，前者的类型为 PTHREAD_MUTEX_RECURSIVE。</p>
+</li>
+</ul>
+<h5 id="7、同步锁-synchronized"><a href="#7、同步锁-synchronized" class="headerlink" title="7、同步锁 synchronized"></a>7、同步锁 synchronized</h5><ul>
+<li><p>OC 层面的锁， 主要是通过牺牲性能换来语法上的简洁与可读。</p>
+</li>
+<li><p>@synchronized 后面需要紧跟一个 OC 对象，它实际上是把这个对象当做锁来使用。这是通过一个哈希表来实现的，OC 在底层使用了一个互斥锁的数组(你可以理解为锁池)，通过对对象去哈希值来得到对应的互斥锁。</p>
+</li>
+</ul>
+<h5 id="8、信号量-dispatch-semaphore"><a href="#8、信号量-dispatch-semaphore" class="headerlink" title="8、信号量 dispatch_semaphore"></a>8、信号量 dispatch_semaphore</h5><ul>
+<li>信号量(Semaphore)，有时被称为信号灯，是在多线程环境下使用的一种设施，是可以用来保证两个或多个关键代码段不被并发调用。<strong>在进入一个关键代码段之前，线程必须获取一个信号量；一旦该关键代码段完成了，那么该线程必须释放信号量。其它想进入该关键代码段的线程必须等待直到第一个线程释放信号量</strong></li>
+</ul>
+<h5 id="9、NSConditionLock-条件锁"><a href="#9、NSConditionLock-条件锁" class="headerlink" title="9、NSConditionLock 条件锁"></a>9、NSConditionLock 条件锁</h5><ul>
+<li>NSConditionLock 借助 NSCondition 来实现，它的本质就是一个生产者-消费者模型。“条件被满足”可以理解为生产者提供了新的内容。NSConditionLock 的内部持有一个 NSCondition 对象，以及 _condition_value 属性，在初始化时就会对这个属性进行赋值:</li>
+</ul>
+<h4 id="二、OSSpinLock为什么不安全"><a href="#二、OSSpinLock为什么不安全" class="headerlink" title="二、OSSpinLock为什么不安全"></a>二、OSSpinLock为什么不安全</h4><h5 id="1、优先级反转的解释-不认可"><a href="#1、优先级反转的解释-不认可" class="headerlink" title="1、优先级反转的解释(不认可)"></a>1、优先级反转的解释(不认可)</h5><ul>
+<li>自旋锁<strong>OSSpinLock</strong>的问题引起大家对<strong>优先级反转</strong>的关注，一般认为是：低优先级线程拿到锁时，高优先级线程进入忙等，消耗太多CPU时间，导致低优先级线程拿不到CPU时间，无法完成任务并释放锁，致使高优先级线程不能被执行（<strong>这个理解是不准确的</strong>）。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">系统维护了 5 个不同的线程优先级/QoS: background，utility，default，user-initiated，user-interactive。</span><br><span class="line">高优先级线程始终会在低优先级线程前执行，一个线程不会受到比它更低优先级线程的干扰。</span><br><span class="line">这种线程调度算法会产生潜在的优先级反转问题，从而破坏了 spin lock。</span><br><span class="line">具体来说，如果一个低优先级的线程获得锁并访问共享资源，这时一个高优先级的线程也尝试获得这个锁，</span><br><span class="line">它会处于 spin lock 的忙等状态从而占用大量 CPU。此时低优先级线程无法与高优先级线程争夺 CPU 时间，</span><br><span class="line">从而导致任务迟迟完不成、无法释放 lock。</span><br></pre></td></tr></table></figure>
+<p><strong>说明</strong>: 摘自<a href="https://blog.ibireme.com/2016/01/16/spinlock_is_unsafe_in_ios/" target="_blank" rel="noopener">不再安全的 OSSpinLock</a></p>
+<h5 id="2、优先级反转"><a href="#2、优先级反转" class="headerlink" title="2、优先级反转"></a>2、优先级反转</h5><ul>
+<li><p><strong>优先级反转</strong>(Priority Inversion)是 由于多线程共享资源，具有最高优先权的线程被低优先级线程阻塞，反而使具有中优先级的线程先于高优先级的线程执行。（可类推到多进程的优先级反转）</p>
+</li>
+<li><p>产生优先级反转的条件：假设有高优先级的任务线程为<strong>High</strong>、中优先级的任务为<strong>Mid</strong>、低优先级的任务线程为<strong>Low</strong>；优先级是High &gt; Mid &gt; Low; 触发需要满足3个条件</p>
+</li>
+<li><p>High线程要访问一个被Low线程占有的资源，因为得不到，High线程被阻塞；</p>
+</li>
+<li><p>此时，Middle线程启动执行，因为Middle优先级比Low高，导致占有资源的Low线程被挂起，但是Low占用的资源并没有释放；甚至于因为Low的优先级足够低，一直被其他的任务挂起，导致占有的资源一直不能释放，High线程一直无法得到机会执行。</p>
+</li>
+<li><p>High任务因为一直不能获取被Low任务占用的资源，导致比它优先低的任务却可以执行。</p>
+</li>
+</ul>
+<h5 id="3、优先级反转的解决办法"><a href="#3、优先级反转的解决办法" class="headerlink" title="3、优先级反转的解决办法"></a>3、优先级反转的解决办法</h5><p><strong>解决的思路</strong>是：<strong>提高占有资源线程的优先级</strong>，使其可以执行，并在执行完后释放资源；以让其他线程可以获取资源；<strong>常见的解决方法</strong>有2种，<strong>优先级继承</strong>(priority inheritance) 或 <strong>优先级极限</strong>(priority ceilings)。</p>
+<p><strong>1）优先级继承(priority inheritance)</strong></p>
+<ul>
+<li><p>提升<strong>低优先级线程</strong> 的优先级，优先级等于  等待其占有的资源的，最高优先级任务的优先级；</p>
+</li>
+<li><p>换言之，当高优先级任务由于等待资源而被阻塞时，此时资源的拥有者的优先级将会自动被提升。</p>
+</li>
+</ul>
+<p><strong>2）优先级天花板(priority ceilings)</strong></p>
+<ul>
+<li>将申请某资源的线程优先级，提升到可能访问该资源的所有任务中最高优先级任务的优先级。</li>
+</ul>
+<p><strong>说明</strong>： 优先级继承，只有当占有资源的低优先级的任务被阻塞时,才会提高占有资源任务的优先级；而优先级天花板，不论是否发生阻塞,都提升。</p>
+<h5 id="4、OSSpinLock弃用"><a href="#4、OSSpinLock弃用" class="headerlink" title="4、OSSpinLock弃用"></a>4、OSSpinLock弃用</h5><ul>
+<li>在发现OSSpinLock之前，Apple使用OSSpinLock来保证线程安全；发现问题后，将OSSpinLock 替换成了os_unfair_lock（iOS 10之后，中间有段时间用了pthread_mutex） os_unfair_lock 是iOS 10.0新推出的锁，用于解决OSSpinLock优先级反转问题</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 初始化</span><br><span class="line">os_unfair_lock_t unfairLock = &amp;(OS_UNFAIR_LOCK_INIT);</span><br><span class="line">// 加锁</span><br><span class="line">os_unfair_lock_lock(unfairLock);</span><br><span class="line">// 解锁</span><br><span class="line">os_unfair_lock_unlock(unfairLock);</span><br><span class="line">// 尝试加锁</span><br><span class="line">BOOL b = os_unfair_lock_trylock(unfairLock);</span><br></pre></td></tr></table></figure>
+<h4 id="三、其他"><a href="#三、其他" class="headerlink" title="三、其他"></a>三、其他</h4><h5 id="1、属性使用atomic修饰能保证线程安全"><a href="#1、属性使用atomic修饰能保证线程安全" class="headerlink" title="1、属性使用atomic修饰能保证线程安全"></a>1、属性使用atomic修饰能保证线程安全</h5><ul>
+<li><p>不能， atomic修饰的属性，会给setter,getter方法加锁，保证该操作是原子的(nonatomic不会为setter、getter方法加锁), 但不能保证线程安全</p>
+</li>
+<li><p>当使用atomic时，虽然对<strong>属性的读和写是原子性的</strong>，但是仍然可能出现<strong>线程错误：</strong>当线程A进行写操作，这时其他线程的读或者写操作会因为该操作而等待。当A线程的写操作结束后，B线程进行写操作，然后当A线程需要读操作时，却获得了在B线程中的值，<strong>这就破坏了线程安全</strong>，如果有线程C在A线程读操作前<strong>release</strong>了该属性，那么还会导致程序崩溃。所以仅仅使用atomic并不会使得线程安全，我们还要为线程添加lock来确保线程的安全。</p>
+</li>
+</ul>
+<h5 id="2、自旋锁-amp-互斥锁"><a href="#2、自旋锁-amp-互斥锁" class="headerlink" title="2、自旋锁 &amp; 互斥锁"></a>2、自旋锁 &amp; 互斥锁</h5><ul>
+<li><p>线程安全中为了实现<strong>线程阻塞</strong>，一般有两种方案：一种是<strong>让线程处于休眠状态</strong>，此时不会消耗 CPU 资源；另一种方案是<strong>让线程忙等或空转</strong>，此时会消耗一定的 CPU 资源。前者属于互斥，后者属于自旋。</p>
+</li>
+<li><p>自旋在线程加锁的情况下，会一直尝试是否解锁，如果没有解锁，会一直循环判断，如果锁已经放开，则继续执行，不再是空转状态。OSSpinLock 属于自旋锁，Pthread 库中相关的锁，以及 NSLock、@synchronized 等都属于互斥锁。</p>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/03/21/iOS-iOSCoreAniamtion/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/21/iOS-iOSCoreAniamtion/" itemprop="url">Core Animation小记</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-21T15:36:48+08:00">
+                2018-03-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS基础/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  4,430 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  16 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4><h5 id="1、基础"><a href="#1、基础" class="headerlink" title="1、基础"></a>1、基础</h5><ul>
+<li><p>iOS主要的<strong>绘图系统</strong>有UIKit、<strong>Core Animation</strong>、Core Graphics、OpenGL ES和Core Image等。</p>
+</li>
+<li><p>Core Animation并非是做高端动画的库。它是一个用于管理视图排版、合成、渲染以及动画的基础 库，最终的渲染工作是交给Graphics Hardware(GPU)处理。</p>
+</li>
+<li><p><strong>UIKit 建立在 Core Animation 基础之上，在 Core Animation 之下是 OpenGL ES 和 Core Graphics，分别对应 GPU 和 CPU。</strong></p>
+</li>
+</ul>
+<p><img src="https://upload-images.jianshu.io/upload_images/201701-e511da597e5f480b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
+<h5 id="2、图层概念"><a href="#2、图层概念" class="headerlink" title="2、图层概念"></a>2、图层概念</h5><ul>
+<li><p>在Core Animaiton中有个重要的概念，就是<strong>图层</strong>（CALayer)，它不仅可以显示一些内容（如图片，文本或者背景色）、还可以管理子图层，甚至还可以做动画和变换；</p>
+</li>
+<li><p>不同于在UIKit中的视图基类UIView，CALayer并不清楚具体的<em>响应链</em>（<strong>iOS通过视图层级关系用来传送触摸事件的机制），</strong>不能够响应事件，不能处理和用户的交互，但是它依然可以使用<strong>hitTest</strong>来判断是否一个触点在图层的范围之内。</p>
+</li>
+<li><p>每一个UIView都有一个<strong>CALayer实例</strong>，UIView的职责是创建并管理这个图层，以确保当子视图在层级关系中添加或者被移除的时候，他们关联的图层也同样对应在层级关系树当中有相同的操作。</p>
+</li>
+</ul>
+<h5 id="3、图层的意义"><a href="#3、图层的意义" class="headerlink" title="3、图层的意义"></a>3、图层的意义</h5><p>UIView对 CALayer大部分属性做了高级封装，大部分场景下，使用UIView的高级API（比如自动排版，布局和事件处理）就足够了，但是在某些情况下，需要使用到CALayer</p>
+<ul>
+<li><p>开发同时可以在Mac OS上运行的跨平台应用</p>
+</li>
+<li><p>追求更好的性能，使用多种CALayer的子类，如CAShapeLayer、CAGradientLayer和CATextLayer</p>
+</li>
+<li><p>完成一些视觉效果，如<strong>阴影</strong>，<strong>圆角</strong>，<strong>边框</strong>、<strong>3D变换</strong>、<strong>非矩形范围</strong>、<strong>透明遮罩</strong>、<strong>多级非线性动画</strong>等。​             </p>
+</li>
+</ul>
+<h4 id="二、Core-Animation-Pipeline"><a href="#二、Core-Animation-Pipeline" class="headerlink" title="二、Core Animation Pipeline"></a>二、Core Animation Pipeline</h4><p><img src="https://upload-images.jianshu.io/upload_images/201701-b91953f039c0ddf6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
+<p>Core Animation的<strong>绘制和渲染</strong>是通过<strong>Core Animation Pipeline</strong>实现，它以流水线的形式进行渲染，具体分为四个步骤：</p>
+<h5 id="1、Commit-Transaction"><a href="#1、Commit-Transaction" class="headerlink" title="1、Commit Transaction"></a>1、Commit Transaction</h5><p>​      具体可以细分为四个阶段</p>
+<ul>
+<li><p><strong>Layout</strong>: 构建视图层级，设置图层属性（如位置，背景色，边框等）</p>
+</li>
+<li><p><strong>Display</strong>: 图层的寄宿图片被绘制的阶段。绘制有可能涉及你的-drawRect:和-drawLayer:inContext:方法的调用路径。</p>
+</li>
+<li><p><strong>Prepare</strong>: 这是Core Animation准备发送动画数据到渲染服务的阶段。这同时也是Core Animation将要执行一些别的事务例如解码动画过程中将要显示的图片的时间点。</p>
+</li>
+<li><p><strong>Commit</strong>: 这是最后的阶段，Core Animation打包所有图层和动画属性，然后通过IPC（内部处理通信）发送到渲染服务进行显示。</p>
+</li>
+</ul>
+<h5 id="2、Render-Server"><a href="#2、Render-Server" class="headerlink" title="2、Render Server"></a>2、Render Server</h5><p>​    负责渲染工作，会解析上一步Commit Transaction中提交的信息并<strong>反序列化成渲染树</strong>（render tree)，随后根据layer的各种属性生成绘制指令，并在下一次VSync(垂直同步)信号到来时调用OpenGL进行渲染。</p>
+<h5 id="3、GPU"><a href="#3、GPU" class="headerlink" title="3、GPU"></a>3、GPU</h5><ul>
+<li>GPU会等待显示器的VSync信号发出后才进行OpenGL渲染管线，将3D几何数据转化成2D的像素图像和光栅处理，随后进行新的一帧的渲染，并将其输出到缓冲区。</li>
+</ul>
+<h5 id="4、Display"><a href="#4、Display" class="headerlink" title="4、Display"></a>4、Display</h5><ul>
+<li>从缓冲区中取出画面，并输出到屏幕上</li>
+</ul>
+<p><strong>说明1</strong>：开发者真正能做的，只是在<strong>Layout</strong>(布局)<strong>和Display</strong>(显示)环节</p>
+<p><strong>说明2</strong>：</p>
+<ul>
+<li><p>某个视图的图层属性所做的修改，都是在当前Runloop结束之前，Core Animation才将修改提交；</p>
+</li>
+<li><p>因为Core Animation的Commit Transaction是在主线程完成的，虽然Core Animation也支持异步渲染，但是UIKit就是把这些个事情放在主线程做。</p>
+</li>
+</ul>
+<blockquote>
+<p>VSync（vertical sync）是指垂直同步，在玩游戏的时候在设置的时候应该会看见过这个选项，这个机制能够让显卡和显示器保持在一个相同的刷新率从而避免画面撕裂。在iOS中，屏幕具有60Hz的刷新率，这意味着它每秒需要显示60张不同的图片（帧），但GPU并没有一个确定的刷新率，在某些时候GPU可能被要求更强力的数据输出来确保渲染能力，这时候他们可能比屏幕刷新率（60Hz）更快，就会导致屏幕不能完整的渲染所有GPU给他的数据，因为它不够快，屏幕的上一帧还没渲染完，下一帧就已经到来了，这就导致画面的撕裂。</p>
+<p>这个时候我们就要引入VSync了，简单来说它就是让显卡保持他的输出速率不高于屏幕的刷新率，启用了VSync后，GPU不再会给你可怜的60Hz屏幕每秒发送100帧了，它会增加每一帧的发送间隔，确保显示器能够有充足的时间去处理每一帧。</p>
+</blockquote>
+<h4 id="三、CATransaction"><a href="#三、CATransaction" class="headerlink" title="三、CATransaction"></a>三、CATransaction</h4><h5 id="1、概念"><a href="#1、概念" class="headerlink" title="1、概念"></a>1、概念</h5><ul>
+<li><strong>CATransaction</strong>是 Core Animation 中的<strong>事务类</strong>，在iOS中的图层中，图层的每个改变都是事务的一部分，CATransaction可以对多个layer的属性同时进行修改，负责成批地把多个图层树的修改作为 一个原子操作 更新到<strong>渲染树</strong>。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[CATransaction begin];</span><br><span class="line">[CATransaction setCompletionBlock:^&#123;</span><br><span class="line">    //complete block</span><br><span class="line">&#125;];</span><br><span class="line">// do animation</span><br><span class="line">[CATransaction commit];</span><br></pre></td></tr></table></figure>
+<h5 id="2、事务的特性"><a href="#2、事务的特性" class="headerlink" title="2、事务的特性"></a>2、事务的特性</h5><ul>
+<li><p><strong>事务允许嵌套</strong>。但是嵌套在内层的事务不会立即commit，会在最外层的事务结束后统一commit。</p>
+</li>
+<li><p>事务分显式事务和隐式事务两种，如果当前没有显式创建过CATransaction，则系统会<strong>创建一个隐式的CATransaction，</strong>CATransaction会在下一个RunLoop自动提交。</p>
+</li>
+<li><p>CATransaction会在背后独立完成图层树属性计算的工作。系统提供API来显式的使用事务类，并且手动提交给渲染服务进程，这种做法被称作推进过渡。推进过渡会生成一个默认时长为0.25s时长的动画效果来完成属性值的修改。</p>
+</li>
+<li><p>CATransaction可以设置完成块，允许在动画结束之后执行一个完成动作，类似UIView动画的block。</p>
+</li>
+</ul>
+<h5 id="3、CATransaction的使用"><a href="#3、CATransaction的使用" class="headerlink" title="3、CATransaction的使用"></a>3、CATransaction的使用</h5><ul>
+<li><strong>禁止隐式动画</strong></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//1、禁止隐式动画</span><br><span class="line">[CATransaction beign];</span><br><span class="line">[CATransaction setDisableActions:Yes];</span><br><span class="line">[self.tableview reloadData];</span><br><span class="line">[CATransaction commit];</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>设置动画参数</strong></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">//2、设置动画参数</span><br><span class="line">[CATransaction begin];</span><br><span class="line">[CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithControlPoints:.15 :.12 :0 :1]];</span><br><span class="line">[UIView animateWithDuration:.42 delay:0 options:7 animations:^&#123;</span><br><span class="line">     //opearator</span><br><span class="line"> &#125; completion:nil];</span><br><span class="line"> [CATransaction commit];</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>处理动画结束后操作</strong></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">//3、处理动画结束后操作</span><br><span class="line">[CATransaction begin];</span><br><span class="line">[tableView beginUpdates];</span><br><span class="line">[CATransaction setCompletionBlock:^&#123;</span><br><span class="line">    //动画执行结束后更新操作,注意放在动画开始之前</span><br><span class="line">&#125;];  </span><br><span class="line">[self.tableView insertRowsAtIndexPaths:insertIndexPaths withRowAnimation:UITableViewRowAnimationFade];</span><br><span class="line">[tableView endUpdates];</span><br><span class="line">[CATransaction commit];</span><br><span class="line">//说明：beginUpdates和endUpdates可以在改变一些行（row）的高度时自带动画，并且不需要Reload row（不用调用cellForRow，仅仅需要调用heightForRow，这样效率最高）。</span><br></pre></td></tr></table></figure>
+<p><strong>说明</strong>：setCompletionBlock设置在动画之前，才会在动画执行后执行completionBlock。</p>
+<h4 id="四、模型图层和呈现图层"><a href="#四、模型图层和呈现图层" class="headerlink" title="四、模型图层和呈现图层"></a>四、模型图层和呈现图层</h4><p>Core Animation作为一个复合引擎，将不同的视图层组合在屏幕中，并且存储在图层树中，向我们展示了所有屏幕上的一切。整个过程其实经历了模型树–&gt;呈现树–&gt;渲染树，才显示到了屏幕上。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/201701-3dee035ee05bc931.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
+<h5 id="1、模型图层-和-模型树"><a href="#1、模型图层-和-模型树" class="headerlink" title="1、模型图层 和 模型树"></a>1、模型图层 和 模型树</h5><ul>
+<li><p>当设置CALayer的属性，实际上是在定义当前事务结束之后<strong>图层如何显示的**</strong>模型，<strong>在一个图层上调用调用-</strong>modelLayer<strong>会返回self; （在呈现图层(presentationLayer)上调用–</strong>modelLayer<strong>将会返回它正在呈现所依赖的</strong>CALayer**）</p>
+</li>
+<li><p>当你改变一个图层的属性，属性值是立刻更新的，但是<strong>屏幕上没有马上发生改变</strong>，因为设置的属性是代表图层动画结束<strong>(默动画时间0.25s</strong>)后将要达到的外观。(换种方式表达)</p>
+</li>
+<li><p>在当前RunLoop结束后，会将<strong>模型树</strong>相关内容（层次结构、图层属性和动画）序列化，通过IPC传递给专门负责屏幕渲染的渲染进程(Render Server)。渲染进程(Render Server)拿到数据并反序列化出树状结构–<strong>呈现树</strong>。呈现树中的呈现图层实际上是模型图层的复制，但是它的属性值<strong>代表了在任何指定时刻当前外观效果</strong>。</p>
+</li>
+</ul>
+<h5 id="2、呈现图层-和-呈现树"><a href="#2、呈现图层-和-呈现树" class="headerlink" title="2、呈现图层 和 呈现树"></a>2、呈现图层 和 呈现树</h5><ul>
+<li><p>每个图层属性的<strong>显示值</strong>都被存储在一个叫做<strong>呈现图层</strong>的独立图层当中，他可以通过-presentationLayer方法来访问。这个<strong>呈现图层实际上是模型图层的复制</strong>，<strong>但是它的属性值代表了在任何指定时刻当前外观效果</strong>。换句话说，你可以<strong>通过呈现图层的值来获取当前屏幕上真正显示出来的值。</strong></p>
+</li>
+<li><p>呈现树通过<strong>图层树</strong>中<strong>所有图层的呈现图层</strong>所形成。<strong>注意</strong>呈现图层仅仅当图层首次被<em>提交</em>（就是首次第一次在屏幕上显示）的时候创建，所以在那之前调用-presentationLayer将会返回nil。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//打印某layer本身、layer.modelLayer、self.colorLayer.presentationLayer.modelLayer，指的都是同一个CALayer对象</span><br><span class="line">self.colorLayer = &lt;CALayer: 0x600003035540&gt;</span><br><span class="line">self.colorLayer.modelLayer = &lt;CALayer: 0x600003035540&gt;</span><br><span class="line">self.colorLayer.presentationLayer.modelLayer = &lt;CALayer: 0x600003035540&gt;</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/201701-679b066a9523a748.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
+<h5 id="3、呈现图层的应用"><a href="#3、呈现图层的应用" class="headerlink" title="3、呈现图层的应用"></a>3、呈现图层的应用</h5><p>大多数情况下，你不需要直接访问呈现图层，可以通过和模型图层的交互，来让Core Animation更新显示。两种情况下会变得很有用，一个是同步动画，一个是处理用户交互。</p>
+<ul>
+<li><p>如果你在实现一个基于定时器的动画，而不仅仅是基于事务的动画，这个时候<strong>准确地知道在某一时刻图层显示在什么位置就需要用到 呈现图层；</strong></p>
+</li>
+<li><p>让动画的图层响应用户输入，使用<em>呈现</em>图层的-hitTest:来判断指定图层是否被触摸，因为呈现图层代表了用户当前看到的图层位置，而不是当前动画结束之后的位置。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">//...</span><br><span class="line">- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event</span><br><span class="line">&#123;</span><br><span class="line">    //get the touch point</span><br><span class="line">    CGPoint point = [[touches anyObject] locationInView:self.view];</span><br><span class="line">    //check if we&apos;ve tapped the moving layer</span><br><span class="line">    if ([self.colorLayer.presentationLayer hitTest:point]) &#123;</span><br><span class="line">        //randomize the layer background color</span><br><span class="line">        CGFloat red = arc4random() / (CGFloat)INT_MAX;</span><br><span class="line">        CGFloat green = arc4random() / (CGFloat)INT_MAX;</span><br><span class="line">        CGFloat blue = arc4random() / (CGFloat)INT_MAX;</span><br><span class="line">        self.colorLayer.backgroundColor = [UIColor colorWithRed:red green:green blue:blue alpha:1.0].CGColor;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        //otherwise (slowly) move the layer to new position</span><br><span class="line">        [CATransaction begin];</span><br><span class="line">        [CATransaction setAnimationDuration:3.0];</span><br><span class="line">        self.colorLayer.position = point;</span><br><span class="line">        [CATransaction commit];</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p><strong>说明</strong>：如果-hitTest:直接作用于<em>colorLayer</em>而不是呈现图层，在图层移动时候不能修改颜色。</p>
+<h4 id="五、隐式动画"><a href="#五、隐式动画" class="headerlink" title="五、隐式动画"></a>五、隐式动画</h4><h5 id="1、什么是隐式动画"><a href="#1、什么是隐式动画" class="headerlink" title="1、什么是隐式动画"></a>1、什么是隐式动画</h5><ul>
+<li><strong>修改CALayer的部分属性，如</strong>bounds、backgroundColor、position，默认会自动产生一些动画效果(如 缩放、背景色渐变和平移)。</li>
+</ul>
+<h5 id="2、隐式动画的实现"><a href="#2、隐式动画的实现" class="headerlink" title="2、隐式动画的实现"></a>2、隐式动画的实现</h5><p>当CALayer的(可做动画的)属性被改变时候，CALayer通过调用actionForKey:方法来查找对应的action对象(实现了CAAction协议的对象)，查找顺序如下：</p>
+<ul>
+<li><p>如果设置了CALayer的代理，可以通过执行代理方法actionForLayer:forKey:返回一个action对象。该方法可以返回CAAnimation对象、nil、[NSNull null]。其中nil表示结束actionForLayer:forKey:方法的执行，继续搜索下一个阶段，[NSNull null]表示结束搜索，即结束actionForLayer:forKey:，也结束其他阶段，将不会有隐式动画。</p>
+</li>
+<li><p>查找CALayer的actions属性，看key是否有对应的值。</p>
+</li>
+<li><p>查找CALayer style属性</p>
+</li>
+<li><p>调用CALayer的defaultActionForKey方法</p>
+</li>
+<li><p>如果搜索到了最后阶段，layer会执行一个默认的action对象，一般是CABasicAnimation。</p>
+</li>
+</ul>
+<p><strong>说明</strong>：经过一轮完整的搜索后，-<strong>actionForKey</strong>:要么返回空(nil，这种情况下将不会有动画发生），要么是CAAction协议对应的对象，最后CALayer拿这个结果去对先前和当前的值做动画。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@protocol CAAction</span><br><span class="line">- (void)runActionForKey:(NSString *)event object:(id)anObject</span><br><span class="line">    arguments:(nullable NSDictionary *)dict;</span><br><span class="line">@end</span><br></pre></td></tr></table></figure>
+<h5 id="3、UIKit如何禁止掉隐式动画"><a href="#3、UIKit如何禁止掉隐式动画" class="headerlink" title="3、UIKit如何禁止掉隐式动画"></a>3、UIKit如何禁止掉隐式动画</h5><ul>
+<li><p>在Core Animation库中，对CALayer的所有属性（可动画的属性）都做了动画，但是在UIKit中的UIView把它关联的图层的这个特性关闭了</p>
+</li>
+<li><p>每个UIView对它关联的图层都扮演了一个委托，并且提供了-<strong>actionForLayer:forKey</strong>的实现方法。当不在一个动画块的实现中，UIView对所有图层行为返回[NSNull null]，但是在动画block范围之内，它就返回了一个非空值。</p>
+</li>
+<li><p>还可以通过CATransacition的setDisableActions:方法关闭隐式动画。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[CATransaction begin];</span><br><span class="line">[CATransaction setDisableActions:YES];</span><br><span class="line"> //...</span><br><span class="line">[CATransaction commit];</span><br></pre></td></tr></table></figure>
+<p><strong>说明</strong>：设置setDisableActionsYES后，CALayer的actionForKey:方法将不会被调用，隐式动画也不会生成。</p>
+<h5 id="4、actionForKey-和actionForLayer-的区别"><a href="#4、actionForKey-和actionForLayer-的区别" class="headerlink" title="4、actionForKey:和actionForLayer:的区别"></a>4、actionForKey:和actionForLayer:的区别</h5><ul>
+<li><p>两个方法都返回action对象，但是actionForLayer:需要设置代理，由代理实现；</p>
+</li>
+<li><p>如果在<strong>actionForKey :</strong>里返回<code>nil</code>或<code>[NSNull null]</code>，那么搜索会停止，而如果在<strong>actionForLayer:</strong>里返回<code>nil</code>会停止<code>actionForLayer:</code>去搜索下一阶段，返回<code>[NSNull null]</code>才会停止搜索。</p>
+</li>
+</ul>
+<h4 id="六、其他"><a href="#六、其他" class="headerlink" title="六、其他"></a>六、其他</h4><h5 id="1、UIKit不是线程安全的"><a href="#1、UIKit不是线程安全的" class="headerlink" title="1、UIKit不是线程安全的"></a>1、UIKit不是线程安全的</h5><ul>
+<li>UIKit中，很多类中大部分的属性都被修饰为<strong>nonatomic</strong>，这意味着它们不能在多线程的环境下工作，而对于UIKit这样一个庞大的框架，将其所有属性都设计为线程安全是不现实的，这可不仅仅是简单的将nonatomic改成atomic或者是加锁解锁的操作，还涉及到很多的方面：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1) 假设能够异步设置view的属性，那我们究竟是希望这些改动能够同时生效，还是按照各自runloop的进度去改变这个view的属性呢？</span><br><span class="line"></span><br><span class="line">2) 假设UITableView在其他线程去移除了一个cell，而在另一个线程却对这个cell所在的index进行一些操作，这时候可能就会引发crash。</span><br><span class="line"></span><br><span class="line">3) 如果在后台线程移除了一个view，这个时候runloop周期还没有完结，用户在主线程点击了这个“将要”消失的view，那么究竟该不该响应事件？在哪条线程进行响应？</span><br></pre></td></tr></table></figure>
+<p> <strong>总结</strong>：</p>
+<ul>
+<li><p>将UIKit设置为线程安全并不能带来太多便利，也不会提升太多的性能表现，甚至会因为加锁解锁而耗费大量的时间。</p>
+</li>
+<li><p>事实上并发编程也没有因为UIKit是线程不安全而变得困难，我们所需要做的只是要确保UI操作在主线程进行就可以了。</p>
+</li>
+</ul>
+<h5 id="2、UIKit为什么选择主线程"><a href="#2、UIKit为什么选择主线程" class="headerlink" title="2、UIKit为什么选择主线程"></a>2、UIKit为什么选择主线程</h5><ul>
+<li><p>UIApplication在<strong>主线程</strong>所初始化的Runloop我们称为<strong>Main Runloop</strong>，它负责处理app存活期间的大部分事件，如<strong>用户交互</strong>等，它一直处于不断处理事件和休眠的循环之中，以确保能尽快的将用户事件传递给GPU进行渲染，使用户行为能够得到响应，画面之所以能够得到不断刷新也是因为Main Runloop在驱动着。</p>
+</li>
+<li><p>而每一个<strong>view的变化的修改并不是立刻变化，相反的会在当前RunLoop的结束的时候统一进行重绘</strong>，这样设计的目的是为了能够在一个Runloop里面处理好所有需要变化的view，包括resize、hide、reposition等等，所有view的改变都能在同一时间生效，这样能够更高效的处理绘制，这个机制被称为<strong>绘图循环（View Drawing Cycle</strong>)。</p>
+</li>
+<li><p><strong>如果我们的UIKit并不是在主线程，所以Main Runloop中的事件需要跨线程进行传输，这样会导致显示与用户事件并不同步；</strong></p>
+</li>
+<li><p>这是因为点击等事件是由系统传递给UIApplication中，并在Main Runloop中进行处理与响应，但是由于UI在后台线程中进行处理，所以他跟事件响应并不同步。即使在UI所在的后台线程也自己维护了一个Runloop，在Runloop结束时候进行渲染。</p>
+</li>
+<li><p>UI操作涉及到渲染访问各种View对象的属性，如果异步操作下会存在读写问题，而为其加锁则会耗费大量资源并拖慢运行速度。另一方面因为整个程序的起点UIApplication是在主线程进行初始化，所有的用户事件都是在主线程上进行传递（如点击、拖动），所以view只能在主线程上才能对事件进行响应。而在渲染方面由于图像的渲染需要以60帧的刷新率在屏幕上 同时 更新，在非主线程异步化的情况下无法确定这个处理过程能够实现同步更新。</p>
+</li>
+</ul>
+<h5 id="3、AsyncDisplayKit"><a href="#3、AsyncDisplayKit" class="headerlink" title="3、AsyncDisplayKit"></a>3、AsyncDisplayKit</h5><ul>
+<li>AsyncDisplayKit（现命名为Texture，建立在UIKit之上的iOS框架简述如下：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Texture的基本单位就是node。 **ASDisplayNode**是一个抽象UIView，j就想UIView是一个抽象CALayer。不同于只能在主线程上使用的视图，nodes是线程安全的：您可以在后台线程上并行实例化和配置它们的整个层次结构。</span><br><span class="line"></span><br><span class="line">为了保持其用户界面的流畅和响应，您的应用程序应该以每秒60帧的速度呈现 - iOS上的黄金标准。这意味着主线程有一秒钟的时间推动每个帧。这是执行所有布局和绘图代码的16毫秒！并且由于系统开销，您的代码通常在导致帧丢失之前运行不到10毫秒。</span><br><span class="line"></span><br><span class="line">Texture使您可以从主线程移除图像解码，文本大小和渲染以及其他昂贵的UI操作到其它线程，以保持主线程可用于响应用户交互。</span><br></pre></td></tr></table></figure>
+<p><strong>更多参考：</strong></p>
+<p><a href="https://www.jianshu.com/p/cd4b445a6a35" target="_blank" rel="noopener">Texture——保持最复杂的用户界面的流畅和响应</a></p>
+<p><a href="http://www.cocoachina.com/ios/20180209/22243.html" target="_blank" rel="noopener">iOS 开发一定要尝试的 Texture(ASDK)</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/03/20/iOS-SystemBasic/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/20/iOS-SystemBasic/" itemprop="url">OSX/iOS 的系统架构</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-20T12:00:13+08:00">
+                2018-03-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS知识小集/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS知识小集</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  710 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  3 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="一、系统架构"><a href="#一、系统架构" class="headerlink" title="一、系统架构"></a>一、系统架构</h3><p>苹果官方将整个系统大致划分为下述4个层次</p>
+<h4 id="1、-应用层"><a href="#1、-应用层" class="headerlink" title="1、 应用层"></a>1、 应用层</h4><p>包括用户能接触到的图形应用，例如 Spotlight、Aqua、SpringBoard 等</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SpringBoard：iOS的桌面</span><br><span class="line">Spotlight：搜索界面</span><br><span class="line">Aqua：Mac OS X的桌面 ？？</span><br></pre></td></tr></table></figure>
+<h4 id="2、应用框架层"><a href="#2、应用框架层" class="headerlink" title="2、应用框架层"></a>2、应用框架层</h4><p>即开发人员接触到的 Cocoa 等框架</p>
+<h4 id="3、核心框架层"><a href="#3、核心框架层" class="headerlink" title="3、核心框架层"></a>3、核心框架层</h4><p>各种核心框架、OpenGL 等内容</p>
+<h4 id="4、Darwin"><a href="#4、Darwin" class="headerlink" title="4、Darwin"></a>4、Darwin</h4><p>操作系统的核心，包括系统内核、驱动、Shell 等内容，源码可以访问<a href="http://opensource.apple.com" target="_blank" rel="noopener">opensource.apple.com</a> </p>
+<p><img src="https://upload-images.jianshu.io/upload_images/201701-8d4708bdfac3da31.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
+<h3 id="二、Darwin-核心的架构"><a href="#二、Darwin-核心的架构" class="headerlink" title="二、Darwin 核心的架构"></a>二、Darwin 核心的架构</h3><p><img src="https://upload-images.jianshu.io/upload_images/201701-f69c10b12fcdc42f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
+<ul>
+<li><p>XNU是Darwin操作系统的一部分，是操作系统的内核，主要有<strong>Mach</strong>、<strong>BSD</strong>、<strong>IOKit**</strong>,** </p>
+</li>
+<li><p>XNU内核的内环被称作 Mach，其作为一个微内核，仅提供了诸如<strong>处理器调度</strong>、<strong>IPC</strong> (进程间通信)等非常少量的基础服务。 </p>
+</li>
+<li><p>BSD 层可以看作围绕 Mach 层的一个外环，其提供了诸如进程管理、文件系统和网络等功能</p>
+</li>
+<li><p>IOKit 层是为设备驱动提供了一个面向对象(C++)的一个框架。</p>
+</li>
+<li><p><strong>Mach</strong> 本身提供的 API 非常有限，而且苹果也不鼓励使用 Mach 的 API，但是这些API非常基础，如果没有这些API的话，其他任何工作都无法实施。</p>
+</li>
+<li><p>在 Mach 中，所有的东西都是通过自己的对象实现的，<strong>进程、线程和虚拟内存都被称为”对象”。和其他架构不同， Mach 的对象间不能直接调用，只能通过消息传递的方式实现对象间的通信。”消息”是 Mach 中最基础的概念，消息在两个端口 (port) 之间传递，这就是 Mach 的 IPC (进程间通信) 的核心。</strong></p>
+</li>
+</ul>
+<h3 id="三、Mach-消息"><a href="#三、Mach-消息" class="headerlink" title="三、Mach 消息"></a>三、Mach 消息</h3><h4 id="1、消息的定义"><a href="#1、消息的定义" class="headerlink" title="1、消息的定义"></a>1、消息的定义</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">typedef struct &#123;</span><br><span class="line">  mach_msg_header_t header;</span><br><span class="line">  mach_msg_body_t body;</span><br><span class="line">&#125; mach_msg_base_t;</span><br><span class="line">  </span><br><span class="line">typedef struct &#123;</span><br><span class="line">  mach_msg_bits_t msgh_bits;</span><br><span class="line">  mach_msg_size_t msgh_size;</span><br><span class="line">  mach_port_t msgh_remote_port;</span><br><span class="line">  mach_port_t msgh_local_port;</span><br><span class="line">  mach_port_name_t msgh_voucher_port;</span><br><span class="line">  mach_msg_id_t msgh_id;</span><br><span class="line">&#125; mach_msg_header_t;</span><br></pre></td></tr></table></figure>
+<p>一条 Mach 消息实际上就是一个二进制数据包 (BLOB)，其头部定义了当前端口 local_port 和目标端口 remote_port， 发送和接受消息是通过同一个 API 进行的，其 option 标记了消息传递的方向：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mach_msg_return_t mach_msg(</span><br><span class="line">    mach_msg_header_t *msg,</span><br><span class="line">    mach_msg_option_t option,</span><br><span class="line">    mach_msg_size_t send_size,</span><br><span class="line">    mach_msg_size_t rcv_size,</span><br><span class="line">    mach_port_name_t rcv_name,</span><br><span class="line">    mach_msg_timeout_t timeout,</span><br><span class="line">    mach_port_name_t notify);</span><br></pre></td></tr></table></figure>
+<h4 id="2、消息发送和接收"><a href="#2、消息发送和接收" class="headerlink" title="2、消息发送和接收"></a>2、消息发送和接收</h4><p>为了实现消息的<strong>发送</strong>和<strong>接收</strong>，mach_msg() 函数实际上是调用了一个 Mach 陷阱 (trap)，即函数<strong>mach_msg_trap</strong>()，trap这个概念在 Mach 中等同于系统调用。当你在用户态调用 mach_msg_trap() 时会触发陷阱机制，切换到内核态；内核态中内核实现的 mach_msg() 函数会完成实际的工作，如下图：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/201701-09914a1f3cdd0484.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
+<ul>
+<li>RunLoop 的核心就是一个 mach_msg()，RunLoop 调用这个函数去接收消息，<strong>如果没有别人发送 port 消息过来，内核会将线程置于等待状态</strong>。</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/02/28/iOS-iOSJavaScriptCore/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/02/28/iOS-iOSJavaScriptCore/" itemprop="url">JavaScriptCore小记</a></h1>
         
 
         <div class="post-meta">
@@ -2106,8 +2459,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS2018/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS2018</span>
+                  <a href="/categories/iOS基础/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS基础</span>
                   </a>
                 </span>
 
@@ -2137,7 +2490,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  3,038 字
+                  3,587 字
                 </span>
               
 
@@ -2153,7 +2506,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  13 分
+                  15 分
                 </span>
               
             </div>
@@ -2176,9 +2529,7 @@
       
         
           
-            <blockquote>
-<h4 id="一、JavaScriptCore核心类和协议"><a href="#一、JavaScriptCore核心类和协议" class="headerlink" title="一、JavaScriptCore核心类和协议"></a>一、JavaScriptCore核心类和协议</h4></blockquote>
-<ul>
+            <h4 id="一、JavaScriptCore核心类和协议"><a href="#一、JavaScriptCore核心类和协议" class="headerlink" title="一、JavaScriptCore核心类和协议"></a>一、JavaScriptCore核心类和协议</h4><ul>
 <li><p>JavaScriptCore给iOS开发的第一反应是<strong>实现原生应用和Web应用之间通信</strong></p>
 </li>
 <li><p>实际上，JavaScriptCore是iOS 7推出的<strong>JavaScript引擎</strong>，是为了实现OC和JS通信，使用场景不局限于在原生应用和Web应用间使用(<em>虽然这是大部分场景</em>)。</p>
@@ -2189,8 +2540,8 @@
 </ul>
 <h5 id="2、JSValue"><a href="#2、JSValue" class="headerlink" title="2、JSValue"></a>2、JSValue</h5><ul>
 <li><p><strong>代表一个JavaScript实体</strong>，不仅可以表示JavaScript原始类型数据如boolean、Number、String等，还可以表示对象和函数。OC和JS对象之间的转换如下表：</p>
-<pre><code>|Objective-C type  |   JavaScript type|
-|--|--|
+<p> |Objective-C type  |   JavaScript type|</p>
+<pre><code>|--|--|
 |nil | undefined|
 |NSNull       |        null|
 |NSString      |       string|
@@ -2215,9 +2566,7 @@
 <li><p><strong>方法由Objective-C中的类实现</strong>；JavaScriptCore将实现类的对象注入JSContext运行环境中，使用注入的名称调用JS方法就会自动调用这个对象对应的OC方法。</p>
 </li>
 </ul>
-<blockquote>
-<h4 id="二、Objective-C调用JavaScript代码"><a href="#二、Objective-C调用JavaScript代码" class="headerlink" title="二、Objective-C调用JavaScript代码"></a>二、Objective-C调用JavaScript代码</h4></blockquote>
-<h5 id="1、Objective-C直接执行JavaScript代码"><a href="#1、Objective-C直接执行JavaScript代码" class="headerlink" title="1、Objective-C直接执行JavaScript代码"></a>1、Objective-C直接执行JavaScript代码</h5><p><strong>1）JSContext</strong>为JavaScript提供运行的上下文环境，执行JavaScript代码前必须先创建JSContext对象，创建JSContext对象之后，才可以调用JSContext的evaluateScript:方法可以执行JavaScript代码了，如创建变量，做计算，定义方法等。</p>
+<h4 id="二、Objective-C调用JavaScript代码"><a href="#二、Objective-C调用JavaScript代码" class="headerlink" title="二、Objective-C调用JavaScript代码"></a>二、Objective-C调用JavaScript代码</h4><h5 id="1、Objective-C直接执行JavaScript代码"><a href="#1、Objective-C直接执行JavaScript代码" class="headerlink" title="1、Objective-C直接执行JavaScript代码"></a>1、Objective-C直接执行JavaScript代码</h5><p><strong>1）JSContext</strong>为JavaScript提供运行的上下文环境，执行JavaScript代码前必须先创建JSContext对象，创建JSContext对象之后，才可以调用JSContext的evaluateScript:方法可以执行JavaScript代码了，如创建变量，做计算，定义方法等。</p>
 <p><strong>2）JSContext</strong>的创建都是基于<strong>JSVirtualMachine</strong>(<em>JSVirtualMachine为JavaScript的运行提供了底层资源</em>)，默认使用init进行初始化，在其内部会自动创建一个新的JSVirtualMachine对象，然后根据JSVirtualMachine对象初始化JSContext对象。</p>
 <p><strong>3）JSContext的evaluateScript:方法的返回值类型是JSValue</strong>， JSValue 封装了每一个可能的 JavaScript 值，如字符串和数字、数组、对象、方法、甚至错误和特殊的 JavaScript 值诸如 null 和 undefined等。对JSValue调用toString、toBool、toDouble、toArray等等方法把它转换成合适的Objective-C值或对象。</p>
 <p><strong>4） 示例代码如下</strong>。XCode控制台输出12，是调用add(5,7)代码执行后的结果值。</p>
@@ -2267,9 +2616,7 @@ function div(a,b){
     NSLog(@&quot;5 / 7 = %.2lf&quot;,divValue.toDouble);
 }
 </code></pre><p><strong>总结：</strong>通过JSContext和JSValue的配合使用，实现了Objective-C执行JavaScript代码。</p>
-<blockquote>
-<h4 id="三、JavaScript调用Objective-C代码"><a href="#三、JavaScript调用Objective-C代码" class="headerlink" title="三、JavaScript调用Objective-C代码"></a>三、JavaScript调用Objective-C代码</h4></blockquote>
-<p>可以使用两种方式实现JavaScript调用Objective-C代码</p>
+<h4 id="三、JavaScript调用Objective-C代码"><a href="#三、JavaScript调用Objective-C代码" class="headerlink" title="三、JavaScript调用Objective-C代码"></a>三、JavaScript调用Objective-C代码</h4><p>可以使用两种方式实现JavaScript调用Objective-C代码</p>
 <h5 id="方式一：在OC中定义block，使用block代替JS的函数实现"><a href="#方式一：在OC中定义block，使用block代替JS的函数实现" class="headerlink" title="方式一：在OC中定义block，使用block代替JS的函数实现"></a>方式一：在OC中定义<strong>block</strong>，使用block代替JS的函数实现</h5><p>代码如下：</p>
 <p><strong>1、新建一个jscalloc1.js的文件，定义了两个方法，代码如下：</strong></p>
 <pre><code>function sayHello() {
@@ -2368,10 +2715,8 @@ function showAlert() {
     [context[@&quot;showAlert&quot;] callWithArguments:nil];
 }
 </code></pre><p><strong>说明1</strong>：在QSExport中定义暴露给JS的接口，也可以使用宏<strong>JSExportAs</strong>，它将JS函数和OC方法绑定在一起；对于OC中多参数的方法，一般使用<strong>JSExportAs</strong>。</p>
-<blockquote>
-<h4 id="四、循环引问题"><a href="#四、循环引问题" class="headerlink" title="四、循环引问题"></a>四、循环引问题</h4></blockquote>
-<p><strong>说明</strong>：Objective-C的内存管理机制是<strong>引用计数</strong>，JavaScript的内存管理机制是<strong>垃圾回收</strong>。在大部分情况下，JavaScriptCore能做到在这两种内存管理机制之间无缝无错转换，但是有些情况下会发生循环引用。</p>
-<h4 id="1、block直接使用self-context-会发生循环引用"><a href="#1、block直接使用self-context-会发生循环引用" class="headerlink" title="1、block直接使用self.context 会发生循环引用"></a>1、block直接使用self.context 会发生循环引用</h4><p>打破这类循环引用的办法有两种。</p>
+<h4 id="四、循环引问题"><a href="#四、循环引问题" class="headerlink" title="四、循环引问题"></a>四、循环引问题</h4><p><strong>说明</strong>：Objective-C的内存管理机制是<strong>引用计数</strong>，JavaScript的内存管理机制是<strong>垃圾回收</strong>。在大部分情况下，JavaScriptCore能做到在这两种内存管理机制之间无缝无错转换，但是有些情况下会发生循环引用。</p>
+<h5 id="1、block直接使用self-context-会发生循环引用"><a href="#1、block直接使用self-context-会发生循环引用" class="headerlink" title="1、block直接使用self.context 会发生循环引用"></a>1、block直接使用self.context 会发生循环引用</h5><p>打破这类循环引用的办法有两种。</p>
 <p><strong>1）方法1：weakSelf和strongSelf</strong></p>
 <pre><code>[self.context evaluateScript:@&quot;function printAppVersion() { print(getAppVersion())}&quot;];
 self.context[@&quot;print&quot;] = ^(NSString *printStr){
@@ -2406,7 +2751,7 @@ self.context[@&quot;getAppVersion&quot;] = ^{
 
 //执行
 [self.context[@&quot;printAppVersion&quot;] callWithArguments:nil];
-</code></pre><h4 id="2、block中使用外部定义的JSValue对象不会发生循环引用"><a href="#2、block中使用外部定义的JSValue对象不会发生循环引用" class="headerlink" title="2、block中使用外部定义的JSValue对象不会发生循环引用"></a>2、block中使用外部定义的JSValue对象不会发生循环引用</h4><pre><code>[self.context evaluateScript:@&quot;function log() { }&quot;];
+</code></pre><h5 id="2、block中使用外部定义的JSValue对象不会发生循环引用"><a href="#2、block中使用外部定义的JSValue对象不会发生循环引用" class="headerlink" title="2、block中使用外部定义的JSValue对象不会发生循环引用"></a>2、block中使用外部定义的JSValue对象不会发生循环引用</h5><pre><code>[self.context evaluateScript:@&quot;function log() { }&quot;];
 JSValue *value = [JSValue valueWithObject:@&quot;test content&quot; inContext:self.context];
 
 self.context[@&quot;log&quot;] = ^(){
@@ -2415,7 +2760,7 @@ self.context[@&quot;log&quot;] = ^(){
 
 [self.context[@&quot;log&quot;] callWithArguments:nil];
 </code></pre><p><strong>原因：</strong>在block里面直接使用外部定义的JSValue对象不会发生循环引用。以上诉代码为例，JSContext强引用了一个log函数，log函数中又强引用了JSValue对象，JSValue对象强引用JSContext对象和保存的值，JSContext对象引用它管理的所有JSValue对象，这样JSContext和JSValue看上去是循环引用的，然而并不会，<strong>垃圾回收机制会打破这个循环引用</strong>。</p>
-<h4 id="3、OC对象保存JSValue容易引起循环引用"><a href="#3、OC对象保存JSValue容易引起循环引用" class="headerlink" title="3、OC对象保存JSValue容易引起循环引用"></a>3、OC对象保存JSValue容易引起循环引用</h4><p>假设下面这样的场景，定义QSAlertView类，该类中持有successHandler，failureHandler这两个JSValue对象，使用block方式注入JS方法时候</p>
+<h5 id="3、OC对象保存JSValue容易引起循环引用"><a href="#3、OC对象保存JSValue容易引起循环引用" class="headerlink" title="3、OC对象保存JSValue容易引起循环引用"></a>3、OC对象保存JSValue容易引起循环引用</h5><p>假设下面这样的场景，定义QSAlertView类，该类中持有successHandler，failureHandler这两个JSValue对象，使用block方式注入JS方法时候</p>
 <pre><code>self.context[@&quot;presentNativeAlert&quot;] = ^(NSString *title,
                                         NSString *message,
                                         JSValue *successHandler,
@@ -2430,9 +2775,7 @@ self.context[@&quot;log&quot;] = ^(){
 };
 </code></pre><p><strong>说明</strong>：因为JavaScript环境中都是“强引用”（相对Objective-C的概念来说）的，这时JSContext强引用了一个presentNativeAlert函数，这个函数中又强引用了QSAlertView，等于说JSContext强引用了QSAlertView，而QSAlertView为了持有两个回调强引用了successHandler和failureHandler这两个JSValue，而JSValue又是强引用JSContext的，循环引用便出现了。</p>
 <p><strong>打破该类循环引用的方式是：JSMagagedValue对象代替JSValue对象被OC对象持有</strong></p>
-<blockquote>
-<h4 id="五、JSMagagedValue类使用"><a href="#五、JSMagagedValue类使用" class="headerlink" title="五、JSMagagedValue类使用"></a>五、JSMagagedValue类使用</h4></blockquote>
-<p><strong>JSMagagedValue类</strong>：弱引用对象，需要调用JSVirtualMachine的addManagedReference:withOwner:把它添加到JSVirtualMachine对象中，确保使用过程中JSValue不会被释放 </p>
+<h4 id="五、JSMagagedValue类使用"><a href="#五、JSMagagedValue类使用" class="headerlink" title="五、JSMagagedValue类使用"></a>五、JSMagagedValue类使用</h4><p><strong>JSMagagedValue类</strong>：弱引用对象，需要调用JSVirtualMachine的addManagedReference:withOwner:把它添加到JSVirtualMachine对象中，确保使用过程中JSValue不会被释放 </p>
 <pre><code>//QSAlertView.h
 @interface QSAlertView : UIAlertView
 - (instancetype)initWithTitle:(NSString *)title
@@ -2528,8 +2871,27 @@ self.context[@&quot;presentNativeAlert&quot;] = ^(NSString *title,
 <pre><code>- (void)webView:(UIWebView *)webView didCreateJavaScriptContext:(JSContext*) ctx{
       //ctx就是UIWebView对应的JSContext对象
 }
-</code></pre><blockquote>
-<h4 id="七、其他"><a href="#七、其他" class="headerlink" title="七、其他"></a>七、其他</h4></blockquote>
+</code></pre><h4 id="七、其他"><a href="#七、其他" class="headerlink" title="七、其他"></a>七、其他</h4><h5 id="1、JS调用OC"><a href="#1、JS调用OC" class="headerlink" title="1、JS调用OC"></a>1、JS调用OC</h5><ul>
+<li>通过 JSCore 中的 block</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//在 JS 执⾏行行环境中添加⼀一个 _OC_catch 的 block，那么在 JS 代码中就可以直接调⽤用 _OC_catch 这 个函数，当在 JS 中调⽤用 _OC_catch 这个函数后，我们刚才注册的 block 就会被执行。也就是通过 JS 成功的调⽤了 OC 代码。</span><br><span class="line">context[@&quot;_OC_catch&quot;] = ^(JSValue *msg, JSValue *stack) &#123;</span><br><span class="line"> </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>通过 JSCore 中的 JSExport</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">JSExport 可以导出 Objective-C 的属性、实例方法、类方法和初始化⽅方法到 JS 环境，这样就可 以通过 JS 代码直接调⽤用 Objective-C 。通过 JSExport 不仅可以导出⾃自定义类的方法、属性，也可以导出已有类的⽅方法、属性。在导出过程中，类的方法名会被转换成 JS 类型命名，第二个参数的第一个字⺟会被大写，比如- (void)addX:(int)x andY:(int)y;被转为addXAndY(x, y)。除此，JSExport还可以导出已有类的⽅方法、属性。</span><br></pre></td></tr></table></figure>
+<ul>
+<li>通过拦截 URL</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">通过拦截 URL，这种方式是 Web 端通过某种方式发送 URLScheme 请求，之后 Native 拦截到请求并根据URL SCHEME(包括所带的参数)进行相关操作。类似于通过 SCHEME 唤起APP。这种方式的缺点是 **url 长度有隐患**，并且**创建请求需要一定的耗时**，比注入 API 的方式调用同样的功能。耗时会比较长。所以还是更推荐使用注入 API 的方式。</span><br></pre></td></tr></table></figure>
+<h5 id="2、OC-调-JS"><a href="#2、OC-调-JS" class="headerlink" title="2、OC 调 JS"></a>2、OC 调 JS</h5><ul>
+<li>UIWebview/WKWebview</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">通过 UIWebView 来获取 JSContext ，这样直接通过获取到 context 来执⾏行行 JS 代码。</span><br><span class="line">//通过 UIWebView 获取 context</span><br><span class="line">JSContext *context = [_webView</span><br><span class="line">valueForKeyPath:@&quot;documentView.webView.mainFrame.JSContext&quot;]; // 要执行的 JS 代码，定义一个 add 函数并执⾏行行NSString *addjs = @&quot;function add(a, b) &#123;return a + b;&#125;;add(1,3)&quot;;// sumValue 为执⾏行行后的结果</span><br><span class="line">JSValue *sumValue = [self.context evaluateScript:addjs];</span><br><span class="line">//WKWebView 没有提供获取 JSContext 的方法，但是它提供了执行 JS 的方法 evaluateJS: ，通过下面方法来执行 JS 代码。</span><br></pre></td></tr></table></figure>
+<ul>
+<li>JSCore </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// 要执行的 JS 代码，定义一个 add 函数并执⾏行行</span><br><span class="line">NSString *addjs = @&quot;function add(a, b) &#123;return a + b;&#125;;add(1,3)&quot;;// sumValue 为执⾏行行后的结果</span><br><span class="line">JSValue *sumValue = [self.context evaluateScript:addjs]</span><br></pre></td></tr></table></figure>
+<p>3、其他</p>
 <ul>
 <li><p>之前的笔记整理，主要介绍JavaScriptCore的使用，为后续JavaScriptCore深入使用做准备。</p>
 </li>
@@ -2586,7 +2948,7 @@ self.context[@&quot;presentNativeAlert&quot;] = ^(NSString *title,
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/02/06/iOS10-runtime/">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/02/24/iOS-IGListKit/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="南华coder">
@@ -2605,7 +2967,7 @@ self.context[@&quot;presentNativeAlert&quot;] = ^(NSString *title,
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/02/06/iOS10-runtime/" itemprop="url">浅谈Runtime</a></h1>
+                <a class="post-title-link" href="/2018/02/24/iOS-IGListKit/" itemprop="url">IGListKit</a></h1>
         
 
         <div class="post-meta">
@@ -2617,8 +2979,8 @@ self.context[@&quot;presentNativeAlert&quot;] = ^(NSString *title,
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-06T22:53:28+08:00">
-                2018-02-06
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-24T21:43:57+08:00">
+                2018-02-24
               </time>
             
 
@@ -2640,8 +3002,8 @@ self.context[@&quot;presentNativeAlert&quot;] = ^(NSString *title,
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS2018/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS2018</span>
+                  <a href="/categories/iOS第三方库/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS第三方库</span>
                   </a>
                 </span>
 
@@ -2671,7 +3033,7 @@ self.context[@&quot;presentNativeAlert&quot;] = ^(NSString *title,
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  2,517 字
+                  1,010 字
                 </span>
               
 
@@ -2687,7 +3049,7 @@ self.context[@&quot;presentNativeAlert&quot;] = ^(NSString *title,
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  9 分
+                  4 分
                 </span>
               
             </div>
@@ -2710,605 +3072,60 @@ self.context[@&quot;presentNativeAlert&quot;] = ^(NSString *title,
       
         
           
-            <p>Objective-C利用Runtime库(底层的 C 语言 API)赋予了语言的动态特性。</p>
-<blockquote>
-<h4 id="一、Runtime基石：Objective-C对象模型"><a href="#一、Runtime基石：Objective-C对象模型" class="headerlink" title="一、Runtime基石：Objective-C对象模型"></a>一、Runtime基石：Objective-C对象模型</h4></blockquote>
-<h5 id="1、对象"><a href="#1、对象" class="headerlink" title="1、对象"></a>1、对象</h5><ul>
-<li><p>每一个对象都是<strong>类的实例</strong>, 类中保存<strong>对象的方法列表</strong>；当一个对象方法被调用时，类会首先查找它本身是否有该方法的实现，如果没有，则会向它的父类查找该方法，直到NSObject(根类)；</p>
+            <h4 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h4><h5 id="1、基础"><a href="#1、基础" class="headerlink" title="1、基础"></a>1、基础</h5><ul>
+<li><p><strong>IGListKit</strong>是由 Instagram 开发的应用在自身 App 上的一个 <strong>UI 组件库</strong>。它基于UICollectionView的框架，使用<strong>数据驱动</strong>，旨在创造一个更快更灵活的列表控件。</p>
 </li>
-<li><p>类是<strong>元类 (metaclass) 的实例</strong>；元类保存<strong>类方法列表</strong>；当一个类方法被调用时，元类会首先查找它本身是否有该类方法的实现，如果没有，则会向它的父类查找该方法，直到NSObject(根类)；</p>
+<li><p><strong>IGListKit的核心点是：</strong>从Model 变化中计算出 IndexPath 变化，也就是 <strong>Diff</strong> 算法，这样才好 batch updates。</p>
 </li>
 </ul>
-<h5 id="2、isa指针"><a href="#2、isa指针" class="headerlink" title="2、isa指针"></a>2、isa指针</h5><ul>
-<li><p>对象的<strong>isa指针</strong>指向所属的类，类的<strong>isa指针</strong>指向所属的元类；所有的元类的 <strong>isa指针</strong>都会指向一个根元类 (root metaclass)。根元类的 <strong>isa指针</strong>指向自己，行成了一个闭环。</p>
-</li>
-<li><p>在64 位 CPU 下，isa 的内部结构有变化。具体查看用<a href="http://ios.jobbole.com/89485/" target="_blank" rel="noopener"> isa 承载对象的类信息</a></p>
-</li>
-<li><p>对象、isa指针、类、元类、根元类的关系如下图：</p>
-</li>
-</ul>
-<p><img src="http://upload-images.jianshu.io/upload_images/201701-fa143a7c6b17b43d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="OC类图.png"></p>
-<h5 id="3、对象布局"><a href="#3、对象布局" class="headerlink" title="3、对象布局"></a>3、对象布局</h5><ul>
-<li><p>实例变量（包括父类）都保存在对象本身的存储空间内；实例方法保存在<strong>类</strong>中，类方法保存在<strong>元类</strong>中；父类的实例方法保存在各级 super class 中，父类的类方法保存在各级 super meta class;</p>
-<pre><code>//对象组成 --start--
-isa pointer
-rootClass&apos;s vars
-penultimate superClass&apos;s vars
-...
-superClass&apos;s vars
-Class&apos;s vars
-//对象组成 --end--
-
-typedef struct objc_class *Class;
- //类的结构
- struct objc_class{
-  struct objc_class* isa;                              //指向元类
-  struct objc_class* super_class;                //指向父类
-  const char* name;
-  long version;
-  long info;
-  long instance_size;
-  struct objc_ivar_list* ivars;                         //实例变量列表
-  struct objc_method_list** methodLists;      //方法列表
-  struct objc_cache* cache;
-  struct objc_protocol_list* protocols;           //协议列表
-};
-
-//实例变量的结构
-struct objc_ivar {
-    char *ivar_name  OBJC2_UNAVAILABLE;
-    char *ivar_type  OBJC2_UNAVAILABLE;
-    int ivar_offset  OBJC2_UNAVAILABLE;
-#ifdef __LP64__
-    int space        OBJC2_UNAVAILABLE;
-#endif
-}
-</code></pre><p>  <strong>说明1</strong>：对象中保存指向类的<code>isa</code>指针 以及 各级的 实例变量(<code>ivar</code>)，这个内存结构在编译时就确定下来了，不能在编译时给对象增加实例变量。</p>
-<p>  <strong>说明2</strong>：类的内存布局有<code>isa</code>指针、<code>super_class</code>指针、实例变量列表、方法列表和协议列表，其中实例变量(var)包含了变量的名称、类型、偏移等。</p>
-</li>
-</ul>
-<blockquote>
-<h4 id="二、Runtime核心：消息发送和转发"><a href="#二、Runtime核心：消息发送和转发" class="headerlink" title="二、Runtime核心：消息发送和转发"></a>二、Runtime核心：消息发送和转发</h4></blockquote>
-<p><strong>Runtime</strong>赋予了OC了诸多动态特性，使其可以在运行时可以做一些事情；主要表现为：<strong>动态类型</strong>（在运行时才检查对象类型）和 <strong>动态绑定</strong>（接到消息后，由运行环境决定执行哪部分代码）</p>
-<h5 id="1、消息发送（Message）"><a href="#1、消息发送（Message）" class="headerlink" title="1、消息发送（Message）"></a>1、消息发送（Message）</h5><ul>
-<li><p>Objective-C 中的方法调用，实质上是在底层用objc_msgSend()实现<strong>消息发送</strong>，其核心在于：<strong>根据SEL(选择器)开始找到IMP</strong>；其中SEL是实例方法的指针，可以看做方法名字符串；IMP是函数指针，指向方法实现的地址。</p>
-<pre><code>//调用方法  
-[obj doSomething];
-//在编译时候转换
-objc_msgSend(obj,@selector(doSomething))
-</code></pre></li>
-<li><p><strong>objc_msgSend</strong>的定义如下：</p>
-<pre><code>// self是接收者，接收该消息的类的实例
- // _cmd是选择器，要处理的消息的selector
-  // ... 是需传入的参数，参数个数不定
- objc_msgSend(id self, SEL _cmd, ...) 
-</code></pre></li>
-<li><p><strong>objc_msgSend的发送流程</strong>：先在Class中的缓存查找imp（没缓存则初始化缓存），如果没找到，则向父类的Class查找。如果一直查找到根类仍旧没有实现，就走消息转发(_objc_msgForward)了。</p>
-</li>
-<li><p>给nil发送消息不会有什么作用，但是返回值有些区别，具体如下：</p>
-<pre><code>a) 如果方法返回值是 对象，返回nil
-b) 如果方法返回值是 指针类型，其指针大小为小于或者等于sizeof(void*)，float，double，long double 或者 long long 的整型标量
-c) 如果方法返回值是 结构体，发送给 nil 的消息将返回0。结构体中各个字段的值将都是0。
-d) 如果方法返回值不是 上述提到的几种情况，那么发送给 nil 的消息的返回值将是未定义的。
-</code></pre></li>
-</ul>
-<h5 id="2-1、消息转发（Message-Forwarding）"><a href="#2-1、消息转发（Message-Forwarding）" class="headerlink" title="2-1、消息转发（Message Forwarding）"></a>2-1、消息转发（Message Forwarding）</h5><p>消息转发解决的是：查找IMP(方法实现)失败后的处理；经历<strong>动态方法解析</strong>、 <strong>备用接收者</strong>和 <strong>完整的消息转发</strong>三个过程，其流程如下图：</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/201701-35938988b21e8a6c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="消息转发流程.png"></p>
+<h5 id="2、结构"><a href="#2、结构" class="headerlink" title="2、结构"></a>2、结构</h5><p><img src="https://upload-images.jianshu.io/upload_images/201701-994e7e1fc737bcb1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
+<p><strong>说明</strong>：基于 数据驱动 的 UICollectionView 框架 IGListKit。整个框架通过 <strong>Adapter</strong> 将过去直接暴露的 CollectionView Datasource 和 Delegate 实现进行包装，并通过它关联 Model 和 IGListSectionController。这使得上层用户只需要继承并实现所需要的 IGListSectionController 接口即可，很好地进行了代码解耦。</p>
+<h4 id="二、基础使用"><a href="#二、基础使用" class="headerlink" title="二、基础使用"></a>二、基础使用</h4><h5 id="1、IGListAdapter的初始化"><a href="#1、IGListAdapter的初始化" class="headerlink" title="1、IGListAdapter的初始化"></a>1、IGListAdapter的初始化</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">self.collectionView = [[UICollectionView alloc]initWithFrame:CGRectZero collectionViewLayout:[[UICollectionViewFlowLayout alloc]init]];</span><br><span class="line">self.collectionView.backgroundColor = [UIColor whiteColor];</span><br><span class="line">IGListAdapterUpdater*updater = [[IGListAdapterUpdater alloc]init];</span><br><span class="line">self.**adapter** = [[IGListAdapter alloc]initWithUpdater:updater viewController:self workingRangeSize:0];</span><br><span class="line">self.adapter.collectionView = self.collectionView;</span><br><span class="line">self.adapter.dataSource = self;</span><br><span class="line">[self.view addSubview:self.collectionView];</span><br></pre></td></tr></table></figure>
+<h5 id="2、实现IGListAdapter的协议"><a href="#2、实现IGListAdapter的协议" class="headerlink" title="2、实现IGListAdapter的协议"></a>2、实现IGListAdapter的协议</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">- (nullable UIView *)**emptyViewForListAdapter**:(nonnull IGListAdapter *)listAdapter &#123;</span><br><span class="line"> //没有数据时候的View</span><br><span class="line">    UILabel *label=[UILabel new];</span><br><span class="line">    label.text=@&quot;没有数据&quot;;</span><br><span class="line">    label.textAlignment=NSTextAlignmentCenter;</span><br><span class="line">    return label;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (nonnull IGListSectionController *)listAdapter:(nonnull IGListAdapter *)**listAdapter** **sectionControllerForObject**:(nonnull id)object &#123;</span><br><span class="line">    DemoSectionController *sectionController=[[DemoSectionController alloc]init];</span><br><span class="line">    return section;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (nonnull NSArray&lt;id&lt;IGListDiffable&gt;&gt; *)**objectsForListAdapter**:(nonnull IGListAdapter *)listAdapter &#123;</span><br><span class="line">    //数据源</span><br><span class="line">    return  self.dataArray;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="3、IGListSectionController的方法"><a href="#3、IGListSectionController的方法" class="headerlink" title="3、IGListSectionController的方法"></a>3、IGListSectionController的方法</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">- (NSInteger)**numberOfItems**&#123;</span><br><span class="line">   //每个section返回多少行根据数据来写</span><br><span class="line">    return 1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (CGSize)**sizeForItemAtIndex**:(NSInteger)index&#123;</span><br><span class="line">    return  CGSizeMake(self.collectionContext.containerSize.width, 64);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (UICollectionViewCell *)**cellForItemAtIndex**:(NSInteger)index&#123;    </span><br><span class="line">    DemoCollectionViewCell*cell=[self.collectionContext dequeueReusableCellOfClass:[DemoCollectionViewCell class] forSectionController:self atIndex:index];</span><br><span class="line">    [cell setModel:_object row:index];</span><br><span class="line">    return cell;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)**didSelectItemAtIndex**:(NSInteger)index &#123;</span><br><span class="line">    NSLog(@&quot;点击Section%ld  row%ld&quot;,(long)self.section,(long)index);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)**didUpdateToObject**:(id)object&#123;</span><br><span class="line">    //数据传输到这里</span><br><span class="line">    _object =(DemoModel *)object;    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="4、自定义model实现IGListDiffable协议"><a href="#4、自定义model实现IGListDiffable协议" class="headerlink" title="4、自定义model实现IGListDiffable协议"></a>4、自定义model实现IGListDiffable协议</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">//</span><br><span class="line">- (nonnull id&lt;NSObject&gt;)diffIdentifier &#123;</span><br><span class="line">    return self;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (BOOL)isEqualToDiffableObject:(nullable id&lt;IGListDiffable&gt;)object &#123;</span><br><span class="line">    if (self == object) &#123;</span><br><span class="line">        return YES;</span><br><span class="line">    &#125; else if (self == nil || object == nil) &#123;</span><br><span class="line">        return NO;</span><br><span class="line">    &#125;</span><br><span class="line">    return YES;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="三、Diffing算法"><a href="#三、Diffing算法" class="headerlink" title="三、Diffing算法"></a>三、Diffing算法</h4><h5 id="1、算法流程描述"><a href="#1、算法流程描述" class="headerlink" title="1、算法流程描述"></a>1、算法流程描述</h5><p>计算collectionView前后数据变化增删改移关系的算法，算法主要过程是：</p>
+<p>输入：前后变化的数据数组，新的数据数组为newArray，旧的数据数组为oldArray，newArray和oldArray中的model都实现了IGListDiffable协议</p>
+<p>1、首先创建一个hash表(unordered_map) <strong>table</strong></p>
+<p>2、先遍历newArray，每个model对应生成<strong>IGListEntry</strong>对象，并根据model的</p>
+<p><strong>diffIdentifier</strong>返回值作为key存入table，使得 newCount++，同时计入 newResultsArray</p>
+<p>3、再遍历oldArray，根据每个model的<strong>diffIdentifier</strong>返回值作为key，从table中找到对应的<strong>IGListEntry</strong>对象，没有就生成并存入table，使得oldCount++，同时将当前序号入栈 oldIndexes.push(i)，并记录<strong>oldResultsArray</strong></p>
+<p>4、遍历 <strong>newResultsArray</strong>，检查 entry 对应的 oldIndexes 信息，如果堆栈中有<strong>旧队列序号值</strong>，则表示当前 entry 至少对应新旧队列中的两个对象，即发生所谓的 <strong>entry match</strong>，进行记录，方便后续反向查询。再通过检查 新队列当前对象 和 entry 对应旧对象 是否相同确认 update 状态。</p>
 <ul>
-<li><p><strong>动态方法解析</strong>：接收到未知消息时，Runtime向当前类发送+resolveInstanceMethod:或+resolveClassMethod:消息，在这里可以<strong>添加缺失的方法</strong>，返回YES，重新发送消息，否则继续下一步；</p>
+<li><p>再次遍历新旧 entry list，检查每个 entry 的 entry match 状态</p>
 </li>
-<li><p><strong>备用接收者</strong>：<strong>动态方法解析</strong>中没能处理，Runtime会向forwardingTargetForSelector:发消息，如果该方法返回了一个非nil或非self对象，恰好该对象实现了这个方法，那么该对象就成了消息的接收者，消息就被分发到该对象。</p>
+<li><p>没有 entry match 的对象，在新队列中的被标记为 insert<strong>，</strong>而在旧队列中的则被标示为 delete</p>
 </li>
-<li><p><strong>完整消息转发</strong>：前两个都没能处理好，Runtime发送methodSignatureForSelector:消息，获取selector对应方法的签名；如果有方法签名返回，则根据方法签名创建描述消息的NSInvocation，向当前对象发送forwardInvocation:消息；如果没有方法签名返回，返回nil，向当前对象发送doesNotRecognizeSelector:消息，应用Crash退出。</p>
-</li>
+<li>有 entry match 的对象**通过比较新旧队列序号和 update 状态分表表示为 update，move和 not modified</li>
 </ul>
-<h5 id="2-2、避免消息转发的办法"><a href="#2-2、避免消息转发的办法" class="headerlink" title="2-2、避免消息转发的办法"></a>2-2、避免消息转发的办法</h5><p><strong>在消息转发三个过程中，未知消息的处理过程越往后，代价越大</strong>；一般我们可以这么做 尽可能避免消息转发，可以这么做：</p>
+<h5 id="2、算法示例"><a href="#2、算法示例" class="headerlink" title="2、算法示例"></a>2、算法示例</h5><p><strong>1）</strong>以旧数组 [1,2,3] 和新数组 [1,3,5] 为例 （数字比较直接忽略 update 状态）</p>
 <ul>
-<li><p><strong>调用delegate 方法前检查方法是否实现</strong>(respondsToSelector:), 只有实现了(respondsToSelector:返回YES) ，才去真正调用delegate 方法。</p>
-<pre><code>if([self.delegate respondsToSelector: @selector(sayHello)]) {
-    [self.delegate sayHello];
-}
-</code></pre></li>
-<li><p><strong>直接调用方法，少用performSelector:</strong>；因为在直接调用方法时，编译自动校验，如果方法不存在，编译器会直接报错；而使用performSelector:的话一定是在运行时候才能发现，如果此方法不存在就会崩溃。</p>
-<pre><code>//直接使用方法调用,少使用performSelector
-[dog sayHello];
-// [dog performSelector:@selector(sayHello) withObject:nil];
-</code></pre></li>
-<li><p><strong>使用performSelector:，最好先判断方法是否实现(respondsToSelector:)</strong>，只有实现了(respondsToSelector:返回YES) ，才去调用performSelector：方法。</p>
-<pre><code>//respondsToSelector:和performSelector:组合使用
-    if ([dog respondsToSelector:@selector(sayHello)])         {
-    [dog performSelector:@selector(sayHello)];
- }
-</code></pre></li>
-<li><p><strong>强制类型转换，先判断对象是否属于强制转换后的类</strong></p>
-<pre><code>if([data isKindOfClass:[NSDictionary class]]){
-  //
-}
-</code></pre></li>
-</ul>
-<blockquote>
-<h4 id="三、Runtime特性和应用"><a href="#三、Runtime特性和应用" class="headerlink" title="三、Runtime特性和应用"></a>三、Runtime特性和应用</h4></blockquote>
-<h5 id="1、分类（Category）"><a href="#1、分类（Category）" class="headerlink" title="1、分类（Category）"></a>1、分类（Category）</h5><ul>
-<li><p><strong>原理</strong>：对象的<strong>方法</strong>定义都保存在类的可变区域中，修改methodLists指针指向的指针的值，就可以实现动态地为某一个类增加<strong>成员方法</strong>。(<em>但是对象布局在编译时候就固定了，结构体的大小并不能动态变化，在运行时不能增加实例变量</em>)。</p>
+<li><p>- 遍历新数组，得到 <strong>[entry1,entry3,entry5]</strong> 列表，记为 newResultsArray</p>
 </li>
-<li><p>通过关联<code>objc_setAssociatedObject</code> 和 <code>objc_getAssociatedObject</code>方法可以变相地给对象增加实例变量，并不会真正改变了对象的内存结构。</p>
-</li>
-<li><p>通过Category新增的方法，会插入到方法列表的前部；如果有和原来方法重名，在运行时，顺序查找时，一旦找到对应名字的方法，就不再查找，导致<strong>原来方法</strong>得不到机会，<em>这是Category新增的方法和原方法重名，原有方法失效的原因</em>。</p>
-</li>
-<li><p><strong>作用</strong>：给现有的类添加方法；将一个类的实现拆分成多个独立的源文件；声明私有的方法。</p>
+<li><p>- 遍历旧数组，得到 <strong>[entry1,entry2,entry3]</strong> 列表，记为 oldResultsArray</p>
 </li>
 </ul>
-<h5 id="2、关联对象（Associated-Objects）"><a href="#2、关联对象（Associated-Objects）" class="headerlink" title="2、关联对象（Associated Objects）"></a>2、关联对象（Associated Objects）</h5><ul>
-<li><p><strong>原理</strong>：Category不能给一个已有类添加实例变量，但是可以通过<strong>关联对象</strong>添加属性；但是关联对象不会改变对象的内存布局，新增的属性是添加到和对象地址关联的哈希表中；</p>
-</li>
-<li><p>Associated Objects 相关的三个方法</p>
-<pre><code>objc_setAssociatedObject    //添加关联对象
-objc_getAssociatedObject    //获取关联对象
-objc_removeAssociatedObjects  // 删除所有关联对象
-</code></pre></li>
-<li><p><strong>作用</strong>：为现有的类添加私有变量以帮助实现细节；为现有的类添加公有属性；为 KVO 创建一个关联的观察者</p>
-<p>具体参考：<a href="http://blog.leichunfeng.com/blog/2015/06/26/objective-c-associated-objects-implementation-principle/" target="_blank" rel="noopener">Objective-C Associated Objects 的实现原理</a></p>
-</li>
-</ul>
-<h5 id="3、方法混写-Method-Swizzling"><a href="#3、方法混写-Method-Swizzling" class="headerlink" title="3、方法混写(Method Swizzling)"></a>3、方法混写(Method Swizzling)</h5><ul>
-<li><strong>原理</strong>：在运行时交换方法实现（IMP）</li>
-</ul>
+<p><strong>2)</strong>  遍历<strong>newResultsArray</strong>，由于 entry1 oldIndexs = [0]，entry3 oldIndexes = [2] 所以他们是 entry match，做记录 （reverse lookup）</p>
+<p><strong>3)</strong> 遍历 <strong>oldResultsArray</strong></p>
 <ul>
-<li><p><strong>作用</strong>：可以利用它hook原有的方法，插入自己的业务需求，</p>
-<p> 详细参考我写的<a href="https://www.jianshu.com/p/5f2e38a40aa4" target="_blank" rel="noopener">Method Swizzling小记</a></p>
+<li><p>entry1 有 entry match，跳过</p>
+</li>
+<li><p>entry2 没有 entry match，记为 delete</p>
+</li>
+<li><p>entry3 有 entry match，跳过</p>
 </li>
 </ul>
-<h5 id="4、键值观察（KVO）"><a href="#4、键值观察（KVO）" class="headerlink" title="4、键值观察（KVO）"></a>4、键值观察（KVO）</h5><p>  观察者模式在Objective-C的应用之一，借助Runtime特性，实现自动键值观察；使用了isa swizzling机制。具体描述如下：</p>
+<p><strong>4)</strong> 遍历 <strong>newResultsArray</strong></p>
 <ul>
-<li><p>当某个类的对象第一次被观察时，系统就会在运行期动态地创建该类的一个<strong>子类</strong>，在这个子类中<strong>重写</strong>基类中被观察属性的 setter 方法，实现真正的通知机制；</p>
+<li><p>entry1 有 entry match，同时相对位置不变，记为 not modified (其实就是跳过)</p>
 </li>
-<li><p>派生类还重写了 class 方法以“欺骗”外部调用者，系统将对象的 isa 指针指向这个<strong>新诞生的子类</strong>，实质上这个对象就成为该派生类的对象了，因而在该对象上对 setter 的调用就会调用重写的 setter，从而激活键值通知机制。</p>
+<li><p>entry3 有 entry match，但是相对位置变化，记为 <strong>move</strong></p>
 </li>
-<li><p>此外，派生类还重写了 dealloc 方法来释放资源。</p>
-</li>
-</ul>
-<p><strong>说明</strong>：KVC（键值编码）是不通过存取方法，而通过属性名称字符串间接访问属性的机制，没有用到isa swizzling机制。</p>
-<h5 id="5、NSProxy"><a href="#5、NSProxy" class="headerlink" title="5、NSProxy"></a>5、NSProxy</h5><ul>
-<li><p>OC是单继承的，但是可以利用NSProxy实现一下<strong>“伪多继承”</strong>，具体参考<a href="">NSProxy——少见却神奇的类</a></p>
-</li>
-<li><p>项目中，主要是利用NSProxy做<strong>消息转发的代理类</strong>，如弱引用代理类，可以打破循环引用。</p>
-<pre><code>//代码摘自 FLAnimatedImage
-@interface FLWeakProxy : NSProxy
-+ (instancetype)weakProxyForObject:(id)targetObject;
-   @end
-
-@interface FLWeakProxy ()
-@property (nonatomic, weak) id target;
-@end
-
-@implementation FLWeakProxy
-
-#pragma mark Life Cycle
-//类没有定义默认的init方法.
-+ (instancetype)weakProxyForObject:(id)targetObject{
-
-    FLWeakProxy *weakProxy = [FLWeakProxy alloc];
-    weakProxy.target = targetObject;
-    return weakProxy;
-}
-
-#pragma mark Forwarding Messages
-- (id)forwardingTargetForSelector:(SEL)selector{
-// Keep it lightweight: access the ivar directly
-return _target;
-   }
-
-- (void)forwardInvocation:(NSInvocation *)invocation{
-
-    void *nullPointer = NULL;
-    [invocation setReturnValue:&amp;nullPointer];
-}
-
-- (NSMethodSignature *)methodSignatureForSelector:(SEL)selector{
-    return [NSObject instanceMethodSignatureForSelector:@selector(init)];
-   }
-   @end
-</code></pre><p><strong>说明</strong>: NSProxy非常适合做消息转发的代理类，能自动转发<nsobject>中定义的接口和NSObject的Category中定义的方法，如果使用NSObject来做，不能自动转发NSObject的Category中定义、respondsToSelector:、isKindOfClass:这两个方法。·</nsobject></p>
+<li><p>entry5 没有 entry match，记为 <strong>insert</strong></p>
 </li>
 </ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/02/04/iOS09-runloop/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="南华coder">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="南华coder的空间">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/02/04/iOS09-runloop/" itemprop="url">浅谈RunLoop</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-04T23:07:27+08:00">
-                2018-02-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS2018/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS2018</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  2,141 字
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  9 分
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4></blockquote>
-<ul>
-<li><p><strong>RunLoop</strong>：运行循环，和线程有关；当没有事件/消息时，RunLoop让线程休眠；当有事件/消息发生时，RunLoop唤醒线程去处理。</p>
-</li>
-<li><p><strong>每个线程都有一个对应的 Runloop 对象</strong>；主线程的RunLoop会在App运行时自动运行，<strong>子线程中需要手动获取并运行，第一次获取时，才会去创建</strong>。</p>
-</li>
-<li><p>一个RunLoop包含若干个Mode,每个<strong>Mode</strong>包含若干个<strong>Source/Timer/Observer</strong>。每次启动RunLoop时，只能指定一个Mode，如果需要切换Mode，需要退出Loop，再重新指定一个Mode进入。</p>
-</li>
-<li><p>RunLoop处理两大类事件源：<strong>Timer Source</strong>和<strong>Input Source</strong>；每个事件源都会绑定在RunLoop的某个特定Mode上，而且只有RunLoop在这个Mode运行的时候才会触发该Timer和Input Source。</p>
-</li>
-<li><p>如果没有任何事件源添加到RunLoop上，RunLoop就会立刻退出。(<em>线程结束,RunLoop也会退出</em>)。</p>
-</li>
-<li><p>操作RunLoop，Foundation层对应的是<strong>NSRunLoop</strong>，Core Foundation层对应的是<strong>CFRunLoopRef</strong>；</p>
-</li>
-</ul>
-<blockquote>
-<h4 id="二、Runloop-Mode"><a href="#二、Runloop-Mode" class="headerlink" title="二、Runloop Mode"></a>二、Runloop Mode</h4></blockquote>
-<ul>
-<li><p>一个RunLoop包含若干个Mode,每个<strong>Mode</strong>包含若干个<strong>Source/Timer/Observer</strong>。每次启动RunLoop时，只能指定一个Mode，如果需要切换Mode，需要退出Loop，再重新指定一个Mode进入。</p>
-</li>
-<li><p>Foundation暴露出来的Mode有： <strong>NSDefaultRunLoopMode</strong> 和 <strong>NSRunLoopCommonModes</strong>；NSDefaultRunLoopMode是默认的Mode；NSRunLoopCommonModes 是Mode集合，包括NSDefaultRunLoopMode、NSTaskDeathCheckMode、UITrackingRunLoopMode; 只要RunLoop运行在NSRunLoopCommonModes中任何一个模式，这个事件源都可以被触发。</p>
-</li>
-</ul>
-<pre><code>NSDefaultRunLoopMode             //默认的运行方式
-NSTaskDeathCheckMode             //task任务
-UITrackingRunLoopMode            //UI跟踪（如UITableView上下滑动）
-NSRunLoopCommonModes             //Mode集合
-
- //其他, 很少用
-NSModalPanelRunLoopMode       //在Model Panel情况下去区分事件(OS X开发中会遇到)
-NSConnectionReplyMode             //可以监听NSConnection对象的状态，比较少用
-</code></pre><p>  <strong>说明</strong>：RunLoop不能在运行在NSRunLoopCommonModes模式，因为NSRunLoopCommonModes只是个模式集合，而不是一个具体的模式。</p>
-<blockquote>
-<h4 id="三、Runloop事件源"><a href="#三、Runloop事件源" class="headerlink" title="三、Runloop事件源"></a>三、Runloop事件源</h4></blockquote>
-<ul>
-<li><p>事件源主要由两种： <strong>Timer Source</strong>和<strong>Input Source</strong>，其中<strong>Timer Source</strong> 指的是定时器事件， Input Source细分三类如下： </p>
-<pre><code>Port-Based Sources，系统底层的Port 事件，例如 CFSocketRef ，在应用层基本用不到
-Custom Input Sources，用户手动创建的 Source
-Cocoa Perform Selector Sources， Cocoa 提供的 performSelector 系列方法
-</code></pre></li>
-<li><p>如果没有任何事件源添加到RunLoop上，RunLoop就会立刻退出；</p>
-</li>
-</ul>
-<blockquote>
-<h4 id="四、Runloop-Observer"><a href="#四、Runloop-Observer" class="headerlink" title="四、Runloop Observer"></a>四、Runloop Observer</h4></blockquote>
-<h5 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h5><ul>
-<li><p>Runloop 通过监控 Source 来决定有没有任务要做，除此之外，我们还可以用 Runloop Observer 来监控 Runloop 本身的状态。RunLoop的状态有</p>
-<pre><code>typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) {
-  kCFRunLoopEntry         = (1UL &lt;&lt; 0), // 即将进入Loop
-  kCFRunLoopBeforeTimers  = (1UL &lt;&lt; 1), // 即将处理 Timer
-  kCFRunLoopBeforeSources = (1UL &lt;&lt; 2), // 即将处理 Source
-  kCFRunLoopBeforeWaiting = (1UL &lt;&lt; 5), // 即将进入休眠
-  kCFRunLoopAfterWaiting  = (1UL &lt;&lt; 6), // 刚从休眠中唤醒
-  kCFRunLoopExit          = (1UL &lt;&lt; 7), // 即将退出Loop
-       };
-</code></pre></li>
-</ul>
-<h5 id="2、应用"><a href="#2、应用" class="headerlink" title="2、应用"></a>2、应用</h5><p><strong>1）AutoreleasePool</strong></p>
-<ul>
-<li><p>App启动后，苹果在主线程 RunLoop 里注册了两个 Observer，一个监听<strong>kCFRunLoopEntry</strong>（<em>即将进入Loop</em>），回调内会<strong>创建自动释放池</strong>(<em>_objc_autoreleasePoolPush()</em>)；优先级最高，保证创建释放池发生在其他所有回调之前；</p>
-</li>
-<li><p>另一个监听 <strong>kCFRunLoopBeforeWaiting</strong>(<em>准备进入休眠</em>) 时调用_objc_autoreleasePoolPop() 和 _objc_autoreleasePoolPush() 释放旧的池并创建新池；<strong>kCFRunLoopExit</strong>(<em>即将退出Loop</em>) 时调用 _objc_autoreleasePoolPop() 来释放自动释放池。优先级最低，保证其释放池子发生在其他所有回调之后。</p>
-</li>
-</ul>
-<p><strong>2）界面更新</strong></p>
-<ul>
-<li><p>当在操作 UI 时，比如改变了 Frame、更新了 UIView/CALayer 的层次时，或者手动调用了 UIView/CALayer 的 setNeedsLayout/setNeedsDisplay方法后，这个 UIView/CALayer 就被标记为待处理，并被提交到一个全局的容器去。</p>
-</li>
-<li><p>苹果注册了一个 Observer 监听 <strong>kCFRunLoopBeforeWaiting</strong>(<em>即将进入休眠</em>) 和 <strong>kCFRunLoopExit</strong>(<em>即将退出Loop</em>)  事件，回调执行函数，函数会遍历所有待处理的 UIView/CAlayer 以执行实际的绘制和调整，并更新 UI 界面。</p>
-</li>
-</ul>
-<blockquote>
-<h4 id="五、RunLoop手动启动和取消"><a href="#五、RunLoop手动启动和取消" class="headerlink" title="五、RunLoop手动启动和取消"></a>五、RunLoop手动启动和取消</h4></blockquote>
-<h5 id="1、手动启动"><a href="#1、手动启动" class="headerlink" title="1、手动启动"></a>1、手动启动</h5><p>主线程默认已经启动，一般在子线程中手动启动RunLoop；NSRunloop提供的三种启动方式，如下：</p>
-<pre><code>//1、无条件运行(强烈不推荐)
-- (void)run; 
-</code></pre><p><strong>说明1</strong>：如果Runloop上有事件源，RunLoop会一直运行在NSDefaultRunLoopMode模式；除非移除事件源，线程才能停止；</p>
-<pre><code>//2、启动 + 超时限制
-- (void)runUntilDate:(NSDate *)limitDate;  
-
-//Demo, RunLoop会每1秒退出一次，然后又启动RunLoop，连续10次后退出RunLoop
-NSInteger loopCount = 0;
-while (loopCount++ &lt; 10){
-      [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
-      NSLog(@&quot;%@ exiting runloop.........:&quot;,@(loopCount));
-}
-</code></pre><p><strong>说明2</strong>：可以控制每次RunLoop的运行时间，但是默认是NSDefaultRunLoopMode模式；超过时间限制后可以再次运行RunLoop；</p>
-<pre><code>//3、有一个超时时间限制，而且设置运行模式 （推荐使用）
-- (BOOL)runMode:(NSString *)mode beforeDate:(NSDate *)limitDate;
-
-//Demo : 使用CFRunLoopStop暂停RunLoop
-dispatch_async(dispatch_get_global_queue(0, 0), ^{
-    NSLog(@&quot;线程开始&quot;);
-    _thread = [NSThread currentThread];
-    NSRunLoop *runloop = [NSRunLoop currentRunLoop];
-    [runloop addPort:[NSMachPort port] forMode:NSDefaultRunLoopMode];
-    //
-    [runloop runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:10]];
-    NSLog(@&quot;线程结束&quot;);
-});
-
-//延迟执行
-dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-    [self performSelector:@selector(stopRunLoop) onThread:_thread withObject:nil waitUntilDone:NO];
-});
-
-- (void)stopRunLoop{
-    CFRunLoopStop(CFRunLoopGetCurrent());
-    NSLog(@&quot;暂停runloop&quot;);
-}
-</code></pre><p><strong>说明3</strong>：可以设置超时限制和运行模式，比较灵活，还可以被CFRunLoopStop(runloopRef)所停止（<em>Demo显示</em>）。</p>
-<p><strong>说明4</strong>：NSRunloop是基于CFRunloop来封装的，NSRunloop是线程不安全的，而CFRunloop则是线程安全的；CFRunloop还提供了2中启动方式(<em>CFRunLoopRun、CFRunLoopRunInMode</em>)</p>
-<p><strong>说明5</strong>：因为NSRunLoopCommonModes是个模式集合，不是一个具体的模式，RunLoop不能在运行在NSRunLoopCommonModes模式；但是可以在添加事件源的时候使用NSRunLoopCommonModes，只要RunLoop运行在NSRunLoopCommonModes中任何一个模式，这个事件源都可以被触发。</p>
-<h5 id="2、取消"><a href="#2、取消" class="headerlink" title="2、取消"></a>2、取消</h5><p><em>了解了启动方式后，取消就很清晰了</em>，主要有三种：</p>
-<ul>
-<li><p>移除掉RunLoop中的所有事件源（timer和source）</p>
-</li>
-<li><p>达到超时（limitDate）条件</p>
-</li>
-<li><p>使用CFRunLoopStop(CFRunLoopRef rl )停止（CFRunloop运行起来或通过NSRunloop的runMode:beforeDate:方法）。</p>
-</li>
-</ul>
-<blockquote>
-<h4 id="六、使用场景"><a href="#六、使用场景" class="headerlink" title="六、使用场景"></a>六、使用场景</h4></blockquote>
-<h4 id="1、NSTimer-CADisplayLink"><a href="#1、NSTimer-CADisplayLink" class="headerlink" title="1、NSTimer/CADisplayLink"></a>1、NSTimer/CADisplayLink</h4><pre><code>NSTimer *timer = [NSTimer timerWithTimeInterval:2.0 target:self selector:@selector(run) userInfo:nil repeats:YES];
-
-//1、timer运行在NSDefaultRunLoopMode下，一旦RunLoop进入其他模式，timer不会工作
-[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
-
-//2、timer运行在NSRunLoopCommonModes集合中任何模式下，timer会工作
-[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
-
-//3、scheduledTimer返回的定时器，会自动被添加到当前runLoop中，默认是NSDefaultRunLoopMode
-NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(run) userInfo:nil repeats:YES];
-
-//4、创建并启动GCD定时器
-_timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_global_queue(0, 0));
-dispatch_source_set_timer(_timer, dispatch_walltime(NULL, 0), 1.0 * NSEC_PER_SEC, 0); //每秒执行
-// 事件回调
-dispatch_source_set_event_handler(_timer, ^{
-    NSLog(@&quot;gcd timer......&quot;);
-});
-dispatch_resume(_timer);
-</code></pre><p><strong>说明1</strong>：一般把NSTimer/CADisplayLink的RunLoop Mode选择NSRunLoopCommonModes集合，防止因列表滑动等导致NSTimer/CADisplayLink不工作；</p>
-<p><strong>说明2</strong>：Timer注册到RunLoop后，如果所属线程中有耗时操作，Timer回调的时间点并不十分准确；CADisplayLink是屏幕的刷新率一样的定时器。如果在两次屏幕刷新之间执行一个耗时的任务，就可能丢帧，造成界面卡顿。</p>
-<p><strong>说明3</strong>：如果希望比较准的定时器的效果。可以使用GCD的定时器。</p>
-<h4 id="2、-常驻线程"><a href="#2、-常驻线程" class="headerlink" title="2、 常驻线程"></a>2、 常驻线程</h4><pre><code>+ (NSThread *)networkRequestThread {
-  static NSThread *_networkRequestThread = nil;
-  static dispatch_once_t oncePredicate;
-  dispatch_once(&amp;oncePredicate, ^{
-      _networkRequestThread = [[NSThread alloc] initWithTarget:self selector:@selector(networkRequestThreadEntryPoint:) object:nil];
-      [_networkRequestThread start];
-  });
-  return _networkRequestThread;
-}
-
-+ (void)networkRequestThreadEntryPoint:(id)__unused object {
-  @autoreleasepool {
-      [[NSThread currentThread] setName:@&quot;AFNetworking&quot;];
-
-      NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
-      //添加端口，防止runloop直接退出
-      [runLoop addPort:[NSMachPort port] forMode:NSDefaultRunLoopMode];
-      [runLoop run];
-  }
-}
-</code></pre><p><strong>说明</strong>：AF2.x维护一个常驻线程，用来发起网络请求，并且接受网络请求回调处理；NSURLSession有类似实现；在AF3.x后无常驻线程这部分代码了</p>
-<h4 id="3、子线程执行PerformSelector-或-Timer"><a href="#3、子线程执行PerformSelector-或-Timer" class="headerlink" title="3、子线程执行PerformSelector 或  Timer"></a>3、子线程执行PerformSelector 或  Timer</h4><pre><code>//1、子线程执行performSelector
-dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        NSLog(@&quot;befor&quot;);
-        [self performSelector:@selector(printLog) withObject:nil afterDelay:0];
-         //创建并启动Runloop，performSelector才有效
-         [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
-        NSLog(@&quot;after&quot;);
-    });
-
-- (void)p_logAction {
-    NSLog(@&quot;p_logAction&quot;);
-}
-
-//2、子线程执行timer
- dispatch_async(dispatch_get_global_queue(0, 0), ^{
-
-    [NSTimer scheduledTimerWithTimeInterval:0.1 repeats:YES block:^(NSTimer * _Nonnull timer) {
-        NSLog(@&quot;timer in thread ...&quot;);
-    }];
-    //创建并启动Runloop，timer才有效
-    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
-});
-</code></pre><p><strong>说明1</strong>：<strong>performSelector</strong>原理是：设置一个timer，添加到当前线程Runloop，默认是NSDefaultRunLoopMode；通过NSTimer的 scheduledTimerWithTimeIntervaly创建的定时器，也是自动被添加到当前RunLoop中，默认是NSDefaultRunLoopMode；</p>
-<p><strong>说明2</strong>：<strong>在子线程中</strong>，因为默认没有RunLoop，所以他们<strong>不执行</strong>；想要执行，<strong>需要创建并启动Runloop</strong>。</p>
-<h4 id="4、卡顿检测"><a href="#4、卡顿检测" class="headerlink" title="4、卡顿检测"></a>4、卡顿检测</h4><p><strong>监听主线程(UI线程)之间的耗时，如果发现</strong>kCFRunLoopEntry<strong>(即将进入)和</strong>kCFRunLoopExit<strong>(即将退出)之间耗时过大(大于16.67ms),认为卡顿发生；</strong></p>
-<pre><code>- (void)setupRunloopObserver{
-
-    static dispatch_once_t onceToken;
-    dispatch_once(&amp;onceToken, ^{
-        CFRunLoopRef runloop = CFRunLoopGetCurrent();
-        CFRunLoopObserverRef enterObserver;
-        enterObserver = CFRunLoopObserverCreate(CFAllocatorGetDefault(),
-                                               kCFRunLoopEntry | kCFRunLoopExit,
-                                               true,
-                                               0
-                                               QSRunloopObserverCallBack, NULL);
-        CFRunLoopAddObserver(runloop, enterObserver, kCFRunLoopCommonModes);
-        CFRelease(enterObserver);
-    });
-}
-
-static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopActivity activity, void *info) {
-    switch (activity) {
-        case kCFRunLoopEntry: {
-            NSLog(@&quot;enter runloop...&quot;);
-        }
-            break;
-        case kCFRunLoopExit: {
-            NSLog(@&quot;leave runloop...&quot;);
-        }
-            break;
-        default: break;
-    }
-}
-</code></pre><p><strong>说明</strong>：如果发现卡顿，可以利用PLCrashReporter搜集各个线程的调用堆栈信息，上报到服务器,参考自<a href="http://mrpeak.cn/blog/ui-detect/" target="_blank" rel="noopener">iOS应用UI线程卡顿监控</a></p>
-<blockquote>
-<h4 id="End"><a href="#End" class="headerlink" title="End"></a>End</h4></blockquote>
-<p>想了解更多可参考<a href="http://blog.ibireme.com/2015/05/18/runloop/" target="_blank" rel="noopener">深入理解RunLoop</a></p>
+<p><strong>5)</strong> 输出一个包含 insert，move，delete 和 update 列表信息的最终结果</p>
+<p><strong>参考</strong> <a href="https://xiangwangfeng.com/2017/03/16/IGListKit-diff-%E5%AE%9E%E7%8E%B0%E7%AE%80%E6%9E%90/" target="_blank" rel="noopener">IGListKit diff 实现简析</a>、<a href="https://instagram.github.io/IGListKit/index.html" target="_blank" rel="noopener">IGListKit Reference</a> 、<a href="http://blog.danthought.com/programming/2018/06/22/iglistkit/" target="_blank" rel="noopener">IGListKit</a> </p>
 
           
         
@@ -3398,7 +3215,7 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-count">24</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -3409,7 +3226,7 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -3478,7 +3295,7 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">37.1k</span>
+    <span title="Site words total count">45.9k</span>
   
 </div>
 

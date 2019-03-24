@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="iOS," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="南华coder的空间" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="一、简介1、基础 IGListKit是由 Instagram 开发的应用在自身 App 上的一个 UI 组件库。它基于UICollectionView的框架，使用数据驱动，旨在创造一个更快更灵活的列表控件。  IGListKit的核心点是：从Model 变化中计算出 IndexPath 变化，也就是 Diff 算法，这样才好 batch updates。   2、结构">
+<meta name="keywords" content="iOS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IGListKit">
+<meta property="og:url" content="http://buaa0300/nanhuacoder.com/2018/02/24/iOS-IGListKit/index.html">
+<meta property="og:site_name" content="南华coder的空间">
+<meta property="og:description" content="一、简介1、基础 IGListKit是由 Instagram 开发的应用在自身 App 上的一个 UI 组件库。它基于UICollectionView的框架，使用数据驱动，旨在创造一个更快更灵活的列表控件。  IGListKit的核心点是：从Model 变化中计算出 IndexPath 变化，也就是 Diff 算法，这样才好 batch updates。   2、结构">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/201701-994e7e1fc737bcb1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640">
+<meta property="og:updated_time" content="2019-03-24T13:50:04.199Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="IGListKit">
+<meta name="twitter:description" content="一、简介1、基础 IGListKit是由 Instagram 开发的应用在自身 App 上的一个 UI 组件库。它基于UICollectionView的框架，使用数据驱动，旨在创造一个更快更灵活的列表控件。  IGListKit的核心点是：从Model 变化中计算出 IndexPath 变化，也就是 Diff 算法，这样才好 batch updates。   2、结构">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/201701-994e7e1fc737bcb1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://buaa0300/nanhuacoder.com/2018/02/24/iOS-IGListKit/"/>
+
+
+
+
+
+  <title>IGListKit | 南华coder的空间</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">南华coder的空间</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/02/24/iOS-IGListKit/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">IGListKit</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-24T21:43:57+08:00">
+                2018-02-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS第三方库/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS第三方库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,010 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  4 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h4><h5 id="1、基础"><a href="#1、基础" class="headerlink" title="1、基础"></a>1、基础</h5><ul>
+<li><p><strong>IGListKit</strong>是由 Instagram 开发的应用在自身 App 上的一个 <strong>UI 组件库</strong>。它基于UICollectionView的框架，使用<strong>数据驱动</strong>，旨在创造一个更快更灵活的列表控件。</p>
+</li>
+<li><p><strong>IGListKit的核心点是：</strong>从Model 变化中计算出 IndexPath 变化，也就是 <strong>Diff</strong> 算法，这样才好 batch updates。</p>
+</li>
+</ul>
+<h5 id="2、结构"><a href="#2、结构" class="headerlink" title="2、结构"></a>2、结构</h5><p><img src="https://upload-images.jianshu.io/upload_images/201701-994e7e1fc737bcb1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
+<p><strong>说明</strong>：基于 数据驱动 的 UICollectionView 框架 IGListKit。整个框架通过 <strong>Adapter</strong> 将过去直接暴露的 CollectionView Datasource 和 Delegate 实现进行包装，并通过它关联 Model 和 IGListSectionController。这使得上层用户只需要继承并实现所需要的 IGListSectionController 接口即可，很好地进行了代码解耦。</p>
+<h4 id="二、基础使用"><a href="#二、基础使用" class="headerlink" title="二、基础使用"></a>二、基础使用</h4><h5 id="1、IGListAdapter的初始化"><a href="#1、IGListAdapter的初始化" class="headerlink" title="1、IGListAdapter的初始化"></a>1、IGListAdapter的初始化</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">self.collectionView = [[UICollectionView alloc]initWithFrame:CGRectZero collectionViewLayout:[[UICollectionViewFlowLayout alloc]init]];</span><br><span class="line">self.collectionView.backgroundColor = [UIColor whiteColor];</span><br><span class="line">IGListAdapterUpdater*updater = [[IGListAdapterUpdater alloc]init];</span><br><span class="line">self.**adapter** = [[IGListAdapter alloc]initWithUpdater:updater viewController:self workingRangeSize:0];</span><br><span class="line">self.adapter.collectionView = self.collectionView;</span><br><span class="line">self.adapter.dataSource = self;</span><br><span class="line">[self.view addSubview:self.collectionView];</span><br></pre></td></tr></table></figure>
+<h5 id="2、实现IGListAdapter的协议"><a href="#2、实现IGListAdapter的协议" class="headerlink" title="2、实现IGListAdapter的协议"></a>2、实现IGListAdapter的协议</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">- (nullable UIView *)**emptyViewForListAdapter**:(nonnull IGListAdapter *)listAdapter &#123;</span><br><span class="line"> //没有数据时候的View</span><br><span class="line">    UILabel *label=[UILabel new];</span><br><span class="line">    label.text=@&quot;没有数据&quot;;</span><br><span class="line">    label.textAlignment=NSTextAlignmentCenter;</span><br><span class="line">    return label;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (nonnull IGListSectionController *)listAdapter:(nonnull IGListAdapter *)**listAdapter** **sectionControllerForObject**:(nonnull id)object &#123;</span><br><span class="line">    DemoSectionController *sectionController=[[DemoSectionController alloc]init];</span><br><span class="line">    return section;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (nonnull NSArray&lt;id&lt;IGListDiffable&gt;&gt; *)**objectsForListAdapter**:(nonnull IGListAdapter *)listAdapter &#123;</span><br><span class="line">    //数据源</span><br><span class="line">    return  self.dataArray;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="3、IGListSectionController的方法"><a href="#3、IGListSectionController的方法" class="headerlink" title="3、IGListSectionController的方法"></a>3、IGListSectionController的方法</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">- (NSInteger)**numberOfItems**&#123;</span><br><span class="line">   //每个section返回多少行根据数据来写</span><br><span class="line">    return 1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (CGSize)**sizeForItemAtIndex**:(NSInteger)index&#123;</span><br><span class="line">    return  CGSizeMake(self.collectionContext.containerSize.width, 64);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (UICollectionViewCell *)**cellForItemAtIndex**:(NSInteger)index&#123;    </span><br><span class="line">    DemoCollectionViewCell*cell=[self.collectionContext dequeueReusableCellOfClass:[DemoCollectionViewCell class] forSectionController:self atIndex:index];</span><br><span class="line">    [cell setModel:_object row:index];</span><br><span class="line">    return cell;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)**didSelectItemAtIndex**:(NSInteger)index &#123;</span><br><span class="line">    NSLog(@&quot;点击Section%ld  row%ld&quot;,(long)self.section,(long)index);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)**didUpdateToObject**:(id)object&#123;</span><br><span class="line">    //数据传输到这里</span><br><span class="line">    _object =(DemoModel *)object;    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="4、自定义model实现IGListDiffable协议"><a href="#4、自定义model实现IGListDiffable协议" class="headerlink" title="4、自定义model实现IGListDiffable协议"></a>4、自定义model实现IGListDiffable协议</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">//</span><br><span class="line">- (nonnull id&lt;NSObject&gt;)diffIdentifier &#123;</span><br><span class="line">    return self;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (BOOL)isEqualToDiffableObject:(nullable id&lt;IGListDiffable&gt;)object &#123;</span><br><span class="line">    if (self == object) &#123;</span><br><span class="line">        return YES;</span><br><span class="line">    &#125; else if (self == nil || object == nil) &#123;</span><br><span class="line">        return NO;</span><br><span class="line">    &#125;</span><br><span class="line">    return YES;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="三、Diffing算法"><a href="#三、Diffing算法" class="headerlink" title="三、Diffing算法"></a>三、Diffing算法</h4><h5 id="1、算法流程描述"><a href="#1、算法流程描述" class="headerlink" title="1、算法流程描述"></a>1、算法流程描述</h5><p>计算collectionView前后数据变化增删改移关系的算法，算法主要过程是：</p>
+<p>输入：前后变化的数据数组，新的数据数组为newArray，旧的数据数组为oldArray，newArray和oldArray中的model都实现了IGListDiffable协议</p>
+<p>1、首先创建一个hash表(unordered_map) <strong>table</strong></p>
+<p>2、先遍历newArray，每个model对应生成<strong>IGListEntry</strong>对象，并根据model的</p>
+<p><strong>diffIdentifier</strong>返回值作为key存入table，使得 newCount++，同时计入 newResultsArray</p>
+<p>3、再遍历oldArray，根据每个model的<strong>diffIdentifier</strong>返回值作为key，从table中找到对应的<strong>IGListEntry</strong>对象，没有就生成并存入table，使得oldCount++，同时将当前序号入栈 oldIndexes.push(i)，并记录<strong>oldResultsArray</strong></p>
+<p>4、遍历 <strong>newResultsArray</strong>，检查 entry 对应的 oldIndexes 信息，如果堆栈中有<strong>旧队列序号值</strong>，则表示当前 entry 至少对应新旧队列中的两个对象，即发生所谓的 <strong>entry match</strong>，进行记录，方便后续反向查询。再通过检查 新队列当前对象 和 entry 对应旧对象 是否相同确认 update 状态。</p>
+<ul>
+<li><p>再次遍历新旧 entry list，检查每个 entry 的 entry match 状态</p>
+</li>
+<li><p>没有 entry match 的对象，在新队列中的被标记为 insert<strong>，</strong>而在旧队列中的则被标示为 delete</p>
+</li>
+<li>有 entry match 的对象**通过比较新旧队列序号和 update 状态分表表示为 update，move和 not modified</li>
+</ul>
+<h5 id="2、算法示例"><a href="#2、算法示例" class="headerlink" title="2、算法示例"></a>2、算法示例</h5><p><strong>1）</strong>以旧数组 [1,2,3] 和新数组 [1,3,5] 为例 （数字比较直接忽略 update 状态）</p>
+<ul>
+<li><p>- 遍历新数组，得到 <strong>[entry1,entry3,entry5]</strong> 列表，记为 newResultsArray</p>
+</li>
+<li><p>- 遍历旧数组，得到 <strong>[entry1,entry2,entry3]</strong> 列表，记为 oldResultsArray</p>
+</li>
+</ul>
+<p><strong>2)</strong>  遍历<strong>newResultsArray</strong>，由于 entry1 oldIndexs = [0]，entry3 oldIndexes = [2] 所以他们是 entry match，做记录 （reverse lookup）</p>
+<p><strong>3)</strong> 遍历 <strong>oldResultsArray</strong></p>
+<ul>
+<li><p>entry1 有 entry match，跳过</p>
+</li>
+<li><p>entry2 没有 entry match，记为 delete</p>
+</li>
+<li><p>entry3 有 entry match，跳过</p>
+</li>
+</ul>
+<p><strong>4)</strong> 遍历 <strong>newResultsArray</strong></p>
+<ul>
+<li><p>entry1 有 entry match，同时相对位置不变，记为 not modified (其实就是跳过)</p>
+</li>
+<li><p>entry3 有 entry match，但是相对位置变化，记为 <strong>move</strong></p>
+</li>
+<li><p>entry5 没有 entry match，记为 <strong>insert</strong></p>
+</li>
+</ul>
+<p><strong>5)</strong> 输出一个包含 insert，move，delete 和 update 列表信息的最终结果</p>
+<p><strong>参考</strong> <a href="https://xiangwangfeng.com/2017/03/16/IGListKit-diff-%E5%AE%9E%E7%8E%B0%E7%AE%80%E6%9E%90/" target="_blank" rel="noopener">IGListKit diff 实现简析</a>、<a href="https://instagram.github.io/IGListKit/index.html" target="_blank" rel="noopener">IGListKit Reference</a> 、<a href="http://blog.danthought.com/programming/2018/06/22/iglistkit/" target="_blank" rel="noopener">IGListKit</a> </p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS/" rel="tag"># iOS</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/02/06/iOS-iOSRuntime/" rel="next" title="iOS Runtime 小记">
+                <i class="fa fa-chevron-left"></i> iOS Runtime 小记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/02/28/iOS-iOSJavaScriptCore/" rel="prev" title="JavaScriptCore小记">
+                JavaScriptCore小记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.jpeg"
+                alt="南华coder" />
+            
+              <p class="site-author-name" itemprop="name">南华coder</p>
+              <p class="site-description motion-element" itemprop="description">天之道，损有余而补不足</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、简介"><span class="nav-number">1.</span> <span class="nav-text">一、简介</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、基础"><span class="nav-number">1.1.</span> <span class="nav-text">1、基础</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、结构"><span class="nav-number">1.2.</span> <span class="nav-text">2、结构</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、基础使用"><span class="nav-number">2.</span> <span class="nav-text">二、基础使用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、IGListAdapter的初始化"><span class="nav-number">2.1.</span> <span class="nav-text">1、IGListAdapter的初始化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、实现IGListAdapter的协议"><span class="nav-number">2.2.</span> <span class="nav-text">2、实现IGListAdapter的协议</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、IGListSectionController的方法"><span class="nav-number">2.3.</span> <span class="nav-text">3、IGListSectionController的方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、自定义model实现IGListDiffable协议"><span class="nav-number">2.4.</span> <span class="nav-text">4、自定义model实现IGListDiffable协议</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、Diffing算法"><span class="nav-number">3.</span> <span class="nav-text">三、Diffing算法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、算法流程描述"><span class="nav-number">3.1.</span> <span class="nav-text">1、算法流程描述</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、算法示例"><span class="nav-number">3.2.</span> <span class="nav-text">2、算法示例</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">南华coder</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">45.9k</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
