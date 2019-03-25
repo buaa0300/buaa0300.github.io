@@ -339,7 +339,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  3,286 字
+                  3,706 字
                 </span>
               
 
@@ -355,7 +355,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  13 分
+                  14 分
                 </span>
               
             </div>
@@ -504,12 +504,9 @@ objc_removeAssociatedObjects  // 删除所有关联对象
 <p>详细参考我写的<a href="https://www.jianshu.com/p/5f2e38a40aa4" target="_blank" rel="noopener">Method Swizzling小记</a></p>
 <h5 id="4、键值观察（KVO）"><a href="#4、键值观察（KVO）" class="headerlink" title="4、键值观察（KVO）"></a>4、键值观察（KVO）</h5><p>  观察者模式在Objective-C的应用之一，借助Runtime特性，实现自动键值观察；使用了isa swizzling机制。具体描述如下：</p>
 <ul>
-<li><p>当某个类的对象第一次被观察时，系统就会在运行期动态地创建该类的一个<strong>子类</strong>，在这个子类中<strong>重写</strong>基类中被观察属性的 setter 方法，实现真正的通知机制；</p>
-</li>
-<li><p>派生类还重写了 class 方法以“欺骗”外部调用者，系统将对象的 isa 指针指向这个<strong>新诞生的子类</strong>，实质上这个对象就成为该派生类的对象了，因而在该对象上对 setter 的调用就会调用重写的 setter，从而激活键值通知机制。</p>
-</li>
-<li><p>此外，派生类还重写了 dealloc 方法来释放资源。</p>
-</li>
+<li>当某个类的对象第一次被观察时，系统就会在运行期动态地创建该类的一个<strong>子类</strong>，在这个子类中<strong>重写</strong>基类中被观察属性的 setter 方法，实现真正的通知机制；</li>
+<li>派生类还重写了 class 方法以“欺骗”外部调用者，系统将对象的 isa 指针指向这个<strong>新诞生的子类</strong>，实质上这个对象就成为该派生类的对象了，因而在该对象上对 setter 的调用就会调用重写的 setter，从而激活键值通知机制。</li>
+<li>此外，派生类还重写了 dealloc 方法来释放资源。</li>
 </ul>
 <p><strong>说明</strong>：KVC（键值编码）是不通过存取方法，而通过属性名称字符串间接访问属性的机制，没有用到isa swizzling机制。</p>
 <h5 id="5、NSProxy"><a href="#5、NSProxy" class="headerlink" title="5、NSProxy"></a>5、NSProxy</h5><ul>
@@ -525,6 +522,25 @@ objc_removeAssociatedObjects  // 删除所有关联对象
 <li>这两个方法是可选的，且只有在实现了它们时才会被调用。 </li>
 <li><strong>共同点：两个方法都只会被调用一次。</strong></li>
 </ul>
+<h4 id="四、KVO补充"><a href="#四、KVO补充" class="headerlink" title="四、KVO补充"></a>四、KVO补充</h4><h5 id="1、KVO的使用"><a href="#1、KVO的使用" class="headerlink" title="1、KVO的使用"></a>1、KVO的使用</h5><ul>
+<li><code>KVO</code>如果使用不当很容易崩溃，如：<code>Observer</code>被重复<code>remove</code>，或者没有及时移除（KVO crash notifying deallocated observer），<code>keyPath</code>传错都会导致崩溃。</li>
+<li>在调用<code>KVO</code>时需要传入一个<code>keyPath</code>，由于<code>keyPath</code>是字符串的形式，所以其对应的属性发生改变后，字符串没有改变容易导致<code>Crash</code>。我们可以利用系统的反射机制将<code>keyPath</code>反射出来，这样编译器可以在<code>@selector()</code>中进行合法性检查。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NSStringFromSelector(@selector(isFinished))</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p><code>KVO</code>是一种事件绑定机制的实现，在<code>keyPath</code>对应的值发生改变后会回调对应的方法。这种数据绑定机制，在对象关系很复杂的情况下，很容易导致不好排查的<code>bug</code>。例如<code>keyPath</code>对应的属性被调用的关系很复杂，就不太建议对这个属性进行<code>KVO</code>，可以想一下<code>RAC</code>的信号脑补一下。</p>
+</li>
+<li><p>如果项目中要使用KVO，建议使用Facebook的<a href="https://github.com/facebook/KVOController" target="_blank" rel="noopener">KVOController</a>，</p>
+</li>
+</ul>
+<h5 id="2、KVOController"><a href="#2、KVOController" class="headerlink" title="2、KVOController"></a>2、KVOController</h5><ul>
+<li><p><strong>本质</strong>：对系统<code>KVO</code>的封装，具有原生<code>KVO</code>所有的功能，而且规避了原生<code>KVO</code>的很多问题，兼容<code>block</code>和<code>action</code>两种回调方式。</p>
+</li>
+<li><p><strong>特点</strong></p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">不需要手动移除观察者；框架自动帮我们移除观察者</span><br><span class="line">使用 block 来替代方法能够减少使用的复杂度，提升使用 KVO 的体验；**block或者selector的方式，方便使用</span><br><span class="line">每一个 keyPath 会对应一个属性，不需要在 block 中使用 if 判断 keyPath；**一个keyPath对应一个SEL或者block，不需要统一的observeValueForKeyPath方法里写if判断</span><br></pre></td></tr></table></figure>
+<h5 id="3、-参考"><a href="#3、-参考" class="headerlink" title="3、 参考"></a>3、 参考</h5><p><a href="https://segmentfault.com/a/1190000013813643" target="_blank" rel="noopener">KVO原理分析及使用进阶</a></p>
 
           
         
@@ -2197,7 +2213,7 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1,119 字
+                  1,736 字
                 </span>
               
 
@@ -2213,7 +2229,7 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  4 分
+                  6 分
                 </span>
               
             </div>
@@ -2236,8 +2252,7 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
       
         
           
-            <p>没有做过组件化，先自行了解下</p>
-<h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4><h5 id="1、为什么用组件化"><a href="#1、为什么用组件化" class="headerlink" title="1、为什么用组件化"></a>1、为什么用组件化</h5><ul>
+            <h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4><h5 id="1、为什么用组件化"><a href="#1、为什么用组件化" class="headerlink" title="1、为什么用组件化"></a>1、为什么用组件化</h5><ul>
 <li><p><strong>业务快速发展、复杂的业务场景、团队的快速扩展等</strong>带来的变革诉求，希望通过<strong>组件化</strong>来提高团队的协作能力、减低开发成本，提高开发质量。</p>
 </li>
 <li><p>组件化直接效果：代码解耦，功能模块化；代码的复用性高；代码管理更加科学。</p>
@@ -2252,67 +2267,50 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
 </li>
 </ul>
 <h5 id="3、总结"><a href="#3、总结" class="headerlink" title="3、总结"></a>3、总结</h5><ul>
-<li>组件化是趋势，是大中型App团队的选择。</li>
-</ul>
-<h4 id="二、组件化四要素"><a href="#二、组件化四要素" class="headerlink" title="二、组件化四要素"></a>二、组件化四要素</h4><p>完成组件化，先考虑四要素。</p>
-<h5 id="1、组件拆分"><a href="#1、组件拆分" class="headerlink" title="1、组件拆分"></a>1、组件拆分</h5><ul>
-<li><p>首先需要对原有的<strong>基础模块</strong>，如网络模块、存储模块、网络图片加载模块、日志上报模块从原有代码中独立出来，用Cocoapods或Submodule管理起来。（<em>这部分相对简单</em>）</p>
+<li><p>组件化是趋势，是大中型App团队的选择。</p>
 </li>
-<li><p><strong>业务模块</strong>的拆分比较麻烦，这部分代码的规范性不强，文件之间的引用乱且杂，且代码阅读性较差，是个坑多的地方。</p>
-</li>
-<li><p>除了业务模块之外，还有一块代码是<strong>重灾区</strong>，是<strong>AppDelegate的初始化部分</strong>；这里包含太多的逻辑，如SDK和基础模块的初始化，参数设置，注册通知，网络请求等等。我的想法是：将不同的工作分配到不同的Category中，使其职责明确清晰。</p>
+<li><p>组件化实施步骤如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">- 剥离产品公共库和基础库</span><br><span class="line">	包括组件中间件，网络请求，第三方SDK管理封装，WebView(封装js，且以服务形式提供)，自定义键盘，UI基础组件，分类。然后在项目里用pod进行管理。其中，针对三方库，最好再封装一层，使我们的项目不直接依赖三方库，方便后续开发过程中的更换。</span><br><span class="line"></span><br><span class="line">- 独立业务模块单独成库</span><br><span class="line">	拆分粒度可以先粗后细，将相对独立的组件拆分出来。在开发过程中，对一些独立的模块，如：登录模块、账户模块等等，也可以封装成组件，因为这些组件是项目强依赖的，调用的频次比较多。另外，在拆分组件化的过程中，拆分的粒度要合适，尽量做到组件的独立性。同时，组件化是一个渐进的过程，不可能把一个完整的工程一下子全部组件化，要分步进行，通过不停的迭代，来最终实现项目的组件化。</span><br><span class="line">	</span><br><span class="line">- 组件化第三步，对外服务最小化</span><br><span class="line">在前两步都完成的情况下，我们可以根据组件被调用的需求来抽象出组件对外的最小化接口</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<h5 id="2、组件间通信"><a href="#2、组件间通信" class="headerlink" title="2、组件间通信"></a>2、组件间通信</h5><p>组件之前的通信，更多是指业务组件之间的通信吧。目前蘑菇街团队公开的方案是：<strong>URLRouter</strong>、<strong>Protocol Class Binding</strong>这两类方案。</p>
-<h5 id="2-1-URLRouter"><a href="#2-1-URLRouter" class="headerlink" title="2-1 URLRouter"></a>2-1 URLRouter</h5><ul>
+<h4 id="二、组件化四要素之组件拆分"><a href="#二、组件化四要素之组件拆分" class="headerlink" title="二、组件化四要素之组件拆分"></a>二、组件化四要素之组件拆分</h4><h5 id="1、组件拆分"><a href="#1、组件拆分" class="headerlink" title="1、组件拆分"></a>1、组件拆分</h5><ul>
+<li>首先需要对原有的<strong>基础模块</strong>，如网络模块、存储模块、网络图片加载模块、日志上报模块从原有代码中独立出来，用Cocoapods或Submodule管理起来。（<em>这部分相对简单</em>）</li>
+<li><strong>业务模块</strong>的拆分比较麻烦，这部分代码的规范性不强，文件之间的引用乱且杂，且代码阅读性较差，是个坑多的地方。</li>
+</ul>
+<h5 id="2、其他"><a href="#2、其他" class="headerlink" title="2、其他"></a>2、其他</h5><ul>
+<li>除了业务模块之外，还有一块代码是<strong>重灾区</strong>，是<strong>AppDelegate的初始化部分</strong>；这里包含太多的逻辑，如SDK和基础模块的初始化，参数设置，注册通知，网络请求等等。我的想法是：将不同的工作分配到不同的Category中，使其职责明确清晰。</li>
+</ul>
+<h4 id="三、组件化四要素之组件通信"><a href="#三、组件化四要素之组件通信" class="headerlink" title="三、组件化四要素之组件通信"></a>三、组件化四要素之组件通信</h4><p>组件之间的通信，更多是指业务组件之间的通信吧。目前蘑菇街团队公开的方案是：<strong>URLRouter</strong>、<strong>Protocol Class Binding</strong>这两类方案。</p>
+<h5 id="1、URLRouter"><a href="#1、URLRouter" class="headerlink" title="1、URLRouter"></a>1、URLRouter</h5><ul>
 <li><p><strong>简介</strong>：蘑菇街团队实现<a href="https://github.com/meili/MGJRouter" target="_blank" rel="noopener">MGJRouter</a>库，可以根据URL处理执行对应的Block；其核心在于，先注册URL 和 <strong>服务Block</strong> &amp; <strong>参数字典</strong>的对应关系（<em>保存在router字典中</em>），然后利用URL找到对应的Block，将参数字典交给Block，唤起对应的服务。</p>
-<pre><code>  // 注册
- [MGJRouter registerURLPattern:@&quot;mgj://foo/bar&quot; toHandler:^(NSDictionary *routerParameters) {
-[self appendLog:[NSString stringWithFormat:@&quot;routerParameters:%@&quot;, routerParameters]];
- }];
-
- //传参
- [MGJRouter openURL:@&quot;mgj://foo/bar&quot; withUserInfo:@{@&quot;param1&quot;:@&quot;hello world&quot;} completion:nil];
-
- //同步获取object
- NSNumber *orderCount = [MGJRouter objectForURL:@&quot;mgj://cart/ordercount&quot;]
-</code></pre></li>
-<li><p><strong>优势</strong>：解耦方便；各个组件依赖MGJRouter就可以；打破组件间的相关依赖关系；</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">// 注册</span><br><span class="line">[MGJRouter registerURLPattern:@&quot;mgj://foo/bar&quot; toHandler:^(NSDictionary *routerParameters) &#123;</span><br><span class="line">[self appendLog:[NSString stringWithFormat:@&quot;routerParameters:%@&quot;, routerParameters]];</span><br><span class="line">      &#125;];</span><br><span class="line"></span><br><span class="line">//传参</span><br><span class="line">[MGJRouter openURL:@&quot;mgj://foo/bar&quot; withUserInfo:@&#123;@&quot;param1&quot;:@&quot;hello world&quot;&#125; completion:nil];</span><br><span class="line"></span><br><span class="line">//同步获取object</span><br><span class="line">NSNumber *orderCount = [MGJRouter objectForURL:@&quot;mgj://cart/ordercount&quot;]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>优势</strong>：解耦方便；各个组件依赖MGJRouter就可以；打破组件间的相互依赖；</p>
 </li>
 <li><p><strong>不足</strong>：组件本身依赖中间件，但是分散注册又使得<strong>耦合较多</strong>。<br>需要专门维护URL(<em>蘑菇街使用后台维护，自动生成URL短链的方式</em>)；</p>
 </li>
+<li><p><strong>补充</strong>：<a href="https://github.com/meili/MGJRouter" target="_blank" rel="noopener">MGJRouter</a>是URL Router的OC版本实现，<a href="https://github.com/devxoul/URLNavigator" target="_blank" rel="noopener">URLNavigator</a>是URL Router的Swift版本实现，核心都是：注册URL和对应的处理，然后根据URL解析去做事情，如页面跳转。</p>
+</li>
 </ul>
-<h5 id="2-2-Protocol-Class-Binding（协议和类绑定"><a href="#2-2-Protocol-Class-Binding（协议和类绑定" class="headerlink" title="2-2 Protocol Class Binding（协议和类绑定)"></a>2-2 Protocol Class Binding（协议和类绑定)</h5><ul>
-<li><p><strong>简介</strong>：可以看做是蘑菇街团队URLRouter的升级方案。其核心在于，为组件定义Protocol，Protocol指定返回的数据，然后在组件中新建Class实现Protocol，如此将Protocol和Class关联起来。</p>
-<pre><code> //以购物车组件为例
-
-//1、组件定义MGJCart，执行返回订单数方法
- @protocol MGJCart &lt;NSObject&gt;
- + (NSInteger)orderCount;
-
-   @end
-
-//2、MGJCartImpl 实现MGJCart ，实现略
-
- //3、关联
-[ModuleManager registerClass:MGJCartImpl forProtocol:@protocol(MGJCart)]，
-
-//4、获取MGJCartImpl，接下来可以访问到参数了
-[ModuleManager classForProtocol:@protocol(MGJCart)]
-</code></pre></li>
+<h5 id="2、Protocol-Class-Binding-协议和类绑定"><a href="#2、Protocol-Class-Binding-协议和类绑定" class="headerlink" title="2、Protocol Class Binding(协议和类绑定)"></a>2、Protocol Class Binding(协议和类绑定)</h5><ul>
+<li><p><strong>简介</strong>：核心在于，为组件定义Protocol，Protocol指定返回的数据，然后在组件中新建Class实现Protocol，如此将Protocol和Class关联起来。</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">//以购物车组件为例</span><br><span class="line">//1、组件定义MGJCart，执行返回订单数方法</span><br><span class="line">@protocol MGJCart &lt;NSObject&gt;</span><br><span class="line"></span><br><span class="line">- (NSInteger)orderCount;</span><br><span class="line">@end</span><br><span class="line"></span><br><span class="line">//2、MGJCartImpl 实现MGJCart ，实现略</span><br><span class="line">   	   </span><br><span class="line">//3、关联</span><br><span class="line">[ModuleManager registerClass:MGJCartImpl forProtocol:@protocol(MGJCart)]，</span><br><span class="line">	</span><br><span class="line"> //4、获取MGJCartImpl，接下来可以访问到参数了</span><br><span class="line">[ModuleManager classForProtocol:@protocol(MGJCart)]</span><br></pre></td></tr></table></figure>
+</li>
 <li><p><strong>优势</strong>：把公共的协议统一放到同一文件中，组件依赖该文件即可。</p>
 </li>
-</ul>
-<h5 id="3、组件的单元测试"><a href="#3、组件的单元测试" class="headerlink" title="3、组件的单元测试"></a>3、组件的单元测试</h5><p>每一个组件都需要提供单元测试，保证代码质量。</p>
-<p><em>实践后，再来补充</em></p>
-<h5 id="4、组件开发、集成、发版"><a href="#4、组件开发、集成、发版" class="headerlink" title="4、组件开发、集成、发版"></a>4、组件开发、集成、发版</h5><p><em>实践后，再来补充</em></p>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><ul>
-<li><p>个人认为，<strong>组件化</strong>是<strong>业务、团队快速扩张</strong>下的新的<strong>合作分工方式</strong>；</p>
-</li>
-<li><p>虽然我们团队还没有这类变革诉求，但是我们能够要在各个垂直、细分领域打开局面，形成自己的<strong>产品矩阵</strong>，组件化方案或类组件化方案是必须要有人去踩坑的。</p>
-<p>参考文章：<a href="https://www.jianshu.com/p/48fbcbb36c75" target="_blank" rel="noopener">iOS App组件化开发实践</a></p>
+<li><p><strong>补充</strong>：阿里的beehive属于此类方案实现，具体参考<a href="https://halfrost.com/beehive/" target="_blank" rel="noopener">BeeHive —— 一个优雅但还在完善中的解耦框架</a>，核心思想涉及：各个模块间从直接调用对应模块，变成以Service的形式，避免了直接依赖；App生命周期的分发，将耦合在AppDelegate中的逻辑拆分，每个模块以微应用的形式独立存在。</p>
 </li>
 </ul>
+<h5 id="3、Target-Action方案"><a href="#3、Target-Action方案" class="headerlink" title="3、Target-Action方案"></a>3、Target-Action方案</h5><ul>
+<li><p><strong>简介</strong>: <a href="https://github.com/casatwy/CTMediator" target="_blank" rel="noopener">CTMediator</a>方案，在此类中对外提供明确参数类型的接口，接口内部通过performTarget方法调用服务方组件的Target、Action。由于CTMediator类的调用是通过runtime主动发现服务的，所以服务方对此类是完全解耦的。但如果CTMediator类对外提供的方法都放在此类中，将会对CTMediator造成极大的负担和代码量。解决方法就是对每个服务方组件创建一个CTMediator的Category，并将对服务方的performTarget调用放在对应的Category中，这些Category都属于CTMediator中间件，从而实现了感官上的接口分离。</p>
+</li>
+<li><p><strong>特点</strong>: 侵入小，但硬编码较多，Runtime编译阶段不检查,运行时才检查对应类或者方法是否存在，对开发要求较高。</p>
+</li>
+</ul>
+<h4 id="四、组件化四要素之单元测试"><a href="#四、组件化四要素之单元测试" class="headerlink" title="四、组件化四要素之单元测试"></a>四、组件化四要素之单元测试</h4><p>每一个组件都需要提供单元测试，保证代码质量。</p>
+<p>暂未实践</p>
+<h4 id="五、组件化四要素之组件开发、集成、发版"><a href="#五、组件化四要素之组件开发、集成、发版" class="headerlink" title="五、组件化四要素之组件开发、集成、发版"></a>五、组件化四要素之组件开发、集成、发版</h4><p>暂未实践</p>
+<p>参考文章：<a href="https://www.jianshu.com/p/48fbcbb36c75" target="_blank" rel="noopener">iOS App组件化开发实践</a>、<a href="http://cocoafei.top/2018/06/iOS%E7%BB%84%E4%BB%B6%E5%8C%96%E6%96%B9%E6%A1%88%E9%80%89%E5%9E%8B/#3_2" target="_blank" rel="noopener">iOS组件化方案选型</a></p>
 
           
         
@@ -3271,7 +3269,7 @@ varchar,password
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">45.9k</span>
+    <span title="Site words total count">46.9k</span>
   
 </div>
 

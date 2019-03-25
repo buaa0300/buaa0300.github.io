@@ -91,7 +91,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/201701-fa143a7c6b17b43d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/201701-35938988b21e8a6c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2019-03-24T09:16:15.083Z">
+<meta property="og:updated_time" content="2019-03-25T12:23:07.835Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iOS Runtime 小记">
 <meta name="twitter:description" content="Objective-C利用Runtime库(底层的 C 语言 API)赋予了语言的动态特性。 一、Runtime基石：Objective-C对象模型1、对象 每一个对象都是类的实例, 类中保存对象的方法列表；当一个对象方法被调用时，类会首先查找它本身是否有该方法的实现，如果没有，则会向它的父类查找该方法，直到NSObject(根类)；  类是元类 (metaclass) 的实例；元类保存类方法列表">
@@ -341,7 +341,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  3,286 字
+                  3,706 字
                 </span>
               
 
@@ -357,7 +357,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  13 分
+                  14 分
                 </span>
               
             </div>
@@ -504,12 +504,9 @@ objc_removeAssociatedObjects  // 删除所有关联对象
 <p>详细参考我写的<a href="https://www.jianshu.com/p/5f2e38a40aa4" target="_blank" rel="noopener">Method Swizzling小记</a></p>
 <h5 id="4、键值观察（KVO）"><a href="#4、键值观察（KVO）" class="headerlink" title="4、键值观察（KVO）"></a>4、键值观察（KVO）</h5><p>  观察者模式在Objective-C的应用之一，借助Runtime特性，实现自动键值观察；使用了isa swizzling机制。具体描述如下：</p>
 <ul>
-<li><p>当某个类的对象第一次被观察时，系统就会在运行期动态地创建该类的一个<strong>子类</strong>，在这个子类中<strong>重写</strong>基类中被观察属性的 setter 方法，实现真正的通知机制；</p>
-</li>
-<li><p>派生类还重写了 class 方法以“欺骗”外部调用者，系统将对象的 isa 指针指向这个<strong>新诞生的子类</strong>，实质上这个对象就成为该派生类的对象了，因而在该对象上对 setter 的调用就会调用重写的 setter，从而激活键值通知机制。</p>
-</li>
-<li><p>此外，派生类还重写了 dealloc 方法来释放资源。</p>
-</li>
+<li>当某个类的对象第一次被观察时，系统就会在运行期动态地创建该类的一个<strong>子类</strong>，在这个子类中<strong>重写</strong>基类中被观察属性的 setter 方法，实现真正的通知机制；</li>
+<li>派生类还重写了 class 方法以“欺骗”外部调用者，系统将对象的 isa 指针指向这个<strong>新诞生的子类</strong>，实质上这个对象就成为该派生类的对象了，因而在该对象上对 setter 的调用就会调用重写的 setter，从而激活键值通知机制。</li>
+<li>此外，派生类还重写了 dealloc 方法来释放资源。</li>
 </ul>
 <p><strong>说明</strong>：KVC（键值编码）是不通过存取方法，而通过属性名称字符串间接访问属性的机制，没有用到isa swizzling机制。</p>
 <h5 id="5、NSProxy"><a href="#5、NSProxy" class="headerlink" title="5、NSProxy"></a>5、NSProxy</h5><ul>
@@ -525,6 +522,25 @@ objc_removeAssociatedObjects  // 删除所有关联对象
 <li>这两个方法是可选的，且只有在实现了它们时才会被调用。 </li>
 <li><strong>共同点：两个方法都只会被调用一次。</strong></li>
 </ul>
+<h4 id="四、KVO补充"><a href="#四、KVO补充" class="headerlink" title="四、KVO补充"></a>四、KVO补充</h4><h5 id="1、KVO的使用"><a href="#1、KVO的使用" class="headerlink" title="1、KVO的使用"></a>1、KVO的使用</h5><ul>
+<li><code>KVO</code>如果使用不当很容易崩溃，如：<code>Observer</code>被重复<code>remove</code>，或者没有及时移除（KVO crash notifying deallocated observer），<code>keyPath</code>传错都会导致崩溃。</li>
+<li>在调用<code>KVO</code>时需要传入一个<code>keyPath</code>，由于<code>keyPath</code>是字符串的形式，所以其对应的属性发生改变后，字符串没有改变容易导致<code>Crash</code>。我们可以利用系统的反射机制将<code>keyPath</code>反射出来，这样编译器可以在<code>@selector()</code>中进行合法性检查。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NSStringFromSelector(@selector(isFinished))</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p><code>KVO</code>是一种事件绑定机制的实现，在<code>keyPath</code>对应的值发生改变后会回调对应的方法。这种数据绑定机制，在对象关系很复杂的情况下，很容易导致不好排查的<code>bug</code>。例如<code>keyPath</code>对应的属性被调用的关系很复杂，就不太建议对这个属性进行<code>KVO</code>，可以想一下<code>RAC</code>的信号脑补一下。</p>
+</li>
+<li><p>如果项目中要使用KVO，建议使用Facebook的<a href="https://github.com/facebook/KVOController" target="_blank" rel="noopener">KVOController</a>，</p>
+</li>
+</ul>
+<h5 id="2、KVOController"><a href="#2、KVOController" class="headerlink" title="2、KVOController"></a>2、KVOController</h5><ul>
+<li><p><strong>本质</strong>：对系统<code>KVO</code>的封装，具有原生<code>KVO</code>所有的功能，而且规避了原生<code>KVO</code>的很多问题，兼容<code>block</code>和<code>action</code>两种回调方式。</p>
+</li>
+<li><p><strong>特点</strong></p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">不需要手动移除观察者；框架自动帮我们移除观察者</span><br><span class="line">使用 block 来替代方法能够减少使用的复杂度，提升使用 KVO 的体验；**block或者selector的方式，方便使用</span><br><span class="line">每一个 keyPath 会对应一个属性，不需要在 block 中使用 if 判断 keyPath；**一个keyPath对应一个SEL或者block，不需要统一的observeValueForKeyPath方法里写if判断</span><br></pre></td></tr></table></figure>
+<h5 id="3、-参考"><a href="#3、-参考" class="headerlink" title="3、 参考"></a>3、 参考</h5><p><a href="https://segmentfault.com/a/1190000013813643" target="_blank" rel="noopener">KVO原理分析及使用进阶</a></p>
 
       
     </div>
@@ -710,7 +726,7 @@ objc_removeAssociatedObjects  // 删除所有关联对象
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、Runtime基石：Objective-C对象模型"><span class="nav-number">1.</span> <span class="nav-text">一、Runtime基石：Objective-C对象模型</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、对象"><span class="nav-number">1.1.</span> <span class="nav-text">1、对象</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、isa指针"><span class="nav-number">1.2.</span> <span class="nav-text">2、isa指针</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、对象布局"><span class="nav-number">1.3.</span> <span class="nav-text">3、对象布局</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、其他"><span class="nav-number">1.4.</span> <span class="nav-text">4、其他</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、Runtime核心：消息发送和转发"><span class="nav-number">2.</span> <span class="nav-text">二、Runtime核心：消息发送和转发</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、消息发送（Message）"><span class="nav-number">2.1.</span> <span class="nav-text">1、消息发送（Message）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、消息转发（Message-Forwarding）"><span class="nav-number">2.2.</span> <span class="nav-text">2、消息转发（Message Forwarding）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、避免消息转发的办法"><span class="nav-number">2.3.</span> <span class="nav-text">3、避免消息转发的办法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、super本质"><span class="nav-number">2.4.</span> <span class="nav-text">4、super本质</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、Runtime特性和应用"><span class="nav-number">3.</span> <span class="nav-text">三、Runtime特性和应用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、分类（Category）"><span class="nav-number">3.1.</span> <span class="nav-text">1、分类（Category）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、关联对象（Associated-Objects）"><span class="nav-number">3.2.</span> <span class="nav-text">2、关联对象（Associated Objects）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、方法混写-Method-Swizzling"><span class="nav-number">3.3.</span> <span class="nav-text">3、方法混写(Method Swizzling)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、键值观察（KVO）"><span class="nav-number">3.4.</span> <span class="nav-text">4、键值观察（KVO）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5、NSProxy"><span class="nav-number">3.5.</span> <span class="nav-text">5、NSProxy</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6、load和initialize"><span class="nav-number">3.6.</span> <span class="nav-text">6、load和initialize</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、Runtime基石：Objective-C对象模型"><span class="nav-number">1.</span> <span class="nav-text">一、Runtime基石：Objective-C对象模型</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、对象"><span class="nav-number">1.1.</span> <span class="nav-text">1、对象</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、isa指针"><span class="nav-number">1.2.</span> <span class="nav-text">2、isa指针</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、对象布局"><span class="nav-number">1.3.</span> <span class="nav-text">3、对象布局</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、其他"><span class="nav-number">1.4.</span> <span class="nav-text">4、其他</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、Runtime核心：消息发送和转发"><span class="nav-number">2.</span> <span class="nav-text">二、Runtime核心：消息发送和转发</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、消息发送（Message）"><span class="nav-number">2.1.</span> <span class="nav-text">1、消息发送（Message）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、消息转发（Message-Forwarding）"><span class="nav-number">2.2.</span> <span class="nav-text">2、消息转发（Message Forwarding）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、避免消息转发的办法"><span class="nav-number">2.3.</span> <span class="nav-text">3、避免消息转发的办法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、super本质"><span class="nav-number">2.4.</span> <span class="nav-text">4、super本质</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、Runtime特性和应用"><span class="nav-number">3.</span> <span class="nav-text">三、Runtime特性和应用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、分类（Category）"><span class="nav-number">3.1.</span> <span class="nav-text">1、分类（Category）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、关联对象（Associated-Objects）"><span class="nav-number">3.2.</span> <span class="nav-text">2、关联对象（Associated Objects）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、方法混写-Method-Swizzling"><span class="nav-number">3.3.</span> <span class="nav-text">3、方法混写(Method Swizzling)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、键值观察（KVO）"><span class="nav-number">3.4.</span> <span class="nav-text">4、键值观察（KVO）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5、NSProxy"><span class="nav-number">3.5.</span> <span class="nav-text">5、NSProxy</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6、load和initialize"><span class="nav-number">3.6.</span> <span class="nav-text">6、load和initialize</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四、KVO补充"><span class="nav-number">4.</span> <span class="nav-text">四、KVO补充</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、KVO的使用"><span class="nav-number">4.1.</span> <span class="nav-text">1、KVO的使用</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、KVOController"><span class="nav-number">4.2.</span> <span class="nav-text">2、KVOController</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、-参考"><span class="nav-number">4.3.</span> <span class="nav-text">3、 参考</span></a></li></ol></li></ol></div>
             
 
           </div>
@@ -744,7 +760,7 @@ objc_removeAssociatedObjects  // 删除所有关联对象
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">45.9k</span>
+    <span title="Site words total count">46.9k</span>
   
 </div>
 
