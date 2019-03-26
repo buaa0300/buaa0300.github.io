@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="iOS," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="南华coder的空间" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="一、概述1、背景 谈及iOS的架构，绕不开组件化、MVC、MVVM这些关键词 对于几个人的小团队，组件化未必是适合的方案，当然遇到业务扩张，新App需要落地，将相同的功能沉库，可以汲取组件化的精髓，提高生产效率。 组件化是大中型App团队的选择。 对于百人以上的客户端超级大团队，组件化非常值得拥有，当然实施起来也非常复杂，包括业务划分，业务组件和基础组件的设计和开发、测试、集成和发版。  2、MV">
+<meta name="keywords" content="iOS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS架构小记">
+<meta property="og:url" content="http://buaa0300/nanhuacoder.com/2019/02/21/iOS-Zujianhua/index.html">
+<meta property="og:site_name" content="南华coder的空间">
+<meta property="og:description" content="一、概述1、背景 谈及iOS的架构，绕不开组件化、MVC、MVVM这些关键词 对于几个人的小团队，组件化未必是适合的方案，当然遇到业务扩张，新App需要落地，将相同的功能沉库，可以汲取组件化的精髓，提高生产效率。 组件化是大中型App团队的选择。 对于百人以上的客户端超级大团队，组件化非常值得拥有，当然实施起来也非常复杂，包括业务划分，业务组件和基础组件的设计和开发、测试、集成和发版。  2、MV">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/201701-77b1b371629ba8d8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/201701-7584653944d3e889.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/201701-ea78e2837ecc0db4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/201701-7fdab1dde3415a38.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640">
+<meta property="og:updated_time" content="2019-03-26T13:27:15.311Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS架构小记">
+<meta name="twitter:description" content="一、概述1、背景 谈及iOS的架构，绕不开组件化、MVC、MVVM这些关键词 对于几个人的小团队，组件化未必是适合的方案，当然遇到业务扩张，新App需要落地，将相同的功能沉库，可以汲取组件化的精髓，提高生产效率。 组件化是大中型App团队的选择。 对于百人以上的客户端超级大团队，组件化非常值得拥有，当然实施起来也非常复杂，包括业务划分，业务组件和基础组件的设计和开发、测试、集成和发版。  2、MV">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/201701-77b1b371629ba8d8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://buaa0300/nanhuacoder.com/2019/02/21/iOS-Zujianhua/"/>
+
+
+
+
+
+  <title>iOS架构小记 | 南华coder的空间</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">南华coder的空间</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2019/02/21/iOS-Zujianhua/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">iOS架构小记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-21T22:29:49+08:00">
+                2019-02-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS进阶/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS进阶</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,922 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  11 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4><h5 id="1、背景"><a href="#1、背景" class="headerlink" title="1、背景"></a>1、背景</h5><ul>
+<li>谈及iOS的架构，绕不开组件化、MVC、MVVM这些关键词</li>
+<li>对于几个人的小团队，组件化未必是适合的方案，当然遇到业务扩张，新App需要落地，将相同的功能沉库，可以汲取组件化的精髓，提高生产效率。</li>
+<li>组件化是大中型App团队的选择。</li>
+<li>对于百人以上的客户端超级大团队，组件化非常值得拥有，当然实施起来也非常复杂，包括业务划分，业务组件和基础组件的设计和开发、测试、集成和发版。</li>
+</ul>
+<h5 id="2、MVC和MVVM"><a href="#2、MVC和MVVM" class="headerlink" title="2、MVC和MVVM"></a>2、MVC和MVVM</h5><ul>
+<li>好像一说起Controller代码臃肿，就把锅求给MVC，就鼓吹MVVM，其实MVC虽然有明显的缺点，但是合理使用，绝对满足大部分需求，造成代码的臃肿和难以管理，很大原因和开发者认知有关系。</li>
+<li>MVVM可以用，使用MVVM不必要一定引入RAC,</li>
+</ul>
+<h5 id="3、组件化"><a href="#3、组件化" class="headerlink" title="3、组件化"></a>3、组件化</h5><ul>
+<li><strong>业务快速发展、复杂的业务场景、团队的快速扩张等</strong>带来的变革诉求，希望通过<strong>组件化</strong>来提高团队的协作能力、减低开发成本，提高开发质量。</li>
+<li>组件化直接效果：代码解耦，功能模块化；代码的复用性高；代码管理更加科学。</li>
+<li>从<strong>蘑菇街</strong>(<a href="https://www.jianshu.com/p/cdf94a963c27" target="_blank" rel="noopener">蘑菇街 App 的组件化之路</a>)、<strong>支付宝(<a href="http://www.sohu.com/a/129493438_536622" target="_blank" rel="noopener">从支付宝红包揭秘亿级APP的移动开发</a>)</strong>等团队公开的信息来看：业务的增加、开发团队的扩张、快速迭代的要求，催生组件化方案(<em>可能有更好的架构方案</em>)快速落地。</li>
+<li>蘑菇街和支付宝等团队实现组件化方案，一是业务发展的必然选择；二是其技术沉淀深，能为自己和兄弟团队打造出质量上乘的组件化服务。</li>
+</ul>
+<h4 id="二、组件化实施"><a href="#二、组件化实施" class="headerlink" title="二、组件化实施"></a>二、组件化实施</h4><h5 id="1、实施步骤"><a href="#1、实施步骤" class="headerlink" title="1、实施步骤"></a>1、实施步骤</h5><ul>
+<li>剥离产品公共库和基础库</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">将网络请求、数据存储、图片下载和存储、第三方SDK(微信，支付宝)、UI基础组件、自定义相机等、UIKit和Foundation的扩展等，拆分出来，各自沉库，使用cocopods管理。</span><br></pre></td></tr></table></figure>
+<ul>
+<li>独立业务模块单独成库</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">将登录、分享、支付、日志上报等模块封装成组件，也可以将一些通用模块，如资讯详情页、XX模块拆分出来，拆分粒度可以先粗后细，将相对独立的功能封装成组件，统一对外提供服务，保证体验一致性。</span><br></pre></td></tr></table></figure>
+<ul>
+<li>对外服务最小化</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在前两步都完成的情况下，根据组件被调用的需求来抽象出组件对外的最小化接口(遵循SOLID原则中的接口分离原则)</span><br></pre></td></tr></table></figure>
+<h5 id="2、组件通信"><a href="#2、组件通信" class="headerlink" title="2、组件通信"></a>2、组件通信</h5><p>组件之间的通信，更多是指业务组件之间的通信吧。目前蘑菇街团队公开的方案是：<strong>URLRouter</strong>、<strong>Protocol Class Binding</strong>和<strong>Target-Action</strong>这三类方案。</p>
+<h6 id="1）URLRouter"><a href="#1）URLRouter" class="headerlink" title="1）URLRouter"></a>1）URLRouter</h6><ul>
+<li><p><strong>简介</strong>：蘑菇街团队实现<a href="https://github.com/meili/MGJRouter" target="_blank" rel="noopener">MGJRouter</a>库，可以根据URL处理执行对应的Block；其核心在于，先注册URL 和 <strong>服务Block</strong> &amp; <strong>参数字典</strong>的对应关系（<em>保存在router字典中</em>），然后利用URL找到对应的Block，将参数字典交给Block，唤起对应的服务。</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">// 注册</span><br><span class="line">[MGJRouter registerURLPattern:@&quot;mgj://foo/bar&quot; toHandler:^(NSDictionary *routerParameters) &#123;</span><br><span class="line">[self appendLog:[NSString stringWithFormat:@&quot;routerParameters:%@&quot;, routerParameters]];</span><br><span class="line">      &#125;];</span><br><span class="line"></span><br><span class="line">//传参</span><br><span class="line">[MGJRouter openURL:@&quot;mgj://foo/bar&quot; withUserInfo:@&#123;@&quot;param1&quot;:@&quot;hello world&quot;&#125; completion:nil];</span><br><span class="line"></span><br><span class="line">//同步获取object</span><br><span class="line">NSNumber *orderCount = [MGJRouter objectForURL:@&quot;mgj://cart/ordercount&quot;]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>优势</strong>：解耦方便；各个组件依赖MGJRouter就可以；打破组件间的相互依赖；</p>
+</li>
+<li><p><strong>不足</strong>：组件本身依赖中间件，但是分散注册又使得<strong>耦合较多</strong>。<br>需要专门维护URL(<em>蘑菇街使用后台维护，自动生成URL短链的方式</em>)；</p>
+</li>
+<li><p><strong>补充</strong>：<a href="https://github.com/meili/MGJRouter" target="_blank" rel="noopener">MGJRouter</a>是URL Router的OC版本实现，<a href="https://github.com/devxoul/URLNavigator" target="_blank" rel="noopener">URLNavigator</a>是URL Router的Swift版本实现，核心都是：注册URL和对应的处理，然后根据URL解析去做事情，如页面跳转。</p>
+</li>
+</ul>
+<h6 id="2）Protocol-Class-Binding-协议和类绑定"><a href="#2）Protocol-Class-Binding-协议和类绑定" class="headerlink" title="2）Protocol Class Binding(协议和类绑定)"></a>2）Protocol Class Binding(协议和类绑定)</h6><ul>
+<li><p><strong>简介</strong>：核心在于，为组件定义Protocol，Protocol指定返回的数据，然后在组件中新建Class实现Protocol，如此将Protocol和Class关联起来。</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">//以购物车组件为例</span><br><span class="line">//1、组件定义MGJCart，执行返回订单数方法</span><br><span class="line">@protocol MGJCart &lt;NSObject&gt;</span><br><span class="line"></span><br><span class="line">- (NSInteger)orderCount;</span><br><span class="line">@end</span><br><span class="line"></span><br><span class="line">//2、MGJCartImpl 实现MGJCart ，实现略</span><br><span class="line">   	   </span><br><span class="line">//3、关联</span><br><span class="line">[ModuleManager registerClass:MGJCartImpl forProtocol:@protocol(MGJCart)]，</span><br><span class="line">	</span><br><span class="line"> //4、获取MGJCartImpl，接下来可以访问到参数了</span><br><span class="line">[ModuleManager classForProtocol:@protocol(MGJCart)]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>优势</strong>：把公共的协议统一放到同一文件中，组件依赖该文件即可。</p>
+</li>
+<li><p><strong>补充</strong>：阿里的beehive属于此类方案实现，具体参考<a href="https://halfrost.com/beehive/" target="_blank" rel="noopener">BeeHive —— 一个优雅但还在完善中的解耦框架</a>，核心思想涉及：各个模块间从直接调用对应模块，变成以Service的形式，避免了直接依赖；App生命周期的分发，将耦合在AppDelegate中的逻辑拆分，每个模块以微应用的形式独立存在。</p>
+</li>
+</ul>
+<h6 id="3）Target-Action方案"><a href="#3）Target-Action方案" class="headerlink" title="3）Target-Action方案"></a>3）Target-Action方案</h6><ul>
+<li><strong>简介</strong>: <a href="https://github.com/casatwy/CTMediator" target="_blank" rel="noopener">CTMediator</a>方案，在此类中对外提供明确参数类型的接口，接口内部通过performTarget方法调用服务方组件的Target、Action。由于CTMediator类的调用是通过runtime主动发现服务的，所以服务方对此类是完全解耦的。但如果CTMediator类对外提供的方法都放在此类中，将会对CTMediator造成极大的负担和代码量。解决方法就是对每个服务方组件创建一个CTMediator的Category，并将对服务方的performTarget调用放在对应的Category中，这些Category都属于CTMediator中间件，从而实现了感官上的接口分离。</li>
+<li><strong>特点</strong>: 侵入小，但硬编码较多，Runtime编译阶段不检查,运行时才检查对应类或者方法是否存在，对开发要求较高。</li>
+</ul>
+<h5 id="3、其他"><a href="#3、其他" class="headerlink" title="3、其他"></a>3、其他</h5><p>需要一个组件的管理平台，管理这些组件的单元测试、集成和发版</p>
+<p>参考文章：<a href="https://www.jianshu.com/p/48fbcbb36c75" target="_blank" rel="noopener">iOS App组件化开发实践</a>、<a href="http://cocoafei.top/2018/06/iOS%E7%BB%84%E4%BB%B6%E5%8C%96%E6%96%B9%E6%A1%88%E9%80%89%E5%9E%8B/#3_2" target="_blank" rel="noopener">iOS组件化方案选型</a></p>
+<h4 id="三、MVC"><a href="#三、MVC" class="headerlink" title="三、MVC"></a>三、MVC</h4><h5 id="1、苹果推荐的MVC"><a href="#1、苹果推荐的MVC" class="headerlink" title="1、苹果推荐的MVC"></a>1、苹果推荐的MVC</h5><ul>
+<li>我们常说的MVC主要包括以下三部分</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">控制器（Controller）- 数据的加工者</span><br><span class="line">视图（View） - 数据显示</span><br><span class="line">模型（Model）- 数据管理</span><br></pre></td></tr></table></figure>
+<ul>
+<li>在苹果推荐的MVC中，<strong>View和Model是没有通信的</strong>，但是Controller可以Model和View通信；</li>
+</ul>
+<p><img src="https://upload-images.jianshu.io/upload_images/201701-77b1b371629ba8d8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="MVC"></p>
+<ul>
+<li>Controller是可以直接访问Model，然后Model不知道Controller是谁，当Model发生变化时候，利用通知、代理或KVO等方式通知Controller</li>
+<li><p>Controller也可以直接访问View，Controller可以直接根据Model来决定View的展示。View接收到响应事件, 通过delegate、target-action、block等方式告诉Controller的状态变化。Controller进行业务的处理，然后再控制View的展示。</p>
+</li>
+<li><p>随着Controller和Model、View的交互(通信)越来越多，Controller中的代码就越来越多，造成Controller中代码过于臃肿。</p>
+</li>
+</ul>
+<h5 id="2、MVC的优化实践"><a href="#2、MVC的优化实践" class="headerlink" title="2、MVC的优化实践"></a>2、MVC的优化实践</h5><ul>
+<li>MVC是非常经典的设计模式，虽然有很多问题，但是使用得当的话，其实能搞定大部分项目。很多时候，代码的臃肿很大原因是开发者代码不规范造成的，比如将网络请求逻辑，数据的存储逻辑都放在Controller中，或者Controller中展示聚集太多的UI元素，这如何不造成Controller的代码臃肿呢。</li>
+<li>在使用MVC模式，需要划分好MVC的职责</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Model应该做的事：</span><br><span class="line">1.给ViewController提供数据</span><br><span class="line">2.给ViewController存储数据提供接口</span><br><span class="line">3.提供经过抽象的业务基本组件，供Controller调度</span><br><span class="line"></span><br><span class="line">Controller应该做的事：</span><br><span class="line">1.管理View Container的生命周期</span><br><span class="line">2.负责生成所有的View实例，并放入View Container</span><br><span class="line">3.监听来自View与业务有关的事件，通过与Model的合作，来完成对应事件的业务。</span><br><span class="line"></span><br><span class="line">View应该做的事：</span><br><span class="line">1.响应与业务无关的事件，并因此引发动画效果，点击反馈（如果合适的话，尽量还是放在View去做）等。</span><br><span class="line">2.界面元素表达</span><br></pre></td></tr></table></figure>
+<ul>
+<li>对软件结构做好分层，将软件分成若干个水平层，每一层都有清晰的角色和分工，不需要知道其他层的细节。层与层之间通过接口通信。</li>
+</ul>
+<h4 id="四、MVVM"><a href="#四、MVVM" class="headerlink" title="四、MVVM"></a>四、MVVM</h4><h5 id="1、介绍"><a href="#1、介绍" class="headerlink" title="1、介绍"></a>1、介绍</h5><p><img src="https://upload-images.jianshu.io/upload_images/201701-7584653944d3e889.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="MVVM.png"></p>
+<ul>
+<li>在MVVM中，将和视图、数据的交互处理从Controller中移到ViewModel中；VM负责和Model通信，可以直接访问Model，当Model改变时候通知VM；同时，VM负责和视图的通信，直接访问视图，当视图接收到响应事件时，通知VM去处理。而Controller仅仅是协调各个部分的绑定关系以及必要的逻辑处理。</li>
+<li>MVVM的核心是：<strong>实现MVVM的双向绑定</strong>，很多项目组因此引入RAC框架(函数响应式框架)，其实使用KVO机制也可以实现双向绑定也可以，直接使用KVO，会有一些问题，建议直接使用facebook的KVOController</li>
+</ul>
+<h5 id="2、MVVM和MVC的对比"><a href="#2、MVVM和MVC的对比" class="headerlink" title="2、MVVM和MVC的对比"></a>2、MVVM和MVC的对比</h5><p><img src="https://upload-images.jianshu.io/upload_images/201701-ea78e2837ecc0db4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="mvvm和mvc.png"></p>
+<ul>
+<li><strong>MVVM优点</strong>：方便测试，VM可以方便做单元测试，MVC下的Controller里面逻辑太多，无法做单元测试；耦合度低； 复用性高； 层次更清晰； 重构成本低；</li>
+<li><strong>MVVM缺点</strong>：类文件增多(每个VC多一个ViewModel)，ViewModel的代码复杂度增大(处理各种交互)</li>
+<li><strong>MVC优点</strong>：通用架构； 处理耦合度高的逻辑方便； </li>
+<li><strong>MVC缺点：</strong> 耦合度高； 复用性差； 测试性差；</li>
+</ul>
+<h5 id="3、补充个MVP"><a href="#3、补充个MVP" class="headerlink" title="3、补充个MVP"></a>3、补充个MVP</h5><ul>
+<li>MVP分别是<strong>Mode</strong>、<strong>View</strong>和<strong>Presenter</strong>，对应数据<strong>、</strong>视图<strong>和</strong>主持者，在Android开发中使用普遍。</li>
+</ul>
+<p><img src="https://upload-images.jianshu.io/upload_images/201701-7fdab1dde3415a38.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="MVP.png"></p>
+<ul>
+<li>MVC模式下，Android的Activity承担繁杂的业务逻辑，导致代码臃肿，使用MVP模式，将View层和Mode层隔离开，增加Presenter层，作为Mode层和View层通讯的桥梁</li>
+<li>Presenter同时持有Mode层和View层的引用，在需要数据改变 或 视图显示时直接改变数据或者视图的显示状态。同样View层持有Presenter层的引用，这样就能将一些处理事件的逻辑放在Presenter层中进行处理，处理完成后通知View层改变显示状态。</li>
+<li>具体参考 <a href="https://juejin.im/post/5a61559051882573351a5fb6" target="_blank" rel="noopener">MVP模式的经典封装</a></li>
+</ul>
+<h4 id="五、SOLD原则"><a href="#五、SOLD原则" class="headerlink" title="五、SOLD原则"></a>五、SOLD原则</h4><h5 id="1、介绍-1"><a href="#1、介绍-1" class="headerlink" title="1、介绍"></a>1、介绍</h5><ul>
+<li>根据项目的复杂度来决定选择MVC或MVVM，但是无论哪种模式，都做好代码设计，结构分层，类设计遵守SOLID原则</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>缩写</th>
+<th>全称</th>
+<th>中文</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S</td>
+<td>The Single Responsibility Principle</td>
+<td>单一责任原则</td>
+<td>一个类只应承担一种责任</td>
+</tr>
+<tr>
+<td>O</td>
+<td>The Open Closed Principle</td>
+<td>开放封闭原则</td>
+<td>可扩展，不可修改</td>
+</tr>
+<tr>
+<td>L</td>
+<td>Liskov Substitution Principle</td>
+<td>里氏替换原则</td>
+<td>子类可以在任意地方替换基类且软件功能不受影响</td>
+</tr>
+<tr>
+<td>I</td>
+<td>The Interface Segregation Principle</td>
+<td>接口分离原则</td>
+<td>将接口拆分成更小和更具体的接口，有助于解耦</td>
+</tr>
+<tr>
+<td>D</td>
+<td>The Dependency Inversion Principle</td>
+<td>依赖倒置原则</td>
+<td>一个方法应该遵从“依赖于抽象而不是一个实例”。依赖注入 是该原则的一种实现方式。</td>
+</tr>
+</tbody>
+</table>
+<h5 id="2、IOC和DI"><a href="#2、IOC和DI" class="headerlink" title="2、IOC和DI"></a>2、IOC和DI</h5><p>控制反转(IOC)和依赖注入(DI)是Spring中最重要的核心概念之一，而两者实际上是一体两面的。</p>
+<ul>
+<li>依赖注入<ul>
+<li>一个类依赖另一个类的功能，那么就通过注入，如构造器、setter方法等方式将这个类的实例引入。</li>
+<li>侧重于实现。</li>
+</ul>
+</li>
+<li>控制反转<ul>
+<li>创建实例的控制权由一个实例的代码剥离到IOC容器控制，如xml配置中。</li>
+<li>侧重于原理。</li>
+<li>反转了什么：原先是由类本身去创建另一个类，控制反转后变成了被动等待这个类的注入。</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS/" rel="tag"># iOS</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/11/30/Recommend02/" rel="next" title="推荐迷雾(一):话说ABTest实验">
+                <i class="fa fa-chevron-left"></i> 推荐迷雾(一):话说ABTest实验
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/03/13/iOS-PicDecode/" rel="prev" title="图片解码小记">
+                图片解码小记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.jpeg"
+                alt="南华coder" />
+            
+              <p class="site-author-name" itemprop="name">南华coder</p>
+              <p class="site-description motion-element" itemprop="description">天之道，损有余而补不足</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">25</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、概述"><span class="nav-number">1.</span> <span class="nav-text">一、概述</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、背景"><span class="nav-number">1.1.</span> <span class="nav-text">1、背景</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、MVC和MVVM"><span class="nav-number">1.2.</span> <span class="nav-text">2、MVC和MVVM</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、组件化"><span class="nav-number">1.3.</span> <span class="nav-text">3、组件化</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、组件化实施"><span class="nav-number">2.</span> <span class="nav-text">二、组件化实施</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、实施步骤"><span class="nav-number">2.1.</span> <span class="nav-text">1、实施步骤</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、组件通信"><span class="nav-number">2.2.</span> <span class="nav-text">2、组件通信</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#1）URLRouter"><span class="nav-number">2.2.1.</span> <span class="nav-text">1）URLRouter</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#2）Protocol-Class-Binding-协议和类绑定"><span class="nav-number">2.2.2.</span> <span class="nav-text">2）Protocol Class Binding(协议和类绑定)</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#3）Target-Action方案"><span class="nav-number">2.2.3.</span> <span class="nav-text">3）Target-Action方案</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、其他"><span class="nav-number">2.3.</span> <span class="nav-text">3、其他</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、MVC"><span class="nav-number">3.</span> <span class="nav-text">三、MVC</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、苹果推荐的MVC"><span class="nav-number">3.1.</span> <span class="nav-text">1、苹果推荐的MVC</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、MVC的优化实践"><span class="nav-number">3.2.</span> <span class="nav-text">2、MVC的优化实践</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四、MVVM"><span class="nav-number">4.</span> <span class="nav-text">四、MVVM</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、介绍"><span class="nav-number">4.1.</span> <span class="nav-text">1、介绍</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、MVVM和MVC的对比"><span class="nav-number">4.2.</span> <span class="nav-text">2、MVVM和MVC的对比</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、补充个MVP"><span class="nav-number">4.3.</span> <span class="nav-text">3、补充个MVP</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#五、SOLD原则"><span class="nav-number">5.</span> <span class="nav-text">五、SOLD原则</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、介绍-1"><span class="nav-number">5.1.</span> <span class="nav-text">1、介绍</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、IOC和DI"><span class="nav-number">5.2.</span> <span class="nav-text">2、IOC和DI</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">南华coder</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">48.3k</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
