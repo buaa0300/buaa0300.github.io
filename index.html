@@ -1309,7 +1309,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  3,164 字
+                  3,175 字
                 </span>
               
 
@@ -1352,7 +1352,7 @@
 <h4 id="一、安装包组成分析"><a href="#一、安装包组成分析" class="headerlink" title="一、安装包组成分析"></a>一、安装包组成分析</h4><h5 id="1、组成情况"><a href="#1、组成情况" class="headerlink" title="1、组成情况"></a>1、组成情况</h5><p>​    将IPA包修改后缀名为ZIP，解压缩后，获取payload中的App文件，查看App文件的内容，你会发现该文件主要包含以下内容</p>
 <ul>
 <li><strong>Exectutable</strong>: 可执行文件</li>
-<li><strong>Resources</strong>：资源文<ul>
+<li><strong>Resources</strong>：资源文件<ul>
 <li>图片资源：<strong>Assets.car</strong>/bundle/png/jpg 等</li>
 <li>视频/音频资源：mp4/mp3 等</li>
 <li>静态网页资源：html/css/js 等</li>
@@ -1361,14 +1361,11 @@
 </ul>
 </li>
 <li><strong>Framework</strong>：<ul>
-<li>SwiftSupport: libSwiftxxx 等一系列 Swift 库<ul>
+<li>SwiftSupport: libSwiftxxx 等一系列 Swift 库</li>
 <li>其他依赖库：Embeded Framework</li>
 </ul>
 </li>
-</ul>
-</li>
-<li><strong>Pulgins</strong>：Application Extensions</li>
-<li><ul>
+<li><strong>Pulgins</strong>：Application Extensions<ul>
 <li>appex：其组成大致与 ipa 包组成一致</li>
 </ul>
 </li>
@@ -1437,49 +1434,69 @@
 </ul>
 <p><strong>说明</strong>：PNG切图不可能被完全替换，在表现颜色丰富图片时候，PNG效果很不错，其他详见<a href="https://buaa0300.github.io/2018/01/13/imageOptimize/" target="_blank" rel="noopener">浅谈iOS图片优化</a></p>
 <h4 id="三、可执行文件优化"><a href="#三、可执行文件优化" class="headerlink" title="三、可执行文件优化"></a>三、可执行文件优化</h4><h5 id="1、优化手段1：编译器优化"><a href="#1、优化手段1：编译器优化" class="headerlink" title="1、优化手段1：编译器优化"></a>1、优化手段1：编译器优化</h5><ul>
-<li><p>Xcode 支持编译器层面的一些优化优化选项，可以让我们介于<strong>更快的编译速度</strong>、<strong>更小的二进制大小</strong>和<strong>更快的执行速度</strong>之间自由选择想要进行的优化粒度。</p>
-</li>
-<li><p>在Xcode中，使用<strong>Clang</strong>来编译Objective-C，可以在 Build Setting -&gt; Apple Clang - Code Generation -&gt; <strong>Optimization Level</strong> 设置，Release下为<strong>Fastest Smallest[-Os]</strong>。编译器会开启除了会明显增加包大小以外的所有优化选项；</p>
-</li>
+<li>Xcode 支持编译器层面的一些优化优化选项，可以让我们介于<strong>更快的编译速度</strong>、<strong>更小的二进制大小</strong>和<strong>更快的执行速度</strong>之间自由选择想要进行的优化粒度；</li>
+</ul>
+<ul>
+<li>在Xcode中，使用<strong>Clang</strong>来编译Objective-C，可以在 Build Setting -&gt; Apple Clang - Code Generation -&gt; <strong>Optimization Level</strong> 设置，Release下为<strong>Fastest Smallest[-Os]</strong>。编译器会开启除了会明显增加包大小以外的所有优化选项；</li>
+</ul>
+<ul>
 <li>在Xcode中，使用<strong>SwiftLang</strong>来编译Swift语言，同样也是基于 LLVM 后端的。Xcode 9.3 版本之后可以在Build Setting -&gt;  <strong>Optimization Level</strong> 设置，Release下为<strong>Optimize for Speed[-O]</strong>，这可能会增加安装包大小</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">No optimization[-Onone]：不进行优化，能保证较快的编译速度。</span><br><span class="line">Optimize for Speed[-O]：编译器将会对代码的执行效率进行优化，一定程度上会增加包大小。</span><br><span class="line">Optimize for Size[-Osize]：编译器会尽可能减少包的大小并且最小限度影响代码的执行效率</span><br></pre></td></tr></table></figure>
 <p><strong>说明</strong>：Xcode 9.3/Swift4.1编译器不是特别稳定，特别是开启 Osize 选项之后，编译器很多情况下会莫名其妙的崩溃(Segmentation fault)，目前放弃 [-Osize]，选择[-O]</p>
 <h5 id="2、优化手段2：去除符号信息"><a href="#2、优化手段2：去除符号信息" class="headerlink" title="2、优化手段2：去除符号信息"></a>2、优化手段2：去除符号信息</h5><ul>
-<li><p>可执行文件中的符号：程序中的所有的<strong>变量、类、函数、枚举、变量和地址映射关系</strong>，以及一些在调试的时候使用到的用于定位代码在源码中的位置的调试符号，符号和断点定位以及堆栈符号化有很重要的关系。</p>
-</li>
-<li><p><strong>Strip Style</strong>表示的是我们需要去除的符号的类型的选项，可以在Build Setting -&gt;  Strip Style设置， Release下为<strong>All Symbols</strong>，其分为三个选择项：</p>
-</li>
+<li>可执行文件中的符号：程序中的所有的<strong>变量、类、函数、枚举、变量和地址映射关系</strong>，以及一些在调试的时候使用到的用于定位代码在源码中的位置的调试符号，符号和断点定位以及堆栈符号化有很重要的关系。</li>
+</ul>
+<ul>
+<li><strong>Strip Style</strong>表示的是我们需要去除的符号的类型的选项，可以在Build Setting -&gt;  Strip Style设置， Release下为<strong>All Symbols</strong>，其分为三个选择项：</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">All Symbols: 去除所有符号，一般是在主工程中开启。</span><br><span class="line"></span><br><span class="line">Non-Global Symbols: 去除一些非全局的 Symbol（保留全局符号，Debug Symbols 同样会被去除），链接时会被重定向的那些符号不会被去除，此选项是静态库/动态库的建议选项。</span><br><span class="line"></span><br><span class="line">Debug Symbols: 去除调试符号，去除之后将无法断点调试。</span><br></pre></td></tr></table></figure>
 <p><strong>说明</strong>：iOS 的调试符号是 <strong>DWARF</strong> 格式的，使用 Xcode 编译打包的时候会先通过可执行文件的 Debug Map 获取到所有对象文件的位置，然后使用 <strong>dysmutil</strong> 来将对象文件中的 DWARF 提取出来生成 dSYM 文件。</p>
 <ul>
 <li><strong>Strip Linked Product</strong>去除不必要的符号信息，去除了符号信息之后我们就只能使用 dSYM 来进行符号化了，所以需要将 Debug Information Format 修改为 DWARF with dSYM file。Release下为YES。</li>
+</ul>
+<ul>
 <li>Strip Linked Product 选项在 <strong>Deployment Postprocessing 设置为 YES</strong> 的时候才生效，而在 Archive 的时候 Xcode 总是会把 Deployment Postprocessing 设置为 YES，Debug下,Deployment Postprocessing 设置为 NO。</li>
-<li><strong>Strip Debug Symbols During Copy</strong>将那些拷贝进项目包的三方库、资源或者 Extension 的  Debug Symbol 去除掉，在Build Settings -&gt; Strip Debug Symbols During Copy设置，Release下设置为YES，</li>
-<li><p>Cocoapods 管理的动态库(use_framework!)的情况就相对要特殊一点，因为 Cocoapods 中的的动态库是使用自己实现的脚本 Pods-xxx-frameworks.sh 来实现拷贝的，所以并不会走 Xcode 的流程，当然也就不受 Strip Debug Symbols During Copy 的影响。当然 Cocoapods 是源码管理的，所以只需要将源码 Target 中的 Strip Linked Product 设置为 YES 即可。</p>
-</li>
-<li><p><strong>Strip Swift Symbols</strong>能帮助我们移除相应 Target 中的所有的 Swift 符号，这个选项也是默认打开的。Strip Swift symbols需要在打包的发布选项中勾选(默认勾选)，在Swift ABI 稳定之前，Swift 标准库是会打进目标文件的。</p>
-</li>
+</ul>
+<ul>
+<li><strong>Strip Debug Symbols During Copy</strong>将那些拷贝进项目包的三方库、资源或者 Extension 的  Debug Symbol 去除掉，在Build Settings -&gt; Strip Debug Symbols During Copy设置，Release下设置为YES。</li>
+</ul>
+<ul>
+<li>Cocoapods 管理的动态库(use_framework!)的情况就相对要特殊一点，因为 Cocoapods 中的的动态库是使用自己实现的脚本 Pods-xxx-frameworks.sh 来实现拷贝的，所以并不会走 Xcode 的流程，当然也就不受 Strip Debug Symbols During Copy 的影响。当然 Cocoapods 是源码管理的，所以只需要将源码 Target 中的 Strip Linked Product 设置为 YES 即可。</li>
+</ul>
+<ul>
+<li><strong>Strip Swift Symbols</strong>能帮助我们移除相应 Target 中的所有的 Swift 符号，这个选项也是默认打开的。Strip Swift symbols需要在打包的发布选项中勾选(默认勾选)，在Swift ABI 稳定之前，Swift 标准库是会打进目标文件的。</li>
 </ul>
 <h5 id="3、优化手段3：BitCode"><a href="#3、优化手段3：BitCode" class="headerlink" title="3、优化手段3：BitCode"></a>3、优化手段3：BitCode</h5><ul>
-<li>Bitcode可以作为中间产物一起提交AppStore。包含Bitcode配置的程序将会在AppStore上被编译和链接。Bitcode允许苹果在后期重新优化我们程序的二进制文件，而不需要我们重新提交一个新的版本到AppStore上</li>
+<li>Bitcode可以作为中间产物一起提交AppStore。包含Bitcode配置的程序将会在AppStore上被编译和链接。Bitcode允许苹果在后期重新优化我们程序的二进制文件，而不需要我们重新提交一个新的版本到AppStore上。</li>
+</ul>
+<ul>
 <li>开启 BitCode 之后编译器后端(Backend)的工作都由 Apple 接管了。所以假如以后苹果推出了新的 CPU 架构或者以后 LLVM 推出了一系列优化，我们也不再需要为其发布新的安装包了。</li>
+</ul>
+<ul>
 <li>工程开启 BitCode 之后必须要求所有打进 Bundle 的 Binary 都需要支持 BitCode，也就是说我们依赖的静态库和动态库都是含有 BitCode 的，不然就会打包失败。对于 Cocoapods 等源码管理工具来管理的依赖库来说操作会比较简单，我们只需要开启 Pods 工程中的 BitCode 就行。但是对于一些三方的闭源库，我们就无能为力了。</li>
+</ul>
+<ul>
 <li>开启 BitCode 之后，由于最终的可执行文件是 Apple 自动生成的，同时产生新的符号表文件，所以我们使用原本打包生成的 dSYM 符号化文件是无法完成符号化的。所以我们需要在上传至 App Store 时需要勾选 Include app symbols for your application to receive symboilcated crash logs from Apple：勾选之后 Apple 会给我们生成 dSYM，然后就可以在 Xcode -&gt; Organizer 或者 iTunes Connect 中下载对应的 dSYM 来进行符号化了。</li>
 </ul>
-<h5 id="4、清除无用代码"><a href="#4、清除无用代码" class="headerlink" title="4、清除无用代码"></a>4、清除无用代码</h5><ul>
+<h5 id="4、优化手段4：清除无用代码"><a href="#4、优化手段4：清除无用代码" class="headerlink" title="4、优化手段4：清除无用代码"></a>4、优化手段4：清除无用代码</h5><ul>
 <li><strong>Dead Code Stripping</strong>：Xcode 默认会开启此选项，C/C++/Swift 等<strong>静态语言</strong>编译器会在 link 的时候<strong>移除未使用的代码</strong>，但是对于 Objective-C 等动态语言是无效的。因为 Objective-C 是建立在运行时上面的，底层暴露给编译器的都是 Runtime 源码编译结果，所有的部分应该都是会被判别为有效代码。</li>
+</ul>
+<ul>
 <li><strong>扫描查找无用代码</strong>：基本思路都是查找已经使用的方法/类和所有的类/方法，然后从所有的类/方法当中剔除已经使用的方法/类剩下的基本都是无用的类/方法，但是由于 Objective-C 是动态语言，可以使用字符串来调用类和方法，所以检查结果一般都不是特别准确，需要二次确认。目前市面上的扫描的思路大致可以分为 3 种：<ul>
 <li>基于 Clang 扫描</li>
 <li>基于可执行文件扫描</li>
 <li>基于源码扫描</li>
 </ul>
 </li>
+</ul>
+<ul>
 <li><strong>及时下线不需要的功能</strong>，如完成使命的ABTest代码、被产品抛弃的功能代码等。</li>
+</ul>
+<ul>
 <li>移除不需要的系统库和第三方库。</li>
 </ul>
-<h5 id="5、代码重构"><a href="#5、代码重构" class="headerlink" title="5、代码重构"></a>5、代码重构</h5><ul>
+<h5 id="5、优化手段5：代码重构"><a href="#5、优化手段5：代码重构" class="headerlink" title="5、优化手段5：代码重构"></a>5、优化手段5：代码重构</h5><ul>
 <li>功能合并：相似功能的代码，只需维护一份就可以了。如定制通用UI组件，大家可以有类似需求，可以给通用UI组件的开发提，没必要自己单独实现。</li>
 </ul>
 <h4 id="End"><a href="#End" class="headerlink" title="End"></a>End</h4><h5 id="1、优化之后"><a href="#1、优化之后" class="headerlink" title="1、优化之后"></a>1、优化之后</h5><ul>
