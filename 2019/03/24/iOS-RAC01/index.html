@@ -73,8 +73,6 @@
 
 
 
-  
-
 
   <link rel="alternate" href="/atom.xml" title="南华coder的空间" type="application/atom+xml" />
 
@@ -83,13 +81,13 @@
 
 
 
-<meta name="description" content="一、背景ReactiveCocoa火了一段时间(大概15，16年)，在谈及MVVM的双向绑定时候，必然提及ReactiveCocoa，但是这几年，ReactiveCocoa似乎不怎么火了，之前没有用过，最近在一个项目中遇到，简单了解下。 1、概述 ReactiveCocoa（简称为RAC）,是由开源的一个应用于iOS和OS开发的函数式 响应式编程框架，它提供了一系列用来组合和转换值流的 API">
+<meta name="description" content="一、背景ReactiveCocoa火了一段时间(大概15，16年)，在谈及MVVM的双向绑定时候，必然提及ReactiveCocoa，但是这几年，ReactiveCocoa似乎不怎么火了，之前没有用过，最近在一个项目中遇到，简单了解下。 1、概述 ReactiveCocoa（简称为RAC）,是一个开源的，可应用于iOS开发的函数式 响应式编程框架，它提供了一系列用来组合和转换值流的 API  函数">
 <meta name="keywords" content="iOS">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ReactiveCocoa-信号基础">
 <meta property="og:url" content="http://buaa0300/nanhuacoder.com/2019/03/24/iOS-RAC01/index.html">
 <meta property="og:site_name" content="南华coder的空间">
-<meta property="og:description" content="一、背景ReactiveCocoa火了一段时间(大概15，16年)，在谈及MVVM的双向绑定时候，必然提及ReactiveCocoa，但是这几年，ReactiveCocoa似乎不怎么火了，之前没有用过，最近在一个项目中遇到，简单了解下。 1、概述 ReactiveCocoa（简称为RAC）,是由开源的一个应用于iOS和OS开发的函数式 响应式编程框架，它提供了一系列用来组合和转换值流的 API">
+<meta property="og:description" content="一、背景ReactiveCocoa火了一段时间(大概15，16年)，在谈及MVVM的双向绑定时候，必然提及ReactiveCocoa，但是这几年，ReactiveCocoa似乎不怎么火了，之前没有用过，最近在一个项目中遇到，简单了解下。 1、概述 ReactiveCocoa（简称为RAC）,是一个开源的，可应用于iOS开发的函数式 响应式编程框架，它提供了一系列用来组合和转换值流的 API  函数">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/201701-e7bf63b105cdf58a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/201701-9c730e8e40ddaf05.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
@@ -101,10 +99,10 @@
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/201701-73824afb1d8ac9db.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/201701-7a5f43720da0d05f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/201701-64c023e296a0dd9f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2019-03-27T07:39:06.156Z">
+<meta property="og:updated_time" content="2019-03-28T08:26:06.046Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ReactiveCocoa-信号基础">
-<meta name="twitter:description" content="一、背景ReactiveCocoa火了一段时间(大概15，16年)，在谈及MVVM的双向绑定时候，必然提及ReactiveCocoa，但是这几年，ReactiveCocoa似乎不怎么火了，之前没有用过，最近在一个项目中遇到，简单了解下。 1、概述 ReactiveCocoa（简称为RAC）,是由开源的一个应用于iOS和OS开发的函数式 响应式编程框架，它提供了一系列用来组合和转换值流的 API">
+<meta name="twitter:description" content="一、背景ReactiveCocoa火了一段时间(大概15，16年)，在谈及MVVM的双向绑定时候，必然提及ReactiveCocoa，但是这几年，ReactiveCocoa似乎不怎么火了，之前没有用过，最近在一个项目中遇到，简单了解下。 1、概述 ReactiveCocoa（简称为RAC）,是一个开源的，可应用于iOS开发的函数式 响应式编程框架，它提供了一系列用来组合和转换值流的 API  函数">
 <meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/201701-e7bf63b105cdf58a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640">
 
 
@@ -351,7 +349,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  3,094 字
+                  3,092 字
                 </span>
               
 
@@ -390,7 +388,7 @@
       
         <h4 id="一、背景"><a href="#一、背景" class="headerlink" title="一、背景"></a>一、背景</h4><p>ReactiveCocoa火了一段时间(大概15，16年)，在谈及MVVM的双向绑定时候，必然提及ReactiveCocoa，但是这几年，ReactiveCocoa似乎不怎么火了，之前没有用过，最近在一个项目中遇到，简单了解下。</p>
 <h5 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h5><ul>
-<li><p><a href="https://link.juejin.im/?target=https%3A%2F%2Fgithub.com%2FReactiveCocoa" target="_blank" rel="noopener">ReactiveCocoa</a>（简称为RAC）,是由开源的一个应用于iOS和OS开发的<strong>函数式</strong> <strong>响应式</strong>编程框架，它提供了一系列用来组合和转换值流的 API</p>
+<li><p><a href="https://link.juejin.im/?target=https%3A%2F%2Fgithub.com%2FReactiveCocoa" target="_blank" rel="noopener">ReactiveCocoa</a>（简称为RAC）,是一个开源的，可应用于iOS开发的<strong>函数式</strong> <strong>响应式</strong>编程框架，它提供了一系列用来组合和转换值流的 API</p>
 </li>
 <li><p>函数响应式编程（Functional reactive programming，简称FRP</p>
 </li>
@@ -404,7 +402,7 @@
 </li>
 <li><p><strong>链式编程</strong>：是将多个操作（多行代码）通过点号(.)链接在一起成为一句代码,使代码可读性好，代表作 : masonry</p>
 </li>
-<li><p><strong>响应式编程</strong>：不需要考虑调用顺序，只需要知道考虑结果，类似于蝴蝶效应，产生一个事件，会影响很多东西，这些事件像流一样的传播出去，然后影响结果，借用面向对象的一句话，万物皆是流。代表KVO</p>
+<li><p><strong>响应式编程</strong>：不需要考虑调用顺序，只需要知道考虑结果，类似于蝴蝶效应，产生一个事件，会影响很多东西，这些事件像流一样的传播出去，然后影响结果，借用面向对象的一句话，万物皆流。代表KVO</p>
 </li>
 <li><p><strong>函数式编程思想</strong>：是把操作尽量写成一系列嵌套的函数或者方法调用</p>
 </li>
