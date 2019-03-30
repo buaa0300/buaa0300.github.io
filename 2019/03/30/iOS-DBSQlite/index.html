@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="iOS," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="南华coder的空间" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="技术不能解决所有事情 一、移动端数据库方案1、关系型数据库 SQlite：轻量级的关系数据库, 占用资源非常少，目前广泛应用于Android、iOS等手机操作系统。iOS使用时SQLite，只需要加入libsqlite3.0.tbd依赖以及引入sqlite3.h头文件即可。 Apple内建的CoreData底层的持久化方式也可以是SQLite数据库，当然也可以是XML文件、甚至是内存; 比较流行的">
+<meta name="keywords" content="iOS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS数据库方案小记">
+<meta property="og:url" content="http://buaa0300/nanhuacoder.com/2019/03/30/iOS-DBSQlite/index.html">
+<meta property="og:site_name" content="南华coder的空间">
+<meta property="og:description" content="技术不能解决所有事情 一、移动端数据库方案1、关系型数据库 SQlite：轻量级的关系数据库, 占用资源非常少，目前广泛应用于Android、iOS等手机操作系统。iOS使用时SQLite，只需要加入libsqlite3.0.tbd依赖以及引入sqlite3.h头文件即可。 Apple内建的CoreData底层的持久化方式也可以是SQLite数据库，当然也可以是XML文件、甚至是内存; 比较流行的">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-30T04:47:51.880Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS数据库方案小记">
+<meta name="twitter:description" content="技术不能解决所有事情 一、移动端数据库方案1、关系型数据库 SQlite：轻量级的关系数据库, 占用资源非常少，目前广泛应用于Android、iOS等手机操作系统。iOS使用时SQLite，只需要加入libsqlite3.0.tbd依赖以及引入sqlite3.h头文件即可。 Apple内建的CoreData底层的持久化方式也可以是SQLite数据库，当然也可以是XML文件、甚至是内存; 比较流行的">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://buaa0300/nanhuacoder.com/2019/03/30/iOS-DBSQlite/"/>
+
+
+
+
+
+  <title>iOS数据库方案小记 | 南华coder的空间</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">南华coder的空间</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2019/03/30/iOS-DBSQlite/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">iOS数据库方案小记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-30T10:44:32+08:00">
+                2019-03-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS进阶/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS进阶</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,883 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  11 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><em>技术不能解决所有事情</em></p>
+<h4 id="一、移动端数据库方案"><a href="#一、移动端数据库方案" class="headerlink" title="一、移动端数据库方案"></a>一、移动端数据库方案</h4><h5 id="1、关系型数据库"><a href="#1、关系型数据库" class="headerlink" title="1、关系型数据库"></a>1、<strong>关系型数据库</strong></h5><ul>
+<li><strong>SQlite</strong>：轻量级的<strong>关系数据库</strong>, 占用资源非常少，目前广泛应用于Android、iOS等手机操作系统。iOS使用时SQLite，只需要加入libsqlite3.0.tbd依赖以及引入sqlite3.h头文件即可。</li>
+<li>Apple内建的CoreData底层的持久化方式也可以是<code>SQLite</code>数据库，当然也可以是XML文件、甚至是内存; 比较流行的第三方框架FMDB是对SQlite操作的封装</li>
+</ul>
+<h5 id="2、非关系数据库"><a href="#2、非关系数据库" class="headerlink" title="2、非关系数据库"></a>2、非关系数据库</h5><ul>
+<li><strong>Realm</strong>：适用于iOS (同样适用于Swift&amp;Objective-C)和Android的跨平台移动数据库，是NoSQL框架，官方定位是取代SQLite。具体可参考<a href="https://zhuanlan.zhihu.com/p/26173366" target="_blank" rel="noopener">Realm(Java)那些事</a></li>
+<li><p>Realm非常的特色是数据变更通知，查询，存储性能比SQlite好，但是体积大、存入Realm的对象必须继承RealmObject，侵入性强，Realm中存储对象不允跨线程访问</p>
+</li>
+<li><p>非关系型数据库还有LevelDB、RocksDB</p>
+</li>
+</ul>
+<h5 id="3、一些看法"><a href="#3、一些看法" class="headerlink" title="3、一些看法"></a>3、一些看法</h5><ul>
+<li>16年左右，Realm兴起，部分客户端团队开始使用Realm，但是更多的团队还是继续使用SQlite及其衍生方案；使用Realm并非就一定Cool，使用SQlite并非就一定Out，<strong>方案的选择应该是基于业务本身和团队的技术积累。</strong></li>
+<li><p>日活上亿和几十万的App的团队思考问题方案会一样吗？在16年时候，微信分享了自己对优化SQLite的源码，具体可见<a href="https://mp.weixin.qq.com/s?__biz=MzAwNDY1ODY2OQ==&amp;mid=2649286361&amp;idx=1&amp;sn=78bbcda7f41a14291ad71289e4821f71&amp;scene=4#wechat_redirect" target="_blank" rel="noopener">微信iOS SQLite源码优化实践</a>，随后推出了自己的数据库方案WCDB(<em>基于SQLite</em>)</p>
+</li>
+<li><p>希望对SQlite的了解多一些，对已经有的成熟方案了解再多一些。</p>
+</li>
+</ul>
+<h4 id="二、SQlite基础操作"><a href="#二、SQlite基础操作" class="headerlink" title="二、SQlite基础操作"></a>二、SQlite基础操作</h4><h5 id="1、基础概念"><a href="#1、基础概念" class="headerlink" title="1、基础概念"></a>1、基础概念</h5><ul>
+<li><strong>表</strong>：是数据库中一个非常重要的对象，是其他对象的基础。根据信息的分类情况，一个数据库中可能包含若干个数据表</li>
+<li><strong>字段</strong>：表的“列”称为“字段”，每个字段包含某一专题的信息</li>
+<li><strong>记录</strong>：是指对应于数据表中一行信息的一组完整的相关信息</li>
+<li>iOS使用SQLite，需要引入libsqlite3.0.tbd框架，并引入<sqlite3.h>头文件</sqlite3.h></li>
+</ul>
+<h5 id="2、关键API-打开数据库"><a href="#2、关键API-打开数据库" class="headerlink" title="2、关键API-打开数据库"></a>2、关键API-打开数据库</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">//打开数据库 定义</span><br><span class="line">SQLITE_API int sqlite3_open(</span><br><span class="line">  const char *filename,   /* Database filename (UTF-8) */</span><br><span class="line">  sqlite3 **ppDb          /* OUT: SQLite db handle */</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">//使用</span><br><span class="line">//db是sqlite3对象，sqlite3 *db = nil;</span><br><span class="line"> sqlite3_open([sqlPath UTF8String], &amp;db);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>参数1：数据库的路径（因为需要的是C语言的字符串，而不是NSString所以必须进行转换）</p>
+</li>
+<li><p>参数2：SQLite的数据库的操作句柄（指向指针的指针）</p>
+</li>
+</ul>
+<h5 id="3、关键API-执行sql语句"><a href="#3、关键API-执行sql语句" class="headerlink" title="3、关键API - 执行sql语句"></a>3、关键API - 执行sql语句</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">//执行sql语句 定义</span><br><span class="line">SQLITE_API int sqlite3_exec(</span><br><span class="line">  sqlite3*,                                  /* An open database */</span><br><span class="line">  const char *sql,                           /* SQL to be evaluated */</span><br><span class="line">  int (*callback)(void*,int,char**,char**),  /* Callback function */</span><br><span class="line">  void *,                                    /* 1st argument to callback */</span><br><span class="line">  char **errmsg                              /* Error msg written here */</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">//使用</span><br><span class="line"> int result = sqlite3_exec(db, sql.UTF8String, nil, nil, nil);   </span><br><span class="line"> if (result == SQLITE_OK) &#123;</span><br><span class="line">     //exec ok</span><br><span class="line"> &#125; else &#123;</span><br><span class="line">     //exec failed</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>参数1：sqlite3对象</li>
+<li>参数2：sql语句</li>
+<li>参数3：sql执行后回调函数</li>
+<li>参数4：回调函数的参数</li>
+<li>参数5：错误信息</li>
+</ul>
+<h5 id="4、关键API-执行查询语句"><a href="#4、关键API-执行查询语句" class="headerlink" title="4、关键API - 执行查询语句"></a>4、关键API - 执行查询语句</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">//将sql文本转换成一个准备语句（prepared statement）对象，同时返回这个对象的指针,它实际上并不执行（evaluate）这个SQL语句，它仅仅为执行准备这个sql语句。</span><br><span class="line">SQLITE_API int sqlite3_prepare_v2(</span><br><span class="line">  sqlite3 *db,            /* Database handle */</span><br><span class="line">  const char *zSql,       /* SQL statement, UTF-8 encoded */</span><br><span class="line">  int nByte,              /* Maximum length of zSql in bytes. */</span><br><span class="line">  sqlite3_stmt **ppStmt,  /* OUT: Statement handle */</span><br><span class="line">  const char **pzTail     /* OUT: Pointer to unused portion of zSql */</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">//使用</span><br><span class="line">result = sqlite3_prepare_v2(_db, [sql UTF8String], -1, &amp;pStmt, 0);</span><br><span class="line">if (result == SQLITE_OK) &#123;</span><br><span class="line">     //exec ok</span><br><span class="line">&#125; else &#123;</span><br><span class="line">     //exec failed</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="5、关键API-关闭数据库"><a href="#5、关键API-关闭数据库" class="headerlink" title="5、关键API - 关闭数据库"></a>5、关键API - 关闭数据库</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//关闭数据库 定义</span><br><span class="line">SQLITE_API int sqlite3_close(sqlite3*);</span><br><span class="line"></span><br><span class="line">//使用</span><br><span class="line">sqlite3_close(db);</span><br></pre></td></tr></table></figure>
+<p><strong>说明</strong>：具体API参考<a href="https://www.sqlite.org/capi3ref.html" target="_blank" rel="noopener">C-language Interface Specification for SQLite</a>，FMDB中对sqlite3的操作做了很好的封装，具体可参考FMDB的FMDatabase文件</p>
+<h4 id="四、SQLite的线程模式"><a href="#四、SQLite的线程模式" class="headerlink" title="四、SQLite的线程模式"></a>四、SQLite的线程模式</h4><h5 id="1、三种线程模式"><a href="#1、三种线程模式" class="headerlink" title="1、三种线程模式"></a>1、三种线程模式</h5><ul>
+<li><strong>单线程模式</strong>（Single-thread）：所有互斥锁都被禁用，<strong>SQLite连接不能在多个线程中使用</strong>（多线程使用不安全）。</li>
+<li><strong>多线程模式</strong>（Multi-thread）：可以由多个线程使用，但是<strong>一个数据库连接在同一个时间只能在一个线程操作</strong>  （在多线程中使用单个数据库连接是不安全的）</li>
+<li><strong>串行模式</strong>（Serialized），在此模式下，SQLite可以被多个线程安全地使用而没有任何限制（多线程下是安全的）。</li>
+<li>默认是串行模式，此种情况下是线程安全的。</li>
+</ul>
+<h5 id="2、编译时选择线程模式"><a href="#2、编译时选择线程模式" class="headerlink" title="2、编译时选择线程模式"></a>2、编译时选择线程模式</h5><ul>
+<li>通过定义<strong>SQLITE_THREADSAFE</strong>宏来指定线程模式。如果没有指定，默认为串行模式。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">//0：单线程模式；</span><br><span class="line">//1：串行模式;</span><br><span class="line">//2：多线程模式</span><br></pre></td></tr></table></figure>
+<ul>
+<li>sqlite3_threadsafe()函数的返回值可以确定编译时指定的线程模式。如果指定了单线程模式，函数返回false。如果指定了串行或者多线程模式，函数返回true。</li>
+<li>由于sqlite3_threadsafe()函数要早于多线程模式以及启动时和运行时的模式选择，所以它既不能区别多线程模式和串行模式也不能区别启动时和运行时的模式。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//FMDB 中代码</span><br><span class="line">+ (BOOL)isSQLiteThreadSafe &#123;</span><br><span class="line">    // make sure to read the sqlite headers on this guy!</span><br><span class="line">    return sqlite3_threadsafe() != 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>如果编译时指定了单线程模式，那么临界互斥逻辑在构造时就被省略，因此也就<strong>无法在启动时或运行时指定串行模式或多线程模式。</strong></li>
+</ul>
+<h5 id="3、启动时选择线程模式"><a href="#3、启动时选择线程模式" class="headerlink" title="3、启动时选择线程模式"></a>3、启动时选择线程模式</h5><ul>
+<li><p>假如在编译时没有指定单线程模式，就可以在应用程序初始化时使用sqlite3_config()函数修改线程模式。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SQLITE_CONFIG_SINGLETHREAD  //单线程模式</span><br><span class="line">SQLITE_CONFIG_MULTITHREAD   //多线程模式</span><br><span class="line">SQLITE_CONFIG_SERIALIZED    //串行模式</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h5 id="4、运行时选择线程模式"><a href="#4、运行时选择线程模式" class="headerlink" title="4、运行时选择线程模式"></a>4、运行时选择线程模式</h5><ul>
+<li>如果没有在编译时 和 启动时指定为单线程模式，那么每个数据库连接在创建时，可单独的被指定为多线程模式或者串行模式，<strong>但是不能指定为单线程模式</strong>。</li>
+<li>如果在编译时或启动时指定为单线程模式，就无法在创建连接时指定多线程或者串行模式。</li>
+<li>创建连接时可以用sqlite3_open_v2()函数的第三个参数来指定线程模式。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SQLITE_OPEN_NOMUTEX  //创建多线程模式的连接</span><br><span class="line">SQLITE_OPEN_FULLMUTEX  //创建串行模式的连接</span><br></pre></td></tr></table></figure>
+<h5 id="5、总结"><a href="#5、总结" class="headerlink" title="5、总结"></a>5、总结</h5><p>要保证数据库使用的安全，一般可以采用如下几种模式</p>
+<ul>
+<li><code>SQLite</code> 采用<strong>单线程模型</strong>，用专门的线程/队列（同时只能有一个任务执行访问） 进行访问</li>
+<li><code>SQLite</code> 采用多线程模型，每个线程都使用各自的数据库连接 （即 <code>sqlite3 *</code>）</li>
+<li><code>SQLite</code> 采用串行模型，所有线程都公用同一个数据库连接。</li>
+</ul>
+<p>因为写操作的并发性并不好，当多线程进行访问时实际上仍旧需要互相等待，而读操作所需要的 <code>SHARED</code> 锁是可以共享的，所以为了保证最高的并发性，推荐</p>
+<ul>
+<li>使用多线程模式</li>
+<li>使用 <code>WAL</code> 模式</li>
+<li>单线程写，多线程读 （各线程都持有自己对应的数据库连接)</li>
+<li>避免长时间事务</li>
+<li>缓存 <code>sqlite3_prepare</code> 编译结果</li>
+<li>多语句通过 <code>BEGIN</code> 和 <code>COMMIT</code> 做显示事务，减少多次的自动事务消耗</li>
+</ul>
+<p>参考 <a href="http://wereadteam.github.io/2016/08/19/SQLite/" target="_blank" rel="noopener">SQLite线程模式探讨</a></p>
+<h4 id="五、FMDB"><a href="#五、FMDB" class="headerlink" title="五、FMDB"></a>五、FMDB</h4><h5 id="1、源码组成"><a href="#1、源码组成" class="headerlink" title="1、源码组成"></a>1、源码组成</h5><ul>
+<li><strong>FMDatabase</strong> : 对sqlite3的封装，可以看做是sqlite3数据库操作实例，通过它可以对sqlite3进行增删改查等等操作。</li>
+<li><strong>FMResultSet</strong> : FMDatabase执行查询之后的结果集。</li>
+<li><strong>FMDatabaseAdditions</strong> : FMDatabase的Extension，新增对查询结果只返回单个值的方法进行简化，对表、列是否存在，版本号，校验SQL等等功能。</li>
+<li><p><strong>FMDatabaseQueue</strong> : 使用GCD串行队列保证线程安全，所有的线程共用一个SQLite Handle(<strong>单句柄</strong>)，在多线程并发时，能够使各个线程的数据库操作按顺序同步进行，但正是因为各线程同步进行，导致后来的线程会被阻塞较长时间，无论是读操作还是写操作，都必须等待前面的线程执行完毕，使得性能无法得到更好的保障</p>
+</li>
+<li><p><strong>FMDatabasePool</strong> : 使用任务池的形式，对多线程的操作提供支持。（不过官方对这种方式并不推荐使用，优先选择FMDatabaseQueue的方式）</p>
+</li>
+</ul>
+<h5 id="2、数据库创建和打开"><a href="#2、数据库创建和打开" class="headerlink" title="2、数据库创建和打开"></a>2、数据库创建和打开</h5><ul>
+<li><p><code>FMDatabase</code>通过一个 SQLite 数据库文件路径创建的，此路径可以是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">一个文件的系统路径。磁盘中可以不存在此文件，因为如果不存在会自动为你创建。</span><br><span class="line">一个空的字符串 `@&quot;&quot;`。会在临时位置创建一个空的数据库，当 `FMDatabase` 连接关闭时，该数据库会被删除。</span><br><span class="line">NULL`。会在内存中创建一个数据库，当 `FMDatabase` 连接关闭时，该数据库会被销毁。</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>FMDatabase</code>必须执行open，在这里才能正在创建并打开sqlite3对象。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">FMDatabase *db = [FMDatabase databaseWithPath:dbpath];</span><br><span class="line">[db open];</span><br><span class="line">//...</span><br><span class="line"></span><br><span class="line">//关闭</span><br><span class="line">[db close];</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h5 id="3、数据库查询"><a href="#3、数据库查询" class="headerlink" title="3、数据库查询"></a>3、数据库查询</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">//数据库查询</span><br><span class="line">FMResultSet *rs = [db executeQuery:@&quot;select * from people&quot;];</span><br><span class="line">//利用next函数</span><br><span class="line">while ([rs next]) &#123;</span><br><span class="line">    NSLog(@&quot;%@ %@&quot;,[rs stringForColumn:@&quot;name&quot;],[rs stringForColumn:@&quot;age&quot;]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>FMResultSet</code>通过调用 <code>-executeQuery...</code> 方法之一执行 <code>SELECT</code> 语句返回数据库查询结果<code>FMResultSet</code> 对象，然后就可以遍历查询结果了。</li>
+</ul>
+<h5 id="4、数据库更新"><a href="#4、数据库更新" class="headerlink" title="4、数据库更新"></a>4、数据库更新</h5><ul>
+<li><p>SQL 语句中除过 <code>SELECT</code> 语句都可以称之为更新操作。包括 <code>CREATE</code>，<code>UPDATE</code>，<code>INSERT</code>，<code>ALTER</code>，<code>COMMIT</code>，<code>BEGIN</code>，<code>DETACH</code>，<code>DROP</code>，<code>END</code>，<code>EXPLAIN</code>，<code>VACUUM</code>，<code>REPLACE</code> 等。</p>
+</li>
+<li><p>执行更新语句后会返回一个 <code>BOOL</code> 值，返回 <code>YES</code> 表示执行更新语句成功，返回 <code>NO</code> 表示出现错误，可以通过调用 <code>-lastErrorMessage</code> 和 <code>-lastErrorCode</code> 方法获取更多错误信息。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//创建表</span><br><span class="line">[db executeUpdate:@&quot;CREATE TABLE IF NOT EXISTS people (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, age INTEGER DEFAULT 1)&quot;];</span><br><span class="line"></span><br><span class="line">//插入操作</span><br><span class="line">[db executeUpdate:@&quot;INSERT INTO people(name,age) VALUES (?,?)&quot;, @&quot;LiLei&quot;,[NSNumber numberWithInteger:28]]</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h5 id="5、多线程数据库访问"><a href="#5、多线程数据库访问" class="headerlink" title="5、多线程数据库访问"></a>5、多线程数据库访问</h5><ul>
+<li>FMDatabase 本身不是线程安全的，不要实例化一个 FMDatabase 单例来跨线程使用，但是可以通过FMDatabaseQueue保证跨线程操作是同步的，是线程安全的。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">FMDatabaseQueue *databaseQueue = [FMDatabaseQueue databaseQueueWithPath:dbpath];</span><br><span class="line">[databaseQueue inDatabase:^(FMDatabase *db) &#123;</span><br><span class="line">        //</span><br><span class="line">    [db executeUpdate:@&quot;CREATE TABLE IF NOT EXISTS people (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, age INTEGER DEFAULT 1)&quot;];</span><br><span class="line"> &#125;];</span><br><span class="line">    </span><br><span class="line">    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);</span><br><span class="line">    </span><br><span class="line">    dispatch_async(queue, ^&#123;</span><br><span class="line">        [databaseQueue inDatabase:^(FMDatabase *db) &#123;</span><br><span class="line">           BOOL isSuccess = [db executeUpdate:@&quot;INSERT INTO people(name,age) VALUES (?,?)&quot;, @&quot;LiLei&quot;,[NSNumber numberWithInteger:28]];</span><br><span class="line">            if (isSuccess) &#123;</span><br><span class="line">                NSLog(@&quot;插入成功1&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;];</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    dispatch_async(queue, ^&#123;</span><br><span class="line">        [databaseQueue inDatabase:^(FMDatabase *db) &#123;</span><br><span class="line">            BOOL isSuccess = [db executeUpdate:@&quot;INSERT INTO people(name,age) VALUES (?,?)&quot;, @&quot;LiLei&quot;,[NSNumber numberWithInteger:28]];</span><br><span class="line">            if (isSuccess) &#123;</span><br><span class="line">                NSLog(@&quot;插入成功2&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;];</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>FMDatabaseQueue 将块代码 block 运行在一个串行队列上，即使在多线程同时调用 FMDatabaseQueue 的方法，它们仍然还是顺序执行。这种查询和更新方式不会影响其它，是线程安全的。</li>
+</ul>
+<h4 id="六、其他"><a href="#六、其他" class="headerlink" title="六、其他"></a>六、其他</h4><h5 id="1、GYDataCenter"><a href="#1、GYDataCenter" class="headerlink" title="1、GYDataCenter"></a>1、GYDataCenter</h5><ul>
+<li><p>基于FMDB实现的ORM框架</p>
+</li>
+<li><p>具体参考<a href="https://wereadteam.github.io/2016/07/06/GYDataCenter/" target="_blank" rel="noopener">GYDataCenter：高性能数据库框架</a></p>
+</li>
+</ul>
+<h5 id="2、WCDB"><a href="#2、WCDB" class="headerlink" title="2、WCDB"></a>2、WCDB</h5><ul>
+<li>微信开源的移动端数据库组件，基于SQlite，支持ORM（Object Relational Mapping）(将一个ObjC的类，映射到数据库的表和索引,将类的property，映射到数据库表的字段）</li>
+<li>具体参考 <a href="https://github.com/buaa0300/article/blob/master/%E5%BE%AE%E4%BF%A1%E7%A7%BB%E5%8A%A8%E7%AB%AF%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BB%84%E4%BB%B6WCDB%E7%B3%BB%E5%88%97%EF%BC%88%E4%B8%80%EF%BC%89-iOS%E5%9F%BA%E7%A1%80%E7%AF%87.md" target="_blank" rel="noopener">微信移动端数据库组件WCDB系列（一）-iOS基础篇</a></li>
+</ul>
+<h5 id="3、Realm"><a href="#3、Realm" class="headerlink" title="3、Realm"></a>3、Realm</h5><ul>
+<li>具体参考 <a href="https://www.jianshu.com/p/50e0efb66bdf" target="_blank" rel="noopener">Realm数据库 从入门到“放弃”</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS/" rel="tag"># iOS</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/24/iOS-RAC01/" rel="next" title="ReactiveCocoa-信号基础">
+                <i class="fa fa-chevron-left"></i> ReactiveCocoa-信号基础
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.jpeg"
+                alt="南华coder" />
+            
+              <p class="site-author-name" itemprop="name">南华coder</p>
+              <p class="site-description motion-element" itemprop="description">天之道，损有余而补不足</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、移动端数据库方案"><span class="nav-number">1.</span> <span class="nav-text">一、移动端数据库方案</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、关系型数据库"><span class="nav-number">1.1.</span> <span class="nav-text">1、关系型数据库</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、非关系数据库"><span class="nav-number">1.2.</span> <span class="nav-text">2、非关系数据库</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、一些看法"><span class="nav-number">1.3.</span> <span class="nav-text">3、一些看法</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、SQlite基础操作"><span class="nav-number">2.</span> <span class="nav-text">二、SQlite基础操作</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、基础概念"><span class="nav-number">2.1.</span> <span class="nav-text">1、基础概念</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、关键API-打开数据库"><span class="nav-number">2.2.</span> <span class="nav-text">2、关键API-打开数据库</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、关键API-执行sql语句"><span class="nav-number">2.3.</span> <span class="nav-text">3、关键API - 执行sql语句</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、关键API-执行查询语句"><span class="nav-number">2.4.</span> <span class="nav-text">4、关键API - 执行查询语句</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5、关键API-关闭数据库"><span class="nav-number">2.5.</span> <span class="nav-text">5、关键API - 关闭数据库</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四、SQLite的线程模式"><span class="nav-number">3.</span> <span class="nav-text">四、SQLite的线程模式</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、三种线程模式"><span class="nav-number">3.1.</span> <span class="nav-text">1、三种线程模式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、编译时选择线程模式"><span class="nav-number">3.2.</span> <span class="nav-text">2、编译时选择线程模式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、启动时选择线程模式"><span class="nav-number">3.3.</span> <span class="nav-text">3、启动时选择线程模式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、运行时选择线程模式"><span class="nav-number">3.4.</span> <span class="nav-text">4、运行时选择线程模式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5、总结"><span class="nav-number">3.5.</span> <span class="nav-text">5、总结</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#五、FMDB"><span class="nav-number">4.</span> <span class="nav-text">五、FMDB</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、源码组成"><span class="nav-number">4.1.</span> <span class="nav-text">1、源码组成</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、数据库创建和打开"><span class="nav-number">4.2.</span> <span class="nav-text">2、数据库创建和打开</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、数据库查询"><span class="nav-number">4.3.</span> <span class="nav-text">3、数据库查询</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、数据库更新"><span class="nav-number">4.4.</span> <span class="nav-text">4、数据库更新</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5、多线程数据库访问"><span class="nav-number">4.5.</span> <span class="nav-text">5、多线程数据库访问</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#六、其他"><span class="nav-number">5.</span> <span class="nav-text">六、其他</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、GYDataCenter"><span class="nav-number">5.1.</span> <span class="nav-text">1、GYDataCenter</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、WCDB"><span class="nav-number">5.2.</span> <span class="nav-text">2、WCDB</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、Realm"><span class="nav-number">5.3.</span> <span class="nav-text">3、Realm</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">南华coder</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">56.3k</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
