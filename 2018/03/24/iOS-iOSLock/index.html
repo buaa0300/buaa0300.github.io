@@ -90,7 +90,7 @@
 <meta property="og:description" content="一、多线程中的锁1、概述 在并发编程中，锁是一种同步机制，是用来限制多线程环境中对资源的访问，保障线程安全。 线程安全中，为了实现线程阻塞，一般有两种方案：一种是让线程处于休眠状态，此时不会消耗 CPU 资源；另一种方案是让线程忙等或空转，这样会消耗一定的 CPU 资源。前者属于互斥，后者属于自旋。 自旋在线程加锁的情况下，会一直尝试是否解锁，如果没有解锁，会一直循环判断，如果锁已经放开，则继续执">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/201701-514c86e036c415bc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640">
-<meta property="og:updated_time" content="2019-04-03T10:08:54.388Z">
+<meta property="og:updated_time" content="2019-04-03T12:03:50.251Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="多线程中的锁小记">
 <meta name="twitter:description" content="一、多线程中的锁1、概述 在并发编程中，锁是一种同步机制，是用来限制多线程环境中对资源的访问，保障线程安全。 线程安全中，为了实现线程阻塞，一般有两种方案：一种是让线程处于休眠状态，此时不会消耗 CPU 资源；另一种方案是让线程忙等或空转，这样会消耗一定的 CPU 资源。前者属于互斥，后者属于自旋。 自旋在线程加锁的情况下，会一直尝试是否解锁，如果没有解锁，会一直循环判断，如果锁已经放开，则继续执">
@@ -340,7 +340,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  3,116 字
+                  3,193 字
                 </span>
               
 
@@ -356,7 +356,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  11 分
+                  12 分
                 </span>
               
             </div>
@@ -480,6 +480,14 @@
 <li><p>在测评中发现，dispatch_barrier_async + 并发队列性性能不好，具体可参考 <a href="https://www.jianshu.com/p/15df680d510e" target="_blank" rel="noopener">atomic性能真的很差，并发queue+barrier性能真的很好吗？</a></p>
 </li>
 </ul>
+<h5 id="2、死锁问题"><a href="#2、死锁问题" class="headerlink" title="2、死锁问题"></a>2、死锁问题</h5><ul>
+<li>主线程使用dispatch_sync</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dispatch_sync(dispatch_get_main_queue(), ^&#123;</span><br><span class="line"></span><br><span class="line"> &#125;)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>使用OSSpinLock、dispatch_semaphore、synchronized等都不支持可重入等锁，遇到重入的场景</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//死锁，YYThreadSafeArrays使用的是dispatch_semaphore做线程同步</span><br><span class="line">YYThreadSafeArray *array = [[YYThreadSafeArray alloc] initWithObjects:@&quot;678&quot;,@&quot;910&quot;, nil];</span><br><span class="line">    [array enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) &#123;</span><br><span class="line">        NSLog(@&quot;count = %@&quot;,@([array count]));</span><br><span class="line">    &#125;];</span><br></pre></td></tr></table></figure>
 
       
     </div>
@@ -665,7 +673,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、多线程中的锁"><span class="nav-number">1.</span> <span class="nav-text">一、多线程中的锁</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、概述"><span class="nav-number">1.1.</span> <span class="nav-text">1、概述</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、为什么自旋锁的性能最好"><span class="nav-number">1.2.</span> <span class="nav-text">2、为什么自旋锁的性能最好</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、几种常见的锁"><span class="nav-number">2.</span> <span class="nav-text">二、几种常见的锁</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2、-dispatch-semaphore-信号量"><span class="nav-number">2.1.</span> <span class="nav-text">2、 dispatch_semaphore(信号量)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、pthread-mutex-互斥锁"><span class="nav-number">2.2.</span> <span class="nav-text">3、pthread_mutex (互斥锁)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、NSLock"><span class="nav-number">2.3.</span> <span class="nav-text">4、NSLock</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5、NSCondition"><span class="nav-number">2.4.</span> <span class="nav-text">5、NSCondition</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6、-pthread-mutex-recursive"><span class="nav-number">2.5.</span> <span class="nav-text">6、 pthread_mutex(recursive)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#7、NSRecursiveLock"><span class="nav-number">2.6.</span> <span class="nav-text">7、NSRecursiveLock</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#8、NSConditionLock-条件锁"><span class="nav-number">2.7.</span> <span class="nav-text">8、NSConditionLock(条件锁)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#9、synchronized-同步锁"><span class="nav-number">2.8.</span> <span class="nav-text">9、synchronized(同步锁)</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、OSSpinLock的优先级反转问题"><span class="nav-number">3.</span> <span class="nav-text">二、OSSpinLock的优先级反转问题</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、什么是优先级反转"><span class="nav-number">3.1.</span> <span class="nav-text">1、什么是优先级反转</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、优先级反转的解决办法"><span class="nav-number">3.2.</span> <span class="nav-text">2、优先级反转的解决办法</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#1）优先级继承-priority-inheritance"><span class="nav-number">3.2.1.</span> <span class="nav-text">1）优先级继承(priority inheritance)</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#2）优先级天花板-priority-ceilings"><span class="nav-number">3.2.2.</span> <span class="nav-text">2）优先级天花板(priority ceilings)</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、被命放弃的OSSpinLock"><span class="nav-number">3.3.</span> <span class="nav-text">3、被命放弃的OSSpinLock</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、atomic能保证修饰的属性是线程安全吗？"><span class="nav-number">4.</span> <span class="nav-text">三、atomic能保证修饰的属性是线程安全吗？</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、atomic不能保证修饰的属性是线程安全的"><span class="nav-number">4.1.</span> <span class="nav-text">1、atomic不能保证修饰的属性是线程安全的</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、atomic的性能很差吗"><span class="nav-number">4.2.</span> <span class="nav-text">2、atomic的性能很差吗</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四、锁的一些其他问题讨论"><span class="nav-number">5.</span> <span class="nav-text">四、锁的一些其他问题讨论</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、dispatch-barrier-async-并发队列性能为什么项目中不使用"><span class="nav-number">5.1.</span> <span class="nav-text">1、dispatch_barrier_async + 并发队列性能为什么项目中不使用</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、多线程中的锁"><span class="nav-number">1.</span> <span class="nav-text">一、多线程中的锁</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、概述"><span class="nav-number">1.1.</span> <span class="nav-text">1、概述</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、为什么自旋锁的性能最好"><span class="nav-number">1.2.</span> <span class="nav-text">2、为什么自旋锁的性能最好</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、几种常见的锁"><span class="nav-number">2.</span> <span class="nav-text">二、几种常见的锁</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2、-dispatch-semaphore-信号量"><span class="nav-number">2.1.</span> <span class="nav-text">2、 dispatch_semaphore(信号量)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、pthread-mutex-互斥锁"><span class="nav-number">2.2.</span> <span class="nav-text">3、pthread_mutex (互斥锁)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、NSLock"><span class="nav-number">2.3.</span> <span class="nav-text">4、NSLock</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5、NSCondition"><span class="nav-number">2.4.</span> <span class="nav-text">5、NSCondition</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6、-pthread-mutex-recursive"><span class="nav-number">2.5.</span> <span class="nav-text">6、 pthread_mutex(recursive)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#7、NSRecursiveLock"><span class="nav-number">2.6.</span> <span class="nav-text">7、NSRecursiveLock</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#8、NSConditionLock-条件锁"><span class="nav-number">2.7.</span> <span class="nav-text">8、NSConditionLock(条件锁)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#9、synchronized-同步锁"><span class="nav-number">2.8.</span> <span class="nav-text">9、synchronized(同步锁)</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、OSSpinLock的优先级反转问题"><span class="nav-number">3.</span> <span class="nav-text">二、OSSpinLock的优先级反转问题</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、什么是优先级反转"><span class="nav-number">3.1.</span> <span class="nav-text">1、什么是优先级反转</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、优先级反转的解决办法"><span class="nav-number">3.2.</span> <span class="nav-text">2、优先级反转的解决办法</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#1）优先级继承-priority-inheritance"><span class="nav-number">3.2.1.</span> <span class="nav-text">1）优先级继承(priority inheritance)</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#2）优先级天花板-priority-ceilings"><span class="nav-number">3.2.2.</span> <span class="nav-text">2）优先级天花板(priority ceilings)</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、被命放弃的OSSpinLock"><span class="nav-number">3.3.</span> <span class="nav-text">3、被命放弃的OSSpinLock</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、atomic能保证修饰的属性是线程安全吗？"><span class="nav-number">4.</span> <span class="nav-text">三、atomic能保证修饰的属性是线程安全吗？</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、atomic不能保证修饰的属性是线程安全的"><span class="nav-number">4.1.</span> <span class="nav-text">1、atomic不能保证修饰的属性是线程安全的</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、atomic的性能很差吗"><span class="nav-number">4.2.</span> <span class="nav-text">2、atomic的性能很差吗</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四、锁的一些其他问题讨论"><span class="nav-number">5.</span> <span class="nav-text">四、锁的一些其他问题讨论</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、dispatch-barrier-async-并发队列性能为什么项目中不使用"><span class="nav-number">5.1.</span> <span class="nav-text">1、dispatch_barrier_async + 并发队列性能为什么项目中不使用</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、死锁问题"><span class="nav-number">5.2.</span> <span class="nav-text">2、死锁问题</span></a></li></ol></li></ol></div>
             
 
           </div>
@@ -699,7 +707,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">57.2k</span>
+    <span title="Site words total count">57.3k</span>
   
 </div>
 

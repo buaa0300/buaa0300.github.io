@@ -2984,7 +2984,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  3,116 字
+                  3,193 字
                 </span>
               
 
@@ -3000,7 +3000,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  11 分
+                  12 分
                 </span>
               
             </div>
@@ -3126,6 +3126,14 @@
 <li><p>在测评中发现，dispatch_barrier_async + 并发队列性性能不好，具体可参考 <a href="https://www.jianshu.com/p/15df680d510e" target="_blank" rel="noopener">atomic性能真的很差，并发queue+barrier性能真的很好吗？</a></p>
 </li>
 </ul>
+<h5 id="2、死锁问题"><a href="#2、死锁问题" class="headerlink" title="2、死锁问题"></a>2、死锁问题</h5><ul>
+<li>主线程使用dispatch_sync</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dispatch_sync(dispatch_get_main_queue(), ^&#123;</span><br><span class="line"></span><br><span class="line"> &#125;)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>使用OSSpinLock、dispatch_semaphore、synchronized等都不支持可重入等锁，遇到重入的场景</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//死锁，YYThreadSafeArrays使用的是dispatch_semaphore做线程同步</span><br><span class="line">YYThreadSafeArray *array = [[YYThreadSafeArray alloc] initWithObjects:@&quot;678&quot;,@&quot;910&quot;, nil];</span><br><span class="line">    [array enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) &#123;</span><br><span class="line">        NSLog(@&quot;count = %@&quot;,@([array count]));</span><br><span class="line">    &#125;];</span><br></pre></td></tr></table></figure>
 
           
         
@@ -3295,7 +3303,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">57.2k</span>
+    <span title="Site words total count">57.3k</span>
   
 </div>
 
