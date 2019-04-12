@@ -254,6 +254,754 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/11/20/ML02-DTree/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/20/ML02-DTree/" itemprop="url">机器学习中的树模型</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-20T23:33:16+08:00">
+                2018-11-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/机器学习/" itemprop="url" rel="index">
+                    <span itemprop="name">机器学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,345 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  5 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="一、开篇"><a href="#一、开篇" class="headerlink" title="一、开篇"></a>一、开篇</h3><h4 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h4><ul>
+<li>在数据结构中，有树这种结构；在机器学习中，有决策树；咋一看，感觉是一回事，其实不然；</li>
+<li><p>数据结构的树关注的事查找，插入，删除的效率，二叉树，平衡二叉树都是为了解决这些效率而产生的；</p>
+</li>
+<li><p>机器学习中的决策树关注的是，如何找到最佳分解节点，<strong>ID3算法</strong>(按最大信息增益划分)，<strong>C4.5</strong>（按信息增益比划分），<strong>CART算法</strong>（按最小基尼指数划分）都是为了达到最佳分裂的效果。</p>
+</li>
+<li>最大信息增益会倾向于<strong>可取值较多</strong>的特征，最大信息增益比会倾向于<strong>可取值较少的特征</strong>。</li>
+</ul>
+<h4 id="2、决策树和集成学习"><a href="#2、决策树和集成学习" class="headerlink" title="2、决策树和集成学习"></a>2、决策树和集成学习</h4><ul>
+<li>决策树模型很简单，简单到即使你不懂机器学习，也能很快了解他，可能有人会说，这么简单的模型有什么用。哈哈，数学的伟大，在于复杂的问题简单化，深度学习的强大在于利用将简单的神经网络不断加深；决策树虽然简单，但是很多个决策树在一起，就足够让很多浅层机器学习算法忘而却步。</li>
+<li><p>这个将许多决策树整合一起的方式就是集成学习，在集成学习中，决策树是个体学习器，当然个体学习器可以是别的弱学习器。</p>
+</li>
+<li><p>而根据个体学习器生成方式的不同，目前集成学习方法大致可分为两大类，即个体学习器间存在<strong>强依赖关系</strong>、必须串行生成的序列化方法，以及个体学习器间<strong>不存在强依赖关系</strong>、可同时生成的并行化方法；前者的代表是<strong>Boosting </strong> 和 <strong>梯度提升树</strong>(GBDT)，后者的代表是和<strong>Bagging</strong>和 <strong>随机森林</strong>（Random Forest）</p>
+</li>
+</ul>
+<h3 id="二、决策树"><a href="#二、决策树" class="headerlink" title="二、决策树"></a>二、决策树</h3><h4 id="1、决策树中需关注问题"><a href="#1、决策树中需关注问题" class="headerlink" title="1、决策树中需关注问题"></a>1、决策树中需关注问题</h4><ul>
+<li><p>一棵树是如何构建的？建树过程中，树分裂节点时，如何选出最优的属性作为分裂节点。</p>
+</li>
+<li><p>如何用树的减枝来避免过拟合问题。</p>
+</li>
+<li><p>对于含有空值的数据，如何构建树。</p>
+</li>
+<li><p>构建树可能存在的问题，过拟合问题，如何解决</p>
+</li>
+</ul>
+<h4 id="2、如何构建一棵树"><a href="#2、如何构建一棵树" class="headerlink" title="2、如何构建一棵树"></a>2、如何构建一棵树</h4><p>简言之：<strong>选择最优划分属性作为分裂结点，使得分支结点中所包含的样本尽可能属于同一类</strong>。树的生成算法有三种：ID3、C4.5和CART.</p>
+<h5 id="1、ID3"><a href="#1、ID3" class="headerlink" title="1、ID3"></a>1、ID3</h5><p>选择<strong>最大信息增益(Information Gain)</strong>规则去寻找最优分裂节点</p>
+<h5 id="1-1、基础概念"><a href="#1-1、基础概念" class="headerlink" title="1-1、基础概念"></a>1-1、基础概念</h5><ul>
+<li><p>信息熵(Information entropy)：表示随机变量不确定性的度量；<strong>熵越大，随机变量的不确定性就越大</strong>；(我们希望分类后的结果熵越小越好)。</p>
+</li>
+<li><p>信息增益(Information gain)：表示因特征X的信息而使得类Y信息不确定性减少的程度。(当然是越大越好）；<br>$$<br>g(D,A) = H(D) - H(D|A)<br>$$</p>
+</li>
+</ul>
+<p>在划分过程中，找到信息增益最大的特征将样本根据此特征划分不同的结点中，新的结点中继续划分。</p>
+<h5 id="1-2、不足"><a href="#1-2、不足" class="headerlink" title="1-2、不足"></a>1-2、不足</h5><ul>
+<li>信息增益反应的是：给点条件后，不确定性减少的程度，<strong>特征取值越多，意味着确定性越高，也就是条件熵越小，信息增益越大。</strong>这就造成信息增益对<strong>可取值较多</strong>的属性有所偏好。</li>
+<li>ID3只能处理离散型变量，只能处理分类任务</li>
+<li>对样本特征缺失值比较敏感</li>
+</ul>
+<h5 id="2、C4-5"><a href="#2、C4-5" class="headerlink" title="2、C4.5"></a>2、C4.5</h5><p>选择<strong>最大信息增益比(Information Gain Ratio)</strong>规则去寻找最优分裂节点</p>
+<h5 id="2-1、基础概念"><a href="#2-1、基础概念" class="headerlink" title="2-1、基础概念"></a>2-1、基础概念</h5><ul>
+<li><strong>信息增益比(Information Gain Ratio)</strong>: 特征A对训练数据集D的信息增益比为其 信息增益与训练数据集D关于特征A的值的熵之比。<br>$$<br>g_R(D,A) =\frac{g(D,A)}{H_A(D)}<br>$$</li>
+</ul>
+<p>在划分过程中，找到信息增益比最大的特征将样本根据此特征划分不同的结点中，新的结点中继续划分。</p>
+<h5 id="2-2、不足"><a href="#2-2、不足" class="headerlink" title="2-2、不足"></a>2-2、不足</h5><ul>
+<li>C4.5 对ID3做了优化，使用信息增益比在一定程度上对取值较多的特征进行了惩罚，避免ID3出现的过拟合特性，提升了决策树的泛化能力。</li>
+<li>C4.5 能处理连续型变量和离散型变量，但是只能处理分类任务。</li>
+</ul>
+<h5 id="3、CART"><a href="#3、CART" class="headerlink" title="3、CART"></a>3、CART</h5><p>选择<strong>最小基尼指数(Gini index)</strong>规则去寻找最优分裂节点</p>
+<h5 id="3-1、基础概念"><a href="#3-1、基础概念" class="headerlink" title="3-1、基础概念"></a>3-1、基础概念</h5><ul>
+<li>基尼指数：表示数据的纯度<br>$$<br>Cini(D) = 1 - \sum_{k=1}^n(\frac{|C_k|}{|D|})^2<br>$$</li>
+</ul>
+<p>利用基尼指数最小选择最优分裂点，采用二元切割法</p>
+<h5 id="3-2、特点"><a href="#3-2、特点" class="headerlink" title="3-2、特点"></a>3-2、特点</h5><ul>
+<li>不仅能处理分类任务，还能处理回归任务</li>
+<li>不仅能处理离散型变量，还能处理连续型变量</li>
+<li>能够处理样本特征数据缺失的情况</li>
+</ul>
+<h4 id="3、树的剪枝"><a href="#3、树的剪枝" class="headerlink" title="3、树的剪枝"></a>3、树的剪枝</h4><h5 id="3-1、预剪枝"><a href="#3-1、预剪枝" class="headerlink" title="3-1、预剪枝"></a>3-1、预剪枝</h5><p>阈值、</p>
+<h5 id="3-2、后剪枝"><a href="#3-2、后剪枝" class="headerlink" title="3-2、后剪枝"></a>3-2、后剪枝</h5><h3 id="三、梯度提升树-和-随机森林"><a href="#三、梯度提升树-和-随机森林" class="headerlink" title="三、梯度提升树 和 随机森林"></a>三、梯度提升树 和 随机森林</h3><ul>
+<li><p>梯度提升树，GBDT，特征组合的一把好手</p>
+</li>
+<li><p>随机森林 RF</p>
+</li>
+<li><p>基于决策树实现的GBDT、RF（随机森林）、Xgboost 和 lightGBM都在数据竞赛和工程中都大展身手。</p>
+</li>
+<li><p><a href="https://github.com/e-snail/understanding_machine_learning/tree/master/3_decision_tree" target="_blank" rel="noopener">https://github.com/e-snail/understanding_machine_learning/tree/master/3_decision_tree</a></p>
+</li>
+<li><p><a href="http://sklearn.apachecn.org/cn/0.19.0/modules/tree.html" target="_blank" rel="noopener">决策树API</a></p>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/11/17/ML01/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/17/ML01/" itemprop="url">机器学习杂谈</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-17T22:20:28+08:00">
+                2018-11-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/机器学习/" itemprop="url" rel="index">
+                    <span itemprop="name">机器学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,861 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  6 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong>高能预警</strong>：本人非算法开发，以下是我的一些浅见。</p>
+<h3 id="一、开篇"><a href="#一、开篇" class="headerlink" title="一、开篇"></a>一、开篇</h3><p>自有机器学习以来，算法模型中就有了区分；分为监督学习，无监督学习，半监督学习和强化学习等。</p>
+<h4 id="1、监督学习"><a href="#1、监督学习" class="headerlink" title="1、监督学习"></a>1、监督学习</h4><ul>
+<li><p>机器学习中<strong>大部分任务</strong>都是监督学习任务；在监督学习中，分类和回归是其两大主题。分类中名声最大的是：<strong>逻辑回归</strong>(Logistic regression)、<strong>朴素贝叶斯</strong>(Naive Bayes) 和 <strong>支持向量机</strong>(Support Vector Machine，SVM) 。</p>
+</li>
+<li><p>在工业界曾经有<strong>一招LR打天下</strong>的”传说”，这里的LR就是逻辑回归；早些年做CTR预估时候，<strong>人工特征海洋 + LR</strong>用得非常多，很多算法工程师大部分时间埋头搞特征工程；</p>
+</li>
+<li><strong>朴素贝叶斯</strong>(Naive Bayes)是个开挂的存在，它将<strong>贝叶斯原理</strong>应用到机器学习中，而后机器学习中贝叶斯学派声明鹊起，与旧贵族统计学派在机器学习中鼎足而立；它强假设输入的数据的特征都是独立的，在文本分类中表现出很好的效果，可谓是入门nlp都必须了解的算法之一了。</li>
+<li><strong>支持向量机</strong>(Support Vector Machine，SVM) 当之无愧是监督学习中的无冕之王，自上世纪90年代诞生之后，在机器学习界掀起“腥风血雨”，它利用核技巧，在属于两个不同类别的两组数据之间找到良好的分类边界，将线性不可分问题转为高纬空间的线性可分问题，借此达到了分类的目的。因为SVM的存在，将<strong>多层神经网络</strong>的研究打进冷宫；多层神经网络是深度学习的前身。直到2012年，因为深度学习在ImageSet竞赛中的完胜，神经网络的研究才再次复苏，直至形成今天的野火燎原之势。</li>
+<li>监督学习中另一个主题是回归，最基础的的当然是<strong>线性回归</strong>(Linear regression)，模型虽然简单，但是预测个房价，股票价格这种高大上的事情也还是有着不错的表现。</li>
+<li>非监督学习比较尴尬，在工业界，更多起到打辅助的左右；有聚类，降维和关联规则三大主题，聚类中用的较多反而是简单的K-means，PCA和SVD用来做数据降维，关联规则那块好像在推荐系统用的稍微多些。</li>
+</ul>
+<h4 id="2、决策树和集成学习"><a href="#2、决策树和集成学习" class="headerlink" title="2、决策树和集成学习"></a>2、决策树和集成学习</h4><ul>
+<li>决策树是监督学习中比较特殊的模型，说他特殊，是因为它不像LR、SVM和NB直接上手，大家喜欢使用将决策树作为集成学习的基础学习器，比较著名的是<strong>随机森林</strong>(Random Forest)、<strong>梯度提升树</strong>(GBDT)，决策树的实现经历了ID3, C4.5，CART三个阶段，在随机森林、梯度提升树里面用的是CART这个分类回归树。从CART的名字也看出来，不仅仅可以做回归，也能做分类。粗暴理解就是，分类时候好多CART投票分类结果，回归时候，取CART预测值得平均数。</li>
+<li>GBDT有个超级经典的实现，XgBoost。在Kaggle比赛中，XgBoost近乎霸主级别的存在；江湖有传言，图片图像等机器学习问题用Keras（深度学习库），浅层机器学习用XgBoost。</li>
+</ul>
+<h4 id="3、神经网络和深度学习的渊源"><a href="#3、神经网络和深度学习的渊源" class="headerlink" title="3、神经网络和深度学习的渊源"></a>3、神经网络和深度学习的渊源</h4><ul>
+<li>我认为，没有神经网络，就没有深度学习；虽然业界有说法，不用神经网络就也能实现深度学习；但是神经网络真的真的很厉害，虽然很长一段时间不被看好，因为两层的神经网络连个异或都处理不了，的确有理由被看不上；但是随着反向传播算法发现，神经网络层数不断加深，在工业界发挥牛逼闪闪的光芒。</li>
+<li>你可能想不到，权重，阈值，激活函数这些简简单单的东西，怎么能解决计算机视觉、语音识别这种非常难的问题，这些问题连当年风光无限的SVM都败下阵来。</li>
+</ul>
+<h4 id="4、特征工程"><a href="#4、特征工程" class="headerlink" title="4、特征工程"></a>4、特征工程</h4><ul>
+<li><p>有句老话：数据和特征决定了机器学习的上限，而模型和算法只是逼近这个上限而已。在传统机器学习领域，做好特征工程很重要；工业界有句老话，70%多的时间在做特征工程；</p>
+</li>
+<li><p>比较尴尬的是，市面上多是讲解机器学习算法模型的书，讲解算法和模型的奥妙是他们的主题，提供的试验数据也都是已经处理好的，并不需要特征工程处理，但是实际工程中不是这样。特征工程的处理依赖领域知识和经验依旧是主流，但是业界很多项目处于安全、隐私等考虑，不会透露底层的特征工程的处理。</p>
+</li>
+</ul>
+<h4 id="5、特征工程-amp-深度学习"><a href="#5、特征工程-amp-深度学习" class="headerlink" title="5、特征工程 &amp; 深度学习"></a>5、特征工程 &amp; 深度学习</h4><ul>
+<li>深度学习有自动获取特征的能力，可以对输入的低阶特征进行组合、变换，得到高阶特征，但是这个能力只是对于某些领域(如图像、语音)有比较好的效果。</li>
+<li>在其他领域，如自然语言处理中，输入的字或词都是离散、稀疏的值，不像图片一样是连续、稠密的。输入原始数据进行组合、变换得到的高阶特征并不是那么有效。而且有的语义并不来自数据，而来自人们的先验知识，所以利用先验知识构造的特征是很有帮助的。</li>
+<li>总的来说，在深度学习中，特征工程仍然适用；神经网络能对特征自动进行排列组合，所以只要输入一阶特征就行，省去了手动构造高阶特征的工作量。</li>
+</ul>
+<h4 id="6、模型评估"><a href="#6、模型评估" class="headerlink" title="6、模型评估"></a>6、模型评估</h4><ul>
+<li>模型评估很重要，是向别人证明你的模型怎么好的依据，我也就知道过拟合、欠拟合、交差验证、ROC、分类中查全率，查准率这些概念，没有个比较整体的认识，后面抽时间了解后再来补充。</li>
+</ul>
+<h3 id="二、常见的监督学习算法模型"><a href="#二、常见的监督学习算法模型" class="headerlink" title="二、常见的监督学习算法模型"></a>二、常见的监督学习算法模型</h3><p>哈哈，先留坑，后面慢慢填</p>
+<h4 id="1、LR（逻辑回归）"><a href="#1、LR（逻辑回归）" class="headerlink" title="1、LR（逻辑回归）"></a>1、LR（逻辑回归）</h4><ul>
+<li>线性模型的基础上增加了sigmoid函数，处理二分类问题，广义的线性模型，在CTR预估中有大作用</li>
+</ul>
+<h4 id="2、SVM-支持向量机"><a href="#2、SVM-支持向量机" class="headerlink" title="2、SVM(支持向量机)"></a>2、SVM(支持向量机)</h4><ul>
+<li><p>可以处理非线性问题，深度学习未火之前，是学术界和工业界的热点，</p>
+<p>数据规模较小时，能够构建出数据间的非线性关系，</p>
+<p>1、SVM的原始公式是如何由实际问题产生，算法的灵魂</p>
+<p>2、SVM原始问题到对偶问题的数学推导公式</p>
+</li>
+</ul>
+<h4 id="3、NB-朴素贝叶斯"><a href="#3、NB-朴素贝叶斯" class="headerlink" title="3、NB(朴素贝叶斯)"></a>3、NB(朴素贝叶斯)</h4><ul>
+<li>基于贝叶斯定理的一组有监督学习算法，<strong>朴素</strong>：“简单”地假设每对特征之间相互独立；</li>
+<li>在很多实际情况下，朴素贝叶斯工作得很好，特别是<strong>文档分类</strong>和<strong>垃圾邮件过滤</strong>。这些工作都要求 一个小的训练集来估计必需参数。</li>
+</ul>
+<p><a href="http://sklearn.apachecn.org/cn/0.19.0/modules/naive_bayes.html" target="_blank" rel="noopener">http://sklearn.apachecn.org/cn/0.19.0/modules/naive_bayes.html</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/03/24/iOS-iOSLock/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/24/iOS-iOSLock/" itemprop="url">多线程中的锁小记</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-24T18:21:40+08:00">
+                2018-03-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS基础/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,193 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  12 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="一、多线程中的锁"><a href="#一、多线程中的锁" class="headerlink" title="一、多线程中的锁"></a>一、多线程中的锁</h4><h5 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h5><ul>
+<li>在并发编程中，<strong>锁是一种同步机制</strong>，是用来限制多线程环境中对资源的访问，保障线程安全。</li>
+<li>线程安全中，为了实现<strong>线程阻塞</strong>，一般有两种方案：一种是<strong>让线程处于休眠状态</strong>，此时不会消耗 CPU 资源；另一种方案是<strong>让线程忙等或空转</strong>，这样会消耗一定的 CPU 资源。前者属于互斥，后者属于自旋。</li>
+<li>自旋在线程加锁的情况下，会一直尝试是否解锁，如果没有解锁，会一直循环判断，如果锁已经放开，则继续执行，不再是空转状态。OSSpinLock 属于自旋锁，pthread 库中相关的锁，以及 NSLock、@synchronized 等都属于互斥锁。</li>
+<li>ibireme 在《<a href="https://link.jianshu.com/?t=https://blog.ibireme.com/2016/01/16/spinlock_is_unsafe_in_ios/" target="_blank" rel="noopener">不再安全的 OSSpinLock</a>》中的一张图片说明加解锁的效率（锁的效率并不值的是加解锁的速度，而是加解锁操作在执行时的复杂程度）：</li>
+</ul>
+<p><img src="https://upload-images.jianshu.io/upload_images/201701-514c86e036c415bc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="lock"></p>
+<h5 id="2、为什么自旋锁的性能最好"><a href="#2、为什么自旋锁的性能最好" class="headerlink" title="2、为什么自旋锁的性能最好"></a>2、为什么自旋锁的性能最好</h5><ul>
+<li>自旋锁是一种<strong>非阻塞锁</strong>，换句话说，如果某线程需要获取自旋锁，但该锁已经被其他线程占用时，该<strong>线程不会被挂起，而是在不断的消耗<code>CPU</code>的时间</strong>，不停的试图获取自旋锁</li>
+<li>而互斥锁是<strong>阻塞锁</strong>，当某线程无法获取互斥量时，<strong>该线程会被直接挂起，该线程不再消耗<code>CPU</code>时间，当其他线程释放互斥量后，操作系统会激活那个被挂起的线程</strong>，让其投入运行。</li>
+<li>自旋锁比互斥锁的获取<strong>少了两个线程的上下文切换时间</strong>，虽然自旋锁因为空转等待浪费了CPU的时间，但是在多核环境下，对于很多轻量级的操作，等待锁的时间 小于 两次线程上下文切换的时间，自然就体现出了自旋锁的性能。</li>
+</ul>
+<h4 id="二、几种常见的锁"><a href="#二、几种常见的锁" class="headerlink" title="二、几种常见的锁"></a>二、几种常见的锁</h4><p><em>有了dispatch_semaphore，pthread_mutex和pthread_mutex(recursive)，synchronized感觉有够用了</em></p>
+<p><strong>1、OSSpinLock(自旋锁)</strong></p>
+<ul>
+<li><p>OSSpinLock存在优先级反转的问题，在iOS10之后已经废弃，使用os_unfair_lock替代(中间有段时间用了pthread_mutex ), os_unfair_lock 是iOS 10.0新推出的锁，用于解决OSSpinLock优先级反转问题。</p>
+</li>
+<li><p>后面会介绍下OSSpinLock的往事</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//code</span><br><span class="line">OSSpinLock oslock = OS_SPINLOCK_INIT;</span><br><span class="line">OSSpinLockLock(&amp;oslock);</span><br><span class="line">OSSpinLockUnlock(&amp;oslock);</span><br></pre></td></tr></table></figure>
+<h5 id="2、-dispatch-semaphore-信号量"><a href="#2、-dispatch-semaphore-信号量" class="headerlink" title="2、 dispatch_semaphore(信号量)"></a>2、 dispatch_semaphore(信号量)</h5><ul>
+<li>信号量(Semaphore)，有时被称为信号灯，是在多线程环境下使用的一种设施，是可以用来保证两个或多个关键代码段不被并发调用。<strong>在进入一个关键代码段之前，线程必须获取一个信号量；一旦该关键代码段完成了，那么该线程必须释放信号量。其它想进入该关键代码段的线程必须等待直到第一个线程释放信号量</strong></li>
+<li>GCD用于控制多线程并发的信号量，允许通过wait/signal的信号事件控制并发执行的最大线程数，当最大线程数降级为1的时候则可当作同步锁使用，注意该信号量并不支持递归；</li>
+</ul>
+<h5 id="3、pthread-mutex-互斥锁"><a href="#3、pthread-mutex-互斥锁" class="headerlink" title="3、pthread_mutex (互斥锁)"></a>3、pthread_mutex (互斥锁)</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">pthread_mutex_t _lock;</span><br><span class="line">//初始化</span><br><span class="line">pthread_mutex_init(&amp;pLock, NULL);</span><br><span class="line">//加锁和释放锁</span><br><span class="line">pthread_mutex_lock(&amp;pLock);</span><br><span class="line">pthread_mutex_unlock(&amp;pLock);</span><br><span class="line">//销毁</span><br><span class="line">pthread_mutex_destroy(&amp;_lock);</span><br></pre></td></tr></table></figure>
+<p><strong>说明1</strong>：加锁后，加锁后同一个时间点只能有一个线程能访问，后面的线程需要排队，并且 lock 和 unlock 是对应出现的，同一线程多次 lock 是不允许的。</p>
+<p><strong>说明2</strong>：一般情况下，一个线程只能申请一次锁，也只能在获得锁的情况下才能释放锁，多次申请锁或释放未获得的锁都会导致崩溃(死锁)。如果需要在同一线程多次获取一个锁，就需要递归锁。</p>
+<p><strong>说明3</strong>：对于互斥锁，假设在已经获得锁的情况下再次申请锁，线程会<strong>因为等待锁的释放而进入睡眠状态</strong>，因此就不可能再释放锁，从而导致死锁。</p>
+<h5 id="4、NSLock"><a href="#4、NSLock" class="headerlink" title="4、NSLock"></a>4、NSLock</h5><ul>
+<li>NSLock 只是在内部封装了一个 <strong>pthread_mutex</strong>，属性为 <strong>PTHREAD_MUTEX_ERRORCHECK</strong>，它会损失一定性能换来错误提示。</li>
+<li>NSLock 比 pthread_mutex 略慢的原因在于它需要经过方法调用，同时由于缓存的存在，多次方法调用不会对性能产生太大的影响。</li>
+</ul>
+<h5 id="5、NSCondition"><a href="#5、NSCondition" class="headerlink" title="5、NSCondition"></a>5、NSCondition</h5><ul>
+<li>NSCondition的底层是通过条件变量(condition variable) <strong>pthread_cond_t</strong> 来实现的。条件变量有点像信号量，提供了线程阻塞与信号机制，因此可以用来阻塞某个线程，并等待某个数据就绪，随后唤醒线程，比如常见的生产者-消费者模式。</li>
+</ul>
+<h5 id="6、-pthread-mutex-recursive"><a href="#6、-pthread-mutex-recursive" class="headerlink" title="6、 pthread_mutex(recursive)"></a>6、 pthread_mutex(recursive)</h5><ul>
+<li>同一个线程可以多次获取同一个递归锁，不会产生死锁。</li>
+<li>如果一个线程多次获取同一个非递归锁，则会产生死锁。</li>
+<li>递归锁允许同一个线程在未释放其拥有的锁时反复对该锁进行加锁操作。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objc_sync_enter/objc_sync_exit</span><br></pre></td></tr></table></figure>
+<h5 id="7、NSRecursiveLock"><a href="#7、NSRecursiveLock" class="headerlink" title="7、NSRecursiveLock"></a>7、NSRecursiveLock</h5><ul>
+<li><p>递归锁也是通过 <strong>pthread_mutex_lock</strong> 函数来实现，在函数内部会判断锁的类型，如果显示是递归锁，就允许递归调用，仅仅将一个计数器加一，锁的释放过程也是同理。</p>
+</li>
+<li><p>NSRecursiveLock 与 NSLock 的区别在于内部封装的 <strong>pthread_mutex_t</strong> <strong>对象的类型不同</strong>，前者的类型为 PTHREAD_MUTEX_RECURSIVE。</p>
+</li>
+</ul>
+<h5 id="8、NSConditionLock-条件锁"><a href="#8、NSConditionLock-条件锁" class="headerlink" title="8、NSConditionLock(条件锁)"></a>8、NSConditionLock(条件锁)</h5><ul>
+<li>NSConditionLock 借助 NSCondition 来实现，它的本质就是一个生产者-消费者模型。“条件被满足”可以理解为生产者提供了新的内容。NSConditionLock 的内部持有一个 NSCondition 对象，以及 _condition_value 属性，在初始化时就会对这个属性进行赋值:</li>
+</ul>
+<h5 id="9、synchronized-同步锁"><a href="#9、synchronized-同步锁" class="headerlink" title="9、synchronized(同步锁)"></a>9、synchronized(同步锁)</h5><ul>
+<li>OC 层面的锁，实现对block内的代码片段加锁， 可以指定任意一个Objective-C对象(id指针)作为锁“标记”，该语法将“标记”理解为token，通过牺牲性能换来语法上的简洁与可读</li>
+<li>@synchronized 后面紧跟的 OC 对象，根据对象的哈希值来获取对应的互斥锁，这些互斥锁在OC的底层的互斥锁池中</li>
+</ul>
+<p><strong>说明</strong>：目前，像OSSpinLock、dispatch_semaphore、synchronized等都不支持可重入（可重入: 允许同一线程多次加锁），只有pthread_mutex(recursive)和NSRecursiveLock支持，其中pthread_mutex(recursive)效率最高。</p>
+<h4 id="二、OSSpinLock的优先级反转问题"><a href="#二、OSSpinLock的优先级反转问题" class="headerlink" title="二、OSSpinLock的优先级反转问题"></a>二、OSSpinLock的优先级反转问题</h4><h5 id="1、什么是优先级反转"><a href="#1、什么是优先级反转" class="headerlink" title="1、什么是优先级反转"></a>1、什么是优先级反转</h5><ul>
+<li><strong>优先级反转</strong>(Priority Inversion)是 由于<strong>多线程共享资源，具有最高优先权的线程被低优先级线程阻塞，反而使具有中优先级的线程先于高优先级的线程执行</strong>。（可类推到多进程的优先级反转）</li>
+<li>产生优先级反转的条件：假设有高优先级的任务线程为<strong>High</strong>、中优先级的任务为<strong>Mid</strong>、低优先级的任务线程为<strong>Low</strong>；优先级是High &gt; Mid &gt; Low; 触发需要满足3个条件</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- High线程要访问一个被Low线程占有的资源，因为得不到，High线程被阻塞；</span><br><span class="line">- Middle线程启动执行，因为Middle优先级比Low高，导致占有资源的Low线程被挂起，但是Low占用的资源并没有释放；甚至于因为Low的优先级足够低，一直被其他的任务挂起，导致占有的资源一直不能释放，High线程一直无法得到机会执行。</span><br><span class="line">- High任务因为一直不能获取被Low任务占用的资源，导致比它优先低的任务却可以执行。</span><br></pre></td></tr></table></figure>
+<h5 id="2、优先级反转的解决办法"><a href="#2、优先级反转的解决办法" class="headerlink" title="2、优先级反转的解决办法"></a>2、优先级反转的解决办法</h5><p><strong>解决的思路</strong>是：<strong>提高占有资源线程的优先级</strong>，使其可以执行，并在执行完后释放资源；以让其他线程可以获取资源；<strong>常见的解决方法</strong>有2种，<strong>优先级继承</strong>(priority inheritance) 或 <strong>优先级极限</strong>(priority ceilings)。</p>
+<h6 id="1）优先级继承-priority-inheritance"><a href="#1）优先级继承-priority-inheritance" class="headerlink" title="1）优先级继承(priority inheritance)"></a>1）优先级继承(priority inheritance)</h6><ul>
+<li>提升<strong>低优先级线程</strong> 的优先级，优先级等于  等待其占有的资源的，最高优先级任务的优先级；</li>
+<li>换言之，当高优先级任务由于等待资源而被阻塞时，此时资源的拥有者的优先级将会自动被提升。</li>
+</ul>
+<h6 id="2）优先级天花板-priority-ceilings"><a href="#2）优先级天花板-priority-ceilings" class="headerlink" title="2）优先级天花板(priority ceilings)"></a>2）优先级天花板(priority ceilings)</h6><ul>
+<li>将申请某资源的线程优先级，提升到可能访问该资源的所有任务中最高优先级任务的优先级。</li>
+</ul>
+<p><strong>说明</strong>： 优先级继承，只有当占有资源的低优先级的任务被阻塞时,才会提高占有资源任务的优先级；而优先级天花板，不论是否发生阻塞, 都提升。</p>
+<h5 id="3、被命放弃的OSSpinLock"><a href="#3、被命放弃的OSSpinLock" class="headerlink" title="3、被命放弃的OSSpinLock"></a>3、被命放弃的OSSpinLock</h5><ul>
+<li>由于OSSpinLock加解锁的效率高，早期被大量使用，比如Apple就使用OSSpinLock来实现属性的setter/getter的原子性，著名的YYKit中使用的也是OSSpinLock，</li>
+<li>但是自从发现优先级反转问题后，OSSpinLock被放弃。YYKit中采用了dispatch_semaphore_t；Apple也在iOS 10.0新推出os_unfair_lock，用来解决OSSpinLock优先级反转问题。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 初始化</span><br><span class="line">os_unfair_lock_t unfairLock = &amp;(OS_UNFAIR_LOCK_INIT);</span><br><span class="line">// 加锁</span><br><span class="line">os_unfair_lock_lock(unfairLock);</span><br><span class="line">// 解锁</span><br><span class="line">os_unfair_lock_unlock(unfairLock);</span><br><span class="line">// 尝试加锁</span><br><span class="line">BOOL b = os_unfair_lock_trylock(unfairLock);</span><br></pre></td></tr></table></figure>
+<h4 id="三、atomic能保证修饰的属性是线程安全吗？"><a href="#三、atomic能保证修饰的属性是线程安全吗？" class="headerlink" title="三、atomic能保证修饰的属性是线程安全吗？"></a>三、atomic能保证修饰的属性是线程安全吗？</h4><h5 id="1、atomic不能保证修饰的属性是线程安全的"><a href="#1、atomic不能保证修饰的属性是线程安全的" class="headerlink" title="1、atomic不能保证修饰的属性是线程安全的"></a>1、atomic不能保证修饰的属性是线程安全的</h5><ul>
+<li><p>属性被atomic修饰之后，默认生成的getter和setter方法，是原子操作的；这就意味着，在多线程环境下，<code>简单的set/get</code>的访问操作的线程安全的。</p>
+</li>
+<li><p>但是在真实场景下，不是简单的getter和setter操作</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">@property (atomic, assign)  int  intA;  //intA被atomic修饰</span><br><span class="line"></span><br><span class="line">//thread A</span><br><span class="line">for (int i = 0; i &lt; 10000; i ++) &#123;</span><br><span class="line">    self.intA = self.intA + 1;</span><br><span class="line">    NSLog(@&quot;Thread A: %d\n&quot;, self.intA);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//thread B</span><br><span class="line">for (int i = 0; i &lt; 10000; i ++) &#123;</span><br><span class="line">    self.intA = self.intA + 1;</span><br><span class="line">    NSLog(@&quot;Thread B: %d\n&quot;, self.intA);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>虽然<strong>intA</strong>声明为atomic，但是结果也不一定会是20000。原因就是因为<code>self.intA = self.intA + 1;</code>不是原子操作，虽然intA的getter和setter是原子操作，但当我们使用intA的时候，整个语句并不是原子的，这行赋值的代码至少包含读取(load)，+1(add)，赋值(store)三步操作，当前线程store的时候可能其他线程已经执行了若干次store了，导致最后的值小于预期值。这种场景我们也可以称之为<strong>多线程不安全</strong>。</p>
+</li>
+<li><p>再加上，属性多了atomic修饰，相当于对属性的setter和getter操作加锁，导致属性的操作性能比nonatomic修饰差，举个简单例子，在单线程环境，<code>UIKit</code>中所有类的属性，因为不存在多线程竞争的问题，属性使用atomic锁会影响效率。</p>
+</li>
+<li><p>此外，即使可变数组对象被修饰成aomic，无法保证数组对象的插入、删除操作是线程安全的。</p>
+</li>
+</ul>
+<h5 id="2、atomic的性能很差吗"><a href="#2、atomic的性能很差吗" class="headerlink" title="2、atomic的性能很差吗"></a>2、atomic的性能很差吗</h5><ul>
+<li><p>atomic的实质是给属性setter/getter方法加锁，之前是自旋锁OSSpinLock,后来因为OSSpinLock优先级反转的问题，iOS 10使用新的自旋锁unfairLock，自旋锁的性能还是相当不错的。</p>
+</li>
+<li><p>被atomic修饰的属性，setter和getter方法中任意一个被重写，atomic关键字特性就会失效。</p>
+</li>
+<li><p>atomic的性能不错，也线程安全，但仅限于setter/getter。</p>
+</li>
+</ul>
+<h4 id="四、锁的一些其他问题讨论"><a href="#四、锁的一些其他问题讨论" class="headerlink" title="四、锁的一些其他问题讨论"></a>四、锁的一些其他问题讨论</h4><h5 id="1、dispatch-barrier-async-并发队列性能为什么项目中不使用"><a href="#1、dispatch-barrier-async-并发队列性能为什么项目中不使用" class="headerlink" title="1、dispatch_barrier_async + 并发队列性能为什么项目中不使用"></a>1、dispatch_barrier_async + 并发队列性能为什么项目中不使用</h5><ul>
+<li>《Effective Objective-C 2.0》一书中，推荐了<strong>dispatch_barrier_async + 并发队列</strong>来解决线程安全的问题；书中强调，性能比GCD串行队列好，但是实际项目中没咋遇到dispatch_barrier_async + 并发队列，多使用互斥锁。</li>
+<li><p>读操作和写操作都需要配发到一个并发队列中，那么<strong>最终执行代码的线程 和 最初调用代码的线程很可能不是同一个</strong>，这里有一次<strong>线程切换</strong>的开销，如果这时候遇到互斥锁需要等待的话，当前线程被挂起，再等到CPU唤醒代码最终被执行的时候一来一回又是两次线程的切换，而<strong>对于很多轻量级的操作，这种线程之间切换的开销要比自旋锁的那种一直忙等待的方式慢很多。</strong></p>
+</li>
+<li><p>在测评中发现，dispatch_barrier_async + 并发队列性性能不好，具体可参考 <a href="https://www.jianshu.com/p/15df680d510e" target="_blank" rel="noopener">atomic性能真的很差，并发queue+barrier性能真的很好吗？</a></p>
+</li>
+</ul>
+<h5 id="2、死锁问题"><a href="#2、死锁问题" class="headerlink" title="2、死锁问题"></a>2、死锁问题</h5><ul>
+<li>主线程使用dispatch_sync</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dispatch_sync(dispatch_get_main_queue(), ^&#123;</span><br><span class="line"></span><br><span class="line"> &#125;)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>使用OSSpinLock、dispatch_semaphore、synchronized等都不支持可重入等锁，遇到重入的场景</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//死锁，YYThreadSafeArrays使用的是dispatch_semaphore做线程同步</span><br><span class="line">YYThreadSafeArray *array = [[YYThreadSafeArray alloc] initWithObjects:@&quot;678&quot;,@&quot;910&quot;, nil];</span><br><span class="line">    [array enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) &#123;</span><br><span class="line">        NSLog(@&quot;count = %@&quot;,@([array count]));</span><br><span class="line">    &#125;];</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/03/21/iOS-iOSCoreAniamtion/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2686,733 +3434,6 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/28/iOS-AppLaunchOptimize/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="南华coder">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="南华coder的空间">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/01/28/iOS-AppLaunchOptimize/" itemprop="url">启动优化小记</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-28T17:22:36+08:00">
-                2018-01-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/App优化/" itemprop="url" rel="index">
-                    <span itemprop="name">App优化</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,073 字
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  4 分
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>目前iOS优化主要包括三方面：<strong>卡顿优化</strong>、<strong>启动优化</strong>和<strong>瘦身优化</strong>，本文简单说下<strong>启动优化</strong></p>
-<h4 id="一、启动时间"><a href="#一、启动时间" class="headerlink" title="一、启动时间"></a>一、启动时间</h4><ul>
-<li><p>如果你的App启动超过20s，是时候考虑换个工作了(<em>开个玩笑</em>)；启动优化是<strong>基于当下的业务复杂度和代码复杂度的近似最优处理</strong>。</p>
-</li>
-<li><p><strong>App总启动时间</strong> = t1(main函数之前的加载时间) + t2(main函数之后的加载时间)</p>
-</li>
-<li><p><strong>t1</strong> = 系统dylib(动态链接库)和自身App可执行文件的加载时间</p>
-</li>
-<li><strong>t2</strong> = main方法执行之后到AppDelegate类中的- (BOOL)Application:(UIApplication <em>)Application didFinishLaunchingWithOptions:(NSDictionary </em>)launchOptions方法执行结束前这段时间，主要是构建第一个界面，并完成渲染展示。</li>
-</ul>
-<h4 id="二、main函数之前的优化"><a href="#二、main函数之前的优化" class="headerlink" title="二、main函数之前的优化"></a>二、main函数之前的优化</h4><h5 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h5><ul>
-<li><p><strong>加载过程</strong>：先加载<strong>可执行文件</strong>；然后<strong>加载dyld</strong>(dynamic link editor)动态链接器；最后dyld从可执行文件的依赖开始，递归加载所有依赖的动态链接库。</p>
-</li>
-<li><p><strong>动态链接库</strong>包括：系统的framework、加载OC Runtime的libobjc、系统级别的libSystem、如libdispatch(GCD)和libsystem_blocks(Block)。</p>
-</li>
-<li><p><strong>Apple不允许使用自己的动态库</strong>，否则无法过审；只能选择<strong>静态库</strong>的方式，第三方登录、分享都使用该类方式；链接时会被完整的复制到可执行文件中；</p>
-</li>
-<li><p>相比<strong>静态库</strong>而言，<strong>动态链接库</strong>在程序运行时才记载到内存，不会增加可执行文件的体积，但是会增加加载时间；而<strong>静态库</strong>虽然有利于优化加载速度，但是会增加包的体积。</p>
-</li>
-</ul>
-<h5 id="2、main之前做了什么"><a href="#2、main之前做了什么" class="headerlink" title="2、main之前做了什么"></a>2、main之前做了什么</h5><ul>
-<li><p><strong>load dylibs image</strong>: 读取库静态文件</p>
-</li>
-<li><p><strong>rebase/bind image</strong>: 修复镜像中的资源指针，来指向正确的地址。rebase修复的是镜像内部的资源指针，bind指向的是镜像外部的资源指针；</p>
-</li>
-<li><p><strong>objc setup</strong>:注册objc类；将category的定义插入方法列表；保证selector的唯一；</p>
-</li>
-<li><p><strong>initializers</strong>:动态调整，执行load函数，C+++构造函数属性函数，非基本类型的C++静态全局变量的创建</p>
-</li>
-</ul>
-<h5 id="3、优化思路"><a href="#3、优化思路" class="headerlink" title="3、优化思路"></a>3、优化思路</h5><ul>
-<li><p>减少不必要的framework，因为动态链接比较耗时；</p>
-</li>
-<li><p>检查framework应当设为optional和required，如果该framework在当前App支持的所有iOS系统版本都存在，那么就设为required，否则就设为optional，因为optional会有些额外的检查；</p>
-</li>
-<li><p>合并或者删减一些OC类；删减一些无用的静态变量；删减没有被调用到或者已经废弃的方法；</p>
-</li>
-<li><p>将不必须在+load方法中做的事情延迟到+initialize中；</p>
-</li>
-<li><p>尽量不要用C++虚函数(创建虚函数表有开销)；</p>
-</li>
-</ul>
-<h5 id="4、耗时衡量"><a href="#4、耗时衡量" class="headerlink" title="4、耗时衡量"></a>4、耗时衡量</h5><ul>
-<li><p>Xcode 中 Edit scheme -&gt; Run -&gt; Auguments 将环境变量 DYLD_PRINT_STATISTICS 设为 1</p>
-</li>
-<li><p>Xcode 中 Edit scheme -&gt; Run -&gt; Auguments 将环境变量 DYLD_PRINT_STATISTICS_DETAILS 设为 1，可以看到更多数据</p>
-</li>
-</ul>
-<h4 id="三、main函数之后的优化"><a href="#三、main函数之后的优化" class="headerlink" title="三、main函数之后的优化"></a>三、main函数之后的优化</h4><h5 id="1、概述-1"><a href="#1、概述-1" class="headerlink" title="1、概述"></a>1、概述</h5><ul>
-<li>这部分主要是服务初始化、闪屏（广告或引导）和首页UI渲染等工作；</li>
-</ul>
-<h5 id="2、优化思路"><a href="#2、优化思路" class="headerlink" title="2、优化思路"></a>2、优化思路</h5><ul>
-<li><p><strong>视图</strong>：使用代码创建首页视图。</p>
-</li>
-<li><p><strong>服务初始化</strong>：团队间沟通优化业务逻辑，如，延迟某些服务的初始化；合并某些网络请求或减少启动时网络请求个数；</p>
-</li>
-<li><p><strong>其他</strong>：减少NSLog输出，因为其会隐似创建个NSCalender，比较耗时；网络请求和数据读取等耗时操作放在子线程；图片子线程解码等。</p>
-</li>
-</ul>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><ul>
-<li><p>一个比较靠谱团队，启动这块耗时不会太糟糕，动不动就优化效果显著，要么是太牛逼，要么是团队太坑；做启动优化这块，需要平常心和耐心。</p>
-</li>
-<li><p><strong>main函数之后优化空间比较大，主要在业务上</strong>；所以要先需要熟悉业务，优化之前和各方沟通好，如XX提供的SDK能否延迟初始化，XXX效果设计团队能否接受；XXXX处理会不会给其他团队人员的工作带来困扰….</p>
-</li>
-<li><p>网络上有很多团队分享了启动优化经验，大都是基于自身业务特点的优化总结；想系统了解，还是推荐看看<a href="https://techblog.toutiao.com/2017/01/17/iosspeed/" target="_blank" rel="noopener">今日头条iOS客户端启动速度优化</a></p>
-</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/26/iOS-AppFPSOptimize/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="南华coder">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="南华coder的空间">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/01/26/iOS-AppFPSOptimize/" itemprop="url">卡顿优化小记</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-26T23:23:05+08:00">
-                2018-01-26
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/App优化/" itemprop="url" rel="index">
-                    <span itemprop="name">App优化</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,684 字
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  6 分
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>目前iOS优化主要包括三方面：<strong>卡顿优化</strong>、<strong>启动优化</strong>和<strong>瘦身优化</strong>，本文简单说下<strong>卡顿优化</strong>。</p>
-<h4 id="一、卡顿"><a href="#一、卡顿" class="headerlink" title="一、卡顿"></a>一、卡顿</h4><h5 id="1、简述"><a href="#1、简述" class="headerlink" title="1、简述"></a>1、简述</h5><ul>
-<li><p>iOS设备使用双缓存，以<strong>60HZ</strong>的频率刷新屏幕，这就意味着，在<strong>1/60s(16.67ms)</strong>内要将完成<strong>下一帧</strong>的图片的绘制，并存在缓存区中；</p>
-</li>
-<li><p>在这1/60s(16.67ms)内，<strong>CPU要计算显示内容</strong>，然后将这些内容交给<strong>GPU去变换、合成和渲染</strong>，GPU把渲染后的内容提交到帧缓存区，等待更新信号；</p>
-</li>
-<li><p>如果在1/60s(16.67ms)不能完成这些工作，这帧内容就会被丢弃，显示屏还保存之前的内容，也就是常说的<strong>丢帧</strong>了，这也是<strong>卡顿的原因</strong>。</p>
-</li>
-<li><p>简单说，卡顿优化就是为了，<strong>优化CPU和GPU的使用情况</strong>。</p>
-</li>
-</ul>
-<h5 id="2、卡顿监控"><a href="#2、卡顿监控" class="headerlink" title="2、卡顿监控"></a>2、卡顿监控</h5><ul>
-<li><p><strong>主线程卡顿监控</strong>。通过子线程监测主线程的 RunLoop，判断两个状态区域之间的耗时是否达到一定阈值，发现卡顿还可以抓取堆栈信息，上报到服务器，便于准确定位和优化。</p>
-</li>
-<li><p><strong>FPS监控</strong>，利用CADisplayLink(和屏幕刷新频率相同)，过记录两次刷新时间间隔，计算出当前的 FPS。</p>
-<p><strong>说明</strong>：卡顿监控很有意义，要么自己做，要么用第三方的，如腾讯的bugly。</p>
-<p>参考：<a href="http://mrpeak.cn/blog/ui-detect/" target="_blank" rel="noopener">iOS应用UI线程卡顿监控</a></p>
-</li>
-</ul>
-<h4 id="二、CPU方面优化"><a href="#二、CPU方面优化" class="headerlink" title="二、CPU方面优化"></a>二、CPU方面优化</h4><p>CPU做计算显示的内容，主要包括：视图创建、视图布局、图片解码、文本绘制、图像绘制等。</p>
-<h5 id="1、视图创建"><a href="#1、视图创建" class="headerlink" title="1、视图创建"></a>1、视图创建</h5><ul>
-<li><p><strong>对象复用</strong>，复用对象的代价比创建新对象的成本要低；比较典型的是：<strong>UITableViewCell对象的复用</strong>，需要UITableViewCell对象，先从缓存池取，如果取不到，才去创建新对象；</p>
-</li>
-<li><p><strong>选择轻量级对象</strong>：不响应触摸事件的视图，不使用UIView，优先使用CAShapeLayer(硬件加速、渲染快）。</p>
-</li>
-<li><p><strong>数据对象的缓存</strong>：比较典型的是，解码图像的缓存和cell高度的缓存；前者避免图片重复解码，后者避免Cell高度重复计算。</p>
-</li>
-</ul>
-<h5 id="2、视图布局"><a href="#2、视图布局" class="headerlink" title="2、视图布局"></a>2、视图布局</h5><ul>
-<li><p>不使用Autolayout（布局计算在主线程），视图复杂后，性能不佳；可以使用代码创建View，使用frame布局；要注意<strong>frame值要取整</strong>，避免像素不对齐；</p>
-</li>
-<li><p>尽量减少视图的数量、层级数量、层级调整、视图添加和删除操作；</p>
-</li>
-<li><p>尽量减少不必要的属性修改，如CALayer相关的属性(如frame、bounds、transform、center等），修改会引起隐式动画。</p>
-</li>
-</ul>
-<h5 id="3、图片解码"><a href="#3、图片解码" class="headerlink" title="3、图片解码"></a>3、图片解码</h5><ul>
-<li>子线程解码图片，然后在主线程展示解码后的位图（位图结果记得缓存）。</li>
-</ul>
-<h5 id="4、文本绘制"><a href="#4、文本绘制" class="headerlink" title="4、文本绘制"></a>4、文本绘制</h5><ul>
-<li><strong>文本的宽高计算和绘制</strong>会占用资源，可以在子线程计算和绘制，然后在主线程显示；这适用于大量文本显示的处理，如果只是2-3行文本显示，没必要选择这么做。</li>
-</ul>
-<h5 id="5、图像绘制"><a href="#5、图像绘制" class="headerlink" title="5、图像绘制"></a>5、图像绘制</h5><ul>
-<li><p>图片的绘制可以放到子线程中做，因为CG绘制是线程安全的；将图片绘制到画布上，然后将图片显示到视图中。</p>
-<p><strong>总结</strong>：因为<strong>主线程占用CPU高、子线程占用CPU低</strong>；优化时，把不是必须要在主线程中做的事情 放在子线程中做，但是要防止线程爆炸，参考<a href="https://www.jianshu.com/p/5d51a367ed62" target="_blank" rel="noopener">GCD小结之控制最大并发数</a>。</p>
-</li>
-</ul>
-<h4 id="三、GPU方面优化"><a href="#三、GPU方面优化" class="headerlink" title="三、GPU方面优化"></a>三、GPU方面优化</h4><p>GPU接收提交的纹理(Texture) 和顶点数据信息，应用变换(transform)、混合并渲染等，然后输出到屏幕上。</p>
-<h5 id="1、纹理的渲染"><a href="#1、纹理的渲染" class="headerlink" title="1、纹理的渲染"></a>1、纹理的渲染</h5><ul>
-<li><p>GPU的消耗主要在：所有Bitmap由内存提交到显存、绑定为GPU Texture；GPU的调整；渲染Texture等。尽量避免短时间显示大量图片，否则会造成CPU使用率低，而GPU使用率飙升；可以合成多张图片，做一张显示。</p>
-</li>
-<li><p>尽量避免图片过大，超过GPU的最大纹理尺寸，需要CPU进行预处理，带来CPU和GPU的格外消耗。在网络环境中，遇到下载特大高清图时，SDWebImage的处理是，<strong>将大的原图裁剪成指定大小的小图，然后拼成大图</strong> 思路类似异步绘制内容的图层CATiledLayer，不加载全部图片，而是将大图分解成小图片，然后再载入显示。</p>
-</li>
-</ul>
-<h5 id="2、视图混合"><a href="#2、视图混合" class="headerlink" title="2、视图混合"></a>2、视图混合</h5><ul>
-<li><p><strong>尽量减少视图的数量和层级</strong>，多视图叠加在一起显示时，GPU需要混合计算，视图的数量和层级越深，GPU的消耗越大；</p>
-</li>
-<li><p>视图尽量<strong>不使用透明的背景色</strong>，避免像素混合计算(视图默认不透明 opaque=YES)；尽量<strong>使用不透明的图片</strong>，避免像素混合计算</p>
-</li>
-<li><p>UILabel显示中文时，记得<strong>masksToBounds = YES</strong>，避免混合计算</p>
-</li>
-</ul>
-<h5 id="3、离屏渲染"><a href="#3、离屏渲染" class="headerlink" title="3、离屏渲染"></a>3、离屏渲染</h5><ul>
-<li><p>GPU屏幕渲染分为当前<strong>屏幕渲染</strong>(On-Screen Rendering)和<strong>离屏渲染</strong>(Off-Screen Rendering)，<strong>离屏渲染</strong>需要在当前屏幕缓冲区以外新开辟一个缓冲区进行渲染操作，其中涉及到的<strong>创建新缓冲区</strong>、<strong>上下文切换</strong>都很消耗GPU资源。</p>
-</li>
-<li><p>容易触发离屏渲染最多的四个场景，<strong>圆角处理</strong>（RoundCorner）、<strong>阴影处理</strong>(Shadow)、<strong>遮罩</strong>(Mask)和Group Opacity（组不透明）；</p>
-</li>
-<li><p><strong>圆角处理</strong>可以采用绘制方式，可以参考<a href="https://www.jianshu.com/p/a38a7c7bccbb" target="_blank" rel="noopener">网络图片的优化显示</a>；<strong>阴影处理</strong>可以通过设置shadowPath来避免；Mask没啥好办法; GroupOpacity处理是<strong>关闭layer的allowsGroupOpacity 属性</strong>；</p>
-</li>
-<li><p><strong>离屏渲染不可避免情况下</strong>，设置<strong>shouldRasterize=YES</strong>（启动光栅化)，可以将layer光栅化为Bitmap, layer的阴影等效果也会被缓存到Bitmap中，减少离屏渲染次数，减少GPU消耗。</p>
-</li>
-</ul>
-<p><strong>说明</strong>：还有种<strong>CPU渲染</strong>的说法，重写了drawRect方法，或使用Core Graphics绘制都会触发；虽然其性能可能还不如GPU的离屏渲染，但是可以在子线程中做CPU渲染，然后在主线程显示。</p>
-<h5 id="4、像素不对齐"><a href="#4、像素不对齐" class="headerlink" title="4、像素不对齐"></a>4、像素不对齐</h5><ul>
-<li>图片显示前，在子线程中可以按目标显示大小裁剪，使图片符合展示大小，避免拉伸缩放(像素不对齐)。</li>
-</ul>
-<h4 id="四、其他"><a href="#四、其他" class="headerlink" title="四、其他"></a>四、其他</h4><ul>
-<li><p>优化工作视具体业务来做，没必要过早优化；</p>
-</li>
-<li><p>如果没做过优化方面工作的同学，可以仔细阅读<strong>ibireme</strong>的<a href="https://blog.ibireme.com/2015/11/12/smooth_user_interfaces_for_ios/" target="_blank" rel="noopener">iOS 保持界面流畅的技巧</a>，后续很多团队的分享经验都没有跳出ibireme的框架。</p>
-</li>
-<li><p>iOS图片优化是个值得注意的点，不管是在卡顿优化、还是在App瘦身，可以参考我的一点见解<a href="https://buaa0300.github.io/2018/01/13/imageOptimize/" target="_blank" rel="noopener">浅谈iOS图片优化</a>。</p>
-</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/14/iOS-FLAnimatedImage/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="南华coder">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="南华coder的空间">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/01/14/iOS-FLAnimatedImage/" itemprop="url">速览FLAnimatedImage库笔记</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-14T12:05:17+08:00">
-                2018-01-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS第三方库/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS第三方库</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,023 字
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  4 分
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>FLAnimatedImage库很不错，分享下我的学习笔记</p>
-<blockquote>
-<h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4></blockquote>
-<ul>
-<li><p><a href="https://github.com/rs/SDWebImage" target="_blank" rel="noopener">SDWebImage</a>处理网络GIF播放，是在<a href="https://github.com/Flipboard/FLAnimatedImage" target="_blank" rel="noopener">FLAnimatedImage库</a>基础上做的。</p>
-</li>
-<li><p><a href="https://github.com/Flipboard/FLAnimatedImage" target="_blank" rel="noopener">FLAnimatedImage库</a>就主要的类是：<strong>FLAnimatedImage类</strong>和<strong>FLAnimatedImageView类</strong>。<strong>FLAnimatedImage</strong>看做个生产者，负责将GIF图片转换成一帧帧图片，提供给<strong>FLAnimatedImageView</strong>；后者可以看做是消费者，将一帧帧图片刷新显示到屏幕中。</p>
-</li>
-<li><p><a href="https://github.com/Flipboard/FLAnimatedImage" target="_blank" rel="noopener">FLAnimatedImage库</a>中涉及一些<strong>线程安全</strong>、<strong>weakProxy</strong>、<strong>内存警告处理</strong>还是很值得借鉴的。</p>
-</li>
-</ul>
-<blockquote>
-<h4 id="二、FLAnimatedImage-类"><a href="#二、FLAnimatedImage-类" class="headerlink" title="二、FLAnimatedImage 类"></a>二、FLAnimatedImage 类</h4></blockquote>
-<p>重要的两个方法，分别是<strong>initWithAnimatedGIFData:方法</strong> 和  <strong>imageLazilyCachedAtIndex:方法</strong></p>
-<h5 id="1、initWithAnimatedGIFData-方法"><a href="#1、initWithAnimatedGIFData-方法" class="headerlink" title="1、initWithAnimatedGIFData: 方法"></a>1、initWithAnimatedGIFData: 方法</h5><ul>
-<li><p>其一、获取<strong>GIF图片的信息</strong>，包括图片大小、图片帧数、首帧图片、每帧图片的属性信息(播放时间)、循环播放次数，最大缓存帧个数等。其中<strong>最大缓存帧个数</strong>是根据图片大小获得 或者 手动指定。</p>
-</li>
-<li><p>其二、设置个弱代理(weakProxy)，用来<strong>防止循环引用</strong>用的。</p>
-</li>
-<li><p>其三、将自己添加<strong>allAnimatedImagesWeak</strong>对象中（添加操作使用@synchronized保证线程安全），这是一个NSHashTable对象，当哈希表中的FLAnimatedImage对象的引用计数是0时，表中会清除该对象。</p>
-<p><strong>说明</strong>：线程同步中，一说<strong>同步锁</strong>，很多人直觉反应，性能最差，不用；但是FLAnimatedImage库和SDWebImage都在用，应该是其<strong>使用方便</strong>所致；其本身实现很有意思，利用对象的内存地址去获取互斥锁；还添加了异常处理，如果同步某对象抛出异常时，还会释放掉锁。</p>
-</li>
-</ul>
-<h5 id="2、imageLazilyCachedAtIndex-方法"><a href="#2、imageLazilyCachedAtIndex-方法" class="headerlink" title="2、imageLazilyCachedAtIndex:方法"></a>2、imageLazilyCachedAtIndex:方法</h5><ul>
-<li><p>通过<strong>imageLazilyCachedAtIndex:方法</strong>将帧每一帧图片给FLAnimatedImageView对象展示。</p>
-</li>
-<li><p>根据<strong>当前的帧号</strong>(index)和<strong>当前缓存帧数</strong>(frameCacheSizeCurrent)获取接下来需要缓存的帧图片，并异步绘制出位图，并保存在内存缓存中。</p>
-<p><strong>说明</strong>：都是提前绘制后面需要展示的图片，第一帧图片在init方法时就获得了。</p>
-</li>
-</ul>
-<h5 id="3、内存警告的处理"><a href="#3、内存警告的处理" class="headerlink" title="3、内存警告的处理"></a>3、内存警告的处理</h5><ul>
-<li><p>位图比较大，将位图缓存在内存中，即使FLAnimatedImage做了优化，当时GIF较大，或多张GIF同时播放，内存的压力会很大，很大概率收到内存警告。</p>
-</li>
-<li><p><strong>allAnimatedImagesWeak</strong>保存所有的FLAnimatedImage对象，收到内存警告时，通知所有FLAnimatedImage对象，当前只允许缓存一帧图片；如果接下来没有新的内存警告，慢慢恢复到定义的缓存的图片帧数；但是如果内存警告次数超过三次，以后只能缓存一帧图片。</p>
-</li>
-<li><p>在内存警告处理中，使用了些<strong>延迟执行</strong>的方法，防止循环引用，使用了弱代理(weakProxy)。</p>
-</li>
-<li><p>weakProxy是FLWeakProxy 对象；FLWeakProxy是NSProxy类子类，持有一个 weak 对象的代理，利用消息转发机制将消息的处理交给weak 对象；用来避免循环引用的一种方法，具体可以看我之前写的<a href="https://www.jianshu.com/p/5068b6f02238" target="_blank" rel="noopener">解决NSTimer/CADisplayLink的循环引用</a>。</p>
-</li>
-</ul>
-<blockquote>
-<h4 id="三、FLAnimatedImageView"><a href="#三、FLAnimatedImageView" class="headerlink" title="三、FLAnimatedImageView"></a>三、FLAnimatedImageView</h4></blockquote>
-<h5 id="1、CADispalyLink"><a href="#1、CADispalyLink" class="headerlink" title="1、CADispalyLink"></a>1、CADispalyLink</h5><ul>
-<li><p>CADispalyLink是个和屏幕刷新率相同的定时器，将帧图片刷新显示在屏幕上。</p>
-</li>
-<li><p>使用FLWeakProxy这类弱引用代理，打破循环引用；</p>
-</li>
-<li><p>多个处理器情况下，CADispalyLink对象默认以NSRunLoopCommonModes添加到Runloop上，避免因为列表滑动不刷新显示。</p>
-</li>
-<li><p>CADispalyLink的刷新时间是：每帧图片播放时间的最大公约数；因为不能保证每帧图片的播放时间是一样的，取他们的最大公约数，使得每一帧都尽可能获得其播放时间。当然也可以暴力使用平均停留时间作为CADispalyLink的刷新时间。</p>
-</li>
-</ul>
-<blockquote>
-<h4 id="四、后记"><a href="#四、后记" class="headerlink" title="四、后记"></a>四、后记</h4></blockquote>
-<ul>
-<li><p>这是之前阅读FLAnimatedImage库的笔记整理，一是本着学习的目的，二是为了评估 <strong>在列表页缩放裁剪播放n张GIF图的需求</strong>的可行性；</p>
-</li>
-<li><p>将<strong>GIF图片的裁剪和合成小GIF图</strong>的重任交给客户端，本身就很冒险；裁剪过程中，GIF图片的帧数多，GIF图片多，对内存的挑战是很大的，在列表中下发小的GIF图播放比较好（后台表示压力大）。</p>
-</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3467,7 +3488,7 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-count">29</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -3478,7 +3499,7 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -3489,7 +3510,7 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -3547,7 +3568,7 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">57.3k</span>
+    <span title="Site words total count">61.5k</span>
   
 </div>
 

@@ -254,6 +254,679 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2019/04/11/iOS-WKWebView02/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/04/11/iOS-WKWebView02/" itemprop="url">WKWebView的离线包问题</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-11T22:06:05+08:00">
+                2019-04-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS进阶/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS进阶</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,083 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  4 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><em>行到水穷处，坐看云起时</em></p>
+<h4 id="一、离线包概述"><a href="#一、离线包概述" class="headerlink" title="一、离线包概述"></a>一、离线包概述</h4><h5 id="1、缘由"><a href="#1、缘由" class="headerlink" title="1、缘由"></a>1、缘由</h5><ul>
+<li>传统的 H5 技术容易受到网络环境影响，会降低 H5 页面的性能。通过使用离线包，可以解决该问题，同时保留 H5 的优点。</li>
+<li><strong>离线包</strong> 是将包括 HTML、Javascript、CSS 等页面内<strong>静态资源</strong>打包到一个压缩包内。您预先下载该离线包到本地，然后通过客户端打开，直接从本地加载离线包，从而最大程度地摆脱网络环境对 H5 页面的影响。</li>
+</ul>
+<h5 id="2、优势"><a href="#2、优势" class="headerlink" title="2、优势"></a>2、优势</h5><ul>
+<li><p>提升用户体验：通过离线包的方式把页面内静态资源嵌入到应用中并发布，当用户第一次开启应用的时候，就无需依赖网络环境下载该资源，而是马上开始使用该应用。</p>
+</li>
+<li><p>实现动态更新：在推出新版本或是紧急发布的时候，您可以把修改的资源放入离线包，通过更新配置让应用自动下载更新。因此，您无需通过应用商店审核，就能让用户及早接收更新。</p>
+</li>
+</ul>
+<h5 id="3、其他"><a href="#3、其他" class="headerlink" title="3、其他"></a>3、其他</h5><ul>
+<li>更多介绍可以参考 <a href="https://tech.antfin.com/docs/2/59594" target="_blank" rel="noopener">离线包介绍</a></li>
+</ul>
+<h4 id="二、WKWebView和离线包"><a href="#二、WKWebView和离线包" class="headerlink" title="二、WKWebView和离线包"></a>二、WKWebView和离线包</h4><h5 id="1、为什么选择WKWebView"><a href="#1、为什么选择WKWebView" class="headerlink" title="1、为什么选择WKWebView"></a>1、为什么选择WKWebView</h5><ul>
+<li>UIWebView 存在严重的性能和内存消耗问题，iOS 8之后推出WKWebView，旨在代替UIWebView；</li>
+<li>WKWebView在性能、稳定性、内存占用上有很大的提升，支持更多的HTML5特性，高达60fps的滚动刷新率以及内置手势；可以通过KVO监控网络加载的进度，获取网页title；</li>
+<li>虽然WKWebView有三大坑：<strong>请求走NSURLProtocol会丢失post的body参数</strong>、<strong>Cookie丢失</strong>、<strong>白屏问题</strong>，但是我们能做的是使用它，并填坑，然后祝愿WKWebView越来越好。</li>
+</ul>
+<h5 id="2、WKWebview默认不支持NSURLProtocol"><a href="#2、WKWebview默认不支持NSURLProtocol" class="headerlink" title="2、WKWebview默认不支持NSURLProtocol"></a>2、WKWebview默认不支持NSURLProtocol</h5><ul>
+<li>NSURLProtocol可以拦截监听每一个<strong>URL Loading System</strong>中发出request请求，记住是URL Loading System中那些类发出的请求，也支持AFNetwoking，UIWebView发出的request，NSURLProtocol都可以拦截和监听。</li>
+<li>但是WKWebView 在<strong>独立于 App 进程</strong>之外的进程中执行网络请求，<strong>请求数据不经过主进程</strong>，因此，在 WKWebView 上直接使用 NSURLProtocol 无法拦截请求。</li>
+</ul>
+<h5 id="3、WKWebview支持NSURLProtocol的黑魔法"><a href="#3、WKWebview支持NSURLProtocol的黑魔法" class="headerlink" title="3、WKWebview支持NSURLProtocol的黑魔法"></a>3、WKWebview支持NSURLProtocol的黑魔法</h5><ul>
+<li>苹果开源的 WebKit2 源码暴露了私有API：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+ [WKBrowsingContextController registerSchemeForCustomProtocol:]</span><br></pre></td></tr></table></figure>
+<ul>
+<li>通过注册 http(s) scheme 后 WKWebView 将可以使用 NSURLProtocol 拦截 http(s) 请求：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Class cls = NSClassFromString(@&quot;WKBrowsingContextController”); </span><br><span class="line">SEL sel = NSSelectorFromString(@&quot;registerSchemeForCustomProtocol:&quot;); </span><br><span class="line">if ([(id)cls respondsToSelector:sel]) &#123; </span><br><span class="line">   // 注册http(s) scheme, 把 http和https请求交给 NSURLProtocol处理 </span><br><span class="line">   [(id)cls performSelector:sel withObject:@&quot;http&quot;]; </span><br><span class="line">   [(id)cls performSelector:sel withObject:@&quot;https&quot;]; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>说明：</strong>名目张胆使用私有API，是过不了AppStore审核的，具体使用什么办法，想来你也懂。</p>
+<h4 id="三、WKWebView支持NSURLProtocol的坑"><a href="#三、WKWebView支持NSURLProtocol的坑" class="headerlink" title="三、WKWebView支持NSURLProtocol的坑"></a>三、WKWebView支持NSURLProtocol的坑</h4><h5 id="1、Post-请求-body-数据被清空"><a href="#1、Post-请求-body-数据被清空" class="headerlink" title="1、Post 请求 body 数据被清空"></a>1、Post 请求 body 数据被清空</h5><ul>
+<li>WKWebView 在<strong>独立进程里</strong>执行网络请求。一旦注册 http(s) scheme 后，网络请求将从 Network Process 发送到 App Process，这样 NSURLProtocol 才能拦截网络请求。</li>
+<li><p>在 WebKit2 的设计里使用 MessageQueue 进行进程之间的通信，Network Process 会将请求 encode 成一个 Message，然后通过 IPC（进程间通信） 发送给 App Process。出于性能的原因，encode 的时候 将HTTPBody 和 HTTPBodyStream 这两个字段丢弃掉(<strong>坑</strong>)</p>
+</li>
+<li><p>因此，如果通过 <strong>registerSchemeForCustomProtocol</strong> 注册了 http(s) scheme, 那么由 WKWebView 发起的所有 http(s)请求都会通过 IPC 传给主进程 NSURLProtocol 处理，导致 post 请求 body 被清空；</p>
+</li>
+</ul>
+<h5 id="4、对ATS支持不足"><a href="#4、对ATS支持不足" class="headerlink" title="4、对ATS支持不足"></a>4、对ATS支持不足</h5><ul>
+<li>一旦打开ATS开关：<strong>Allow Arbitrary Loads 选项设置为NO</strong>，通过 registerSchemeForCustomProtocol 注册了 http(s) scheme，WKWebView 发起的所有 http(s) 网络请求将被阻塞（即便将<strong>Allow Arbitrary Loads in Web Content 选项设置为YES</strong>）；</li>
+</ul>
+<h4 id="四、我们改怎么办"><a href="#四、我们改怎么办" class="headerlink" title="四、我们改怎么办"></a>四、我们改怎么办</h4><h5 id="1、我们的目标"><a href="#1、我们的目标" class="headerlink" title="1、我们的目标"></a>1、我们的目标</h5><ul>
+<li>一定要有离线包(产品角度)</li>
+<li>一定要用WKWebView(技术角度)</li>
+<li>一定要避免对其他H5业务post请求的影响(业务角度)</li>
+</ul>
+<h5 id="2、一个比较合理的思路"><a href="#2、一个比较合理的思路" class="headerlink" title="2、一个比较合理的思路"></a>2、一个比较合理的思路</h5><ul>
+<li>向WKWebView 注册 customScheme, 比如 <strong>dynamic://</strong>, 而不是https或http，避免对https或http请求的影响</li>
+<li>保证使用离线包功能的请求，没有post方式，经过 customScheme 发起请求，比如<code>dynamic://www.dynamicalbumlocalimage.com/</code>，然后在 App 进程 NSURLProtocol 拦截这个请求并加载离线数据。</li>
+<li>离线包涉及的H5侧修改请求scheme 以及 CSP 规则(<a href="https://blog.csdn.net/qq_37943295/article/details/79978761" target="_blank" rel="noopener">内容安全策略（CSP）详解</a>)</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2019/04/10/iOS-WKWebView01/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/04/10/iOS-WKWebView01/" itemprop="url">WKWebView的Cookie问题</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-10T22:31:25+08:00">
+                2019-04-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS进阶/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS进阶</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,687 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  11 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><em>往者不可谏，来者犹可追</em></p>
+<h4 id="一、Cookie和Session概述"><a href="#一、Cookie和Session概述" class="headerlink" title="一、Cookie和Session概述"></a>一、Cookie和Session概述</h4><p>Cookie和Session都是为了保存<strong>客户端和服务端之间的交互状态</strong>，实现机制不同，各有优缺点。</p>
+<h5 id="1、Cookie"><a href="#1、Cookie" class="headerlink" title="1、Cookie"></a>1、Cookie</h5><ul>
+<li>Cookie是客户端请求服务端时，服务器会将一些信息以键值对的形式返回给客户端，保存在浏览器中，后续交互的时候可以带上这些Cookie值。用Cookie就可以方便的做一些缓存。</li>
+<li>Cookie的缺点是<strong>大小和数量都有限制</strong>；Cookie是存在客户端的可能被禁用、删除、篡改，是不安全的；Cookie如果很大，每次要请求都要带上，这样就影响了传输效率。</li>
+<li>Cookie的内容主要包括：<strong>名字</strong>，<strong>值</strong>，<strong>过期时间</strong>，<strong>路径</strong>和<strong>域</strong>；<strong>路径</strong>与<strong>域</strong>一起构成Cookie的作用范围。若不设置过期时间，则表示这个Cookie的生命期为浏览器会话期间，关闭浏览器窗口，Cookie就消失。这种生命期为浏览器会话期的Cookie被称为<strong>会话Cookie</strong>。<strong>会话Cookie</strong>一般不存储在硬盘上而是保存在内存里。</li>
+<li>若设置了过期时间，浏览器就会把Cookie保存到硬盘上，关闭后再次打开浏览器，这些Cookie仍然有效直到超过设定的过期时间。<strong>存储在硬盘上的Cookie可以在不同的浏览器进程间共享</strong>，比如两个IE窗口。而对于保存在内存里的Cookie，不同的浏览器有不同的处理方式 。</li>
+</ul>
+<h5 id="2、Session"><a href="#2、Session" class="headerlink" title="2、Session"></a>2、Session</h5><ul>
+<li><p>Session是基于Cookie来实现的，不同的是Session本身存在于<strong>服务端</strong>，但是每次传输的时候不会将数据传输给客户端，只是把代表一个客户端的<strong>sessionid</strong>（jsessionid只是Tomcat中对<strong>sessionid</strong>的叫法）写在客户端的Cookie中，这样每次传输这个ID就可以了。</p>
+</li>
+<li><p>Session的优势就是<strong>传输数据量小，比较安全</strong>。Session有缺点，就是如果Session不做特殊的处理容易<strong>失效、过期、丢失或者Session过多导致服务器内存溢出</strong>，并且要实现一个稳定可用安全的分布式Session框架也是有一定复杂度的。在实际使用中就要结合Cookie和Session的优缺点针对不同的问题来设计解决方案。</p>
+</li>
+</ul>
+<h5 id="3、理解"><a href="#3、理解" class="headerlink" title="3、理解"></a>3、理解</h5><ul>
+<li>Session是一种服务器端的机制，服务器使用一种类似于散列表的结构（也可能就是使用散列表）来保存信息。 </li>
+<li>当Server程序要为某个客户端的请求创建一个session时，服务器首先检查这个客户端的请求里是否已包含了一个session id，如果已包含则说明以前已经为此客户端创建过session，服务器就按照session id把这个session检索出来使用（检索不到，会新建一个）；如果客户端请求不包含session id，则为此客户端创建一个session并且生成一个与此session相关联的session id，session id的值应该是一个既不会重复，又不容易被找到规律以仿造的字符串，这个session id将被在本次响应中返回给客户端保存。 </li>
+<li><strong>保存这个session id的方式可以采用Cookie</strong>，这样在交互过程中浏览器可以自动的按照规则把这个标识发送给服务器。一般这个cookie的名字都是类似于SEEESIONID。但<strong>Cookie可以被人为的禁止，则必须有其他机制以便在cookie被禁止时仍然能够把session id传递回服务器</strong>。 </li>
+<li>经常被使用的一种技术叫做<strong>URL重写</strong>，就是把session id直接附加在URL路径的后面。还有一种技术叫做<strong>表单隐藏字段</strong>。就是服务器会自动修改表单，添加一个隐藏字段，以便在表单提交时能够把session id传递回服务器。</li>
+</ul>
+<h4 id="二、WKWebView和Cookie"><a href="#二、WKWebView和Cookie" class="headerlink" title="二、WKWebView和Cookie"></a>二、WKWebView和Cookie</h4><h5 id="1、起因"><a href="#1、起因" class="headerlink" title="1、起因"></a>1、起因</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">WKWebView 发起的请求不会自动带上存储于 NSHTTPCookieStorage 容器中的 Cookie</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>目前许多 H5 业务都<strong>依赖于 Cookie 作登录态校验</strong>，如果登陆是在 WebView 里做的，不会有什么问题；但是在很多场景下，在Native做登录，需要将登录信息带给WebView；但是在Native做了登录，也获取了Cookie信息，也使用 <strong>NSHTTPCookieStorage</strong> 将Cookie存到了本地；但是WKWebView在打开时候，不会自动去NSHTTPCookieStorage获取Cookie信息，这就是著名的<strong>首次 WKWebView 请求不携带 Cookie 的问题</strong>。</p>
+</li>
+<li><p>WKWebView 实例其实会将 Cookie 存储于 NSHTTPCookieStorage 中，但存储时机有延迟，在iOS 8上，当页面跳转的时候，当前页面的 Cookie 会写入 NSHTTPCookieStorage 中，而在 iOS 10 上，JS 执行 document.cookie 或服务器 set-cookie 注入的 Cookie 会很快同步到 NSHTTPCookieStorage 中。</p>
+</li>
+<li><p>其实，iOS11 可以解决<em>首次 WKWebView 请求不携带 Cookie 的问题</em>，<strong>只要是存在 WKHTTPCookieStore 里的 cookie，WKWebView 每次请求都会携带</strong>。</p>
+</li>
+</ul>
+<h5 id="2、获取Cookie"><a href="#2、获取Cookie" class="headerlink" title="2、获取Cookie"></a>2、获取Cookie</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">// 方法一</span><br><span class="line">    NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;</span><br><span class="line">    NSArray *cookies = [NSHTTPCookie cookiesWithResponseHeaderFields:[response allHeaderFields] forURL:response.URL];</span><br><span class="line">    NSLog(@&quot;response-cookies = %@&quot;,cookies);</span><br><span class="line">    </span><br><span class="line">    //方法二</span><br><span class="line">    NSString *cookieString = [[response allHeaderFields] valueForKey:@&quot;Set-Cookie&quot;];</span><br><span class="line">    NSLog(@&quot;cookieString = %@&quot;,cookieString);</span><br><span class="line">    </span><br><span class="line">    //方法三（如果有的话）</span><br><span class="line">    NSArray&lt;NSHTTPCookie *&gt; *httpCookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies];</span><br><span class="line">    NSLog(@&quot;httpCookies = %@&quot;,httpCookies);</span><br><span class="line">    </span><br><span class="line">    //方法四</span><br><span class="line">    if(@available(iOS 11, *))&#123;</span><br><span class="line">        //WKHTTPCookieStore的使用</span><br><span class="line">        WKHTTPCookieStore *cookieStore = self.wkWebView.configuration.websiteDataStore.httpCookieStore;</span><br><span class="line">        //获取 cookies</span><br><span class="line">        [cookieStore getAllCookies:^(NSArray&lt;NSHTTPCookie *&gt; * _Nonnull cookies) &#123;</span><br><span class="line">            [cookies enumerateObjectsUsingBlock:^(NSHTTPCookie * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) &#123;</span><br><span class="line">                NSLog(@&quot;cookieStore-cookies_%@:%@&quot;,@(idx),obj);</span><br><span class="line">            &#125;];</span><br><span class="line">        &#125;];</span><br><span class="line">    &#125;</span><br><span class="line">    //将cookie设置到本地</span><br><span class="line">    for (NSHTTPCookie *cookie in cookies) &#123;</span><br><span class="line">        //NSHTTPCookie cookie</span><br><span class="line">        [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookie:cookie];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    decisionHandler(WKNavigationResponsePolicyAllow);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>查看WKHTTPCookieStore中的某个cookie信息，如下</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">version:1</span><br><span class="line">name:Hm_lvt_0c0e9d9b1e7d617b3e6842e85b9fb068</span><br><span class="line">value:1554970993,1554971029,1554971246,1554971319</span><br><span class="line">expiresDate:&apos;2020-04-10 08:28:38 +0000&apos;</span><br><span class="line">created:&apos;2019-04-11 08:28:38 +0000&apos;</span><br><span class="line">sessionOnly:FALSE</span><br><span class="line">domain:.jianshu.com</span><br><span class="line">partition:none</span><br><span class="line">sameSite:none</span><br><span class="line">path:/</span><br><span class="line">isSecure:FALSE</span><br><span class="line">path:&quot;/&quot; </span><br><span class="line">isSecure:FALSE</span><br></pre></td></tr></table></figure>
+<h5 id="3、未过期Cookie持久化"><a href="#3、未过期Cookie持久化" class="headerlink" title="3、未过期Cookie持久化"></a>3、未过期Cookie持久化</h5><ul>
+<li><strong>未过期的 Cookie</strong>被持久化存储在 <code>NSLibraryDirectory</code> 目录下的 <code>Cookies/</code>文件夹。</li>
+<li><p>Cookie 持久化文件地址在 iOS 9+ 上在<code>NSLibraryDirectory/Cookies</code>，但是在 iOS 8 上 cookie 被保存在两部分，一部分如上所述，还有一部分保存在 App 无法获取的地方，<code>/Users/Mac/Library/Developer/CoreSimulator/Devices/D2F74420-D59B-4A15-A50B-774D3D01FADE/data/Library/Cookies</code>，大概就是后者的 Cookie 是 iOS 的 Safari 使用 。</p>
+</li>
+<li><p>在 Cookies 目录下两个文件比较重要;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Cookies.binarycookies</span><br><span class="line">&lt;appid&gt;.binarycookies</span><br></pre></td></tr></table></figure>
+<p>两者的区别是 <appid>.binarycookies 是 NSHTTPCookieStorage 文件对象；<appid>.binarycookies 对应 WKWebview 的实例化对象。</appid></appid></p>
+</li>
+</ul>
+<h4 id="三、WKWebView的Cookie注入"><a href="#三、WKWebView的Cookie注入" class="headerlink" title="三、WKWebView的Cookie注入"></a>三、WKWebView的Cookie注入</h4><h5 id="1、Javascript注入Cookie"><a href="#1、Javascript注入Cookie" class="headerlink" title="1、Javascript注入Cookie"></a>1、Javascript注入Cookie</h5><p>在初始化 <strong>WKWebView</strong> 的时候，通过 <strong>WKUserScript</strong> 设置，使用<strong>Javascript</strong> 注入 <strong>Cookie</strong>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">//js注入</span><br><span class="line">WKUserContentController* userContentController = [[WKUserContentController alloc]init]; </span><br><span class="line">WKUserScript * cookieScript = [[WKUserScript alloc] initWithSource: @&quot;document.cookie =&apos;CookieKey=CookieValue&apos;;&quot;injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO];  </span><br><span class="line">[userContentController addUserScript:cookieScript]; </span><br><span class="line"></span><br><span class="line">WKWebViewConfiguration* webViewConfig = [[WKWebViewConfiguration alloc]init]; </span><br><span class="line">webViewConfig.userContentController = userContentController; </span><br><span class="line">WKWebView *webView = [[WKWebView alloc] initWithFrame:frame configuration:webViewConfig];</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>通过 document.cookie 设置 Cookie （JS注入）解决后续页面(同域)Ajax、iframe 请求的 Cookie 问题</strong>；但是会遇到跨域丢失的问题，</li>
+<li>无法解决302请求的Cookie问题，假设第一个请求是 www.a.com，我们通过在 request header 里带上 Cookie 解决该请求的 Cookie 问题，接着页面302跳转到 www.b.com，这个时候 www.b.com 这个请求就可能因为没有携带 cookie 而无法访问。</li>
+<li>每一次页面跳转前都会调用回调函数decidePolicyForNavigationAction, 在这里拦截302请求，copy request，在 request header 中带上 cookie 并重新 loadRequest。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler&#123;</span><br><span class="line">    //</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>但是这种方法依然解决不了页面 iframe 跨域请求的 Cookie 问题，毕竟-[WKWebView loadRequest:]只适合加载 mainFrame 请求。</li>
+</ul>
+<h5 id="2、-NSMutableURLRequest-请求带上-Cookie"><a href="#2、-NSMutableURLRequest-请求带上-Cookie" class="headerlink" title="2、 NSMutableURLRequest 请求带上 Cookie"></a>2、 NSMutableURLRequest 请求带上 Cookie</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//request携带</span><br><span class="line">NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url]]; </span><br><span class="line">//[request setHTTPShouldHandleCookies:YES];</span><br><span class="line">[request setValue:[NSString stringWithFormat:@&quot;%@=%@&quot;,@&quot;CookieKey&quot;, @&quot;CookieValue&quot;] forHTTPHeaderField:@&quot;Cookie&quot;]; </span><br><span class="line">[webView loadRequest:request];</span><br></pre></td></tr></table></figure>
+<p><strong>说明</strong>：WKWebView loadRequest 前，在 request header 中设置 Cookie,可以解决(首个)请求 Cookie 带不上的问题；</p>
+<h5 id="3、WKHTTPCookieStore-iOS-11-later"><a href="#3、WKHTTPCookieStore-iOS-11-later" class="headerlink" title="3、WKHTTPCookieStore (iOS 11 later)"></a>3、WKHTTPCookieStore (iOS 11 later)</h5><ul>
+<li>利用iOS11 API <strong>WKHTTPCookieStore</strong> 解决 <strong>WKWebView</strong> 首次请求不携带 <strong>Cookie</strong> 的问题；这是因为：WKWebView每次请求都会携带 WKHTTPCookieStore 里的 Cookie。(WKWebView 使用 NSURLProtocol 拦截请求无法获取 Cookie 信息)</li>
+<li>在执行 <em>[WKWebView loadRequest:]</em> 前将 NSHTTPCookieStorage中的Cookie信息复制到 <strong>WKHTTPCookieStore</strong> 中，以此来达到 WKWebView中注入Cookie 的目的。示例代码如下：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">if(@available(iOS 11, *))&#123;</span><br><span class="line">        //发送请求前插入cookie</span><br><span class="line">    NSArray *cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies];</span><br><span class="line">    WKHTTPCookieStore *cookieStore = self.wkWebView.configuration.websiteDataStore.httpCookieStore;</span><br><span class="line">    for (NSHTTPCookie *cookie in cookies) &#123;</span><br><span class="line">        [cookieStore setCookie:cookie completionHandler:^&#123;</span><br><span class="line">            //</span><br><span class="line">        &#125;];</span><br><span class="line">    &#125;</span><br><span class="line">    [self.wkWebView loadRequest:request];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="4、多WKWebView实例共享Cookie"><a href="#4、多WKWebView实例共享Cookie" class="headerlink" title="4、多WKWebView实例共享Cookie"></a>4、多WKWebView实例共享Cookie</h5><ul>
+<li><p>Session 级别的 cookie 是保存在 <code>WKProcessPool</code> 里的，每个 WKWebview 都可以关联一个 <code>WKProcessPool</code> 的实例，如果需要在整个 <strong>App 生命周期里访问 h5 保留 h5 里的登录状态的，可以将使用 <code>WKProcessPool</code> 的单例来共享登录状态。</strong></p>
+</li>
+<li><p>让所有 <strong>WKWebView</strong> 共享同一个 <strong>WKProcessPool</strong> 实例，可以实现多个 <strong>WKWebView</strong> 之间共享 <strong>Cookie（session Cookie and persistent Cookie）</strong> 数据。不过 <strong>WKWebView WKProcessPool</strong> 实例在 App 杀进程重启后会被重置，导致 <strong>WKProcessPool</strong> 中的 <strong>Cookie</strong>、<strong>session Cookie</strong> 数据丢失，目前也无法实现 <strong>WKProcessPool</strong> 实例本地化保存。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">//WKProcessPool+SharedProcessPool.h</span><br><span class="line">@interface WKProcessPool (SharedProcessPool)</span><br><span class="line"></span><br><span class="line">+ (WKProcessPool*)sharedProcessPool;</span><br><span class="line"></span><br><span class="line">@end</span><br><span class="line"></span><br><span class="line">//WKProcessPool+SharedProcessPool.m</span><br><span class="line">@implementation WKProcessPool (SharedProcessPool)</span><br><span class="line"></span><br><span class="line">+ (WKProcessPool*)sharedProcessPool &#123;</span><br><span class="line">    static WKProcessPool* shared;</span><br><span class="line">    static dispatch_once_t onceToken;</span><br><span class="line">    dispatch_once(&amp;onceToken, ^&#123;</span><br><span class="line">        shared = [[WKProcessPool alloc] init];</span><br><span class="line">    &#125;);</span><br><span class="line">    return shared;</span><br><span class="line">&#125;</span><br><span class="line">@end</span><br><span class="line">    </span><br><span class="line">//use</span><br><span class="line">config.processPool = [WKProcessPool sharedProcessPool];    </span><br><span class="line">self.wkWebView = [[WKWebView alloc]initWithFrame:self.view.bounds configuration:config];</span><br><span class="line">[self.view addSubview:self.wkWebView];</span><br></pre></td></tr></table></figure>
+<h5 id="5、其他"><a href="#5、其他" class="headerlink" title="5、其他"></a>5、其他</h5><ul>
+<li>H5地址是非Https，遇到奇怪的Cookie丢失问题。原因未知。</li>
+</ul>
+<h4 id="四、WKWebView中Cookie的清除"><a href="#四、WKWebView中Cookie的清除" class="headerlink" title="四、WKWebView中Cookie的清除"></a>四、WKWebView中Cookie的清除</h4><h5 id="1、按内容删除"><a href="#1、按内容删除" class="headerlink" title="1、按内容删除"></a>1、按内容删除</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">if (@available(iOS 9, *))&#123;</span><br><span class="line">        // 以www.baidu.com为例，是否包含baidu.com</span><br><span class="line">        NSString *displayName = @&quot;baidu.com&quot;;</span><br><span class="line">        WKWebsiteDataStore *dataStore = [WKWebsiteDataStore defaultDataStore];</span><br><span class="line">        [dataStore fetchDataRecordsOfTypes:[WKWebsiteDataStore allWebsiteDataTypes] completionHandler:^(NSArray&lt;WKWebsiteDataRecord *&gt; * __nonnull records) &#123;</span><br><span class="line">            for (WKWebsiteDataRecord *record  in records)&#123;</span><br><span class="line">                if ([displayName containsString:record.displayName])&#123;</span><br><span class="line">                    [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:record.dataTypes forDataRecords:@[record] completionHandler:^&#123;</span><br><span class="line">                        NSLog(@&quot;Cookies for %@ deleted successfully&quot;,record.displayName);</span><br><span class="line">                    &#125;];</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;];</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h5 id="2、按时间删除"><a href="#2、按时间删除" class="headerlink" title="2、按时间删除"></a>2、按时间删除</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">- (void)removeWebViewDataCache:(NSDate *)sinceDate &#123;</span><br><span class="line">    </span><br><span class="line">    if (@available(iOS 11.0, *)) &#123;</span><br><span class="line">        // iOS 9 以后终于可以使用 WKWebsiteDataStore 来清理缓存</span><br><span class="line">        NSSet *websiteDataTypes = [WKWebsiteDataStore allWebsiteDataTypes];</span><br><span class="line">        [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:websiteDataTypes modifiedSince:sinceDate completionHandler:^&#123;</span><br><span class="line">            NSLog(@&quot;clear webView cache&quot;);</span><br><span class="line">        &#125;];</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        // iOS 8 可以通过清理 Library 目录下的 Cookies 目录来清除缓存</span><br><span class="line">        NSString *libraryPath = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES).firstObject;</span><br><span class="line">        NSString *cookiesFolderPath = [libraryPath stringByAppendingString:@&quot;/Cookies&quot;];</span><br><span class="line">        [[NSFileManager defaultManager] removeItemAtPath:cookiesFolderPath error:nil];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="五、IP-直连方案对Cookie的影响"><a href="#五、IP-直连方案对Cookie的影响" class="headerlink" title="五、IP 直连方案对Cookie的影响"></a>五、IP 直连方案对Cookie的影响</h4><h5 id="1、-存在的问题"><a href="#1、-存在的问题" class="headerlink" title="1、 存在的问题"></a>1、 存在的问题</h5><ul>
+<li>采用 IP 直连方案后，服务端返回的 Cookie 里的 Domain 字段也会使用 IP 。如果 IP 是动态的，就有可能导致一些问题：由于许多 H5 业务都依赖于 Cookie 作登录态校验，而 WKWebView 上请求不会自动携带 Cookie。</li>
+</ul>
+<h5 id="2、解决问题办法"><a href="#2、解决问题办法" class="headerlink" title="2、解决问题办法"></a>2、解决问题办法</h5><ul>
+<li>可以参考<a href="https://yq.aliyun.com/articles/64356" target="_blank" rel="noopener">HTTPDNS域名解析场景下如何使用Cookie</a></li>
+</ul>
+<h4 id="六、推荐参考"><a href="#六、推荐参考" class="headerlink" title="六、推荐参考"></a>六、推荐参考</h4><ul>
+<li><p><a href="https://juejin.im/entry/5880ac602f301e006980d1f5" target="_blank" rel="noopener">WKWebView 那些坑</a></p>
+</li>
+<li><p><a href="https://helpcdn.aliyun.com/knowledge_detail/60199.html" target="_blank" rel="noopener">iOS WebView 中的 Cookie 处理业务场景“IP直连”方案说明</a></p>
+</li>
+<li><p><a href="https://xibhe.com/2018/02/03/WKWebView-disabuse/" target="_blank" rel="noopener">使用WKWebView进行性能调优</a></p>
+</li>
+<li><p><a href="https://github.com/ChenYilong/iOSBlog/issues/14" target="_blank" rel="noopener">iOS 防 DNS 污染方案调研（四）— Cookie 业务场景</a></p>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2019/04/08/Ad01/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/04/08/Ad01/" itemprop="url">计算广告相关术语</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-08T16:53:59+08:00">
+                2019-04-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/计算广告/" itemprop="url" rel="index">
+                    <span itemprop="name">计算广告</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  424 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  2 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="一、广告分类"><a href="#一、广告分类" class="headerlink" title="一、广告分类"></a>一、广告分类</h4><h5 id="1、品牌广告"><a href="#1、品牌广告" class="headerlink" title="1、品牌广告"></a>1、品牌广告</h5><p>主要是为了品牌宣传形象用，主要是为了争取曝光度，提高品牌正面的形象，重在长远。</p>
+<h5 id="2、效果广告"><a href="#2、效果广告" class="headerlink" title="2、效果广告"></a>2、效果广告</h5><ul>
+<li>按效果付费的广告方式，通过广告竞价平台，广告主通过上传广告视频与相关的信息，设定价格，平台动态地以竞价的方式推荐广告；</li>
+<li>通过广告马上带来购买或其他转化行为，重在眼前</li>
+</ul>
+<h4 id="二、重要指标"><a href="#二、重要指标" class="headerlink" title="二、重要指标"></a>二、重要指标</h4><h5 id="1、ROI"><a href="#1、ROI" class="headerlink" title="1、ROI"></a>1、ROI</h5><p>Return On Investment，投入产出比。</p>
+<h5 id="2、CTR"><a href="#2、CTR" class="headerlink" title="2、CTR"></a>2、CTR</h5><p>Click Through Rate，点击通过率，广告点击次量占广告展现量的比例</p>
+<h5 id="3、CVR"><a href="#3、CVR" class="headerlink" title="3、CVR"></a>3、CVR</h5><p>Conversion Rate，转化率，转化次数占点击次数的比例，表示用户点击广告到成为一个有效激活或者注册甚至付费用户的转化率</p>
+<h5 id="4、CPM"><a href="#4、CPM" class="headerlink" title="4、CPM"></a>4、CPM</h5><p>Cost Per Mile，一种计费方式， 广告主为千次展示出价，参与竞价，按<strong>展现结算</strong>。</p>
+<h5 id="5、CPC"><a href="#5、CPC" class="headerlink" title="5、CPC"></a>5、CPC</h5><p>Cost Per Click，一种计费方式，广告主为单次点击出价，参与竞价，按<strong>点击结算</strong>。</p>
+<h5 id="6、CPT"><a href="#6、CPT" class="headerlink" title="6、CPT"></a>6、CPT</h5><p>Cost Per Time，一种计费方式，估计每天的总量，为流量单价定价，然后核算 CPT 价格报价，<strong>按日结算</strong></p>
+<h5 id="7、CPA"><a href="#7、CPA" class="headerlink" title="7、CPA"></a>7、CPA</h5><p>Cost Per Action，一种计费方式，广告主为转化出价，参与竞价，按转化结算 </p>
+<h5 id="8、GD"><a href="#8、GD" class="headerlink" title="8、GD"></a>8、GD</h5><p>Guaranteed Delivery，保量广告，广告主与平台在投放广告时已经确认一定量的广告</p>
+<h5 id="9、RPM"><a href="#9、RPM" class="headerlink" title="9、RPM"></a>9、RPM</h5><p>Revenue Per  Mille，千次展示收益</p>
+<h4 id="三、其他术语"><a href="#三、其他术语" class="headerlink" title="三、其他术语"></a>三、其他术语</h4><h5 id="1、RTB"><a href="#1、RTB" class="headerlink" title="1、RTB"></a>1、RTB</h5><p>Real Time Bidding，实时竞价</p>
+<h5 id="2、ADX"><a href="#2、ADX" class="headerlink" title="2、ADX"></a>2、ADX</h5><p>Ad Exchange，广告交易平台</p>
+<h5 id="3、DSP"><a href="#3、DSP" class="headerlink" title="3、DSP"></a>3、DSP</h5><p>Demand Side Platform，需求方平台</p>
+<p><a href="https://blog.csdn.net/avaloon/article/details/78185018" target="_blank" rel="noopener">https://blog.csdn.net/avaloon/article/details/78185018</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2019/03/30/iOS-DBSQlite/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -339,7 +1012,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  3,104 字
+                  3,102 字
                 </span>
               
 
@@ -378,7 +1051,7 @@
       
         
           
-            <p><em>技术不能解决所有事情</em></p>
+            <p><em>静以修身，俭以养德</em></p>
 <h4 id="一、移动端数据库方案"><a href="#一、移动端数据库方案" class="headerlink" title="一、移动端数据库方案"></a>一、移动端数据库方案</h4><h5 id="1、关系型数据库"><a href="#1、关系型数据库" class="headerlink" title="1、关系型数据库"></a>1、<strong>关系型数据库</strong></h5><ul>
 <li><strong>SQlite</strong>：轻量级的<strong>关系数据库</strong>, 占用资源非常少，目前广泛应用于Android、iOS等手机操作系统。iOS使用时SQLite，只需要加入libsqlite3.0.tbd依赖以及引入sqlite3.h头文件即可。</li>
 <li>Apple内建的CoreData底层的持久化方式可以是<code>SQLite</code>数据库，也可以是XML文件、甚至是内存; 比较流行的第三方框架FMDB是对SQlite操作的封装</li>
@@ -2421,754 +3094,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/11/20/ML02-DTree/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="南华coder">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="南华coder的空间">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/11/20/ML02-DTree/" itemprop="url">机器学习中的树模型</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-20T23:33:16+08:00">
-                2018-11-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/机器学习/" itemprop="url" rel="index">
-                    <span itemprop="name">机器学习</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,345 字
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  5 分
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="一、开篇"><a href="#一、开篇" class="headerlink" title="一、开篇"></a>一、开篇</h3><h4 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h4><ul>
-<li>在数据结构中，有树这种结构；在机器学习中，有决策树；咋一看，感觉是一回事，其实不然；</li>
-<li><p>数据结构的树关注的事查找，插入，删除的效率，二叉树，平衡二叉树都是为了解决这些效率而产生的；</p>
-</li>
-<li><p>机器学习中的决策树关注的是，如何找到最佳分解节点，<strong>ID3算法</strong>(按最大信息增益划分)，<strong>C4.5</strong>（按信息增益比划分），<strong>CART算法</strong>（按最小基尼指数划分）都是为了达到最佳分裂的效果。</p>
-</li>
-<li>最大信息增益会倾向于<strong>可取值较多</strong>的特征，最大信息增益比会倾向于<strong>可取值较少的特征</strong>。</li>
-</ul>
-<h4 id="2、决策树和集成学习"><a href="#2、决策树和集成学习" class="headerlink" title="2、决策树和集成学习"></a>2、决策树和集成学习</h4><ul>
-<li>决策树模型很简单，简单到即使你不懂机器学习，也能很快了解他，可能有人会说，这么简单的模型有什么用。哈哈，数学的伟大，在于复杂的问题简单化，深度学习的强大在于利用将简单的神经网络不断加深；决策树虽然简单，但是很多个决策树在一起，就足够让很多浅层机器学习算法忘而却步。</li>
-<li><p>这个将许多决策树整合一起的方式就是集成学习，在集成学习中，决策树是个体学习器，当然个体学习器可以是别的弱学习器。</p>
-</li>
-<li><p>而根据个体学习器生成方式的不同，目前集成学习方法大致可分为两大类，即个体学习器间存在<strong>强依赖关系</strong>、必须串行生成的序列化方法，以及个体学习器间<strong>不存在强依赖关系</strong>、可同时生成的并行化方法；前者的代表是<strong>Boosting </strong> 和 <strong>梯度提升树</strong>(GBDT)，后者的代表是和<strong>Bagging</strong>和 <strong>随机森林</strong>（Random Forest）</p>
-</li>
-</ul>
-<h3 id="二、决策树"><a href="#二、决策树" class="headerlink" title="二、决策树"></a>二、决策树</h3><h4 id="1、决策树中需关注问题"><a href="#1、决策树中需关注问题" class="headerlink" title="1、决策树中需关注问题"></a>1、决策树中需关注问题</h4><ul>
-<li><p>一棵树是如何构建的？建树过程中，树分裂节点时，如何选出最优的属性作为分裂节点。</p>
-</li>
-<li><p>如何用树的减枝来避免过拟合问题。</p>
-</li>
-<li><p>对于含有空值的数据，如何构建树。</p>
-</li>
-<li><p>构建树可能存在的问题，过拟合问题，如何解决</p>
-</li>
-</ul>
-<h4 id="2、如何构建一棵树"><a href="#2、如何构建一棵树" class="headerlink" title="2、如何构建一棵树"></a>2、如何构建一棵树</h4><p>简言之：<strong>选择最优划分属性作为分裂结点，使得分支结点中所包含的样本尽可能属于同一类</strong>。树的生成算法有三种：ID3、C4.5和CART.</p>
-<h5 id="1、ID3"><a href="#1、ID3" class="headerlink" title="1、ID3"></a>1、ID3</h5><p>选择<strong>最大信息增益(Information Gain)</strong>规则去寻找最优分裂节点</p>
-<h5 id="1-1、基础概念"><a href="#1-1、基础概念" class="headerlink" title="1-1、基础概念"></a>1-1、基础概念</h5><ul>
-<li><p>信息熵(Information entropy)：表示随机变量不确定性的度量；<strong>熵越大，随机变量的不确定性就越大</strong>；(我们希望分类后的结果熵越小越好)。</p>
-</li>
-<li><p>信息增益(Information gain)：表示因特征X的信息而使得类Y信息不确定性减少的程度。(当然是越大越好）；<br>$$<br>g(D,A) = H(D) - H(D|A)<br>$$</p>
-</li>
-</ul>
-<p>在划分过程中，找到信息增益最大的特征将样本根据此特征划分不同的结点中，新的结点中继续划分。</p>
-<h5 id="1-2、不足"><a href="#1-2、不足" class="headerlink" title="1-2、不足"></a>1-2、不足</h5><ul>
-<li>信息增益反应的是：给点条件后，不确定性减少的程度，<strong>特征取值越多，意味着确定性越高，也就是条件熵越小，信息增益越大。</strong>这就造成信息增益对<strong>可取值较多</strong>的属性有所偏好。</li>
-<li>ID3只能处理离散型变量，只能处理分类任务</li>
-<li>对样本特征缺失值比较敏感</li>
-</ul>
-<h5 id="2、C4-5"><a href="#2、C4-5" class="headerlink" title="2、C4.5"></a>2、C4.5</h5><p>选择<strong>最大信息增益比(Information Gain Ratio)</strong>规则去寻找最优分裂节点</p>
-<h5 id="2-1、基础概念"><a href="#2-1、基础概念" class="headerlink" title="2-1、基础概念"></a>2-1、基础概念</h5><ul>
-<li><strong>信息增益比(Information Gain Ratio)</strong>: 特征A对训练数据集D的信息增益比为其 信息增益与训练数据集D关于特征A的值的熵之比。<br>$$<br>g_R(D,A) =\frac{g(D,A)}{H_A(D)}<br>$$</li>
-</ul>
-<p>在划分过程中，找到信息增益比最大的特征将样本根据此特征划分不同的结点中，新的结点中继续划分。</p>
-<h5 id="2-2、不足"><a href="#2-2、不足" class="headerlink" title="2-2、不足"></a>2-2、不足</h5><ul>
-<li>C4.5 对ID3做了优化，使用信息增益比在一定程度上对取值较多的特征进行了惩罚，避免ID3出现的过拟合特性，提升了决策树的泛化能力。</li>
-<li>C4.5 能处理连续型变量和离散型变量，但是只能处理分类任务。</li>
-</ul>
-<h5 id="3、CART"><a href="#3、CART" class="headerlink" title="3、CART"></a>3、CART</h5><p>选择<strong>最小基尼指数(Gini index)</strong>规则去寻找最优分裂节点</p>
-<h5 id="3-1、基础概念"><a href="#3-1、基础概念" class="headerlink" title="3-1、基础概念"></a>3-1、基础概念</h5><ul>
-<li>基尼指数：表示数据的纯度<br>$$<br>Cini(D) = 1 - \sum_{k=1}^n(\frac{|C_k|}{|D|})^2<br>$$</li>
-</ul>
-<p>利用基尼指数最小选择最优分裂点，采用二元切割法</p>
-<h5 id="3-2、特点"><a href="#3-2、特点" class="headerlink" title="3-2、特点"></a>3-2、特点</h5><ul>
-<li>不仅能处理分类任务，还能处理回归任务</li>
-<li>不仅能处理离散型变量，还能处理连续型变量</li>
-<li>能够处理样本特征数据缺失的情况</li>
-</ul>
-<h4 id="3、树的剪枝"><a href="#3、树的剪枝" class="headerlink" title="3、树的剪枝"></a>3、树的剪枝</h4><h5 id="3-1、预剪枝"><a href="#3-1、预剪枝" class="headerlink" title="3-1、预剪枝"></a>3-1、预剪枝</h5><p>阈值、</p>
-<h5 id="3-2、后剪枝"><a href="#3-2、后剪枝" class="headerlink" title="3-2、后剪枝"></a>3-2、后剪枝</h5><h3 id="三、梯度提升树-和-随机森林"><a href="#三、梯度提升树-和-随机森林" class="headerlink" title="三、梯度提升树 和 随机森林"></a>三、梯度提升树 和 随机森林</h3><ul>
-<li><p>梯度提升树，GBDT，特征组合的一把好手</p>
-</li>
-<li><p>随机森林 RF</p>
-</li>
-<li><p>基于决策树实现的GBDT、RF（随机森林）、Xgboost 和 lightGBM都在数据竞赛和工程中都大展身手。</p>
-</li>
-<li><p><a href="https://github.com/e-snail/understanding_machine_learning/tree/master/3_decision_tree" target="_blank" rel="noopener">https://github.com/e-snail/understanding_machine_learning/tree/master/3_decision_tree</a></p>
-</li>
-<li><p><a href="http://sklearn.apachecn.org/cn/0.19.0/modules/tree.html" target="_blank" rel="noopener">决策树API</a></p>
-</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/11/17/ML01/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="南华coder">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="南华coder的空间">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/11/17/ML01/" itemprop="url">机器学习杂谈</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-17T22:20:28+08:00">
-                2018-11-17
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/机器学习/" itemprop="url" rel="index">
-                    <span itemprop="name">机器学习</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,861 字
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  6 分
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><strong>高能预警</strong>：本人非算法开发，以下是我的一些浅见。</p>
-<h3 id="一、开篇"><a href="#一、开篇" class="headerlink" title="一、开篇"></a>一、开篇</h3><p>自有机器学习以来，算法模型中就有了区分；分为监督学习，无监督学习，半监督学习和强化学习等。</p>
-<h4 id="1、监督学习"><a href="#1、监督学习" class="headerlink" title="1、监督学习"></a>1、监督学习</h4><ul>
-<li><p>机器学习中<strong>大部分任务</strong>都是监督学习任务；在监督学习中，分类和回归是其两大主题。分类中名声最大的是：<strong>逻辑回归</strong>(Logistic regression)、<strong>朴素贝叶斯</strong>(Naive Bayes) 和 <strong>支持向量机</strong>(Support Vector Machine，SVM) 。</p>
-</li>
-<li><p>在工业界曾经有<strong>一招LR打天下</strong>的”传说”，这里的LR就是逻辑回归；早些年做CTR预估时候，<strong>人工特征海洋 + LR</strong>用得非常多，很多算法工程师大部分时间埋头搞特征工程；</p>
-</li>
-<li><strong>朴素贝叶斯</strong>(Naive Bayes)是个开挂的存在，它将<strong>贝叶斯原理</strong>应用到机器学习中，而后机器学习中贝叶斯学派声明鹊起，与旧贵族统计学派在机器学习中鼎足而立；它强假设输入的数据的特征都是独立的，在文本分类中表现出很好的效果，可谓是入门nlp都必须了解的算法之一了。</li>
-<li><strong>支持向量机</strong>(Support Vector Machine，SVM) 当之无愧是监督学习中的无冕之王，自上世纪90年代诞生之后，在机器学习界掀起“腥风血雨”，它利用核技巧，在属于两个不同类别的两组数据之间找到良好的分类边界，将线性不可分问题转为高纬空间的线性可分问题，借此达到了分类的目的。因为SVM的存在，将<strong>多层神经网络</strong>的研究打进冷宫；多层神经网络是深度学习的前身。直到2012年，因为深度学习在ImageSet竞赛中的完胜，神经网络的研究才再次复苏，直至形成今天的野火燎原之势。</li>
-<li>监督学习中另一个主题是回归，最基础的的当然是<strong>线性回归</strong>(Linear regression)，模型虽然简单，但是预测个房价，股票价格这种高大上的事情也还是有着不错的表现。</li>
-<li>非监督学习比较尴尬，在工业界，更多起到打辅助的左右；有聚类，降维和关联规则三大主题，聚类中用的较多反而是简单的K-means，PCA和SVD用来做数据降维，关联规则那块好像在推荐系统用的稍微多些。</li>
-</ul>
-<h4 id="2、决策树和集成学习"><a href="#2、决策树和集成学习" class="headerlink" title="2、决策树和集成学习"></a>2、决策树和集成学习</h4><ul>
-<li>决策树是监督学习中比较特殊的模型，说他特殊，是因为它不像LR、SVM和NB直接上手，大家喜欢使用将决策树作为集成学习的基础学习器，比较著名的是<strong>随机森林</strong>(Random Forest)、<strong>梯度提升树</strong>(GBDT)，决策树的实现经历了ID3, C4.5，CART三个阶段，在随机森林、梯度提升树里面用的是CART这个分类回归树。从CART的名字也看出来，不仅仅可以做回归，也能做分类。粗暴理解就是，分类时候好多CART投票分类结果，回归时候，取CART预测值得平均数。</li>
-<li>GBDT有个超级经典的实现，XgBoost。在Kaggle比赛中，XgBoost近乎霸主级别的存在；江湖有传言，图片图像等机器学习问题用Keras（深度学习库），浅层机器学习用XgBoost。</li>
-</ul>
-<h4 id="3、神经网络和深度学习的渊源"><a href="#3、神经网络和深度学习的渊源" class="headerlink" title="3、神经网络和深度学习的渊源"></a>3、神经网络和深度学习的渊源</h4><ul>
-<li>我认为，没有神经网络，就没有深度学习；虽然业界有说法，不用神经网络就也能实现深度学习；但是神经网络真的真的很厉害，虽然很长一段时间不被看好，因为两层的神经网络连个异或都处理不了，的确有理由被看不上；但是随着反向传播算法发现，神经网络层数不断加深，在工业界发挥牛逼闪闪的光芒。</li>
-<li>你可能想不到，权重，阈值，激活函数这些简简单单的东西，怎么能解决计算机视觉、语音识别这种非常难的问题，这些问题连当年风光无限的SVM都败下阵来。</li>
-</ul>
-<h4 id="4、特征工程"><a href="#4、特征工程" class="headerlink" title="4、特征工程"></a>4、特征工程</h4><ul>
-<li><p>有句老话：数据和特征决定了机器学习的上限，而模型和算法只是逼近这个上限而已。在传统机器学习领域，做好特征工程很重要；工业界有句老话，70%多的时间在做特征工程；</p>
-</li>
-<li><p>比较尴尬的是，市面上多是讲解机器学习算法模型的书，讲解算法和模型的奥妙是他们的主题，提供的试验数据也都是已经处理好的，并不需要特征工程处理，但是实际工程中不是这样。特征工程的处理依赖领域知识和经验依旧是主流，但是业界很多项目处于安全、隐私等考虑，不会透露底层的特征工程的处理。</p>
-</li>
-</ul>
-<h4 id="5、特征工程-amp-深度学习"><a href="#5、特征工程-amp-深度学习" class="headerlink" title="5、特征工程 &amp; 深度学习"></a>5、特征工程 &amp; 深度学习</h4><ul>
-<li>深度学习有自动获取特征的能力，可以对输入的低阶特征进行组合、变换，得到高阶特征，但是这个能力只是对于某些领域(如图像、语音)有比较好的效果。</li>
-<li>在其他领域，如自然语言处理中，输入的字或词都是离散、稀疏的值，不像图片一样是连续、稠密的。输入原始数据进行组合、变换得到的高阶特征并不是那么有效。而且有的语义并不来自数据，而来自人们的先验知识，所以利用先验知识构造的特征是很有帮助的。</li>
-<li>总的来说，在深度学习中，特征工程仍然适用；神经网络能对特征自动进行排列组合，所以只要输入一阶特征就行，省去了手动构造高阶特征的工作量。</li>
-</ul>
-<h4 id="6、模型评估"><a href="#6、模型评估" class="headerlink" title="6、模型评估"></a>6、模型评估</h4><ul>
-<li>模型评估很重要，是向别人证明你的模型怎么好的依据，我也就知道过拟合、欠拟合、交差验证、ROC、分类中查全率，查准率这些概念，没有个比较整体的认识，后面抽时间了解后再来补充。</li>
-</ul>
-<h3 id="二、常见的监督学习算法模型"><a href="#二、常见的监督学习算法模型" class="headerlink" title="二、常见的监督学习算法模型"></a>二、常见的监督学习算法模型</h3><p>哈哈，先留坑，后面慢慢填</p>
-<h4 id="1、LR（逻辑回归）"><a href="#1、LR（逻辑回归）" class="headerlink" title="1、LR（逻辑回归）"></a>1、LR（逻辑回归）</h4><ul>
-<li>线性模型的基础上增加了sigmoid函数，处理二分类问题，广义的线性模型，在CTR预估中有大作用</li>
-</ul>
-<h4 id="2、SVM-支持向量机"><a href="#2、SVM-支持向量机" class="headerlink" title="2、SVM(支持向量机)"></a>2、SVM(支持向量机)</h4><ul>
-<li><p>可以处理非线性问题，深度学习未火之前，是学术界和工业界的热点，</p>
-<p>数据规模较小时，能够构建出数据间的非线性关系，</p>
-<p>1、SVM的原始公式是如何由实际问题产生，算法的灵魂</p>
-<p>2、SVM原始问题到对偶问题的数学推导公式</p>
-</li>
-</ul>
-<h4 id="3、NB-朴素贝叶斯"><a href="#3、NB-朴素贝叶斯" class="headerlink" title="3、NB(朴素贝叶斯)"></a>3、NB(朴素贝叶斯)</h4><ul>
-<li>基于贝叶斯定理的一组有监督学习算法，<strong>朴素</strong>：“简单”地假设每对特征之间相互独立；</li>
-<li>在很多实际情况下，朴素贝叶斯工作得很好，特别是<strong>文档分类</strong>和<strong>垃圾邮件过滤</strong>。这些工作都要求 一个小的训练集来估计必需参数。</li>
-</ul>
-<p><a href="http://sklearn.apachecn.org/cn/0.19.0/modules/naive_bayes.html" target="_blank" rel="noopener">http://sklearn.apachecn.org/cn/0.19.0/modules/naive_bayes.html</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/03/24/iOS-iOSLock/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="南华coder">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="南华coder的空间">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/03/24/iOS-iOSLock/" itemprop="url">多线程中的锁小记</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-24T18:21:40+08:00">
-                2018-03-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS基础/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS基础</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  3,193 字
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  12 分
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h4 id="一、多线程中的锁"><a href="#一、多线程中的锁" class="headerlink" title="一、多线程中的锁"></a>一、多线程中的锁</h4><h5 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h5><ul>
-<li>在并发编程中，<strong>锁是一种同步机制</strong>，是用来限制多线程环境中对资源的访问，保障线程安全。</li>
-<li>线程安全中，为了实现<strong>线程阻塞</strong>，一般有两种方案：一种是<strong>让线程处于休眠状态</strong>，此时不会消耗 CPU 资源；另一种方案是<strong>让线程忙等或空转</strong>，这样会消耗一定的 CPU 资源。前者属于互斥，后者属于自旋。</li>
-<li>自旋在线程加锁的情况下，会一直尝试是否解锁，如果没有解锁，会一直循环判断，如果锁已经放开，则继续执行，不再是空转状态。OSSpinLock 属于自旋锁，pthread 库中相关的锁，以及 NSLock、@synchronized 等都属于互斥锁。</li>
-<li>ibireme 在《<a href="https://link.jianshu.com/?t=https://blog.ibireme.com/2016/01/16/spinlock_is_unsafe_in_ios/" target="_blank" rel="noopener">不再安全的 OSSpinLock</a>》中的一张图片说明加解锁的效率（锁的效率并不值的是加解锁的速度，而是加解锁操作在执行时的复杂程度）：</li>
-</ul>
-<p><img src="https://upload-images.jianshu.io/upload_images/201701-514c86e036c415bc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="lock"></p>
-<h5 id="2、为什么自旋锁的性能最好"><a href="#2、为什么自旋锁的性能最好" class="headerlink" title="2、为什么自旋锁的性能最好"></a>2、为什么自旋锁的性能最好</h5><ul>
-<li>自旋锁是一种<strong>非阻塞锁</strong>，换句话说，如果某线程需要获取自旋锁，但该锁已经被其他线程占用时，该<strong>线程不会被挂起，而是在不断的消耗<code>CPU</code>的时间</strong>，不停的试图获取自旋锁</li>
-<li>而互斥锁是<strong>阻塞锁</strong>，当某线程无法获取互斥量时，<strong>该线程会被直接挂起，该线程不再消耗<code>CPU</code>时间，当其他线程释放互斥量后，操作系统会激活那个被挂起的线程</strong>，让其投入运行。</li>
-<li>自旋锁比互斥锁的获取<strong>少了两个线程的上下文切换时间</strong>，虽然自旋锁因为空转等待浪费了CPU的时间，但是在多核环境下，对于很多轻量级的操作，等待锁的时间 小于 两次线程上下文切换的时间，自然就体现出了自旋锁的性能。</li>
-</ul>
-<h4 id="二、几种常见的锁"><a href="#二、几种常见的锁" class="headerlink" title="二、几种常见的锁"></a>二、几种常见的锁</h4><p><em>有了dispatch_semaphore，pthread_mutex和pthread_mutex(recursive)，synchronized感觉有够用了</em></p>
-<p><strong>1、OSSpinLock(自旋锁)</strong></p>
-<ul>
-<li><p>OSSpinLock存在优先级反转的问题，在iOS10之后已经废弃，使用os_unfair_lock替代(中间有段时间用了pthread_mutex ), os_unfair_lock 是iOS 10.0新推出的锁，用于解决OSSpinLock优先级反转问题。</p>
-</li>
-<li><p>后面会介绍下OSSpinLock的往事</p>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//code</span><br><span class="line">OSSpinLock oslock = OS_SPINLOCK_INIT;</span><br><span class="line">OSSpinLockLock(&amp;oslock);</span><br><span class="line">OSSpinLockUnlock(&amp;oslock);</span><br></pre></td></tr></table></figure>
-<h5 id="2、-dispatch-semaphore-信号量"><a href="#2、-dispatch-semaphore-信号量" class="headerlink" title="2、 dispatch_semaphore(信号量)"></a>2、 dispatch_semaphore(信号量)</h5><ul>
-<li>信号量(Semaphore)，有时被称为信号灯，是在多线程环境下使用的一种设施，是可以用来保证两个或多个关键代码段不被并发调用。<strong>在进入一个关键代码段之前，线程必须获取一个信号量；一旦该关键代码段完成了，那么该线程必须释放信号量。其它想进入该关键代码段的线程必须等待直到第一个线程释放信号量</strong></li>
-<li>GCD用于控制多线程并发的信号量，允许通过wait/signal的信号事件控制并发执行的最大线程数，当最大线程数降级为1的时候则可当作同步锁使用，注意该信号量并不支持递归；</li>
-</ul>
-<h5 id="3、pthread-mutex-互斥锁"><a href="#3、pthread-mutex-互斥锁" class="headerlink" title="3、pthread_mutex (互斥锁)"></a>3、pthread_mutex (互斥锁)</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">pthread_mutex_t _lock;</span><br><span class="line">//初始化</span><br><span class="line">pthread_mutex_init(&amp;pLock, NULL);</span><br><span class="line">//加锁和释放锁</span><br><span class="line">pthread_mutex_lock(&amp;pLock);</span><br><span class="line">pthread_mutex_unlock(&amp;pLock);</span><br><span class="line">//销毁</span><br><span class="line">pthread_mutex_destroy(&amp;_lock);</span><br></pre></td></tr></table></figure>
-<p><strong>说明1</strong>：加锁后，加锁后同一个时间点只能有一个线程能访问，后面的线程需要排队，并且 lock 和 unlock 是对应出现的，同一线程多次 lock 是不允许的。</p>
-<p><strong>说明2</strong>：一般情况下，一个线程只能申请一次锁，也只能在获得锁的情况下才能释放锁，多次申请锁或释放未获得的锁都会导致崩溃(死锁)。如果需要在同一线程多次获取一个锁，就需要递归锁。</p>
-<p><strong>说明3</strong>：对于互斥锁，假设在已经获得锁的情况下再次申请锁，线程会<strong>因为等待锁的释放而进入睡眠状态</strong>，因此就不可能再释放锁，从而导致死锁。</p>
-<h5 id="4、NSLock"><a href="#4、NSLock" class="headerlink" title="4、NSLock"></a>4、NSLock</h5><ul>
-<li>NSLock 只是在内部封装了一个 <strong>pthread_mutex</strong>，属性为 <strong>PTHREAD_MUTEX_ERRORCHECK</strong>，它会损失一定性能换来错误提示。</li>
-<li>NSLock 比 pthread_mutex 略慢的原因在于它需要经过方法调用，同时由于缓存的存在，多次方法调用不会对性能产生太大的影响。</li>
-</ul>
-<h5 id="5、NSCondition"><a href="#5、NSCondition" class="headerlink" title="5、NSCondition"></a>5、NSCondition</h5><ul>
-<li>NSCondition的底层是通过条件变量(condition variable) <strong>pthread_cond_t</strong> 来实现的。条件变量有点像信号量，提供了线程阻塞与信号机制，因此可以用来阻塞某个线程，并等待某个数据就绪，随后唤醒线程，比如常见的生产者-消费者模式。</li>
-</ul>
-<h5 id="6、-pthread-mutex-recursive"><a href="#6、-pthread-mutex-recursive" class="headerlink" title="6、 pthread_mutex(recursive)"></a>6、 pthread_mutex(recursive)</h5><ul>
-<li>同一个线程可以多次获取同一个递归锁，不会产生死锁。</li>
-<li>如果一个线程多次获取同一个非递归锁，则会产生死锁。</li>
-<li>递归锁允许同一个线程在未释放其拥有的锁时反复对该锁进行加锁操作。</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objc_sync_enter/objc_sync_exit</span><br></pre></td></tr></table></figure>
-<h5 id="7、NSRecursiveLock"><a href="#7、NSRecursiveLock" class="headerlink" title="7、NSRecursiveLock"></a>7、NSRecursiveLock</h5><ul>
-<li><p>递归锁也是通过 <strong>pthread_mutex_lock</strong> 函数来实现，在函数内部会判断锁的类型，如果显示是递归锁，就允许递归调用，仅仅将一个计数器加一，锁的释放过程也是同理。</p>
-</li>
-<li><p>NSRecursiveLock 与 NSLock 的区别在于内部封装的 <strong>pthread_mutex_t</strong> <strong>对象的类型不同</strong>，前者的类型为 PTHREAD_MUTEX_RECURSIVE。</p>
-</li>
-</ul>
-<h5 id="8、NSConditionLock-条件锁"><a href="#8、NSConditionLock-条件锁" class="headerlink" title="8、NSConditionLock(条件锁)"></a>8、NSConditionLock(条件锁)</h5><ul>
-<li>NSConditionLock 借助 NSCondition 来实现，它的本质就是一个生产者-消费者模型。“条件被满足”可以理解为生产者提供了新的内容。NSConditionLock 的内部持有一个 NSCondition 对象，以及 _condition_value 属性，在初始化时就会对这个属性进行赋值:</li>
-</ul>
-<h5 id="9、synchronized-同步锁"><a href="#9、synchronized-同步锁" class="headerlink" title="9、synchronized(同步锁)"></a>9、synchronized(同步锁)</h5><ul>
-<li>OC 层面的锁，实现对block内的代码片段加锁， 可以指定任意一个Objective-C对象(id指针)作为锁“标记”，该语法将“标记”理解为token，通过牺牲性能换来语法上的简洁与可读</li>
-<li>@synchronized 后面紧跟的 OC 对象，根据对象的哈希值来获取对应的互斥锁，这些互斥锁在OC的底层的互斥锁池中</li>
-</ul>
-<p><strong>说明</strong>：目前，像OSSpinLock、dispatch_semaphore、synchronized等都不支持可重入（可重入: 允许同一线程多次加锁），只有pthread_mutex(recursive)和NSRecursiveLock支持，其中pthread_mutex(recursive)效率最高。</p>
-<h4 id="二、OSSpinLock的优先级反转问题"><a href="#二、OSSpinLock的优先级反转问题" class="headerlink" title="二、OSSpinLock的优先级反转问题"></a>二、OSSpinLock的优先级反转问题</h4><h5 id="1、什么是优先级反转"><a href="#1、什么是优先级反转" class="headerlink" title="1、什么是优先级反转"></a>1、什么是优先级反转</h5><ul>
-<li><strong>优先级反转</strong>(Priority Inversion)是 由于<strong>多线程共享资源，具有最高优先权的线程被低优先级线程阻塞，反而使具有中优先级的线程先于高优先级的线程执行</strong>。（可类推到多进程的优先级反转）</li>
-<li>产生优先级反转的条件：假设有高优先级的任务线程为<strong>High</strong>、中优先级的任务为<strong>Mid</strong>、低优先级的任务线程为<strong>Low</strong>；优先级是High &gt; Mid &gt; Low; 触发需要满足3个条件</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- High线程要访问一个被Low线程占有的资源，因为得不到，High线程被阻塞；</span><br><span class="line">- Middle线程启动执行，因为Middle优先级比Low高，导致占有资源的Low线程被挂起，但是Low占用的资源并没有释放；甚至于因为Low的优先级足够低，一直被其他的任务挂起，导致占有的资源一直不能释放，High线程一直无法得到机会执行。</span><br><span class="line">- High任务因为一直不能获取被Low任务占用的资源，导致比它优先低的任务却可以执行。</span><br></pre></td></tr></table></figure>
-<h5 id="2、优先级反转的解决办法"><a href="#2、优先级反转的解决办法" class="headerlink" title="2、优先级反转的解决办法"></a>2、优先级反转的解决办法</h5><p><strong>解决的思路</strong>是：<strong>提高占有资源线程的优先级</strong>，使其可以执行，并在执行完后释放资源；以让其他线程可以获取资源；<strong>常见的解决方法</strong>有2种，<strong>优先级继承</strong>(priority inheritance) 或 <strong>优先级极限</strong>(priority ceilings)。</p>
-<h6 id="1）优先级继承-priority-inheritance"><a href="#1）优先级继承-priority-inheritance" class="headerlink" title="1）优先级继承(priority inheritance)"></a>1）优先级继承(priority inheritance)</h6><ul>
-<li>提升<strong>低优先级线程</strong> 的优先级，优先级等于  等待其占有的资源的，最高优先级任务的优先级；</li>
-<li>换言之，当高优先级任务由于等待资源而被阻塞时，此时资源的拥有者的优先级将会自动被提升。</li>
-</ul>
-<h6 id="2）优先级天花板-priority-ceilings"><a href="#2）优先级天花板-priority-ceilings" class="headerlink" title="2）优先级天花板(priority ceilings)"></a>2）优先级天花板(priority ceilings)</h6><ul>
-<li>将申请某资源的线程优先级，提升到可能访问该资源的所有任务中最高优先级任务的优先级。</li>
-</ul>
-<p><strong>说明</strong>： 优先级继承，只有当占有资源的低优先级的任务被阻塞时,才会提高占有资源任务的优先级；而优先级天花板，不论是否发生阻塞, 都提升。</p>
-<h5 id="3、被命放弃的OSSpinLock"><a href="#3、被命放弃的OSSpinLock" class="headerlink" title="3、被命放弃的OSSpinLock"></a>3、被命放弃的OSSpinLock</h5><ul>
-<li>由于OSSpinLock加解锁的效率高，早期被大量使用，比如Apple就使用OSSpinLock来实现属性的setter/getter的原子性，著名的YYKit中使用的也是OSSpinLock，</li>
-<li>但是自从发现优先级反转问题后，OSSpinLock被放弃。YYKit中采用了dispatch_semaphore_t；Apple也在iOS 10.0新推出os_unfair_lock，用来解决OSSpinLock优先级反转问题。</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 初始化</span><br><span class="line">os_unfair_lock_t unfairLock = &amp;(OS_UNFAIR_LOCK_INIT);</span><br><span class="line">// 加锁</span><br><span class="line">os_unfair_lock_lock(unfairLock);</span><br><span class="line">// 解锁</span><br><span class="line">os_unfair_lock_unlock(unfairLock);</span><br><span class="line">// 尝试加锁</span><br><span class="line">BOOL b = os_unfair_lock_trylock(unfairLock);</span><br></pre></td></tr></table></figure>
-<h4 id="三、atomic能保证修饰的属性是线程安全吗？"><a href="#三、atomic能保证修饰的属性是线程安全吗？" class="headerlink" title="三、atomic能保证修饰的属性是线程安全吗？"></a>三、atomic能保证修饰的属性是线程安全吗？</h4><h5 id="1、atomic不能保证修饰的属性是线程安全的"><a href="#1、atomic不能保证修饰的属性是线程安全的" class="headerlink" title="1、atomic不能保证修饰的属性是线程安全的"></a>1、atomic不能保证修饰的属性是线程安全的</h5><ul>
-<li><p>属性被atomic修饰之后，默认生成的getter和setter方法，是原子操作的；这就意味着，在多线程环境下，<code>简单的set/get</code>的访问操作的线程安全的。</p>
-</li>
-<li><p>但是在真实场景下，不是简单的getter和setter操作</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">@property (atomic, assign)  int  intA;  //intA被atomic修饰</span><br><span class="line"></span><br><span class="line">//thread A</span><br><span class="line">for (int i = 0; i &lt; 10000; i ++) &#123;</span><br><span class="line">    self.intA = self.intA + 1;</span><br><span class="line">    NSLog(@&quot;Thread A: %d\n&quot;, self.intA);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//thread B</span><br><span class="line">for (int i = 0; i &lt; 10000; i ++) &#123;</span><br><span class="line">    self.intA = self.intA + 1;</span><br><span class="line">    NSLog(@&quot;Thread B: %d\n&quot;, self.intA);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>虽然<strong>intA</strong>声明为atomic，但是结果也不一定会是20000。原因就是因为<code>self.intA = self.intA + 1;</code>不是原子操作，虽然intA的getter和setter是原子操作，但当我们使用intA的时候，整个语句并不是原子的，这行赋值的代码至少包含读取(load)，+1(add)，赋值(store)三步操作，当前线程store的时候可能其他线程已经执行了若干次store了，导致最后的值小于预期值。这种场景我们也可以称之为<strong>多线程不安全</strong>。</p>
-</li>
-<li><p>再加上，属性多了atomic修饰，相当于对属性的setter和getter操作加锁，导致属性的操作性能比nonatomic修饰差，举个简单例子，在单线程环境，<code>UIKit</code>中所有类的属性，因为不存在多线程竞争的问题，属性使用atomic锁会影响效率。</p>
-</li>
-<li><p>此外，即使可变数组对象被修饰成aomic，无法保证数组对象的插入、删除操作是线程安全的。</p>
-</li>
-</ul>
-<h5 id="2、atomic的性能很差吗"><a href="#2、atomic的性能很差吗" class="headerlink" title="2、atomic的性能很差吗"></a>2、atomic的性能很差吗</h5><ul>
-<li><p>atomic的实质是给属性setter/getter方法加锁，之前是自旋锁OSSpinLock,后来因为OSSpinLock优先级反转的问题，iOS 10使用新的自旋锁unfairLock，自旋锁的性能还是相当不错的。</p>
-</li>
-<li><p>被atomic修饰的属性，setter和getter方法中任意一个被重写，atomic关键字特性就会失效。</p>
-</li>
-<li><p>atomic的性能不错，也线程安全，但仅限于setter/getter。</p>
-</li>
-</ul>
-<h4 id="四、锁的一些其他问题讨论"><a href="#四、锁的一些其他问题讨论" class="headerlink" title="四、锁的一些其他问题讨论"></a>四、锁的一些其他问题讨论</h4><h5 id="1、dispatch-barrier-async-并发队列性能为什么项目中不使用"><a href="#1、dispatch-barrier-async-并发队列性能为什么项目中不使用" class="headerlink" title="1、dispatch_barrier_async + 并发队列性能为什么项目中不使用"></a>1、dispatch_barrier_async + 并发队列性能为什么项目中不使用</h5><ul>
-<li>《Effective Objective-C 2.0》一书中，推荐了<strong>dispatch_barrier_async + 并发队列</strong>来解决线程安全的问题；书中强调，性能比GCD串行队列好，但是实际项目中没咋遇到dispatch_barrier_async + 并发队列，多使用互斥锁。</li>
-<li><p>读操作和写操作都需要配发到一个并发队列中，那么<strong>最终执行代码的线程 和 最初调用代码的线程很可能不是同一个</strong>，这里有一次<strong>线程切换</strong>的开销，如果这时候遇到互斥锁需要等待的话，当前线程被挂起，再等到CPU唤醒代码最终被执行的时候一来一回又是两次线程的切换，而<strong>对于很多轻量级的操作，这种线程之间切换的开销要比自旋锁的那种一直忙等待的方式慢很多。</strong></p>
-</li>
-<li><p>在测评中发现，dispatch_barrier_async + 并发队列性性能不好，具体可参考 <a href="https://www.jianshu.com/p/15df680d510e" target="_blank" rel="noopener">atomic性能真的很差，并发queue+barrier性能真的很好吗？</a></p>
-</li>
-</ul>
-<h5 id="2、死锁问题"><a href="#2、死锁问题" class="headerlink" title="2、死锁问题"></a>2、死锁问题</h5><ul>
-<li>主线程使用dispatch_sync</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dispatch_sync(dispatch_get_main_queue(), ^&#123;</span><br><span class="line"></span><br><span class="line"> &#125;)</span><br></pre></td></tr></table></figure>
-<ul>
-<li>使用OSSpinLock、dispatch_semaphore、synchronized等都不支持可重入等锁，遇到重入的场景</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//死锁，YYThreadSafeArrays使用的是dispatch_semaphore做线程同步</span><br><span class="line">YYThreadSafeArray *array = [[YYThreadSafeArray alloc] initWithObjects:@&quot;678&quot;,@&quot;910&quot;, nil];</span><br><span class="line">    [array enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) &#123;</span><br><span class="line">        NSLog(@&quot;count = %@&quot;,@([array count]));</span><br><span class="line">    &#125;];</span><br></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3223,7 +3148,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-count">29</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -3234,7 +3159,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -3245,7 +3170,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -3303,7 +3228,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">57.3k</span>
+    <span title="Site words total count">61.5k</span>
   
 </div>
 
