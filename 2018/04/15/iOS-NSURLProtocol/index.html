@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="iOS," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="南华coder的空间" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="一、概述1、URL Loading System  URL Loading System 是一系列用来访问通过 URL 来定位的资源的类和协议。这项技术的核心在于基于 NSURL 这个类来访问资源，除了加载 URL 的类 NSURLSession 之外，我们把其他相关辅助类分为 5 类：  12345协议支持（protocol support）认证和证书（authentication and cr">
+<meta name="keywords" content="iOS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NSURLProtocol基础">
+<meta property="og:url" content="http://buaa0300/nanhuacoder.com/2018/04/15/iOS-NSURLProtocol/index.html">
+<meta property="og:site_name" content="南华coder的空间">
+<meta property="og:description" content="一、概述1、URL Loading System  URL Loading System 是一系列用来访问通过 URL 来定位的资源的类和协议。这项技术的核心在于基于 NSURL 这个类来访问资源，除了加载 URL 的类 NSURLSession 之外，我们把其他相关辅助类分为 5 类：  12345协议支持（protocol support）认证和证书（authentication and cr">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/201701-7317567c713d851f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/620">
+<meta property="og:updated_time" content="2019-04-12T10:49:32.552Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="NSURLProtocol基础">
+<meta name="twitter:description" content="一、概述1、URL Loading System  URL Loading System 是一系列用来访问通过 URL 来定位的资源的类和协议。这项技术的核心在于基于 NSURL 这个类来访问资源，除了加载 URL 的类 NSURLSession 之外，我们把其他相关辅助类分为 5 类：  12345协议支持（protocol support）认证和证书（authentication and cr">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/201701-7317567c713d851f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/620">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://buaa0300/nanhuacoder.com/2018/04/15/iOS-NSURLProtocol/"/>
+
+
+
+
+
+  <title>NSURLProtocol基础 | 南华coder的空间</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">南华coder的空间</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/04/15/iOS-NSURLProtocol/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">NSURLProtocol基础</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-15T15:40:11+08:00">
+                2018-04-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS基础/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,688 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  7 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4><h5 id="1、URL-Loading-System"><a href="#1、URL-Loading-System" class="headerlink" title="1、URL Loading System"></a>1、URL Loading System</h5><p><img src="https://upload-images.jianshu.io/upload_images/201701-7317567c713d851f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/620" alt="URL-loading-system.png"></p>
+<ul>
+<li><strong>URL Loading System</strong> 是一系列用来访问通过 <strong>URL 来定位的资源的类和协议</strong>。这项技术的核心在于基于 <code>NSURL</code> 这个类来访问资源，除了加载 URL 的类 <code>NSURLSession</code> 之外，我们把其他相关辅助类分为 5 类：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">协议支持（protocol support）</span><br><span class="line">认证和证书（authentication and credentials）</span><br><span class="line">Cookie 存储（Cookie storage）</span><br><span class="line">请求配置（configuration management）</span><br><span class="line">缓存管理（cache management）</span><br></pre></td></tr></table></figure>
+<ul>
+<li>更多可以参考：<a href="https://juejin.im/post/5a69f8366fb9a01cb42c90bc" target="_blank" rel="noopener">URL Loading System 概览</a></li>
+</ul>
+<h5 id="2、NSURLProtocol"><a href="#2、NSURLProtocol" class="headerlink" title="2、NSURLProtocol"></a>2、NSURLProtocol</h5><ul>
+<li><p>NSURLProtocol是<strong>URL Loading System</strong>的重要组成部分；NSURLProtocol能拦截所有基于URL Loading System的网络请求；NSURLProtocol是一个抽象类。使用NSURLProtocol时候，需要创建它的子类。</p>
+</li>
+<li><p>NSURLProtocol可以拦截的网络请求包括NSURLSession，NSURLConnection以及UIWebVIew。</p>
+</li>
+<li><p>基于CFNetwork的网络请求，以及WKWebView的请求是无法拦截的。</p>
+</li>
+<li><p>现在主流的iOS网络库，例如AFNetworking，Alamofire等网络库都是基于NSURLSession的，所以这些网络库的网络请求都可以被NSURLProtocol所拦截。</p>
+</li>
+<li><p>至于还有一些年代比较久远的网络库，例如ASIHTTPRequest，MKNetwokit等网路库都是基于CFNetwork的，所以这些网络库的网络请求无法被NSURLProtocol拦截。</p>
+</li>
+</ul>
+<h4 id="二、使用-NSURLProtocol"><a href="#二、使用-NSURLProtocol" class="headerlink" title="二、使用 NSURLProtocol"></a>二、使用 NSURLProtocol</h4><p>定义NSURLProtocol的子类，然后在子类（MYURLProtocol）中处理好<code>注册—&gt;拦截—&gt;转发—&gt;回调—&gt;结束</code></p>
+<h5 id="1、注册"><a href="#1、注册" class="headerlink" title="1、注册"></a>1、注册</h5><p>对于基于NSURLConnection或者使用[NSURLSession sharedSession]创建的网络请求，调用registerClass方法即可。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[NSURLProtocol registerClass:[NSClassFromString(@&quot;MYURLProtocol&quot;) class]];</span><br></pre></td></tr></table></figure>
+<p>对于基于NSURLSession的网络请求，需要通过配置NSURLSessionConfiguration对象的protocolClasses属性。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];</span><br><span class="line">sessionConfiguration.protocolClasses = @[[NSClassFromString(@&quot;MYURLProtocol&quot;) class]];</span><br></pre></td></tr></table></figure>
+<h5 id="2、拦截"><a href="#2、拦截" class="headerlink" title="2、拦截"></a>2、拦截</h5><ul>
+<li>NSURLProtocol可以在这个方法中拦截到网络请求，比如过滤掉（不处理）白名单的URL请求，比如只允许<code>http/https</code>请求。</li>
+<li>请求拦截<code>Code Demo</code></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">//利用MYHTTPIdentifier避免 canInitWithRequest 和 canonicalRequestForRequest 出现死循环</span><br><span class="line">static NSString * const MYHTTPIdentifier = @&quot;MYHTTPIdentifier&quot;;</span><br><span class="line"></span><br><span class="line">//每一个请求的时候都会调用这个方法，在这个方法里面判断这个请求是否需要被处理拦截，</span><br><span class="line">//如果返回YES就代表这个request需要被处理，反之就是不需要被处理。</span><br><span class="line">+ (BOOL)canInitWithRequest:(NSURLRequest *)request &#123;</span><br><span class="line">	if ([NSURLProtocol propertyForKey:MYHTTPIdentifier inRequest:request] ) &#123;</span><br><span class="line">        return NO;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    NSString *scheme = [[request.URL scheme] lowercaseString];</span><br><span class="line">    if ([whiteUrlList contains:request.URL.absoluteString];)&#123;</span><br><span class="line">        return NO;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    if ([scheme isEqual:@&quot;http&quot;] || [scheme isEqual:@&quot;https&quot;]) &#123;</span><br><span class="line">        return YES;</span><br><span class="line">    &#125;</span><br><span class="line">    return NO;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//返回规范的request的对象，我们可以对request进行处理。例如修改头部信息等。</span><br><span class="line">+ (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request &#123;</span><br><span class="line">    </span><br><span class="line">    NSMutableURLRequest *mutableReqeust = [request mutableCopy];</span><br><span class="line">    //修改头部信息</span><br><span class="line">    NSMutableDictionary *headers = [request.allHTTPHeaderFields mutableCopy];</span><br><span class="line">    [headers setObject:@&quot;ttf&quot; forKey:@&quot;i am ttf&quot;];</span><br><span class="line">    request.allHTTPHeaderFields = headers;</span><br><span class="line">    //</span><br><span class="line">    [NSURLProtocol setProperty:@YES</span><br><span class="line">                        forKey:MYHTTPIdentifier</span><br><span class="line">                     inRequest:mutableReqeust];</span><br><span class="line">    return [mutableReqeust copy];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="3、转发"><a href="#3、转发" class="headerlink" title="3、转发"></a>3、转发</h5><ul>
+<li>在拦截到网络请求，并且对网络请求进行定制处理以后。我们需要将网络请求重新发送出去，核心方法startLoading。</li>
+<li>在该方法中，我们把处理过的request重新发送出去。至于发送的形式，可以是基于NSURLSession。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- (void)startLoading &#123;</span><br><span class="line">    //</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="4、回调"><a href="#4、回调" class="headerlink" title="4、回调"></a>4、回调</h5><ul>
+<li>在拦截了请求后，不能影响到原来网络请求的逻辑。所以将网络请求转发出去以后，当收到网络请求的返回后，要再将返回值返回给原来发送网络请求的地方。需要用到以下五个方法</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[self.client URLProtocol:self didFailWithError:error];</span><br><span class="line"></span><br><span class="line">[self.client URLProtocolDidFinishLoading:self];</span><br><span class="line"></span><br><span class="line">[self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageAllowed];</span><br><span class="line"></span><br><span class="line">[self.client URLProtocol:self didLoadData:data];</span><br><span class="line"></span><br><span class="line">[[self client] URLProtocol:self wasRedirectedToRequest:request redirectResponse:response];</span><br></pre></td></tr></table></figure>
+<ul>
+<li>假设我们在转发过程中是使用NSURLSession发送的网络请求，那么在NSURLSession的回调方法中，我们做相应的处理即可。并且我们也可以对这些返回，进行定制化处理。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error &#123;</span><br><span class="line">    if (error) &#123;</span><br><span class="line">        [self.client URLProtocol:self didFailWithError:error];</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        [self.client URLProtocolDidFinishLoading:self];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler &#123;</span><br><span class="line">    </span><br><span class="line">    [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageAllowed];</span><br><span class="line"></span><br><span class="line">    completionHandler(NSURLSessionResponseAllow);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data &#123;</span><br><span class="line">    [self.client URLProtocol:self didLoadData:data];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task willPerformHTTPRedirection:(NSHTTPURLResponse *)response newRequest:(NSURLRequest *)request completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler &#123;</span><br><span class="line">    if (response != nil)&#123;</span><br><span class="line">        [[self client] URLProtocol:self wasRedirectedToRequest:request redirectResponse:response];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="5、结束"><a href="#5、结束" class="headerlink" title="5、结束"></a>5、结束</h5><ul>
+<li>在一个网络请求完全结束以后，NSURLProtocol回调用到stopLoading方法，在此方法中，完成在结束网络请求的操作。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- (void)stopLoading &#123;</span><br><span class="line">    //</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="三、NSURLProtocol的应用"><a href="#三、NSURLProtocol的应用" class="headerlink" title="三、NSURLProtocol的应用"></a>三、NSURLProtocol的应用</h4><h5 id="1、Mock网络请求"><a href="#1、Mock网络请求" class="headerlink" title="1、Mock网络请求"></a>1、Mock网络请求</h5><ul>
+<li>可以参考<a href="https://link.jianshu.com/?t=https://github.com/AliSoftware/OHHTTPStubs" target="_blank" rel="noopener">OHHTTPStubs</a></li>
+</ul>
+<h5 id="2、网络监控和相关数据统计"><a href="#2、网络监控和相关数据统计" class="headerlink" title="2、网络监控和相关数据统计"></a>2、网络监控和相关数据统计</h5><ul>
+<li>APM工具，如Bugly</li>
+</ul>
+<h5 id="3、其他"><a href="#3、其他" class="headerlink" title="3、其他"></a>3、其他</h5><ul>
+<li>URL重定向</li>
+<li>实现HTTPDNS</li>
+</ul>
+<h4 id="四、NSURLProtocol的坑"><a href="#四、NSURLProtocol的坑" class="headerlink" title="四、NSURLProtocol的坑"></a>四、NSURLProtocol的坑</h4><h5 id="1、死循环"><a href="#1、死循环" class="headerlink" title="1、死循环"></a>1、死循环</h5><p><strong>原因</strong>：偶尔会出现<strong>canInitWithRequest方法多次调用的</strong>情况，不注意处理会发生死循环的问题，需要在canInitWithRequest方法中会判断是否拦截过请求。</p>
+<p><strong>解决办法</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">+ (BOOL)canInitWithRequest:(NSURLRequest *)request &#123;</span><br><span class="line">    if ([NSURLProtocol propertyForKey:protocolKey inRequest:request]) &#123;  //句1</span><br><span class="line">    	return NO;</span><br><span class="line">	&#125;</span><br><span class="line">    //....</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">+ (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request &#123;</span><br><span class="line">    </span><br><span class="line">    //...</span><br><span class="line">    [NSURLProtocol setProperty:@(YES) forKey:protocolKey inRequest:request]; //句2</span><br><span class="line">    //...</span><br><span class="line">    return [request copy];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//句1和句2是为了防止死循环的，主要用于对request进行标记，如果被标记了，就不再次进行处理了，如果没有标记过就要进行处理。</span><br></pre></td></tr></table></figure>
+<h5 id="2、多NSURLProtocol嵌套使用"><a href="#2、多NSURLProtocol嵌套使用" class="headerlink" title="2、多NSURLProtocol嵌套使用"></a>2、多NSURLProtocol嵌套使用</h5><ul>
+<li><p>若一个项目中存在多个NSURLProtocol，那么NSURLProtocol的拦截顺序跟注册的方式和顺序有关，对于使用registerClass方法注册的情况：<strong>多个NSURLProtocol拦截顺序为注册顺序的反序，即后注册的的NSURLProtocol先拦截。</strong></p>
+</li>
+<li><p>对于通过配置<strong>NSURLSessionConfiguration</strong>对象的protocolClasses属性来注册的情况：<strong>protocolClasses这个数组里只有第一个NSURLProtocol会起作用</strong>，所以为了保证自定义的protocolClass有效，采用的办法是：<strong>把自己的NSURLProtocol插入到protocolClasses的第一个，进行拦截。拦截完成之后，又进行移除</strong>。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">+ (void)setEnabled:(BOOL)enable forSessionConfiguration:(NSURLSessionConfiguration*)sessionConfig &#123;</span><br><span class="line">    // Runtime check to make sure the API is available on this version</span><br><span class="line">    if ([sessionConfig respondsToSelector:@selector(protocolClasses)]</span><br><span class="line">        &amp;&amp; [sessionConfig respondsToSelector:@selector(setProtocolClasses:)])&#123;</span><br><span class="line">        //</span><br><span class="line">        NSMutableArray *urlProtocolClasses = [NSMutableArray arrayWithArray:sessionConfig.protocolClasses];</span><br><span class="line">        </span><br><span class="line">        Class protoCls = OHHTTPStubsProtocol.class;</span><br><span class="line">        if (enable &amp;&amp; ![urlProtocolClasses containsObject:protoCls])&#123;</span><br><span class="line">            [urlProtocolClasses insertObject:protoCls atIndex:0];</span><br><span class="line">        &#125;else if (!enable &amp;&amp; [urlProtocolClasses containsObject:protoCls])&#123;</span><br><span class="line">            [urlProtocolClasses removeObject:protoCls];</span><br><span class="line">        &#125;</span><br><span class="line">        sessionConfig.protocolClasses = urlProtocolClasses;</span><br><span class="line">    &#125;else&#123;</span><br><span class="line">		NSLog(&quot;&quot;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="3、NSURLProtocol不能拦截WKWebView中请求"><a href="#3、NSURLProtocol不能拦截WKWebView中请求" class="headerlink" title="3、NSURLProtocol不能拦截WKWebView中请求"></a>3、NSURLProtocol不能拦截WKWebView中请求</h5><ul>
+<li>WKWebView中的请求走得是WebKit内核，不走在App进程中，一般情况下，在App中不能通过NSURLProtocol拦截请求；</li>
+<li>实践中，通过WebKit2的私有方法，让WKWebView的请求被NSURLProtocol拦截，但是有post请求body数据被清空的坑。</li>
+</ul>
+<h5 id="4、NSURLSession的坑"><a href="#4、NSURLSession的坑" class="headerlink" title="4、NSURLSession的坑"></a>4、NSURLSession的坑</h5><p>在NSURLProtocol中使用NSURLSession有很多莫名其妙的问题，基本上都是系统的bug，比较明显的就是：</p>
+<ul>
+<li>拦截到的Request中的HTTPBody为nil；</li>
+<li>startLoading在某些特殊情况会出现死锁；</li>
+<li>关于注册registerClass方法只适用于sharedSession创建的网络请求；</li>
+</ul>
+<h4 id="五、参考"><a href="#五、参考" class="headerlink" title="五、参考"></a>五、参考</h4><p><a href="https://www.jianshu.com/p/02781c0bbca9" target="_blank" rel="noopener">NSURLProtocol全攻略</a></p>
+<p><a href="https://www.jianshu.com/p/af94f2e8d4b0" target="_blank" rel="noopener">黑魔法NSURLProtocol</a></p>
+<p><a href="https://github.com/draveness/analyze/blob/master/contents/OHHTTPStubs/iOS%20%E5%BC%80%E5%8F%91%E4%B8%AD%E4%BD%BF%E7%94%A8%20NSURLProtocol%20%E6%8B%A6%E6%88%AA%20HTTP%20%E8%AF%B7%E6%B1%82.md" target="_blank" rel="noopener">iOS 开发中使用 NSURLProtocol 拦截 HTTP 请求</a></p>
+<p>#### </p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS/" rel="tag"># iOS</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/24/iOS-iOSLock/" rel="next" title="多线程中的锁小记">
+                <i class="fa fa-chevron-left"></i> 多线程中的锁小记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/11/17/ML01/" rel="prev" title="机器学习杂谈">
+                机器学习杂谈 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.jpeg"
+                alt="南华coder" />
+            
+              <p class="site-author-name" itemprop="name">南华coder</p>
+              <p class="site-description motion-element" itemprop="description">天之道，损有余而补不足</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、概述"><span class="nav-number">1.</span> <span class="nav-text">一、概述</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、URL-Loading-System"><span class="nav-number">1.1.</span> <span class="nav-text">1、URL Loading System</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、NSURLProtocol"><span class="nav-number">1.2.</span> <span class="nav-text">2、NSURLProtocol</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、使用-NSURLProtocol"><span class="nav-number">2.</span> <span class="nav-text">二、使用 NSURLProtocol</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、注册"><span class="nav-number">2.1.</span> <span class="nav-text">1、注册</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、拦截"><span class="nav-number">2.2.</span> <span class="nav-text">2、拦截</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、转发"><span class="nav-number">2.3.</span> <span class="nav-text">3、转发</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、回调"><span class="nav-number">2.4.</span> <span class="nav-text">4、回调</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5、结束"><span class="nav-number">2.5.</span> <span class="nav-text">5、结束</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、NSURLProtocol的应用"><span class="nav-number">3.</span> <span class="nav-text">三、NSURLProtocol的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、Mock网络请求"><span class="nav-number">3.1.</span> <span class="nav-text">1、Mock网络请求</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、网络监控和相关数据统计"><span class="nav-number">3.2.</span> <span class="nav-text">2、网络监控和相关数据统计</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、其他"><span class="nav-number">3.3.</span> <span class="nav-text">3、其他</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四、NSURLProtocol的坑"><span class="nav-number">4.</span> <span class="nav-text">四、NSURLProtocol的坑</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、死循环"><span class="nav-number">4.1.</span> <span class="nav-text">1、死循环</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、多NSURLProtocol嵌套使用"><span class="nav-number">4.2.</span> <span class="nav-text">2、多NSURLProtocol嵌套使用</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、NSURLProtocol不能拦截WKWebView中请求"><span class="nav-number">4.3.</span> <span class="nav-text">3、NSURLProtocol不能拦截WKWebView中请求</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、NSURLSession的坑"><span class="nav-number">4.4.</span> <span class="nav-text">4、NSURLSession的坑</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#五、参考"><span class="nav-number">5.</span> <span class="nav-text">五、参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">南华coder</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">65.1k</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

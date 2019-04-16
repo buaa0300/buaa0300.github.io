@@ -254,6 +254,343 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/11/21/Recommend01/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/21/Recommend01/" itemprop="url">推荐迷雾(一):再见推荐系统</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-21T22:55:30+08:00">
+                2018-11-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/推荐/" itemprop="url" rel="index">
+                    <span itemprop="name">推荐</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,332 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  12 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><p><em>花非花，雾非雾。夜半来，天明去。来如春梦不多时，去似朝云无觅处。</em></p>
+<p>​    用白居易的诗作为《推荐迷雾》系列的开始，本人非推荐算法工程师，但是工作中也和算法打过些交道，也曾于13年粗读过项亮博士的《推荐系统实战》，这本12年出版的“旧”书如今再读起来，更多一番体会；虽然近些年，机器学习尤其是深度学习给传统推荐学习带来新的变化，但是这些新兴的推荐技术依旧有传统的推荐算法模型的影子。</p>
+<p><img src="/nanhuacoder.com/2018/11/21/Recommend01/jianghu.jpeg" alt="江湖"></p>
+<h3 id="一、开篇"><a href="#一、开篇" class="headerlink" title="一、开篇"></a>一、开篇</h3><ul>
+<li>推荐产生的背景：信息过载，用户需求不确定</li>
+<li>推荐三步骤：召回，预估和排序</li>
+</ul>
+<h3 id="二、推荐系统的评估指标和方法"><a href="#二、推荐系统的评估指标和方法" class="headerlink" title="二、推荐系统的评估指标和方法"></a>二、推荐系统的评估指标和方法</h3><h4 id="1、评估指标"><a href="#1、评估指标" class="headerlink" title="1、评估指标"></a>1、评估指标</h4><h5 id="1-1、评分预测的评估"><a href="#1-1、评分预测的评估" class="headerlink" title="1-1、评分预测的评估"></a>1-1、评分预测的评估</h5><ul>
+<li><p>RMSE (均方根误差，加大预测不准物品评分的惩罚)</p>
+</li>
+<li><p>MAE（平均绝对误差）</p>
+</li>
+</ul>
+<h5 id="1-2、TopN推荐的评估"><a href="#1-2、TopN推荐的评估" class="headerlink" title="1-2、TopN推荐的评估"></a>1-2、TopN推荐的评估</h5><ul>
+<li>在这里用到了<strong>准确率</strong>、<strong>召回率</strong>和<strong>F-1 Score</strong>三个度量值</li>
+<li><strong>召回率</strong>（Recall）：用户消费的内容，是由推荐提供的占比</li>
+<li><strong>准确率</strong>（Precision）：推荐的内容中，用户消费的占比</li>
+<li><strong>F-1 Score</strong> </li>
+</ul>
+<p>$$<br>F_1 Score = \frac{2 x recall * precision}{recall + precision}<br>$$</p>
+<p><strong>召回率</strong>表示在原始样本的正样本中，最后被正确预测为正样本的概率；</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#计算召回率和准确率</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">PrecisionRecall</span><span class="params">(test,N)</span>:</span></span><br><span class="line">	hit = <span class="number">0</span></span><br><span class="line">	n_recall = <span class="number">0</span></span><br><span class="line">	n_precision = <span class="number">0</span></span><br><span class="line">	<span class="keyword">for</span> user,item <span class="keyword">in</span> test.items():</span><br><span class="line">		rank = Recommend(user,N)</span><br><span class="line">		hit += len(rank &amp; items)</span><br><span class="line">		n_recall += len(items)</span><br><span class="line">		n_precision += N</span><br><span class="line">	<span class="keyword">return</span> [hit/(<span class="number">1.0</span> * n_recall),hit/(<span class="number">1.0</span>*n_precision)]</span><br></pre></td></tr></table></figure>
+<ul>
+<li>为了全面评估TopN推荐的准确率和召回率，一般选取不同推荐列表长度N，计算一组准确率/召回率，然后画出准确率/召回率曲线。</li>
+<li>在工程实践中，TopN推荐更合适，因为对于推荐的内容来说，预测用户会不会看，比预测用户看了内容后给多少分更重要。</li>
+</ul>
+<h5 id="1-3、覆盖率"><a href="#1-3、覆盖率" class="headerlink" title="1-3、覆盖率"></a>1-3、覆盖率</h5><p>推荐系统对物品长尾的发掘能力，简单的定义是推荐物品占总物品集合的比例。当然还有更好的指标来定义覆盖率。</p>
+<ul>
+<li>信息熵：</li>
+<li>基尼系数：</li>
+</ul>
+<h5 id="1-3、其他指标"><a href="#1-3、其他指标" class="headerlink" title="1-3、其他指标"></a>1-3、其他指标</h5><ul>
+<li>多样性、新颖性、惊喜度、信任度、实时性、健壮性，商业目标等等，具体参考《推荐系统实战》中的内容</li>
+</ul>
+<h4 id="2、评估方法"><a href="#2、评估方法" class="headerlink" title="2、评估方法"></a>2、评估方法</h4><ul>
+<li><p>离线评估：速度快，不需要用户参与；在用户的历史数据上做评估，和线上真实效果有偏差；只能评估少数指标。</p>
+</li>
+<li><p>用户调查：主要的形式是问卷调查，成本高</p>
+</li>
+<li><p>在线实验：目前最普遍的做法是ABtest，目前主采用多层重叠实验设计，这些在后面的文章重点介绍</p>
+</li>
+</ul>
+<h3 id="三、推荐系统架构"><a href="#三、推荐系统架构" class="headerlink" title="三、推荐系统架构"></a>三、推荐系统架构</h3><ul>
+<li>推荐系统是产品的核心，而推荐算法仅仅是推荐系统中的一部分；以NetFlix的推荐系统架构为例，介绍经典的推荐系统架构。</li>
+<li>在NetFlix推荐系统架构中，分为三层：Offline层（离线层）、Nearline层（近线层）和  Online层（在线层）</li>
+</ul>
+<h4 id="1、Offline层（离线层）"><a href="#1、Offline层（离线层）" class="headerlink" title="1、Offline层（离线层）"></a>1、Offline层（离线层）</h4><ul>
+<li>这一层批量、周期性地<strong>抽取数据</strong>，<strong>训练模型</strong>；训练得到的模型可以用于为用户计算推荐结果。协同过滤、矩阵分解一般在这层做，Hadoop、Spark分布式计算也在这一层。</li>
+<li>Offline阶段的推荐结果或模型在Nearline层被更新，产生最终的推荐结果，呈现给用户。</li>
+</ul>
+<h4 id="2、Nearline层（近线层）"><a href="#2、Nearline层（近线层）" class="headerlink" title="2、Nearline层（近线层）"></a>2、Nearline层（近线层）</h4><ul>
+<li>Nearline要处理处理实时数据流(流计算），执行计算任务：从事件队列中获取最新的一个或少许几个用户反馈行为，将这些用户已经反馈过的物品从离线推荐结果中剔除，然后用这几个反馈行为作为样本，以小批量梯度下降的优化方法去更新融合模型的参数。</li>
+</ul>
+<h4 id="3、Online层（在线层）"><a href="#3、Online层（在线层）" class="headerlink" title="3、Online层（在线层）"></a>3、Online层（在线层）</h4><ul>
+<li>用户使用App/浏览Web，消费展示内容，产生行为事件数据，如页面曝光，按钮点击等，实时被收集走，一边进入分布式文件系统中做存储，给Offline使用，一边流向Nearline的<strong>消息队列</strong>，供Nearline的<strong>流计算</strong>使用。</li>
+<li>用户发出请求，等待推荐结果；Online层必须实施响应用户请求，要快，要有兜底，Online层处理的一般是已经预处理后的推荐结果。</li>
+</ul>
+<h3 id="四、推荐系统中的冷启动和EE问题"><a href="#四、推荐系统中的冷启动和EE问题" class="headerlink" title="四、推荐系统中的冷启动和EE问题"></a>四、推荐系统中的冷启动和EE问题</h3><ul>
+<li>在推荐系统中有两个经典问题：<strong>冷启动</strong>和<strong>EE</strong>(探索和利用问题)。</li>
+<li>Bandit算法提供了一种有效的解决办法；其中<strong>冷启动</strong>的本质是：推荐系统没有历史数据，无法预测用户偏好；可分为用户冷启动，物品冷启动和系统冷启动。<strong>EE问题</strong>是指，是选择现在不确定的一些方案，但未来可能会有高收益的方案；还是选择现在可能最佳的方案；本质是一个选择的问题。</li>
+<li>Bandit 算法来源于历史悠久的赌博学，它要解决这样的问题：一个赌徒去摇老虎机，赌场中有的老虎机一模一样，但是每个老虎机吐钱的概率不一样，他不知道每个老虎机吐钱的概率分布是什么，那么每次该选择哪个老虎机可以做到最大化收益呢？这就是<strong>多臂赌博机问题</strong>（Multi-armed bandit problem, K-armed bandit problem, MAB）</li>
+</ul>
+<p><img src="/nanhuacoder.com/2018/11/21/Recommend01/mab.png" alt="MAB问题"></p>
+<ul>
+<li><p>假设我们已经经过一些试验，得到了当前每个老虎机的吐钱的概率，如果想要获得最大的收益，我们会一直摇哪个吐钱概率最高的老虎机，这就是Exploitation。但是，当前获得的信息并不是老虎机吐钱的真实概率，可能还有更好的老虎机吐钱概率更高，因此还需要进一步探索，这就是Exploration问题。</p>
+</li>
+<li><p>Bandit解决MAB或者EE问题的策略是：有策略地走一步看一步，这些策略就是Bandit算法，经典的Bandit算法分别是：<strong>朴素Bandit、汤普森采样、UCB和Epsilon贪婪算法</strong>。</p>
+</li>
+</ul>
+<h4 id="1、朴素Bandit"><a href="#1、朴素Bandit" class="headerlink" title="1、朴素Bandit"></a>1、朴素Bandit</h4><p><strong>原理</strong>：先随机试若干次，计算每个臂的平均收益，一直选均值最大那个臂。</p>
+<h4 id="2、汤普森采样-Thompson-sampling-算法"><a href="#2、汤普森采样-Thompson-sampling-算法" class="headerlink" title="2、汤普森采样(Thompson sampling)算法"></a>2、汤普森采样(Thompson sampling)算法</h4><p><strong>原理</strong>：</p>
+<ul>
+<li>每个臂维护一个beta(a，b)分布，每次用现有的beta分布产生一个随机数，输出随机数最大的臂（较快，随机性高）</li>
+</ul>
+<p><strong>beta(a，b)分布特点</strong>：</p>
+<ul>
+<li>a+b值越大，分布曲线就越窄，分布就越集中；</li>
+<li>a/(a+b)值越大，分布中心越靠近1，反之越靠近0；</li>
+</ul>
+<p><strong>采样过程</strong>：</p>
+<ul>
+<li><p>假设a是用户的点击次数，b是没有得到用户的点击次数</p>
+</li>
+<li><p>每次取出所有候选的参数a和b，用贝塔分布产生一个随机数</p>
+</li>
+<li><p>随机数排序，输出最大值对应的候选</p>
+</li>
+<li><p>如果用户点击，对应的候选a加1，反之b加1</p>
+</li>
+</ul>
+<p><strong>分析</strong>：</p>
+<ul>
+<li>如果一个候选被选中的次数很多（a+b很大），分布变窄，对应的分布产生的随机数基本在中心位置，接近平均收益。</li>
+<li>如果a+b很大，a/(a+b)也很大，那么分布产生的随机数越接近1，平均收益很好，进入利用阶段；</li>
+<li>如果a+b很小，说明候选的好坏不能确定，分布很宽，可能得到一个较大的随机数，排序时候可能被优先输出，起到了探索的目的。</li>
+</ul>
+<h4 id="3、UCB算法"><a href="#3、UCB算法" class="headerlink" title="3、UCB算法"></a>3、UCB算法</h4><p><strong>原理</strong>：</p>
+<ul>
+<li>以每个候选的平均收益作为基准线进行选择</li>
+<li>对于每次被选择不足的给与照顾</li>
+<li>选择倾向于那些确定收益较好的候选</li>
+</ul>
+<p><strong>简言之</strong>，均值越大，标准差越小，被选中的概率会越来越大 (相对慢一点，确定性高)</p>
+<h4 id="4、Epsilon贪婪-Epsilon-Greedy-算法"><a href="#4、Epsilon贪婪-Epsilon-Greedy-算法" class="headerlink" title="4、Epsilon贪婪(Epsilon-Greedy)算法"></a>4、Epsilon贪婪(Epsilon-Greedy)算法</h4><p><strong>原理：</strong></p>
+<ul>
+<li>先选一个(0,1)之间较小的值，作为Epsilon，然后每次以1-epsilon的概率选取当前收益最大的臂，以epsilon的随机概率选取一个臂。（后期不需要较大探索，epsilon需要衰减）</li>
+<li>Epsilon可以控制探索和利用的程度，Epsilon越接近0，在探索上就越保守；Epsilon越接近1，在探索上就越激进。</li>
+</ul>
+<p><img src="/nanhuacoder.com/2018/11/21/Recommend01/bandit-performance.png" alt="Bandit算法算法模拟试验效果"></p>
+<p><strong>总结</strong>：UCB算法和汤普森采样算法效果更好些。</p>
+<h3 id="五、Bandit算法的工程实现"><a href="#五、Bandit算法的工程实现" class="headerlink" title="五、Bandit算法的工程实现"></a>五、Bandit算法的工程实现</h3><p>​    上面介绍的<strong>朴素Bandit、汤普森采样、UCB和Epsilon贪婪算法</strong>都是经典的Bandit算法，在工程中很少使用；实际中，我们采用的是上下文Bandit算法，比较常见的是LinUCB算法和COFIBA算法</p>
+<h4 id="1、LinUCB"><a href="#1、LinUCB" class="headerlink" title="1、LinUCB"></a>1、LinUCB</h4><p><strong>概述</strong>：</p>
+<ul>
+<li><p>传统的 Bandit 算法并没有考虑臂的特征信息，也就是说并没有考虑上下文信息，而yahoo在2010年提出的，一种结合上下文的 Bandit算法——LinUCB (linear UCB)算法。</p>
+</li>
+<li><p>LinUCB 算法可以将当前用户的特征、物品特征构成所有的相关特征，然后根据每个臂维护的特征系数,计算出预估收益。由于加入了特征，所以收敛速度比 UCB 更快。</p>
+</li>
+<li>LinUCB的不足：同时处理的候选臂数量不能太多，不超过几百个最佳。因为每一次要计算每一个候选臂的期望收益和置信区间，一旦候选太多，计算代价将不可接受。其实这也是所有的 Bandit 算法的缺点。</li>
+</ul>
+<p><strong>原理：</strong></p>
+<ul>
+<li><p>LinUCB 假设一个物品推送给用户之后，获得的收益与相关特征呈<strong>线性关系</strong>，这里的相关特征就是指上下文信息。LinUCB 有两个版本：<strong>Disjoint</strong> 和 <strong>Hybrid</strong>，Disjoint 表示不同臂之间的不相关，也就是说参数不共享，Hybrid 表示臂之间共享一些参数。</p>
+</li>
+<li><p>Disjoint 模型：假设每个臂包含一个物品，我们在每一次选择时，用户与物品的的特征构成了上下文信息，表示为 x，维度为 d，每个臂维护了一个 d 维的表示特征系数的向量 θ，使用 c 表示本次选择的收益，如果用户点击了就为 1，否则为 0。我们假定：</p>
+</li>
+</ul>
+<p>  根据p’ + ∆来选择合适的臂。p’的计算基于有监督的学习方法。我们为每个老虎机维护一个特征向量D，同时上下文特征我们写作θ，然后通过收集的反馈进行有监督学习：</p>
+<ul>
+<li><p>加入特征信息，用User和Item的特征预估回报及其置信区间，选择置信区间上界最大的Item推荐，观察回报后更新线性关系的参数，以此达到试验学习的目的。</p>
+</li>
+<li><p>岭回归的求解，岭回归适合样本数少于特征的数据集。</p>
+</li>
+<li><p>参考：<a href="http://www.naodongopen.com/908.html" target="_blank" rel="noopener">结合上下文信息的Bandit算法—LinUCB算法</a></p>
+</li>
+</ul>
+<h4 id="2、COFIBA"><a href="#2、COFIBA" class="headerlink" title="2、COFIBA"></a>2、COFIBA</h4><ul>
+<li>2016年提出，COFIBA算法的不同有两个：<ol>
+<li>基于用户聚类挑选最佳的Item（相似用户集体决策的Bandit）。</li>
+<li>基于用户的反馈情况调整User和Item的聚类（协同过滤部分）。</li>
+</ol>
+</li>
+<li>在时刻t，用户来访问推荐系统，推荐系统需要从已有的候选池子中挑一个最佳的物品推荐给他，然后观察他的反馈，用观察到的反馈来更新挑选策略。 这里的每个物品都有一个特征向量，所以这里的Bandit算法是context相关的。 这里依然是用岭回归去拟合用户的权重向量，用于预测用户对每个物品的可能反馈（payoff），这一点和linUCB算法是一样的</li>
+</ul>
+<ul>
+<li><p>bandit结合协同过滤。</p>
+<p><a href="https://blog.csdn.net/heyc861221/article/details/80129310" target="_blank" rel="noopener">https://blog.csdn.net/heyc861221/article/details/80129310</a></p>
+</li>
+</ul>
+<h4 id="3、其他"><a href="#3、其他" class="headerlink" title="3、其他"></a>3、其他</h4><ul>
+<li>Exploit-Explore这一对矛盾一直客观存在，Bandit算法是公认的一种比较好的解决EE问题的方案。但解决Explore，势必就是要冒险，势必要走向未知，而这显然就是会伤害用户体验的：明知道用户肯定喜欢A，你还偏偏以某个小概率给推荐非A。</li>
+<li>实际上，很少有公司会采用这些理性的办法做Explore，反而更愿意用一些盲目主观的方式。究其原因，可能是因为：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1、互联网产品生命周期短，而Explore又是为了提升长期利益的，所以没有动力做；</span><br><span class="line">2、用户使用互联网产品时间越来越碎片化，Explore的时间长，难以体现出Explore 的价值；</span><br><span class="line">3、同质化互联网产品多，用户选择多，稍有不慎，用户用脚投票，分分钟弃你于不顾；</span><br><span class="line">4、已经成规模的平台，红利杠杠的，其实是没有动力做Explore的。</span><br></pre></td></tr></table></figure>
+<ul>
+<li>所以做Explore要精心设计，必须保证质量。</li>
+</ul>
+<h3 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h3><ul>
+<li><p>bandit添加对应的源码实现</p>
+</li>
+<li><p>ABTest的分层实验设计</p>
+</li>
+<li>召回中的协同过滤和隐语义模型, 矩阵分解</li>
+<li>CTR预估的进化，特征工程 + LR -&gt; GBDT + LR -&gt; FM -&gt;FFM -&gt; DeepFM/Wide&amp;Deep/…</li>
+<li>排序怎么做</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/11/20/ML02-DTree/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -671,6 +1008,259 @@
 <li>在很多实际情况下，朴素贝叶斯工作得很好，特别是<strong>文档分类</strong>和<strong>垃圾邮件过滤</strong>。这些工作都要求 一个小的训练集来估计必需参数。</li>
 </ul>
 <p><a href="http://sklearn.apachecn.org/cn/0.19.0/modules/naive_bayes.html" target="_blank" rel="noopener">http://sklearn.apachecn.org/cn/0.19.0/modules/naive_bayes.html</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/04/15/iOS-NSURLProtocol/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/04/15/iOS-NSURLProtocol/" itemprop="url">NSURLProtocol基础</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-15T15:40:11+08:00">
+                2018-04-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS基础/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,688 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  7 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4><h5 id="1、URL-Loading-System"><a href="#1、URL-Loading-System" class="headerlink" title="1、URL Loading System"></a>1、URL Loading System</h5><p><img src="https://upload-images.jianshu.io/upload_images/201701-7317567c713d851f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/620" alt="URL-loading-system.png"></p>
+<ul>
+<li><strong>URL Loading System</strong> 是一系列用来访问通过 <strong>URL 来定位的资源的类和协议</strong>。这项技术的核心在于基于 <code>NSURL</code> 这个类来访问资源，除了加载 URL 的类 <code>NSURLSession</code> 之外，我们把其他相关辅助类分为 5 类：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">协议支持（protocol support）</span><br><span class="line">认证和证书（authentication and credentials）</span><br><span class="line">Cookie 存储（Cookie storage）</span><br><span class="line">请求配置（configuration management）</span><br><span class="line">缓存管理（cache management）</span><br></pre></td></tr></table></figure>
+<ul>
+<li>更多可以参考：<a href="https://juejin.im/post/5a69f8366fb9a01cb42c90bc" target="_blank" rel="noopener">URL Loading System 概览</a></li>
+</ul>
+<h5 id="2、NSURLProtocol"><a href="#2、NSURLProtocol" class="headerlink" title="2、NSURLProtocol"></a>2、NSURLProtocol</h5><ul>
+<li><p>NSURLProtocol是<strong>URL Loading System</strong>的重要组成部分；NSURLProtocol能拦截所有基于URL Loading System的网络请求；NSURLProtocol是一个抽象类。使用NSURLProtocol时候，需要创建它的子类。</p>
+</li>
+<li><p>NSURLProtocol可以拦截的网络请求包括NSURLSession，NSURLConnection以及UIWebVIew。</p>
+</li>
+<li><p>基于CFNetwork的网络请求，以及WKWebView的请求是无法拦截的。</p>
+</li>
+<li><p>现在主流的iOS网络库，例如AFNetworking，Alamofire等网络库都是基于NSURLSession的，所以这些网络库的网络请求都可以被NSURLProtocol所拦截。</p>
+</li>
+<li><p>至于还有一些年代比较久远的网络库，例如ASIHTTPRequest，MKNetwokit等网路库都是基于CFNetwork的，所以这些网络库的网络请求无法被NSURLProtocol拦截。</p>
+</li>
+</ul>
+<h4 id="二、使用-NSURLProtocol"><a href="#二、使用-NSURLProtocol" class="headerlink" title="二、使用 NSURLProtocol"></a>二、使用 NSURLProtocol</h4><p>定义NSURLProtocol的子类，然后在子类（MYURLProtocol）中处理好<code>注册—&gt;拦截—&gt;转发—&gt;回调—&gt;结束</code></p>
+<h5 id="1、注册"><a href="#1、注册" class="headerlink" title="1、注册"></a>1、注册</h5><p>对于基于NSURLConnection或者使用[NSURLSession sharedSession]创建的网络请求，调用registerClass方法即可。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[NSURLProtocol registerClass:[NSClassFromString(@&quot;MYURLProtocol&quot;) class]];</span><br></pre></td></tr></table></figure>
+<p>对于基于NSURLSession的网络请求，需要通过配置NSURLSessionConfiguration对象的protocolClasses属性。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];</span><br><span class="line">sessionConfiguration.protocolClasses = @[[NSClassFromString(@&quot;MYURLProtocol&quot;) class]];</span><br></pre></td></tr></table></figure>
+<h5 id="2、拦截"><a href="#2、拦截" class="headerlink" title="2、拦截"></a>2、拦截</h5><ul>
+<li>NSURLProtocol可以在这个方法中拦截到网络请求，比如过滤掉（不处理）白名单的URL请求，比如只允许<code>http/https</code>请求。</li>
+<li>请求拦截<code>Code Demo</code></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">//利用MYHTTPIdentifier避免 canInitWithRequest 和 canonicalRequestForRequest 出现死循环</span><br><span class="line">static NSString * const MYHTTPIdentifier = @&quot;MYHTTPIdentifier&quot;;</span><br><span class="line"></span><br><span class="line">//每一个请求的时候都会调用这个方法，在这个方法里面判断这个请求是否需要被处理拦截，</span><br><span class="line">//如果返回YES就代表这个request需要被处理，反之就是不需要被处理。</span><br><span class="line">+ (BOOL)canInitWithRequest:(NSURLRequest *)request &#123;</span><br><span class="line">	if ([NSURLProtocol propertyForKey:MYHTTPIdentifier inRequest:request] ) &#123;</span><br><span class="line">        return NO;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    NSString *scheme = [[request.URL scheme] lowercaseString];</span><br><span class="line">    if ([whiteUrlList contains:request.URL.absoluteString];)&#123;</span><br><span class="line">        return NO;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    if ([scheme isEqual:@&quot;http&quot;] || [scheme isEqual:@&quot;https&quot;]) &#123;</span><br><span class="line">        return YES;</span><br><span class="line">    &#125;</span><br><span class="line">    return NO;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//返回规范的request的对象，我们可以对request进行处理。例如修改头部信息等。</span><br><span class="line">+ (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request &#123;</span><br><span class="line">    </span><br><span class="line">    NSMutableURLRequest *mutableReqeust = [request mutableCopy];</span><br><span class="line">    //修改头部信息</span><br><span class="line">    NSMutableDictionary *headers = [request.allHTTPHeaderFields mutableCopy];</span><br><span class="line">    [headers setObject:@&quot;ttf&quot; forKey:@&quot;i am ttf&quot;];</span><br><span class="line">    request.allHTTPHeaderFields = headers;</span><br><span class="line">    //</span><br><span class="line">    [NSURLProtocol setProperty:@YES</span><br><span class="line">                        forKey:MYHTTPIdentifier</span><br><span class="line">                     inRequest:mutableReqeust];</span><br><span class="line">    return [mutableReqeust copy];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="3、转发"><a href="#3、转发" class="headerlink" title="3、转发"></a>3、转发</h5><ul>
+<li>在拦截到网络请求，并且对网络请求进行定制处理以后。我们需要将网络请求重新发送出去，核心方法startLoading。</li>
+<li>在该方法中，我们把处理过的request重新发送出去。至于发送的形式，可以是基于NSURLSession。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- (void)startLoading &#123;</span><br><span class="line">    //</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="4、回调"><a href="#4、回调" class="headerlink" title="4、回调"></a>4、回调</h5><ul>
+<li>在拦截了请求后，不能影响到原来网络请求的逻辑。所以将网络请求转发出去以后，当收到网络请求的返回后，要再将返回值返回给原来发送网络请求的地方。需要用到以下五个方法</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[self.client URLProtocol:self didFailWithError:error];</span><br><span class="line"></span><br><span class="line">[self.client URLProtocolDidFinishLoading:self];</span><br><span class="line"></span><br><span class="line">[self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageAllowed];</span><br><span class="line"></span><br><span class="line">[self.client URLProtocol:self didLoadData:data];</span><br><span class="line"></span><br><span class="line">[[self client] URLProtocol:self wasRedirectedToRequest:request redirectResponse:response];</span><br></pre></td></tr></table></figure>
+<ul>
+<li>假设我们在转发过程中是使用NSURLSession发送的网络请求，那么在NSURLSession的回调方法中，我们做相应的处理即可。并且我们也可以对这些返回，进行定制化处理。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error &#123;</span><br><span class="line">    if (error) &#123;</span><br><span class="line">        [self.client URLProtocol:self didFailWithError:error];</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        [self.client URLProtocolDidFinishLoading:self];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler &#123;</span><br><span class="line">    </span><br><span class="line">    [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageAllowed];</span><br><span class="line"></span><br><span class="line">    completionHandler(NSURLSessionResponseAllow);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data &#123;</span><br><span class="line">    [self.client URLProtocol:self didLoadData:data];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task willPerformHTTPRedirection:(NSHTTPURLResponse *)response newRequest:(NSURLRequest *)request completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler &#123;</span><br><span class="line">    if (response != nil)&#123;</span><br><span class="line">        [[self client] URLProtocol:self wasRedirectedToRequest:request redirectResponse:response];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="5、结束"><a href="#5、结束" class="headerlink" title="5、结束"></a>5、结束</h5><ul>
+<li>在一个网络请求完全结束以后，NSURLProtocol回调用到stopLoading方法，在此方法中，完成在结束网络请求的操作。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- (void)stopLoading &#123;</span><br><span class="line">    //</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="三、NSURLProtocol的应用"><a href="#三、NSURLProtocol的应用" class="headerlink" title="三、NSURLProtocol的应用"></a>三、NSURLProtocol的应用</h4><h5 id="1、Mock网络请求"><a href="#1、Mock网络请求" class="headerlink" title="1、Mock网络请求"></a>1、Mock网络请求</h5><ul>
+<li>可以参考<a href="https://link.jianshu.com/?t=https://github.com/AliSoftware/OHHTTPStubs" target="_blank" rel="noopener">OHHTTPStubs</a></li>
+</ul>
+<h5 id="2、网络监控和相关数据统计"><a href="#2、网络监控和相关数据统计" class="headerlink" title="2、网络监控和相关数据统计"></a>2、网络监控和相关数据统计</h5><ul>
+<li>APM工具，如Bugly</li>
+</ul>
+<h5 id="3、其他"><a href="#3、其他" class="headerlink" title="3、其他"></a>3、其他</h5><ul>
+<li>URL重定向</li>
+<li>实现HTTPDNS</li>
+</ul>
+<h4 id="四、NSURLProtocol的坑"><a href="#四、NSURLProtocol的坑" class="headerlink" title="四、NSURLProtocol的坑"></a>四、NSURLProtocol的坑</h4><h5 id="1、死循环"><a href="#1、死循环" class="headerlink" title="1、死循环"></a>1、死循环</h5><p><strong>原因</strong>：偶尔会出现<strong>canInitWithRequest方法多次调用的</strong>情况，不注意处理会发生死循环的问题，需要在canInitWithRequest方法中会判断是否拦截过请求。</p>
+<p><strong>解决办法</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">+ (BOOL)canInitWithRequest:(NSURLRequest *)request &#123;</span><br><span class="line">    if ([NSURLProtocol propertyForKey:protocolKey inRequest:request]) &#123;  //句1</span><br><span class="line">    	return NO;</span><br><span class="line">	&#125;</span><br><span class="line">    //....</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">+ (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request &#123;</span><br><span class="line">    </span><br><span class="line">    //...</span><br><span class="line">    [NSURLProtocol setProperty:@(YES) forKey:protocolKey inRequest:request]; //句2</span><br><span class="line">    //...</span><br><span class="line">    return [request copy];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//句1和句2是为了防止死循环的，主要用于对request进行标记，如果被标记了，就不再次进行处理了，如果没有标记过就要进行处理。</span><br></pre></td></tr></table></figure>
+<h5 id="2、多NSURLProtocol嵌套使用"><a href="#2、多NSURLProtocol嵌套使用" class="headerlink" title="2、多NSURLProtocol嵌套使用"></a>2、多NSURLProtocol嵌套使用</h5><ul>
+<li><p>若一个项目中存在多个NSURLProtocol，那么NSURLProtocol的拦截顺序跟注册的方式和顺序有关，对于使用registerClass方法注册的情况：<strong>多个NSURLProtocol拦截顺序为注册顺序的反序，即后注册的的NSURLProtocol先拦截。</strong></p>
+</li>
+<li><p>对于通过配置<strong>NSURLSessionConfiguration</strong>对象的protocolClasses属性来注册的情况：<strong>protocolClasses这个数组里只有第一个NSURLProtocol会起作用</strong>，所以为了保证自定义的protocolClass有效，采用的办法是：<strong>把自己的NSURLProtocol插入到protocolClasses的第一个，进行拦截。拦截完成之后，又进行移除</strong>。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">+ (void)setEnabled:(BOOL)enable forSessionConfiguration:(NSURLSessionConfiguration*)sessionConfig &#123;</span><br><span class="line">    // Runtime check to make sure the API is available on this version</span><br><span class="line">    if ([sessionConfig respondsToSelector:@selector(protocolClasses)]</span><br><span class="line">        &amp;&amp; [sessionConfig respondsToSelector:@selector(setProtocolClasses:)])&#123;</span><br><span class="line">        //</span><br><span class="line">        NSMutableArray *urlProtocolClasses = [NSMutableArray arrayWithArray:sessionConfig.protocolClasses];</span><br><span class="line">        </span><br><span class="line">        Class protoCls = OHHTTPStubsProtocol.class;</span><br><span class="line">        if (enable &amp;&amp; ![urlProtocolClasses containsObject:protoCls])&#123;</span><br><span class="line">            [urlProtocolClasses insertObject:protoCls atIndex:0];</span><br><span class="line">        &#125;else if (!enable &amp;&amp; [urlProtocolClasses containsObject:protoCls])&#123;</span><br><span class="line">            [urlProtocolClasses removeObject:protoCls];</span><br><span class="line">        &#125;</span><br><span class="line">        sessionConfig.protocolClasses = urlProtocolClasses;</span><br><span class="line">    &#125;else&#123;</span><br><span class="line">		NSLog(&quot;&quot;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="3、NSURLProtocol不能拦截WKWebView中请求"><a href="#3、NSURLProtocol不能拦截WKWebView中请求" class="headerlink" title="3、NSURLProtocol不能拦截WKWebView中请求"></a>3、NSURLProtocol不能拦截WKWebView中请求</h5><ul>
+<li>WKWebView中的请求走得是WebKit内核，不走在App进程中，一般情况下，在App中不能通过NSURLProtocol拦截请求；</li>
+<li>实践中，通过WebKit2的私有方法，让WKWebView的请求被NSURLProtocol拦截，但是有post请求body数据被清空的坑。</li>
+</ul>
+<h5 id="4、NSURLSession的坑"><a href="#4、NSURLSession的坑" class="headerlink" title="4、NSURLSession的坑"></a>4、NSURLSession的坑</h5><p>在NSURLProtocol中使用NSURLSession有很多莫名其妙的问题，基本上都是系统的bug，比较明显的就是：</p>
+<ul>
+<li>拦截到的Request中的HTTPBody为nil；</li>
+<li>startLoading在某些特殊情况会出现死锁；</li>
+<li>关于注册registerClass方法只适用于sharedSession创建的网络请求；</li>
+</ul>
+<h4 id="五、参考"><a href="#五、参考" class="headerlink" title="五、参考"></a>五、参考</h4><p><a href="https://www.jianshu.com/p/02781c0bbca9" target="_blank" rel="noopener">NSURLProtocol全攻略</a></p>
+<p><a href="https://www.jianshu.com/p/af94f2e8d4b0" target="_blank" rel="noopener">黑魔法NSURLProtocol</a></p>
+<p><a href="https://github.com/draveness/analyze/blob/master/contents/OHHTTPStubs/iOS%20%E5%BC%80%E5%8F%91%E4%B8%AD%E4%BD%BF%E7%94%A8%20NSURLProtocol%20%E6%8B%A6%E6%88%AA%20HTTP%20%E8%AF%B7%E6%B1%82.md" target="_blank" rel="noopener">iOS 开发中使用 NSURLProtocol 拦截 HTTP 请求</a></p>
+<p>#### </p>
 
           
         
@@ -2649,796 +3239,11 @@ objc_removeAssociatedObjects  // 删除所有关联对象
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/02/04/iOS-iOSRunloop/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="南华coder">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="南华coder的空间">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/02/04/iOS-iOSRunloop/" itemprop="url">iOS RunLoop小记</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-04T23:07:27+08:00">
-                2018-02-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS基础/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS基础</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  2,741 字
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  11 分
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4><ul>
-<li><strong>RunLoop</strong>：运行循环，和线程有关；当没有事件/消息时，RunLoop让线程休眠；当有事件/消息发生时，RunLoop唤醒线程去处理。</li>
-<li><strong>每个线程都有一个对应的 Runloop 对象</strong>；主线程的RunLoop会在App运行时自动运行，<strong>子线程中需要手动获取并运行，第一次获取时，才会去创建</strong>。</li>
-<li><p>一个RunLoop包含若干个Mode,每个<strong>Mode</strong>包含若干个<strong>Source/Timer/Observer</strong>。每次启动RunLoop时，只能指定一个Mode，如果需要切换Mode，需要退出Loop，再重新指定一个Mode进入。</p>
-</li>
-<li><p>RunLoop，Foundation层对应的是<strong>NSRunLoop</strong>，Core Foundation层对应的是<strong>CFRunLoopRef</strong>；</p>
-</li>
-</ul>
-<h4 id="二、Runloop-Mode"><a href="#二、Runloop-Mode" class="headerlink" title="二、Runloop Mode"></a>二、Runloop Mode</h4><h5 id="1、概念"><a href="#1、概念" class="headerlink" title="1、概念"></a>1、概念</h5><ul>
-<li><p>一个RunLoop包含若干个Mode,每个<strong>Mode</strong>包含若干个<strong>Source/Timer/Observer</strong>。每次启动RunLoop时，只能指定一个Mode，如果需要切换Mode，需要退出Loop，再重新指定一个Mode进入。</p>
-</li>
-<li><p>Foundation暴露出来的Mode有： <strong>NSDefaultRunLoopMode</strong> 和 <strong>NSRunLoopCommonModes</strong>；NSDefaultRunLoopMode是默认的Mode；NSRunLoopCommonModes 是Mode集合，包括NSDefaultRunLoopMode、NSTaskDeathCheckMode、UITrackingRunLoopMode; 只要RunLoop运行在NSRunLoopCommonModes中任何一个模式，这个事件源都可以被触发。</p>
-</li>
-</ul>
-<pre><code>NSDefaultRunLoopMode             //默认的运行方式
-NSTaskDeathCheckMode             //task任务
-UITrackingRunLoopMode            //UI跟踪（如UITableView上下滑动）
-NSRunLoopCommonModes             //Mode集合
-
- //其他, 很少用
-NSModalPanelRunLoopMode       //在Model Panel情况下去区分事件(OS X开发中会遇到)
-NSConnectionReplyMode             //可以监听NSConnection对象的状态，比较少用
-</code></pre><p>  <strong>说明</strong>：RunLoop不能在运行在NSRunLoopCommonModes模式，因为NSRunLoopCommonModes只是个模式集合，而不是一个具体的模式。</p>
-<h5 id="2、Source-Timer-Observer"><a href="#2、Source-Timer-Observer" class="headerlink" title="2、Source/Timer/Observer"></a>2、Source/Timer/Observer</h5><ul>
-<li><p><strong>CFRunLoopSourceRef</strong></p>
-<p>CFRunLoopSourceRef 是事件产生的地方。Source有两个版本：Source0 和 Source1。</p>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Source0 只包含了一个回调（函数指针），它并不能主动触发事件。使用时，你需要先调用 CFRunLoopSourceSignal(source)，将这个 Source 标记为待处理，然后手动调用 CFRunLoopWakeUp(runloop) 来唤醒 RunLoop，让其处理这个事件。</span><br><span class="line"></span><br><span class="line">Source1 包含了一个 mach_port 和一个回调（函数指针），被用于通过内核和其他线程相互发送消息。这种 Source 能主动唤醒 RunLoop 的线程，其原理在下面会讲到。</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>CFRunLoopTimerRef</strong></li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">基于时间的触发器，它和 NSTimer 是toll-free bridged 的，可以混用。其包含一个时间长度和一个回调（函数指针）。当其加入到 RunLoop 时，RunLoop会注册对应的时间点，当时间点到时，RunLoop会被唤醒以执行那个回调。</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>CFRunLoopObserverRef</strong></li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">观察者，每个 Observer 都包含了一个回调（函数指针），当 RunLoop 的状态发生变化时，观察者就能通过回调接受到这个变化。可以观测的时间点有以下几个：</span><br><span class="line">typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) &#123;</span><br><span class="line">     kCFRunLoopEntry         = (1UL &lt;&lt; 0), // 即将进入Loop</span><br><span class="line">     kCFRunLoopBeforeTimers  = (1UL &lt;&lt; 1), // 即将处理 Timer</span><br><span class="line">     kCFRunLoopBeforeSources = (1UL &lt;&lt; 2), // 即将处理 Source</span><br><span class="line">     kCFRunLoopBeforeWaiting = (1UL &lt;&lt; 5), // 即将进入休眠</span><br><span class="line">     kCFRunLoopAfterWaiting  = (1UL &lt;&lt; 6), // 刚从休眠中唤醒</span><br><span class="line">     kCFRunLoopExit          = (1UL &lt;&lt; 7), // 即将退出Loop</span><br><span class="line"> &#125;;</span><br></pre></td></tr></table></figure>
-<h4 id="三、Runloop-Observer"><a href="#三、Runloop-Observer" class="headerlink" title="三、Runloop Observer"></a>三、Runloop Observer</h4><h5 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h5><ul>
-<li><p>Runloop 通过监控 Source 来决定有没有任务要做，除此之外，我们还可以用 Runloop Observer 来监控 Runloop 本身的状态。RunLoop的状态有</p>
-   <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) &#123;</span><br><span class="line">     kCFRunLoopEntry         = (1UL &lt;&lt; 0), // 即将进入Loop</span><br><span class="line">     kCFRunLoopBeforeTimers  = (1UL &lt;&lt; 1), // 即将处理 Timer</span><br><span class="line">     kCFRunLoopBeforeSources = (1UL &lt;&lt; 2), // 即将处理 Source</span><br><span class="line">     kCFRunLoopBeforeWaiting = (1UL &lt;&lt; 5), // 即将进入休眠</span><br><span class="line">     kCFRunLoopAfterWaiting  = (1UL &lt;&lt; 6), // 刚从休眠中唤醒</span><br><span class="line">     kCFRunLoopExit          = (1UL &lt;&lt; 7), // 即将退出Loop</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h5 id="2、AutoreleasePool"><a href="#2、AutoreleasePool" class="headerlink" title="2、AutoreleasePool"></a>2、AutoreleasePool</h5><ul>
-<li><p>App启动后，苹果在主线程 RunLoop 里注册了两个 Observer，一个监听<strong>kCFRunLoopEntry</strong>（<em>即将进入Loop</em>），回调内会<strong>创建自动释放池</strong>(<em>_objc_autoreleasePoolPush()</em>)；优先级最高，保证创建释放池发生在其他所有回调之前；</p>
-</li>
-<li><p>另一个监听 <strong>kCFRunLoopBeforeWaiting</strong>(<em>准备进入休眠</em>) 时调用_objc_autoreleasePoolPop() 和 _objc_autoreleasePoolPush() 释放旧的池并创建新池；<strong>kCFRunLoopExit</strong>(<em>即将退出Loop</em>) 时调用 _objc_autoreleasePoolPop() 来释放自动释放池。优先级最低，保证其释放池子发生在其他所有回调之后。</p>
-</li>
-</ul>
-<h5 id="3、界面更新"><a href="#3、界面更新" class="headerlink" title="3、界面更新"></a>3、界面更新</h5><ul>
-<li>当在操作 UI 时，比如改变了 Frame、更新了 UIView/CALayer 的层次时，或者手动调用了 UIView/CALayer 的 setNeedsLayout/setNeedsDisplay方法后，这个 UIView/CALayer 就被标记为待处理，并被提交到一个全局的容器去。</li>
-<li>苹果注册了一个 Observer 监听 <strong>kCFRunLoopBeforeWaiting</strong>(<em>即将进入休眠</em>) 和 <strong>kCFRunLoopExit</strong>(<em>即将退出Loop</em>)  事件，回调执行函数，函数会遍历所有待处理的 UIView/CAlayer 以执行实际的绘制和调整，并更新 UI 界面。</li>
-</ul>
-<h5 id="4、-定时器"><a href="#4、-定时器" class="headerlink" title="4、 定时器"></a>4、 定时器</h5><ul>
-<li>NSTimer 其实就是 CFRunLoopTimerRef，他们之间是 toll-free bridged 的。一个 NSTimer 注册到 RunLoop 后，RunLoop 会为其重复的时间点注册好事件。例如 10:00, 10:10, 10:20 这几个时间点。</li>
-<li><p>RunLoop为了节省资源，并不会在非常准确的时间点回调这个Timer。Timer 有个属性叫做 Tolerance (宽容度)，标示了当时间点到后，容许有多少最大误差。</p>
-</li>
-<li><p>如果某个时间点被错过了，例如执行了一个很长的任务，则那个时间点的回调也会跳过去，不会延后执行。就比如等公交，如果 10:10 时我忙着玩手机错过了那个点的公交，那我只能等 10:20 这一趟了。</p>
-</li>
-<li><p>CADisplayLink 是一个和屏幕刷新率一致的定时器（但实际实现原理更复杂，和 NSTimer 并不一样，其内部实际是操作了一个 Source）。如果在两次屏幕刷新之间执行了一个长任务，那其中就会有一帧被跳过去（和 NSTimer 相似），造成界面卡顿的感觉。在快速滑动TableView时，即使一帧的卡顿也会让用户有所察觉。Facebook 开源的 AsyncDisplayLink 就是为了解决界面卡顿的问题，其内部也用到了 RunLoop，这个稍后我会再单独写一页博客来分析。</p>
-</li>
-</ul>
-<h5 id="5、PerformSelecter"><a href="#5、PerformSelecter" class="headerlink" title="5、PerformSelecter"></a>5、PerformSelecter</h5><ul>
-<li><p>当调用 NSObject 的 performSelecter:afterDelay: 后，实际上其内部会创建一个 Timer 并添加到当前线程的 RunLoop 中。所以如果当前线程没有 RunLoop，则这个方法会失效。</p>
-</li>
-<li><p>当调用 performSelector:onThread: 时，实际上其会创建一个 Timer 加到对应的线程去，同样的，如果对应线程没有 RunLoop 该方法也会失效。</p>
-</li>
-</ul>
-<h4 id="五、RunLoop手动启动和取消"><a href="#五、RunLoop手动启动和取消" class="headerlink" title="五、RunLoop手动启动和取消"></a>五、RunLoop手动启动和取消</h4><h5 id="1、手动启动"><a href="#1、手动启动" class="headerlink" title="1、手动启动"></a>1、手动启动</h5><p>主线程默认已经启动，一般在子线程中手动启动RunLoop；NSRunloop提供的三种启动方式，如下：</p>
-<pre><code>//1、无条件运行(强烈不推荐)
-- (void)run; 
-</code></pre><p><strong>说明1</strong>：如果Runloop上有事件源，RunLoop会一直运行在NSDefaultRunLoopMode模式；除非移除事件源，线程才能停止；</p>
-<pre><code>//2、启动 + 超时限制
-- (void)runUntilDate:(NSDate *)limitDate;  
-
-//Demo, RunLoop会每1秒退出一次，然后又启动RunLoop，连续10次后退出RunLoop
-NSInteger loopCount = 0;
-while (loopCount++ &lt; 10){
-      [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
-      NSLog(@&quot;%@ exiting runloop.........:&quot;,@(loopCount));
-}
-</code></pre><p><strong>说明2</strong>：可以控制每次RunLoop的运行时间，但是默认是NSDefaultRunLoopMode模式；超过时间限制后可以再次运行RunLoop；</p>
-<pre><code>//3、有一个超时时间限制，而且设置运行模式 （推荐使用）
-- (BOOL)runMode:(NSString *)mode beforeDate:(NSDate *)limitDate;
-
-//Demo : 使用CFRunLoopStop暂停RunLoop
-dispatch_async(dispatch_get_global_queue(0, 0), ^{
-    NSLog(@&quot;线程开始&quot;);
-    _thread = [NSThread currentThread];
-    NSRunLoop *runloop = [NSRunLoop currentRunLoop];
-    [runloop addPort:[NSMachPort port] forMode:NSDefaultRunLoopMode];
-    //
-    [runloop runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:10]];
-    NSLog(@&quot;线程结束&quot;);
-});
-
-//延迟执行
-dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-    [self performSelector:@selector(stopRunLoop) onThread:_thread withObject:nil waitUntilDone:NO];
-});
-
-- (void)stopRunLoop{
-    CFRunLoopStop(CFRunLoopGetCurrent());
-    NSLog(@&quot;暂停runloop&quot;);
-}
-</code></pre><p><strong>说明3</strong>：可以设置超时限制和运行模式，比较灵活，还可以被CFRunLoopStop(runloopRef)所停止（<em>Demo显示</em>）。</p>
-<p><strong>说明4</strong>：NSRunloop是基于CFRunloop来封装的，NSRunloop是线程不安全的，而CFRunloop则是线程安全的；CFRunloop还提供了2中启动方式(<em>CFRunLoopRun、CFRunLoopRunInMode</em>)</p>
-<p><strong>说明5</strong>：因为NSRunLoopCommonModes是个模式集合，不是一个具体的模式，RunLoop不能在运行在NSRunLoopCommonModes模式；但是可以在添加事件源的时候使用NSRunLoopCommonModes，只要RunLoop运行在NSRunLoopCommonModes中任何一个模式，这个事件源都可以被触发。</p>
-<h5 id="2、取消"><a href="#2、取消" class="headerlink" title="2、取消"></a>2、取消</h5><p><em>了解了启动方式后，取消就很清晰了</em>，主要有三种：</p>
-<ul>
-<li><p>移除掉RunLoop中的所有事件源（timer和source）</p>
-</li>
-<li><p>达到超时（limitDate）条件</p>
-</li>
-<li><p>使用CFRunLoopStop(CFRunLoopRef rl )停止（CFRunloop运行起来或通过NSRunloop的runMode:beforeDate:方法）。</p>
-</li>
-</ul>
-<h4 id="六、使用场景"><a href="#六、使用场景" class="headerlink" title="六、使用场景"></a>六、使用场景</h4><h5 id="1、NSTimer-CADisplayLink"><a href="#1、NSTimer-CADisplayLink" class="headerlink" title="1、NSTimer/CADisplayLink"></a>1、NSTimer/CADisplayLink</h5><pre><code>NSTimer *timer = [NSTimer timerWithTimeInterval:2.0 target:self selector:@selector(run) userInfo:nil repeats:YES];
-
-//1、timer运行在NSDefaultRunLoopMode下，一旦RunLoop进入其他模式，timer不会工作
-[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
-
-//2、timer运行在NSRunLoopCommonModes集合中任何模式下，timer会工作
-[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
-
-//3、scheduledTimer返回的定时器，会自动被添加到当前runLoop中，默认是NSDefaultRunLoopMode
-NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(run) userInfo:nil repeats:YES];
-
-//4、创建并启动GCD定时器
-_timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_global_queue(0, 0));
-dispatch_source_set_timer(_timer, dispatch_walltime(NULL, 0), 1.0 * NSEC_PER_SEC, 0); //每秒执行
-// 事件回调
-dispatch_source_set_event_handler(_timer, ^{
-    NSLog(@&quot;gcd timer......&quot;);
-});
-dispatch_resume(_timer);
-</code></pre><p><strong>说明1</strong>：一般把NSTimer/CADisplayLink的RunLoop Mode选择NSRunLoopCommonModes集合，防止因列表滑动等导致NSTimer/CADisplayLink不工作；</p>
-<p><strong>说明2</strong>：Timer注册到RunLoop后，如果所属线程中有耗时操作，Timer回调的时间点并不十分准确；CADisplayLink是屏幕的刷新率一样的定时器。如果在两次屏幕刷新之间执行一个耗时的任务，就可能丢帧，造成界面卡顿。</p>
-<p><strong>说明3</strong>：如果希望比较准的定时器的效果。可以使用GCD的定时器。</p>
-<h5 id="2、-常驻线程"><a href="#2、-常驻线程" class="headerlink" title="2、 常驻线程"></a>2、 常驻线程</h5><pre><code>+ (NSThread *)networkRequestThread {
-  static NSThread *_networkRequestThread = nil;
-  static dispatch_once_t oncePredicate;
-  dispatch_once(&amp;oncePredicate, ^{
-      _networkRequestThread = [[NSThread alloc] initWithTarget:self selector:@selector(networkRequestThreadEntryPoint:) object:nil];
-      [_networkRequestThread start];
-  });
-  return _networkRequestThread;
-}
-
-+ (void)networkRequestThreadEntryPoint:(id)__unused object {
-  @autoreleasepool {
-      [[NSThread currentThread] setName:@&quot;AFNetworking&quot;];
-
-      NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
-      //添加端口，防止runloop直接退出
-      [runLoop addPort:[NSMachPort port] forMode:NSDefaultRunLoopMode];
-      [runLoop run];
-  }
-}
-</code></pre><p><strong>说明</strong>：AF2.x维护一个常驻线程，用来发起网络请求，并且接受网络请求回调处理；NSURLSession有类似实现；在AF3.x后无常驻线程这部分代码了</p>
-<h5 id="3、子线程执行PerformSelector-或-Timer"><a href="#3、子线程执行PerformSelector-或-Timer" class="headerlink" title="3、子线程执行PerformSelector 或  Timer"></a>3、子线程执行PerformSelector 或  Timer</h5><pre><code>//1、子线程执行performSelector
-dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        NSLog(@&quot;befor&quot;);
-        [self performSelector:@selector(printLog) withObject:nil afterDelay:0];
-         //创建并启动Runloop，performSelector才有效
-         [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
-        NSLog(@&quot;after&quot;);
-    });
-
-- (void)p_logAction {
-    NSLog(@&quot;p_logAction&quot;);
-}
-
-//2、子线程执行timer
- dispatch_async(dispatch_get_global_queue(0, 0), ^{
-
-    [NSTimer scheduledTimerWithTimeInterval:0.1 repeats:YES block:^(NSTimer * _Nonnull timer) {
-        NSLog(@&quot;timer in thread ...&quot;);
-    }];
-    //创建并启动Runloop，timer才有效
-    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
-});
-</code></pre><p><strong>说明1</strong>：<strong>performSelector</strong>原理是：设置一个timer，添加到当前线程Runloop，默认是NSDefaultRunLoopMode；通过NSTimer的 scheduledTimerWithTimeIntervaly创建的定时器，也是自动被添加到当前RunLoop中，默认是NSDefaultRunLoopMode；</p>
-<p><strong>说明2</strong>：<strong>在子线程中</strong>，因为默认没有RunLoop，所以他们<strong>不执行</strong>；想要执行，<strong>需要创建并启动Runloop</strong>。</p>
-<h5 id="4、卡顿检测"><a href="#4、卡顿检测" class="headerlink" title="4、卡顿检测"></a>4、卡顿检测</h5><p><strong>监听主线程(UI线程)之间的耗时，如果发现</strong>kCFRunLoopEntry<strong>(即将进入)和</strong>kCFRunLoopExit<strong>(即将退出)之间耗时过大(大于10ms),认为卡顿发生；</strong></p>
-<pre><code>- (void)setupRunloopObserver{
-
-    static dispatch_once_t onceToken;
-    dispatch_once(&amp;onceToken, ^{
-        CFRunLoopRef runloop = CFRunLoopGetCurrent();
-        CFRunLoopObserverRef enterObserver;
-        enterObserver = CFRunLoopObserverCreate(CFAllocatorGetDefault(),
-                                               kCFRunLoopEntry | kCFRunLoopExit,
-                                               true,
-                                               0
-                                               QSRunloopObserverCallBack, NULL);
-        CFRunLoopAddObserver(runloop, enterObserver, kCFRunLoopCommonModes);
-        CFRelease(enterObserver);
-    });
-}
-
-static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopActivity activity, void *info) {
-    switch (activity) {
-        case kCFRunLoopEntry: {
-            NSLog(@&quot;enter runloop...&quot;);
-        }
-            break;
-        case kCFRunLoopExit: {
-            NSLog(@&quot;leave runloop...&quot;);
-        }
-            break;
-        default: break;
-    }
-}
-</code></pre><p><strong>说明</strong>：如果发现卡顿，可以利用PLCrashReporter搜集各个线程的调用堆栈信息，上报到服务器,参考自<a href="http://mrpeak.cn/blog/ui-detect/" target="_blank" rel="noopener">iOS应用UI线程卡顿监控</a></p>
-<blockquote>
-<h4 id="End"><a href="#End" class="headerlink" title="End"></a>End</h4></blockquote>
-<p>想了解更多可参考<a href="http://blog.ibireme.com/2015/05/18/runloop/" target="_blank" rel="noopener">深入理解RunLoop</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/30/iOS-iOSMemory/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="南华coder">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="南华coder的空间">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/01/30/iOS-iOSMemory/" itemprop="url">OC对象内存小记</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-30T22:43:26+08:00">
-                2018-01-30
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS基础/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS基础</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  4,232 字
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  15 分
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4><h5 id="1、内存管理"><a href="#1、内存管理" class="headerlink" title="1、内存管理"></a>1、内存管理</h5><ul>
-<li><p><strong>引用计数</strong>：每个OC对象都有引用计数(retaincount)、retaincount表明当前有多少个对象<strong>希望该对象存活</strong>；当对象的retaincount &gt; 0,对象存活；当对象的retaincount = 0,对象销毁；</p>
-</li>
-<li><p><strong>创建对象</strong>，retaincount至少为1；<strong>retain操作</strong>，retaincount加1；<strong>release操作</strong>，retaincount减1；<strong>autorelease操作</strong>，清理autorelease pool后，再递减retaincount；为了简化引用计数的管理，ARC应运而生。</p>
-</li>
-<li><p><strong>ARC</strong>（自动引用计数）通过编译器，在合适的地方插入<strong>retain、release和autorelease</strong>等操作；变量的内存管理通过<strong>修饰符(<strong>strong、</strong>weak、__autoreleasing)</strong>指明；以<strong>alloc、new、copy和mutableCopy</strong>方法名开头返回的对象归调用者所有。</p>
-</li>
-<li><p><strong>ARC只管理Objective-C对象的内存</strong>，CoreFoundation对象、CoreGraphics对象、还有C/C++的内存分配还是需要开发者自己管理。</p>
-</li>
-</ul>
-<h5 id="2、内存空间说明"><a href="#2、内存空间说明" class="headerlink" title="2、内存空间说明"></a>2、内存空间说明</h5><p>内存空间主要包括：栈、堆、全局数据区、未初始化数据区 和 代码区</p>
-<ul>
-<li><p><strong>栈</strong>：编译器自动分配释放，存放函数的参数值，局部变量的值等，向低地址扩展，是一块连续的内存的区域<strong>。</strong>栈顶的地址 和 栈的最大容量是系统预先规定好的，如果申请的空间超过栈的剩余空间时，将出现栈溢出，发生未知错误。（栈空间较小）。</p>
-</li>
-<li><p><strong>堆</strong>：一般由程序员分配释放，<strong>向高地址扩展</strong>，是不连续的内存区域。这是由于系统是用链表来存储的空闲内存地址的。堆的大小受限于计算机系统中有效的虚拟内存。</p>
-</li>
-<li><p>堆获得的空间比较灵活，也比较大。 但是<strong>栈空间比堆空间响应速度更快，所以一般类似int、NSInteger等占用内存比较小的通常放在栈空间，对象一般放在堆空间</strong>。</p>
-</li>
-<li><p><strong>全局数据区</strong>(静态区)：存放 初始化的全局变量 和 静态变量，全局区的生命周期会伴随整个应用而存在，比较消耗内存</p>
-</li>
-<li><p><strong>未初始化数据区</strong>，亦称BSS区（uninitialized data segment），存入的是<strong>全局未初始化变量</strong></p>
-</li>
-<li><p><strong>代码区</strong>：存放二进制代码</p>
-</li>
-</ul>
-<h5 id="3、Tagged-Pointer特性"><a href="#3、Tagged-Pointer特性" class="headerlink" title="3、Tagged Pointer特性"></a>3、Tagged Pointer特性</h5><ul>
-<li><p>64bit 开始，iOS 引入了<strong>Tagged Pointer</strong>技术，用于优化NSNumber、NSDate、NSString等小对象的存储。</p>
-</li>
-<li><p>在没有使用Tagged Pointer之前， NSNumber等对象需要动态分配内存、维护引用计数等，NSNumber指针存储的是堆中NSNumber对象的地址值；</p>
-</li>
-<li><p>使用Tagged Pointer之后，NSNumber指针里面存储的数据变成了：Tag + Data，也就是将数据直接存储在了指针中。当指针不够存储数据时，会使用动态分配内存的方式来存储数据。</p>
-</li>
-</ul>
-<h5 id="4、内存泄漏"><a href="#4、内存泄漏" class="headerlink" title="4、内存泄漏"></a>4、内存泄漏</h5><ul>
-<li><p>Objective-C对象分配在内存的<strong>堆区</strong>，这部分内存需要开发者自己回收；如果没有释放，就造成<strong>内存泄漏</strong>；在ARC帮助下，当前内存泄漏最大可能是<strong>循环引用</strong>，导致对象的retaincount &gt; 0,系统无法回收这部分内存。</p>
-</li>
-<li><p>此外，CoreFoundation对象、CoreGraphics对象、还有C/C++的内存分配还是需要开发者自己管理，否则也会发生内存泄漏。</p>
-</li>
-<li><p><strong>循环引用</strong>，简单来说，就是堆内存中对象相互引用，彼此都得不到释放的机会；解决办法无非是使用<strong>弱引用</strong>；比较典型的场景有三：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1、一般申明代理(delegate)为weak；</span><br><span class="line">2、使用weakSelf和strongSelf处理Block的循环引用；</span><br><span class="line">3、实现NSProxy(虚拟类)的子类，然后在子类中定义weak修饰的target，然后实现消息转发方法，使target处理业务逻辑；一般用于解决NSTimer、CADisplayLink的循环引用。</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h5 id="5、其他内存问题"><a href="#5、其他内存问题" class="headerlink" title="5、其他内存问题"></a>5、其他内存问题</h5><ul>
-<li>高清图片解码、内存暴增，可以将大图裁成小图，然后分别加载显示；</li>
-<li>添加NSNotification监听，记得在dealloc中移除。</li>
-<li>捕获异常时，一定要注意把try块内创建的对象清理干净。</li>
-</ul>
-<h4 id="二、weak相关"><a href="#二、weak相关" class="headerlink" title="二、weak相关"></a>二、weak相关</h4><h5 id="1、weak的实现原理"><a href="#1、weak的实现原理" class="headerlink" title="1、weak的实现原理"></a>1、weak的实现原理</h5><p>Runtime维护一个<strong>weak表</strong>，用于存储执行某个对象的<strong>所有weak指针</strong>；Key是对象地址，Value是weak指针的地址数组；实现分三步：</p>
-<ul>
-<li><p><strong>初始化时</strong>，Runtime会调用<strong>objc_initWeak</strong>函数，初始化一个新的weak指针指向对象的地址；</p>
-</li>
-<li><p><strong>添加引用时</strong>，调用<strong>objc_storeWeak</strong>函数，更新指针指向，创建对应的弱引用表；</p>
-</li>
-<li><p><strong>释放时</strong>，调用<strong>clearDeallocating</strong>函数，根据对象地址获得所有weak指针地址数组，然后遍历这个数组把其中指针置为nil，把这组对应关系从weak表中删除。</p>
-<p><strong>说明</strong>：详细可了解下<a href="http://ios.jobbole.com/89012/" target="_blank" rel="noopener">weak 弱引用的实现方式</a></p>
-</li>
-</ul>
-<h5 id="2、assgin-VS-weak"><a href="#2、assgin-VS-weak" class="headerlink" title="2、assgin VS  weak"></a>2、assgin VS  weak</h5><ul>
-<li><p>assign适用于基本数据类型，weak是适用于NSObject对象，并且是一个弱引用。 </p>
-</li>
-<li><p>assign也可以用来修饰对象，但是当assign修饰的对象在释放之后，指针没有被nil，如果后续如果在后续的内存分配中，刚好分到了这块地址，程序就会崩溃掉。 </p>
-</li>
-<li><p>而weak修饰的对象在释放之后，指针地址会被置为nil。<strong>所以现在一般弱引用就是用weak</strong>。</p>
-</li>
-</ul>
-<h5 id="3、unsafe-unretained-vs-weak"><a href="#3、unsafe-unretained-vs-weak" class="headerlink" title="3、unsafe_unretained  vs weak"></a>3、unsafe_unretained  vs weak</h5><ul>
-<li><p>unsafe_unretained修饰的变量，不属于编译器的内存管理对象</p>
-<p>该修饰符表明<strong>不保留值</strong>，即对其所指向的对象既不强引用，也不弱引用。</p>
-</li>
-<li><p>当我们给被unsafe_unretained修饰的变量赋值时，必须保证赋值对象确实存在，不然程序就会发生崩溃。</p>
-</li>
-<li><p>iOS5之后才有<strong>weak，可以替换</strong>unsafe_unretaine修饰对象，可以参考NotificationCenter在iOS 9之后不需要手动移除监听了。 </p>
-</li>
-</ul>
-<h5 id="4、strong-vs-weak"><a href="#4、strong-vs-weak" class="headerlink" title="4、strong vs  weak"></a>4、strong vs  weak</h5><ul>
-<li><p>strong表示强引用，strong修饰的对象，表示持有这个对象，只有所有对这个对象的强引用都去除时，这个对象才会被释放。</p>
-</li>
-<li><p>weak表示弱引用，表示不持有对象</p>
-</li>
-</ul>
-<h5 id="5、iOS-9-以后通知不再需要手动移除"><a href="#5、iOS-9-以后通知不再需要手动移除" class="headerlink" title="5、iOS 9 以后通知不再需要手动移除"></a>5、iOS 9 以后通知不再需要手动移除</h5><p>​    iOS之前，通知 NSNotification 在注册者被回收时需要手动移除，但是iOS 9以后不需要手动移除，其原因如下：</p>
-<ul>
-<li><p>在iOS 9之前，通知中心持有的是注册者的 <strong>unsafe_unretained</strong> 指针<strong>，在注册者被回收时</strong>若不对通知进行手动移除，则指针指向被回收的内存区域，变为野指针。此时发送通知会造成 crash </p>
-</li>
-<li><p>在iOS 9之后，通知中心持有的是注册者的<strong>weak</strong> 指针，这时即使不对通知进行手动移除，指针也会在注册者被回收后自动置空。因为向空指针发送消息是不会有问题的。</p>
-</li>
-</ul>
-<h4 id="三、Autoreleasepool（自动释放池）"><a href="#三、Autoreleasepool（自动释放池）" class="headerlink" title="三、Autoreleasepool（自动释放池）"></a>三、Autoreleasepool（自动释放池）</h4><h5 id="1、概念"><a href="#1、概念" class="headerlink" title="1、概念"></a>1、概念</h5><ul>
-<li><p>AutoreleasePool是OC中的一种内存自动回收机制，它可以延迟加入AutoreleasePool中的变量release的时机。在正常情况下，创建的变量会在超出其作用域的时候release，但是如果将变量加入AutoreleasePool，那么release将延迟执行。</p>
-</li>
-<li><p>App启动后，苹果在<strong>主线程 RunLoop</strong> 里注册了两个 Observer，其回调都是 _wrapRunLoopWithAutoreleasePoolHandler()。</p>
-</li>
-<li><p>第一个 Observer 监视的事件是 kCFRunLoopEntry(<strong>即将进入Loop</strong>)，其回调内会调用 _objc_autoreleasePoolPush() 创建自动释放池。其 order 是-2147483647，优先级最高，保证创建释放池发生在其他所有回调之前。</p>
-</li>
-<li>第二个 Observer 监视了两个事件： kCFRunLoopBeforeWaiting(<strong>准备进入休眠</strong>) 时调用_objc_autoreleasePoolPop() 和 _objc_autoreleasePoolPush() <strong>释放旧的池并创建新池</strong>；Exit(即将退出Loop) 时调用 _objc_autoreleasePoolPop() 来<strong>释放自动释放池</strong>。这个 Observer 的 order 是 2147483647，优先级最低，保证其释放池子发生在其他所有回调之后。</li>
-<li>在主线程执行的代码，通常是写在诸如事件回调、Timer回调内的。这些回调会被 RunLoop 创建好的 AutoreleasePool 环绕着，所以不会出现内存泄漏，开发者也不必显示创建 Pool 了。</li>
-</ul>
-<h5 id="2、Autoreleasepool日常使用"><a href="#2、Autoreleasepool日常使用" class="headerlink" title="2、Autoreleasepool日常使用"></a>2、Autoreleasepool日常使用</h5><ul>
-<li><p>在没有手动添加自动释放池的情况下，autorelease对象<strong>会自动在当前的runloop迭代中加入自动释放池push和pop</strong>，在当前的runloop迭代结束时释放；如果加了，在添加自动释放池结束后，autorelease对象释放；</p>
- <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@autorealsepool&#123;</span><br><span class="line"> 	 //todo</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>当我们访问占内存大的对象，如果交于默认的 autoreleasepool 去管理生命周期，会有因为内存飙升产生crash的风险，比如访问realm对象，进行数据库增删查改操作时候，可以在操作代码外加上@autoreleasepool，保证退出@autoreleasepool作用域，该作用域内的变量占用的内存空间能释放出来。</p>
-</li>
-<li><p><strong>合理使用@autorealsepool，能降低内存峰值</strong>；如容器的block版本的枚举器时，内部会自动添加一个autoreleasepool（<em>普通for循环和for in循环中没有</em>）：</p>
- <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[array enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) &#123;</span><br><span class="line">   // 这里被一个局部@autoreleasepool包围着</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
-<p>  <strong>说明</strong>：详细可了解下<a href="http://blog.sunnyxx.com/2014/10/15/behind-autorelease/" target="_blank" rel="noopener">黑幕背后的Autorelease</a></p>
-</li>
-</ul>
-<h4 id="四、Block"><a href="#四、Block" class="headerlink" title="四、Block"></a>四、Block</h4><h5 id="1、概念-1"><a href="#1、概念-1" class="headerlink" title="1、概念"></a>1、概念</h5><ul>
-<li><p>Block在C语言层面就是结构体，结构体存储了<strong>isa（Class对象的指针）</strong>、<strong>函数指针</strong>(invoke指针，指向块的实现)和<strong>捕获的变量列表</strong>等;</p>
-</li>
-<li><p>Block可以分配在<strong>栈上</strong>、<strong>堆上</strong>或<strong>全局</strong>上；<strong>栈上分配的Block</strong>，作用域结束后自动释放；<strong>堆上分配的Block</strong>，和Objective-C对象一样有引用计数了；<strong>全局分配的Block</strong>分配在全局内存中，不会被系统回收，相当于单例；</p>
-</li>
-<li><p>ARC开启时，会自动把栈上的Block拷贝到堆上；</p>
-</li>
-<li><p>Block捕获对象的时候会增加对象的引用计数。</p>
-<p><strong>说明</strong>： <a href="http://blog.csdn.net/hello_hwc/article/details/70210549" target="_blank" rel="noopener">Objective C block背后的黑魔法</a></p>
-</li>
-</ul>
-<h5 id="2、-block和-weak"><a href="#2、-block和-weak" class="headerlink" title="2、__block和__weak"></a>2、<code>__block</code>和<code>__weak</code></h5><ul>
-<li><p><code>__block</code>是用来修饰一个<strong>变量</strong>，这个变量就可以在block中被修改 ，使用__block修饰的变量在block代码快中会被retain（ARC下，MRC下不会retain）</p>
-</li>
-<li><p><code>__weak</code>：使用__weak修饰的变量不会在block代码块中被retain </p>
-</li>
-<li><p>在ARC下，要避免block出现循环引用 __weak typedof(self)weakSelf = self;</p>
-</li>
-</ul>
-<h5 id="3、-block在ARC和MRC下含义"><a href="#3、-block在ARC和MRC下含义" class="headerlink" title="3、__block在ARC和MRC下含义"></a>3、__block在ARC和MRC下含义</h5><ul>
-<li>在MRC中<code>__block</code> variable在block中使用是不会retain的；但是ARC中__block則是会Retain的。</li>
-</ul>
-<h5 id="4、函数指针-VS-Block"><a href="#4、函数指针-VS-Block" class="headerlink" title="4、函数指针 VS  Block"></a>4、函数指针 VS  Block</h5><p><strong>相同点:</strong></p>
-<ul>
-<li><p>二者都可以看成是一个代码片段。</p>
-</li>
-<li><p>函数指针类型和 Block 类型都可以作为<strong>变量和函数参数</strong>的类型（typedef定义别名之后，这个别名就是一个类型）。</p>
-</li>
-</ul>
-<p><strong>不同点：</strong></p>
-<ul>
-<li>函数指针只能指向预先定义好的函数代码块，函数地址是在编译链接时就已经确定好的。从内存的角度看，函数指针只不过是指向代码区的一段可执行代码；</li>
-<li>Block 本质是 OC对象，是 NSObject的子类，是程序运行过程中在栈内存动态创建的对象，可以向其发送copy消息将block对象拷贝到堆内存，以延长其生命周期。</li>
-</ul>
-<h5 id="5、指针函数-VS-函数指针"><a href="#5、指针函数-VS-函数指针" class="headerlink" title="5、指针函数 VS 函数指针"></a>5、指针函数 VS 函数指针</h5><ul>
-<li><strong>指针函数</strong>是指<strong>带指针的函数</strong>，即本质是一个函数，函数返回类型是某一类型的指针。它是一个函数，只不过这个函数的返回值是一个地址值。</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int *f(x，y);</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>函数指针</strong>是指向函数的指针变量，即本质是一个<strong>指针变量</strong>。</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">int (*f) (int x); /*声明一个函数指针 */</span><br><span class="line">f = func; /* 将func函数的首地址赋给指针f */</span><br></pre></td></tr></table></figure>
-<h4 id="五、发现循环引用"><a href="#五、发现循环引用" class="headerlink" title="五、发现循环引用"></a>五、发现循环引用</h4><p><em>有一定开发经验后，开发中可以避免绝大多数的循环引用问题，但是代码多了之后，不能保证代码中没有循环引用问题；</em>这时候就要靠工具了。</p>
-<h5 id="1、Instrument"><a href="#1、Instrument" class="headerlink" title="1、Instrument"></a>1、Instrument</h5><ul>
-<li><p>App内存中有三类：<strong>Abandoned memory</strong>、<strong>Leaked memory</strong>和<strong>Cached memory</strong>；有了ARC帮助管理内存，Leaked memory很少了，Leaks工具效果不大；</p>
-</li>
-<li><p>目前用得比较多的是<strong>Allocation</strong>，利用它观察在App运行中，业务相关类的创建和销毁情况。如进入底层页后退出，底层页相关的Controller、View等是否会销毁。</p>
-</li>
-<li><p>使用<strong>Allocation</strong>，需要一个个场景去跑，比较费时，但是可信度最高，可以作为其他方案补充；人力够的话，可以安排单人跑（<em>感觉有点奢侈</em>）。</p>
-</li>
-</ul>
-<h5 id="2、MLeaksFinder"><a href="#2、MLeaksFinder" class="headerlink" title="2、MLeaksFinder"></a>2、<a href="https://github.com/Tencent/MLeaksFinder" target="_blank" rel="noopener">MLeaksFinder</a></h5><ul>
-<li><p><em>微信阅读推出的内存泄漏检测工具</em>；它通过利用Method Swizzling，<strong>hook</strong> 掉 UIViewController 和 UINavigationController 的dismiss和pop方法，当对象即将释放时，调用<strong>willDealloc</strong>方法; 该方法先用一个弱指针指向 self，并在一小段时间(2秒)后，通过这个弱指针调用<strong>assertNotDealloc</strong>，而<strong>assertNotDealloc</strong>主要是利用<strong>FBRetainCycleDetector</strong>找出<strong>循环引用链</strong>，以此定位循环引用的位置。</p>
- <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">- (BOOL)willDealloc &#123;</span><br><span class="line"></span><br><span class="line"> 	// 白名单机制，消除某些场景的内存泄漏警告...（略）</span><br><span class="line">   	  __weak id weakSelf = self;</span><br><span class="line">    	 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^&#123;</span><br><span class="line">         	__strong id strongSelf = weakSelf;</span><br><span class="line">         	[strongSelf assertNotDealloc];</span><br><span class="line">     	&#125;);</span><br><span class="line">     	return YES;</span><br><span class="line">  	 &#125;</span><br><span class="line"></span><br><span class="line">- (void)assertNotDealloc &#123;</span><br><span class="line"></span><br><span class="line"> 	if ([MLeakedObjectProxy isAnyObjectLeakedAtPtrs:[self parentPtrs]]) &#123;</span><br><span class="line">  	   return;</span><br><span class="line">   	&#125;</span><br><span class="line">    //检查循环引用链</span><br><span class="line">    [MLeakedObjectProxy addLeakedObject:self];</span><br><span class="line">    //输出日志...（略）</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>有可能误判的情形，</p>
-</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>场景</th>
-<th>解决</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td><strong>单例和Cache 起来复用的 View 或 ViewController</strong></td>
-<td>可以将willDealloc返回NO，以消除内存泄漏的警告。</td>
-</tr>
-<tr>
-<td>2</td>
-<td><strong>释放不及时的 View 或 ViewController</strong></td>
-<td>可能是网络请求返回慢的原因，可以在网络请求回调的 block 里弱引用 ViewController（比较合理）</td>
-</tr>
-</tbody>
-</table>
-<p>  <strong>说明</strong>：具体可以参考<a href="http://wereadteam.github.io/2016/02/22/MLeaksFinder/" target="_blank" rel="noopener">MLeaksFinder：精准 iOS 内存泄露检测工具</a>、<a href="http://wereadteam.github.io/2016/07/20/MLeaksFinder2/" target="_blank" rel="noopener">MLeaksFinder 新特性</a></p>
-<h5 id="3、FBMemoryProfiler"><a href="#3、FBMemoryProfiler" class="headerlink" title="3、FBMemoryProfiler"></a>3、<a href="https://github.com/facebook/FBMemoryProfiler" target="_blank" rel="noopener">FBMemoryProfiler</a></h5><ul>
-<li><p>Facebook发布的内存检查工具，FBMemoryProfiler包括<strong>FBAllocationTracker</strong> 、 <strong>FBRetainCycleDetector</strong>和 <strong>UI界面</strong>。</p>
-</li>
-<li><p><strong>FBAllocationTracker</strong>利用Method Swizzling 替换原本的 alloc 方法，记录检测所有的实例分配；而<strong>FBRetainCycleDetector</strong>用来递归遍历对象中的所有强引用的对象，以检测以该对象为根结点的强引用树有没有循环引用。</p>
-</li>
-<li><p><strong>FBMemoryProfiler</strong> 除了可以手动调试之外，它还可以进行自动化检测。 通过它内置的两个组件 FBRetainCycleDetector 和 FBAllocationTracker，直接检测出内存中的循环引用，然后把数据发送到自己的服务器上，可以形成一个自动化检测系统。 </p>
-<p><strong>说明</strong>：详细了解可见<a href="https://code.facebook.com/posts/583946315094347/automatic-memory-leak-detection-on-ios/" target="_blank" rel="noopener">automatic-memory-leak-detection-on-ios</a></p>
-</li>
-</ul>
-<h5 id="4、总结"><a href="#4、总结" class="headerlink" title="4、总结"></a>4、总结</h5><ul>
-<li>保持良好编程习惯的同时，搭配工具来及时纠错；推荐<strong>MLeaksFinder + Instrument</strong> 或 <strong>FBMemoryProfiler + Instrument</strong>组合使用。通过MLeaksFinder/FBMemoryProfiler发现后。然后使用Instrument再验证下。</li>
-</ul>
-<h4 id="六、其他"><a href="#六、其他" class="headerlink" title="六、其他"></a>六、其他</h4><h5 id="1、对象的深浅拷贝问题"><a href="#1、对象的深浅拷贝问题" class="headerlink" title="1、对象的深浅拷贝问题"></a>1、对象的深浅拷贝问题</h5><ul>
-<li>浅拷贝：对象的引用复制，指向相同的一块内存空间</li>
-<li>深拷贝：拷贝对象本身，系统会随机给拷贝的对象重新分配一块内存，深拷贝以后，<code>两份对象的内存地址不一样，指针指向也不一样</code>。</li>
-<li>可变对象的 的copy和mutableCopy 都是深拷贝</li>
-<li>不可变对象的 copy是 浅拷贝。不可变对象的 mutableCopy是深拷贝</li>
-<li>自定义类需要分别遵守 <nscopying>协议和<nsmutablecopying>协议，分别实现copyWithZone方法和mutableCopyWithZone方法，实现该类对象的copy和mutableCopy操作, 否则会无法响应copy和mutableCopy消息(<strong>unrecognized selector sent to instance</strong>)</nsmutablecopying></nscopying></li>
-</ul>
-<h5 id="2、内联函数的问题"><a href="#2、内联函数的问题" class="headerlink" title="2、内联函数的问题"></a>2、内联函数的问题</h5><ul>
-<li>内联函数关键字是 <strong>inline</strong> ，普通函数使用的申明或实现使用<strong>inline</strong> 修饰后，即为内联函数。</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">inline int sum(int a, int b)&#123;</span><br><span class="line">    return a + b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>注意：递归函数即使被 <strong>inline</strong> 修饰后也不是内联函数，依然是普通函数。</p>
-</li>
-<li><p>普通函数调用会<strong>开辟一段栈空间</strong>执行相关代码，函数执行完再将对应的栈空间回收。而内联函数调用中，编译器会<strong>将函数调用直接展开为函数代码</strong>。如cout &lt;&lt; sum(1, 2) &lt;&lt; endl会直接转换为cout &lt;&lt; 1 + 2&lt;&lt; endl，由此可见内联函数和一般的宏很类似，都是<strong>直接替换相关代码</strong>。同宏相比，内联函数只是多了一些函数特性和语法检测功能。</p>
-</li>
-<li><p>OC 中可以通过关键字 NS_INLINE 使用内联函数。</p>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">NS_INLINE void log(int value) &#123;</span><br><span class="line">    NSLog(@&quot;%d&quot;, value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>内联函数或宏省去了</strong> <strong>参数压栈、生成汇编语言的CALL调用、返回参数、执行return等</strong> <strong>过程</strong>，可以<strong>减少函数调用的开销。但是会增加代码体积</strong>，所以减少内联函数或宏的使用一定程度上可以减少包体积。 并不是说为了减小包体积完全不去使用内联函数，建议经常会被调用的代码，且代码量不是很多的时候(不超过10行)，为减少函数调用的开销，可适当使用内联函数。</li>
-</ul>
-<h5 id="3、-import和-include区别"><a href="#3、-import和-include区别" class="headerlink" title="3、#import和#include区别"></a>3、#import和#include区别</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#import与#include的类似，都是把其后面的文件拷贝到该指令所在的地方</span><br><span class="line">#import可以自动防止重复导入</span><br><span class="line">#import &lt;&gt; 用于包含系统文件</span><br><span class="line">#import&quot;&quot;用于包含本项目中的文件</span><br><span class="line">#import, 告诉编译器找到并处理名为Foundation.h文件,这是一个系统文件,</span><br><span class="line">#import表示将该文件的信息导入到程序中</span><br></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -3488,7 +3293,7 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-count">31</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -3510,7 +3315,7 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">5</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -3568,7 +3373,7 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">61.5k</span>
+    <span title="Site words total count">65.1k</span>
   
 </div>
 

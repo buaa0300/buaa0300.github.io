@@ -89,7 +89,7 @@
 <meta property="og:site_name" content="南华coder的空间">
 <meta property="og:description" content="行到水穷处，坐看云起时 一、离线包概述1、缘由 传统的 H5 技术容易受到网络环境影响，会降低 H5 页面的性能。通过使用离线包，可以解决该问题，同时保留 H5 的优点。 离线包 是将包括 HTML、Javascript、CSS 等页面内静态资源打包到一个压缩包内。您预先下载该离线包到本地，然后通过客户端打开，直接从本地加载离线包，从而最大程度地摆脱网络环境对 H5 页面的影响。  2、优势 提升">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-04-12T07:00:22.230Z">
+<meta property="og:updated_time" content="2019-04-16T02:33:04.759Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="WKWebView的离线包问题">
 <meta name="twitter:description" content="行到水穷处，坐看云起时 一、离线包概述1、缘由 传统的 H5 技术容易受到网络环境影响，会降低 H5 页面的性能。通过使用离线包，可以解决该问题，同时保留 H5 的优点。 离线包 是将包括 HTML、Javascript、CSS 等页面内静态资源打包到一个压缩包内。您预先下载该离线包到本地，然后通过客户端打开，直接从本地加载离线包，从而最大程度地摆脱网络环境对 H5 页面的影响。  2、优势 提升">
@@ -338,7 +338,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1,083 字
+                  1,315 字
                 </span>
               
 
@@ -354,7 +354,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  4 分
+                  5 分
                 </span>
               
             </div>
@@ -414,10 +414,26 @@
 <li><p>因此，如果通过 <strong>registerSchemeForCustomProtocol</strong> 注册了 http(s) scheme, 那么由 WKWebView 发起的所有 http(s)请求都会通过 IPC 传给主进程 NSURLProtocol 处理，导致 post 请求 body 被清空；</p>
 </li>
 </ul>
-<h5 id="4、对ATS支持不足"><a href="#4、对ATS支持不足" class="headerlink" title="4、对ATS支持不足"></a>4、对ATS支持不足</h5><ul>
+<h5 id="2、对ATS支持不足"><a href="#2、对ATS支持不足" class="headerlink" title="2、对ATS支持不足"></a>2、对ATS支持不足</h5><ul>
 <li>一旦打开ATS开关：<strong>Allow Arbitrary Loads 选项设置为NO</strong>，通过 registerSchemeForCustomProtocol 注册了 http(s) scheme，WKWebView 发起的所有 http(s) 网络请求将被阻塞（即便将<strong>Allow Arbitrary Loads in Web Content 选项设置为YES</strong>）；</li>
 </ul>
-<h4 id="四、我们改怎么办"><a href="#四、我们改怎么办" class="headerlink" title="四、我们改怎么办"></a>四、我们改怎么办</h4><h5 id="1、我们的目标"><a href="#1、我们的目标" class="headerlink" title="1、我们的目标"></a>1、我们的目标</h5><ul>
+<h4 id="四、WKWebView-loadRequest-问题"><a href="#四、WKWebView-loadRequest-问题" class="headerlink" title="四、WKWebView loadRequest 问题"></a>四、WKWebView loadRequest 问题</h4><p><strong>1、post 请求 body 数据会丢失</strong></p>
+<ul>
+<li>在 WKWebView 上通过 loadRequest 发起的 post 请求 body 数据会丢失：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//同样是由于进程间通信性能问题，HTTPBody字段被丢弃</span><br><span class="line">[request setHTTPMethod:@&quot;POST&quot;];</span><br><span class="line">[request setHTTPBody:[@&quot;bodyData&quot; dataUsingEncoding:NSUTF8StringEncoding]];</span><br><span class="line">[wkwebview loadRequest: request];</span><br></pre></td></tr></table></figure>
+<h5 id="2、对应的解决办法"><a href="#2、对应的解决办法" class="headerlink" title="2、对应的解决办法"></a>2、对应的解决办法</h5><p>假如想通过-[WKWebView loadRequest:]加载 post 请求 (原始请求)request1: <strong>h5.nanhua.com/order/list</strong>,可以通过以下步骤实现：</p>
+<ul>
+<li><p>替换请求 scheme，生成新的 post 请求 request2: <strong>post://h5.nanhua.com/order/list</strong>, 同时将 request1 的 <strong>body 字段复制到 request2 的 header 中</strong>（WebKit 不会丢弃 header 字段）;</p>
+</li>
+<li><p>通过-[WKWebView loadRequest:] 加载新的 post 请求 request2;</p>
+</li>
+<li><p>并且通过 +[WKBrowsingContextController registerSchemeForCustomProtocol:]注册 scheme: <strong>post://</strong>;</p>
+</li>
+<li><p>注册 NSURLProtocol 拦截请求 <strong>post://h5.nanhua.com/order/list</strong> ,替换请求 scheme, 生成新的请求 request3: <strong>h5.nanhua.com/order/list</strong>，将 <strong>request2 header的body 字段复制到 request3 的 body 中</strong>，并使用 NSURLSession 加载 request3，最后将加载结果返回 WKWebView;</p>
+</li>
+</ul>
+<h4 id="五、我们改怎么办"><a href="#五、我们改怎么办" class="headerlink" title="五、我们改怎么办"></a>五、我们改怎么办</h4><h5 id="1、我们的目标"><a href="#1、我们的目标" class="headerlink" title="1、我们的目标"></a>1、我们的目标</h5><ul>
 <li>一定要有离线包(产品角度)</li>
 <li>一定要用WKWebView(技术角度)</li>
 <li>一定要避免对其他H5业务post请求的影响(业务角度)</li>
@@ -466,6 +482,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/15/iOS-NSLog/" rel="prev" title="捕获NSLog日志小记">
+                捕获NSLog日志小记 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -546,7 +566,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-count">31</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -568,7 +588,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">5</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -608,7 +628,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、离线包概述"><span class="nav-number">1.</span> <span class="nav-text">一、离线包概述</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、缘由"><span class="nav-number">1.1.</span> <span class="nav-text">1、缘由</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、优势"><span class="nav-number">1.2.</span> <span class="nav-text">2、优势</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、其他"><span class="nav-number">1.3.</span> <span class="nav-text">3、其他</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、WKWebView和离线包"><span class="nav-number">2.</span> <span class="nav-text">二、WKWebView和离线包</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、为什么选择WKWebView"><span class="nav-number">2.1.</span> <span class="nav-text">1、为什么选择WKWebView</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、WKWebview默认不支持NSURLProtocol"><span class="nav-number">2.2.</span> <span class="nav-text">2、WKWebview默认不支持NSURLProtocol</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、WKWebview支持NSURLProtocol的黑魔法"><span class="nav-number">2.3.</span> <span class="nav-text">3、WKWebview支持NSURLProtocol的黑魔法</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、WKWebView支持NSURLProtocol的坑"><span class="nav-number">3.</span> <span class="nav-text">三、WKWebView支持NSURLProtocol的坑</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、Post-请求-body-数据被清空"><span class="nav-number">3.1.</span> <span class="nav-text">1、Post 请求 body 数据被清空</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、对ATS支持不足"><span class="nav-number">3.2.</span> <span class="nav-text">4、对ATS支持不足</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四、我们改怎么办"><span class="nav-number">4.</span> <span class="nav-text">四、我们改怎么办</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、我们的目标"><span class="nav-number">4.1.</span> <span class="nav-text">1、我们的目标</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、一个比较合理的思路"><span class="nav-number">4.2.</span> <span class="nav-text">2、一个比较合理的思路</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、离线包概述"><span class="nav-number">1.</span> <span class="nav-text">一、离线包概述</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、缘由"><span class="nav-number">1.1.</span> <span class="nav-text">1、缘由</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、优势"><span class="nav-number">1.2.</span> <span class="nav-text">2、优势</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、其他"><span class="nav-number">1.3.</span> <span class="nav-text">3、其他</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、WKWebView和离线包"><span class="nav-number">2.</span> <span class="nav-text">二、WKWebView和离线包</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、为什么选择WKWebView"><span class="nav-number">2.1.</span> <span class="nav-text">1、为什么选择WKWebView</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、WKWebview默认不支持NSURLProtocol"><span class="nav-number">2.2.</span> <span class="nav-text">2、WKWebview默认不支持NSURLProtocol</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、WKWebview支持NSURLProtocol的黑魔法"><span class="nav-number">2.3.</span> <span class="nav-text">3、WKWebview支持NSURLProtocol的黑魔法</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、WKWebView支持NSURLProtocol的坑"><span class="nav-number">3.</span> <span class="nav-text">三、WKWebView支持NSURLProtocol的坑</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、Post-请求-body-数据被清空"><span class="nav-number">3.1.</span> <span class="nav-text">1、Post 请求 body 数据被清空</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、对ATS支持不足"><span class="nav-number">3.2.</span> <span class="nav-text">2、对ATS支持不足</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四、WKWebView-loadRequest-问题"><span class="nav-number">4.</span> <span class="nav-text">四、WKWebView loadRequest 问题</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2、对应的解决办法"><span class="nav-number">4.1.</span> <span class="nav-text">2、对应的解决办法</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#五、我们改怎么办"><span class="nav-number">5.</span> <span class="nav-text">五、我们改怎么办</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、我们的目标"><span class="nav-number">5.1.</span> <span class="nav-text">1、我们的目标</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、一个比较合理的思路"><span class="nav-number">5.2.</span> <span class="nav-text">2、一个比较合理的思路</span></a></li></ol></li></ol></div>
             
 
           </div>
@@ -642,7 +662,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">61.5k</span>
+    <span title="Site words total count">65.1k</span>
   
 </div>
 
