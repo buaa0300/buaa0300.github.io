@@ -254,6 +254,569 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/03/iOS-UseAES/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/03/iOS-UseAES/" itemprop="url">浅谈AES</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-03T23:23:50+08:00">
+                2018-01-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS实践/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS实践</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,829 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  8 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4><ul>
+<li><p><strong>对称加密</strong>比<strong>非对称加密</strong>要快。频繁的数据加密，优先考虑使用<strong>对称加密</strong>。</p>
+</li>
+<li><p>DES -&gt; 3DES -&gt; <strong>AES</strong>（Advanced Encryption Standard，高级加密标准）；目前对称加密使用<strong>AES</strong>为佳，它已经取代DES和3DES对称算法了。</p>
+</li>
+<li><p>AES是项目中使用较多的对称加密算法，本文简单介绍下AES。</p>
+</li>
+</ul>
+<h4 id="二、AES算法的重要组成"><a href="#二、AES算法的重要组成" class="headerlink" title="二、AES算法的重要组成"></a>二、AES算法的重要组成</h4><h5 id="1、密钥长度（Key-Size）"><a href="#1、密钥长度（Key-Size）" class="headerlink" title="1、密钥长度（Key Size）"></a>1、密钥长度（Key Size）</h5><p>  AES算法规定密钥长度有三种：128bits、192bits和256 bits。其中<strong>128 bits的key可以满足大部分业务需求</strong>。</p>
+<h5 id="2、加密模式（Cipher-Mode）"><a href="#2、加密模式（Cipher-Mode）" class="headerlink" title="2、加密模式（Cipher Mode）"></a>2、加密模式（Cipher Mode）</h5><p>   AES属于块加密（Block Cipher），加密数据块（Block）必须为<strong>128bits（16字节）</strong>；加密模式主要有以下<strong>六种</strong>模式：</p>
+<p><strong>1) ECB (Electronic Codebook Book，电子密码本模式)</strong></p>
+<ul>
+<li><p><strong>简介</strong>：将数据分成若干块，分别对每块进行加密，最后将这些密文块组成最后的加密结果</p>
+</li>
+<li><p><strong>说明</strong>：最简单的模式，安全性较低。因为ECB的明文分组与密文分组是一一对应的关系，如果明文中存在多个相同的明文分组，其对应的密文分组也是相同的；<strong>不推荐使用</strong>。</p>
+</li>
+</ul>
+<p><strong>2) CBC（Cipher Block Chaining，密码分组链接模式)</strong></p>
+<ul>
+<li><p><strong>简介</strong>：将数据分块后，每一块数据与上一块密文XOR（异或）后，再进行加密；</p>
+</li>
+<li><p><strong>说明</strong>：比较推荐使用的模式（但Apple已经不推荐使用CBC模式，建议使用<strong>GCM</strong>模式）。</p>
+</li>
+</ul>
+<p><strong>3) CTR(Counter，计数器模式)</strong></p>
+<ul>
+<li><p><strong>简介</strong>：通过将<strong>逐次累加的计数器</strong>进行加密来生成密钥流的流密码；最终的密文分组是通过将计数器加密得到的比特序列，与明文分组进行XOR得到的。</p>
+</li>
+<li><p><strong>说明</strong>：比较推荐使用的模式</p>
+</li>
+</ul>
+<p><strong>4) CFB(Cipher FeedBack,密码反馈模式)</strong></p>
+<ul>
+<li><p><strong>简介</strong>：和CBC类似，加密模式和CBC类似，但其可以将块密码变为自同步的流密码。</p>
+</li>
+<li><p><strong>说明</strong>：不推荐使用的模式</p>
+</li>
+</ul>
+<p><strong>5) OFB(Output FeedBack, 输出反馈模式)</strong></p>
+<ul>
+<li><p><strong>简介</strong>：将块密码变成同步的流密码，它产生密钥流的块，然后将其与明文块进行异或，得到密文。</p>
+</li>
+<li><p><strong>说明</strong>：不推荐使用的模式</p>
+</li>
+</ul>
+<p><strong>6) GCM(Galois/Counter Mode,)</strong></p>
+<ul>
+<li><p><strong>简介</strong>：GCM中的G就是指GMAC(消息验证码)，C就是指CTR(计数器模式)</p>
+</li>
+<li><p><strong>说明</strong>：GCM可以提供对消息的加密和完整性校验，AES模式最好选择。</p>
+</li>
+</ul>
+<p><strong>总结</strong>: 推荐先后顺序：<strong>GCM &gt; CTR &gt; CBC</strong>；详细内容可以参考<a href="https://xiaoxueying.gitbooks.io/graphic-cryptology/content/block_cipher_mode.html" target="_blank" rel="noopener">Block cipher mode</a>、<a href="http://blog.csdn.net/T0mato_/article/details/53160772" target="_blank" rel="noopener">AES-GCM加密算法</a></p>
+<h5 id="3、填充方式（Padding）"><a href="#3、填充方式（Padding）" class="headerlink" title="3、填充方式（Padding）"></a>3、填充方式（Padding）</h5><p>  1）<strong>块加密</strong>要求对<strong>特定长度的数据块</strong>进行加密，因此<strong>CBC模式</strong>、<strong>ECB模式</strong>需要在最后一数据块加密前进行数据填充。（CFB，OFB和CTR模式由于与key进行加密操作的是上一块加密后的密文，因此不需要对最后一段明文进行填充）。</p>
+<p>  2）iOS SDK中提供了<strong>PKCS7Padding</strong>，Java提供了<strong>PKCS5Padding</strong>。原则上PKCS5Padding限制了填充的Block Size为8 字节（大于8 字节，填充和PKCS7Padding相同），而PKCS7Padding的Block Size可以为1到255字节; 填充值的算法（需要填充x个字节，填充的值就是x）都是一样的：</p>
+<pre><code>value = k - (l mod k)  ,K = 块大小，l = 数据长度；假设k是16，I是5,那么value是11，也就是说，需要填充11个byte的 0x0B(十进制是11)
+</code></pre><p>  3）因为<strong>AES加密数据块</strong>Block Size规定为16字节(<em>128bits</em>), 大于8 字节(64 bits), 所以<strong>PKCS5Padding和PKCS7Padding填充效果</strong>是一样的。</p>
+<p>  <strong>说明</strong>：数据块的长度如果是16倍数，padding长度为16，padding值为0x10。即在输入后面补齐16字节的0x10；如果数据块的长度不是16倍数，padding长度为16-L%16，padding值为16-L%16。即在输入后面补齐16-L%16的字节，值为16-L%16。</p>
+<p>  4）平时使用最多的是PKCS7Padding，NoPadding、ISO10126Padding和ZeroPadding忽略不提。</p>
+<h5 id="4、初始向量（Initialization-Vector）"><a href="#4、初始向量（Initialization-Vector）" class="headerlink" title="4、初始向量（Initialization Vector）"></a>4、初始向量（Initialization Vector）</h5><p>  CBC、CFB和OFB这些加密模式需要传入一个初始向量，其大小与Block Size相等；当不传入初始向量时，系统将默认使用一个全0的初始向量。</p>
+<h4 id="三、AES算法Python实现"><a href="#三、AES算法Python实现" class="headerlink" title="三、AES算法Python实现"></a>三、AES算法Python实现</h4><p><strong>说明</strong>：使用Python的加密包<a href="https://pypi.python.org/pypi/pycrypto" target="_blank" rel="noopener">pycrypto</a> (下载后，执行<em>python setup.py build + python setup.py install</em>)，实现AES的ECB、CBC、CTR、CFB和OFB模式下的加密和解密；定义一个PaddingHelper类，实现PKCS7Padding；</p>
+<pre><code>#!/usr/bin/python 
+# -*- coding:utf-8 -*-
+
+import sys
+import os
+import base64
+from Crypto.Cipher import AES
+from Crypto.Util import Counter
+
+# ***** Padding Helper For AES *****
+
+class  PaddingHelper(object):
+    &quot;&quot;&quot;docstring for  Padding Helper&quot;&quot;&quot;
+    def __init__(self, arg):
+        super(PaddingHelper, self).__init__()
+        self.arg = arg
+
+    # 保证keyStr的长度是16
+    @classmethod
+    def validKeyStr(self,keyStr):    
+        keySize = 16
+        if len(keyStr) &lt; keySize:
+            zeroCount = keySize - len(keyStr) % keySize  
+            for i in range(0, zeroCount):  
+                keyStr = keyStr + &apos;\0&apos; 
+        else:
+            return keyStr[0:keySize]
+        return keyStr  
+
+
+    # 实现PKCS7Padding/PKCS7Padding
+    @classmethod
+    def PKCS7Padding(self,text,blockSize=16):    
+        count = len(text)    
+        mod_num = count % blockSize
+        add_num = blockSize - mod_num
+        return text + chr(add_num) * add_num    
+
+    @classmethod
+    def MovePKCS7Pading(self,text,blockSize=16):
+        lastChar = text[-1]    
+        paddingLen = ord(lastChar)
+        # 截取最后一部分填充快
+        lastChunk = text[-paddingLen:]
+
+        if lastChunk == chr(paddingLen) * paddingLen:
+            # 移除填充部分
+           return text[:-paddingLen]
+        return text     
+
+# AES PSK7/PSK5填充
+class AESUtil():
+    def __init__(self, key, model):
+
+        self.key = PaddingHelper.validKeyStr(key)
+        self.mode = model
+        self.iv = key   #初始向量初始化k，可以是别的值，但必须16字节
+
+    #加密函数，如果text不是16的倍数,那就补足为16的倍数
+    def encrypt(self, text):
+
+        if self.mode == AES.MODE_CTR:
+             # Create new AES CTR object #
+            cryptor = AES.new(self.key, self.mode, counter=Counter.new(128))
+        else:
+            cryptor = AES.new(self.key, self.mode, self.iv)
+
+        text = PaddingHelper.PKCS7Padding(text,16)
+        ciphertext = base64.b64encode(cryptor.encrypt(text))
+        return ciphertext
+
+    #解密后，去掉补足的空格用strip() 去掉
+    def decrypt(self, text):   
+        if self.mode == AES.MODE_CTR:
+             # Create new AES CTR object #
+            cryptor = AES.new(self.key, self.mode, counter=Counter.new(128))
+        else:    
+            cryptor = AES.new(self.key, self.mode, self.iv)
+
+        plainText = cryptor.decrypt(base64.b64decode(text))
+        return PaddingHelper.MovePKCS7Pading(plainText)
+
+if __name__ == &apos;__main__&apos;:
+
+    encrykey = &quot;0123456789abcdef&quot;
+    # plainText = &apos;1234567891234567&apos;
+    plainText = &apos;hello world&apos;
+
+    dict = {&quot;CBC模式&quot;: AES.MODE_CBC, 
+            &quot;CFB模式&quot;: AES.MODE_CFB, 
+            &quot;CTR模式&quot;: AES.MODE_CTR,
+            &quot;ECB模式&quot;: AES.MODE_ECB,
+            &quot;OFB模式&quot;: AES.MODE_OFB};
+
+    for key, value in dict.iteritems():
+        aes = AESUtil(encrykey,value)
+        encryptText = aes.encrypt(plainText)
+        print &quot;**********%s 加解密*******&quot; %(key)
+        print &quot;密文:&quot;,encryptText
+        print &quot;明文:&quot;,aes.decrypt(encryptText)
+</code></pre><p><strong>执行脚本的输出结果如下</strong></p>
+<pre><code>**********ECB模式 加解密*******
+密文: gWm+1O9JqIdFWcWyANqt5w==
+明文: hello world
+**********CFB模式 加解密*******
+密文: GsZEtzHsqRLRjxfUU6T0Zg==
+明文: hello world
+**********CBC模式 加解密*******
+密文: wem0Upqsl5MBD0Z39jWO/g==
+明文: hello world
+**********OFB模式 加解密*******
+密文: GhcS5HH8im5yy3xtfAywYA==
+明文: hello world
+**********CTR模式 加解密*******
+密文: adUgVHVGk4Y3/LZatTZf6Q==
+明文: hello world
+</code></pre><h4 id="四、AES算法使用说明"><a href="#四、AES算法使用说明" class="headerlink" title="四、AES算法使用说明"></a>四、AES算法使用说明</h4><ul>
+<li><p>对AES加密的结果，要使用<strong>Base64编码</strong>。因为其加密结果得到的字符串可能有不可见字符，保存和传输都有问题；把数据做Base64编码，统统变成可见字符。（Base64编码 将二进制流中每6个bit一组表示数据, 不足的部分补零,每两个0 用 一个 = 表示，把含有不可见字符串的信息用可见字符串表示出来 ）；对应的AES解密时，先要进行Base64解码</p>
+</li>
+<li><p>AES有很明显的优势：<strong>安全</strong>、<strong>加解密快</strong>（AES比RSA的加解密快1000倍）；但是劣势也明显，需重点保护<strong>密钥</strong>的安全；在实践中推荐组合使用<strong>AES</strong>和<em>*RSA</em>技术。</p>
+</li>
+<li><p>实践中<strong>常见的方案</strong>是：1）用AES来加密数据；2）AES的密钥通过<strong>伪随机数生成器</strong>生成；3）AES的密钥通过<strong>RSA公钥加密</strong>；4）最终将AES密钥的密文 和 数据的密文交给后台，后台利用对应的策略解密。</p>
+</li>
+<li><p>AES算法流程可以参考<a href="http://www.cnblogs.com/luop/p/4334160.html" target="_blank" rel="noopener">密码算法详解——AES</a></p>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/01/iOS-DataEnctypt/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/01/iOS-DataEnctypt/" itemprop="url">浅谈数据加密</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-01T23:17:34+08:00">
+                2018-01-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS实践/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS实践</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  740 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  3 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong>导语：</strong>本文介绍常用的数据加密方式（不仅仅局限在iOS中使用）。</p>
+<h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4><p>加密是用来避免攻击这盗取信息的一种手段，加密算法主要有三类：<strong>Hash算法</strong>、<strong>对称加密算法</strong> 和 <strong>非对称加密算法</strong>。</p>
+<h5 id="1、Hash算法"><a href="#1、Hash算法" class="headerlink" title="1、Hash算法"></a>1、Hash算法</h5><ul>
+<li><p><strong>Hash算法</strong> 把一个任意长度的字节串映射 为一定长度的十六进制的数字串；这个数字串称为<strong>哈希值</strong>。</p>
+</li>
+<li><p>Hash算法一种<strong>单向算法</strong>，不能通过这个Hash值重新获得目标信息；一般用来<strong>存储不可还原的密码</strong> 或 <strong>检验数据的完整性</strong>，常见的Hash算法有MD2、MD4、MD5、HAVAL、SHA</p>
+</li>
+<li><p><strong>重点说明</strong>：MD2、MD4、MD5还有SHA-1都已经被碰撞攻击突破，Apple已经移除对MD5和SHA-1签名证书的信任，对于安全性较高的数据，建议使用<strong>SHA-2 Family</strong> 或其他能避免碰撞攻击的算法。</p>
+</li>
+</ul>
+<h5 id="2、对称加密算法"><a href="#2、对称加密算法" class="headerlink" title="2、对称加密算法"></a>2、对称加密算法</h5><ul>
+<li><p><strong>对称加密算法</strong>是指：加密和解密使用<strong>相同密钥</strong>的加密算法。对称加密算法的加解密的速度快，通常在大量数据加密时使用。</p>
+</li>
+<li><p>常见的对称加密算法有DES算法，3DES算法，TDEA算法，Blowfish算法，RC5算法，IDEA算法和AES算法。</p>
+</li>
+<li><p><strong>重点说明</strong>：DES 、3DES 已经被AES（Advanced Encryption Standard，高级加密标准）替代了；<strong>AES-ECB</strong>(电子密码本模式)最简单，安全性差，不建议使用，可以使用<strong>AES-CBC</strong>、<strong>AES-CTR</strong>、<strong>AES-GCM</strong>（Apple推荐的）；对称密钥的安全是必须要考虑并且解决的事情。</p>
+</li>
+</ul>
+<h5 id="3、非对称加密"><a href="#3、非对称加密" class="headerlink" title="3、非对称加密"></a>3、非对称加密</h5><ul>
+<li><p><strong>非对称加密算法</strong>是指：加密和解密使用<strong>不同密钥</strong>的加密算法，也称为公私钥加密，适合对少量数据的加密。</p>
+</li>
+<li><p>非对称加密算法的公钥是公开的，秘钥是自己保存的，比对称加密有更好的安全性，但是加解密速度要远远慢于对称加密；常见的非对称加密算法有：RSA、Elgamal、背包算法、Rabin、D-H、ECC（椭圆曲线加密算法）等。</p>
+</li>
+<li><p><strong>重点说明</strong>：<strong>RSA</strong>是使用最广的非对称加密算法，但是小于1024位的RSA私钥很容易被分解攻击，出于安全的考虑，建议在项目中使用大于等于2048位的RSA私钥。</p>
+</li>
+</ul>
+<h4 id="二、总结"><a href="#二、总结" class="headerlink" title="二、总结"></a>二、总结</h4><ul>
+<li><p>对<strong>大量数据(较大量的上报信息)</strong>加密，建议使用AES；对于<strong>少量数据（手机号、邮箱等）</strong>加密，建议使用RSA；对于比较重要的<strong>资源下载（如运营活动图片、配置数据等）</strong>，对下载下来的数据，要校验hash值，防止数据被篡改，保证数据的完整性。</p>
+</li>
+<li><p>对于核心的业务功能的数据，仅仅靠一种加密算法是不够的，综合利用<strong>两三种加解密算法</strong>，实现业务目标的同时，<strong>提高被破解的难度</strong>。</p>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2017/12/31/begin/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -545,7 +1108,7 @@ scheme: Gemini
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-count">33</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -567,7 +1130,7 @@ scheme: Gemini
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -625,7 +1188,7 @@ scheme: Gemini
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">65.1k</span>
+    <span title="Site words total count">69.6k</span>
   
 </div>
 

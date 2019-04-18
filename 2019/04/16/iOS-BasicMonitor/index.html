@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="iOS,Monitor," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="南华coder的空间" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="天之道，损有余而补不足 一、CPU使用率监控1、Task和CPU 任务（Task）是一种容器（Container）对象；虚拟内存空间和其他资源都是通过这个容器对象管理的，这些资源包括设备和其他句柄。 严格地说，Mach 的任务并不是其他操作系统中所谓的进程，因为 Mach 作为一个微内核的操作系统，并没有提供“进程”的逻辑，而只是提供了最基本的实现。不过在 BSD 的模型中，这两个概念有1：1的简">
+<meta name="keywords" content="iOS,Monitor">
+<meta property="og:type" content="article">
+<meta property="og:title" content="App线上数据监控小记">
+<meta property="og:url" content="http://buaa0300/nanhuacoder.com/2019/04/16/iOS-BasicMonitor/index.html">
+<meta property="og:site_name" content="南华coder的空间">
+<meta property="og:description" content="天之道，损有余而补不足 一、CPU使用率监控1、Task和CPU 任务（Task）是一种容器（Container）对象；虚拟内存空间和其他资源都是通过这个容器对象管理的，这些资源包括设备和其他句柄。 严格地说，Mach 的任务并不是其他操作系统中所谓的进程，因为 Mach 作为一个微内核的操作系统，并没有提供“进程”的逻辑，而只是提供了最基本的实现。不过在 BSD 的模型中，这两个概念有1：1的简">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-04-17T08:28:47.383Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="App线上数据监控小记">
+<meta name="twitter:description" content="天之道，损有余而补不足 一、CPU使用率监控1、Task和CPU 任务（Task）是一种容器（Container）对象；虚拟内存空间和其他资源都是通过这个容器对象管理的，这些资源包括设备和其他句柄。 严格地说，Mach 的任务并不是其他操作系统中所谓的进程，因为 Mach 作为一个微内核的操作系统，并没有提供“进程”的逻辑，而只是提供了最基本的实现。不过在 BSD 的模型中，这两个概念有1：1的简">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://buaa0300/nanhuacoder.com/2019/04/16/iOS-BasicMonitor/"/>
+
+
+
+
+
+  <title>App线上数据监控小记 | 南华coder的空间</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">南华coder的空间</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2019/04/16/iOS-BasicMonitor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">App线上数据监控小记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-16T22:01:22+08:00">
+                2019-04-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS进阶/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS进阶</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,043 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  13 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><em>天之道，损有余而补不足</em></p>
+<h4 id="一、CPU使用率监控"><a href="#一、CPU使用率监控" class="headerlink" title="一、CPU使用率监控"></a>一、CPU使用率监控</h4><h5 id="1、Task和CPU"><a href="#1、Task和CPU" class="headerlink" title="1、Task和CPU"></a>1、Task和CPU</h5><ul>
+<li>任务（Task）是一种容器（Container）对象；虚拟内存空间和其他资源都是通过这个容器对象管理的，这些资源包括设备和其他句柄。</li>
+<li>严格地说，Mach 的任务并不是其他操作系统中所谓的进程，因为 Mach 作为一个微内核的操作系统，并没有提供“进程”的逻辑，而只是提供了最基本的实现。不过在 BSD 的模型中，这两个概念有1：1的简单映射，每一个 BSD 进程（也就是 OS X 进程）都在底层关联了一个 Mach 任务对象。</li>
+<li>而每App运行，会对应一个<code>Mach Task</code>，Task下可能有多条线程同时执行任务，每个线程都是利用CPU的基本单位。<strong>要计算CPU 占用率，就需要获得当前<code>Mach Task</code>下，所有线程占用 CPU 的情况</strong>。</li>
+</ul>
+<h5 id="2、Mach-Task和线程列表"><a href="#2、Mach-Task和线程列表" class="headerlink" title="2、Mach Task和线程列表"></a>2、Mach Task和线程列表</h5><ul>
+<li>一个<code>Mach Task</code>包含它的线程列表。内核提供了<code>task_threads</code> API 调用获取指定 task 的线程列表，然后可以通过<code>thread_info</code> API调用来查询指定线程的信息，</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">kern_return_t task_threads</span><br><span class="line">(</span><br><span class="line">    task_t target_task,</span><br><span class="line">    thread_act_array_t *act_list,</span><br><span class="line">    mach_msg_type_number_t *act_listCnt</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<p><strong>说明</strong>：<code>task_threads</code> 将<code>target_task</code> 任务中的所有线程保存在<code>act_list</code>数组中，<code>act_listCnt</code>表示线程个数：</p>
+<h5 id="3、单个线程信息结构"><a href="#3、单个线程信息结构" class="headerlink" title="3、单个线程信息结构"></a>3、单个线程信息结构</h5><ul>
+<li>iOS 的线程技术与Mac OS X类似，也是基于 Mach 线程技术实现的，可以通过<code>thread_info</code>这个API调用来查询指定线程的信息，thread_info结构如下：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">kern_return_t thread_info</span><br><span class="line">(</span><br><span class="line">    thread_act_t target_act,</span><br><span class="line">    thread_flavor_t flavor,  // 传入不同的宏定义获取不同的线程信息</span><br><span class="line">    thread_info_t thread_info_out,  // 查询到的线程信息</span><br><span class="line">    mach_msg_type_number_t *thread_info_outCnt  // 信息的大小</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>在 Mach 层中<code>thread_basic_info</code> 结构体封装了单个线程的基本信息：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">struct thread_basic_info &#123;</span><br><span class="line">  time_value_t    user_time;     // 用户运行时长</span><br><span class="line">  time_value_t    system_time;   // 系统运行时长</span><br><span class="line">  integer_t       cpu_usage;     // CPU 使用率</span><br><span class="line">  policy_t        policy;        // 调度策略</span><br><span class="line">  integer_t       run_state;     // 运行状态</span><br><span class="line">  integer_t       flags;         // 各种标记</span><br><span class="line">  integer_t       suspend_count; // 暂停线程的计数</span><br><span class="line">  integer_t       sleep_time;    // 休眠的时间</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h5 id="4、CPU-占用率计算"><a href="#4、CPU-占用率计算" class="headerlink" title="4、CPU 占用率计算"></a>4、CPU 占用率计算</h5><ul>
+<li>先获取当前task中的线程总数(<strong>threadCount</strong>)和所有线程数组(<strong>threadList</strong>)</li>
+<li>遍历这个数组来获取单个线程的基本信息。线程基本信息的结构是<strong>thread_basic_info_t</strong>，这里面有CPU的使用率(<strong>cpu_usage</strong>)字段，累计所有线程的CPU使用率就能获得整个APP的CPU使用率(cpuUsage)。</li>
+<li>需要注意的是：cpuUsage是一个整数，想要获得百分比形式，需要除以TH_USAGE_SCALE</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/*</span><br><span class="line"> *	Scale factor for usage field.</span><br><span class="line"> */</span><br><span class="line">#define TH_USAGE_SCALE	1000</span><br></pre></td></tr></table></figure>
+<ul>
+<li>可以定时，比如2s去计算一次CPU的使用率</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">+ (double)getCpuUsage &#123;</span><br><span class="line">    </span><br><span class="line">    kern_return_t           kr;</span><br><span class="line">    thread_array_t          threadList;         // 保存当前Mach task的线程列表</span><br><span class="line">    mach_msg_type_number_t  threadCount;        // 保存当前Mach task的线程个数</span><br><span class="line">    thread_info_data_t      threadInfo;         // 保存单个线程的信息列表</span><br><span class="line">    mach_msg_type_number_t  threadInfoCount;    // 保存当前线程的信息列表大小</span><br><span class="line">    thread_basic_info_t     threadBasicInfo;    // 线程的基本信息</span><br><span class="line">    </span><br><span class="line">    // 通过“task_threads”API调用获取指定 task 的线程列表</span><br><span class="line">    //  mach_task_self_，表示获取当前的 Mach task</span><br><span class="line">    kr = task_threads(mach_task_self(), &amp;threadList, &amp;threadCount);</span><br><span class="line">    if (kr != KERN_SUCCESS) &#123;</span><br><span class="line">        return -1;</span><br><span class="line">    &#125;</span><br><span class="line">    double cpuUsage = 0;</span><br><span class="line">     // 遍历所有线程</span><br><span class="line">    for (int i = 0; i &lt; threadCount; i++) &#123;</span><br><span class="line">        threadInfoCount = THREAD_INFO_MAX;</span><br><span class="line">        // 通过“thread_info”API调用来查询指定线程的信息</span><br><span class="line">        //  flavor参数传的是THREAD_BASIC_INFO，使用这个类型会返回线程的基本信息，</span><br><span class="line">        //  定义在 thread_basic_info_t 结构体，包含了用户和系统的运行时间、运行状态和调度优先级等</span><br><span class="line">        kr = thread_info(threadList[i], THREAD_BASIC_INFO, (thread_info_t)threadInfo, &amp;threadInfoCount);</span><br><span class="line">        if (kr != KERN_SUCCESS) &#123;</span><br><span class="line">            return -1;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        threadBasicInfo = (thread_basic_info_t)threadInfo;</span><br><span class="line">        if (!(threadBasicInfo-&gt;flags &amp; TH_FLAGS_IDLE)) &#123;</span><br><span class="line">            cpuUsage += threadBasicInfo-&gt;cpu_usage;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 回收内存，防止内存泄漏</span><br><span class="line">    vm_deallocate(mach_task_self(), (vm_offset_t)threadList, threadCount * sizeof(thread_t));</span><br><span class="line">    </span><br><span class="line">    return cpuUsage / (double)TH_USAGE_SCALE * 100.0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="二、内存使用监控"><a href="#二、内存使用监控" class="headerlink" title="二、内存使用监控"></a>二、内存使用监控</h4><h5 id="1、内存和OOM"><a href="#1、内存和OOM" class="headerlink" title="1、内存和OOM"></a>1、内存和OOM</h5><ul>
+<li>内存是有限且系统共享的资源，一个App占用地多，系统和其他App所能用的就更少；减少内存占用能不仅仅让自己App，其他App，甚至是整个系统都表现得更好。</li>
+<li>OOM，即Out of Memory，指的是 App 占用的内存达到iOS系统对单个App占用内存上限时，而被系统强杀的现象，这是一种由iOS的Jetsam机制导致的奔溃，无法通过信号捕获到。</li>
+<li>关注App的内存使用情况十分重要</li>
+</ul>
+<h5 id="2、内存信息结构"><a href="#2、内存信息结构" class="headerlink" title="2、内存信息结构"></a>2、内存信息结构</h5><ul>
+<li>Mach task 的内存使用信息存放在<code>mach_task_basic_info</code>结构体中 ，其中<code>resident_size</code> 为驻留内存大小，而phys_footprint表示实际使用的物理内存，iOS 9之后使用phys_footprint来统计App占用的内存大小（和Xcode和Instruments的值显示值接近）。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">struct task_vm_info &#123;</span><br><span class="line">  mach_vm_size_t  virtual_size;       // 虚拟内存大小</span><br><span class="line">  integer_t region_count;             // 内存区域的数量</span><br><span class="line">  integer_t page_size;</span><br><span class="line">  mach_vm_size_t  resident_size;      // 驻留内存大小</span><br><span class="line">  mach_vm_size_t  resident_size_peak; // 驻留内存峰值</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line"></span><br><span class="line">  /* added for rev1 */</span><br><span class="line">  mach_vm_size_t  phys_footprint;     // 实际使用的物理内存</span><br><span class="line"></span><br><span class="line">  ...</span><br></pre></td></tr></table></figure>
+<h5 id="3、内存信息获取"><a href="#3、内存信息获取" class="headerlink" title="3、内存信息获取"></a>3、内存信息获取</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">uint64_t qs_getAppMemoryBytes() &#123;</span><br><span class="line">    task_vm_info_data_t vmInfo;</span><br><span class="line">    mach_msg_type_number_t count = TASK_VM_INFO_COUNT;</span><br><span class="line">    kern_return_t result = task_info(mach_task_self(), TASK_VM_INFO, (task_info_t) &amp;vmInfo, &amp;count);</span><br><span class="line">    if (result != KERN_SUCCESS)</span><br><span class="line">        return 0;</span><br><span class="line">    return vmInfo.phys_footprint;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="三、FPS监控"><a href="#三、FPS监控" class="headerlink" title="三、FPS监控"></a>三、FPS监控</h4><h5 id="1、FPS和CADisplayLink"><a href="#1、FPS和CADisplayLink" class="headerlink" title="1、FPS和CADisplayLink"></a>1、FPS和CADisplayLink</h5><ul>
+<li><code>FPS</code>是<code>Frames Per Second</code> ，意思是每秒帧数，也就是我们常说的“刷新率（单位为Hz）。FPS低(小于50)表示App不流畅，App需要优化，iOS手机屏幕的正常刷新频率是每秒60次，即<code>FPS</code>值为60。</li>
+<li><code>CADisplayLink</code>是和屏幕刷新频率保存一致，它是<code>CoreAnimation</code>提供的另一个类似于<code>NSTimer</code>的类，它总是在屏幕完成一次更新之前启动，<code>CADisplayLink</code>有一个整型的<code>frameInterval</code>属性，指定了间隔多少帧之后才执行。默认值是1，意味着每次屏幕更新之前都会执行一次。</li>
+</ul>
+<h5 id="2、FPS监控实现"><a href="#2、FPS监控实现" class="headerlink" title="2、FPS监控实现"></a>2、FPS监控实现</h5><ul>
+<li>注册CADisplayLink 得到屏幕的同步刷新率，记录1s(<strong>useTime</strong>,可能比1s大一丢丢)时间内刷新的帧数（<strong>total</strong>），计算<strong>total/useTime</strong>得到1s时间内的帧数，即FPS值。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">- (void)start &#123;</span><br><span class="line">    //注意CADisplayLink的处理循环引用问题</span><br><span class="line">    self.displayLink = [CADisplayLink displayLinkWithTarget:[YYWeakProxy proxyWithTarget:self] selector:@selector(updateFPSCount:)];</span><br><span class="line">    [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 执行帧率和屏幕刷新率保持一致</span><br><span class="line">- (void)updateFPSCount:(CADisplayLink *)displayLink &#123;</span><br><span class="line">    </span><br><span class="line">    if (self.lastTimeStamp == 0) &#123;</span><br><span class="line">        self.lastTimeStamp = self.displayLink.timestamp;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        self.total++;</span><br><span class="line">        // 开始渲染时间与上次渲染时间差值</span><br><span class="line">        NSTimeInterval useTime = self.displayLink.timestamp - self.lastTimeStamp;</span><br><span class="line">        //小于1s立即返回</span><br><span class="line">        if (useTime &lt; 1)&#123;</span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line">        self.lastTimeStamp = self.displayLink.timestamp;</span><br><span class="line">        // fps 计算</span><br><span class="line">        NSInteger fps = self.total / useTime;</span><br><span class="line">        NSLog(@&quot;self.total = %@,useTime = %@,fps = %@&quot;,@(self.total),@(useTime),@(fps));</span><br><span class="line">        self.total = 0;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>说明</strong>：很多团队非常相信(甚至迷信)FPS值，认为FPS值(大于50)就代表不卡顿，这点我是不认可。下面我列举遇到的2个非常典型的Case。</p>
+<h5 id="3、错信FPS值Case1"><a href="#3、错信FPS值Case1" class="headerlink" title="3、错信FPS值Case1"></a>3、错信FPS值Case1</h5><ul>
+<li>同学A在做频繁绘制需求时, 重写UIView的<code>drawRect:</code>方法，在模拟器上频繁调用setNeedsDisplay来触发<code>drawRect:</code>方法，FPS值还稳定在50以上，但是真机上去掉帧很厉害。我认为这里犯了两个错误。</li>
+<li>错误1：<code>drawRect:</code>是利用CPU绘制的，性能并不如GPU绘制，对于频繁绘制的绘制需求，不应该考虑使用重写<code>drawRect:</code>这种方式，推荐<code>CAShapeLayer+UIBezierPath</code>。</li>
+<li>错误2：不应该关注模拟器FPS来观察是否发生卡顿，模拟器使用的是Mac的处理器，比手机的ARM性能要强，所以造成在模拟器上FPS比较理想，真机上比较差。</li>
+</ul>
+<h5 id="4、错信FPS值Case2"><a href="#4、错信FPS值Case2" class="headerlink" title="4、错信FPS值Case2"></a>4、错信FPS值Case2</h5><ul>
+<li>同学B在列表滑动时候，观察iPhone 6 plus真机上FPS的值稳定在52左右，感觉不错，但是肉眼明显感觉到卡顿。</li>
+<li>是FPS错了吗？我认为没错，是我们对FPS的理解错了；因为FPS代表的是<strong>每秒帧数</strong>，这是一个平均值，假如前0.5s播放了2帧，后面0.5s播放了58帧，从结果来看，FPS的值依旧是60。但是实际上，它的确发生了卡顿。</li>
+<li>所以说，FPS值只是一个参考。</li>
+</ul>
+<h4 id="四、卡顿监控"><a href="#四、卡顿监控" class="headerlink" title="四、卡顿监控"></a>四、卡顿监控</h4><p>FPS不作为卡顿监控的方案，主流方案是监控RunLoop状态来发现卡顿问题。</p>
+<h5 id="1、卡顿和RunLoop"><a href="#1、卡顿和RunLoop" class="headerlink" title="1、卡顿和RunLoop"></a>1、卡顿和RunLoop</h5><ul>
+<li>卡顿监控的本质是，监控主线程做了哪些事；线程的消息事件依赖<strong>RunLoop</strong>，通过监听RunLoop的状态，从而判断是否发生卡顿。</li>
+<li>RunLoop在iOS中是由CFRunLoop实现的，它负责监听输入源，进行调度处理的，这里的输入源可以是输入设备、网络、周期性或者延迟时间、异步回调。RunLoop接收两种输入源：一种是来<strong>自另一个线程或者来自不同应用的异步消息</strong>；另一个事<strong>来自预定时间或重复间隔的同步事件</strong>。</li>
+<li>当有事情处理，Runloop唤起线程去处理，没有事情处理，让线程进入休眠。基于此，我们可以把大量占用CPU的任务(图片加载、数据文件读写等) ，放在空闲的非主线程执行，就可以避免影响主线程滑动过程中的体验(主线程滑动时，RunLoop处在UITrackingRunLoopMode模式)</li>
+</ul>
+<h5 id="2、如何判断卡顿"><a href="#2、如何判断卡顿" class="headerlink" title="2、如何判断卡顿"></a>2、如何判断卡顿</h5><ul>
+<li>已知的RunLoop的7个状态</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">//RunLoop的状态</span><br><span class="line">typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) &#123;</span><br><span class="line">    kCFRunLoopEntry , 				// 进入 loop</span><br><span class="line">    kCFRunLoopBeforeTimers ,  // 触发 Timer 回调</span><br><span class="line">    kCFRunLoopBeforeSources , // 触发 Source0 回调</span><br><span class="line">    kCFRunLoopBeforeWaiting , // 等待 mach_port 消息</span><br><span class="line">    kCFRunLoopAfterWaiting ,  // 接收 mach_port 消息</span><br><span class="line">    kCFRunLoopExit , 					// 退出 loop</span><br><span class="line">    kCFRunLoopAllActivities  // loop 所有状态改变</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>由于<code>kCFRunLoopBeforeSources之后</code>需要处理Source0，<code>kCFRunLoopAfterWaiting之后</code>需要处理timer、dispatch 到 main_queue 的 block和Source1，所以可以认为<code>kCFRunLoopBeforeSources</code>和<code>kCFRunLoopAfterWaiting</code>。因为<code>kCFRunLoopBeforeSources</code>之后和<code>kCFRunLoopAfterWaiting</code>之后是事情处理的主要时间段。</li>
+<li><p>dispatch_semaphore_t信号量机制特性：信号量到达、或者 超时会继续向下进行，否则等待；如果超时则返回的结果必定不为0，否则信号量到达结果为0。</p>
+</li>
+<li><p>主线程卡顿发生是因为要处理大量的事情。这就意味着<strong>主线程在消耗时间在处理繁重的事件，导致信号超时了</strong>(dispatch_semaphore_signal不能及时执行)，<strong>如果此时发现当前的RunLoop的状态是kCFRunLoopBeforeSources或kCFRunLoopAfterWaiting，就认为主线程长期停留在这两个状态上，此时就判定卡顿发生。</strong></p>
+</li>
+</ul>
+<h5 id="3、卡顿监控的实现"><a href="#3、卡顿监控的实现" class="headerlink" title="3、卡顿监控的实现"></a>3、卡顿监控的实现</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br></pre></td><td class="code"><pre><span class="line">//  QSMainThreadMonitor.h</span><br><span class="line">@interface QSMainThreadMonitor : NSObject</span><br><span class="line"></span><br><span class="line">+ (instancetype)sharedInstance;</span><br><span class="line"></span><br><span class="line">- (void)beginMonitor;</span><br><span class="line"></span><br><span class="line">- (void)stopMonitor;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">@end</span><br><span class="line"></span><br><span class="line">//  QSMainThreadMonitor.m</span><br><span class="line">@interface QSMainThreadMonitor()</span><br><span class="line"></span><br><span class="line">@property (nonatomic,strong) dispatch_semaphore_t semaphore;</span><br><span class="line">@property (nonatomic,assign) CFRunLoopObserverRef observer;</span><br><span class="line">@property (nonatomic,assign) CFRunLoopActivity runloopActivity;</span><br><span class="line">@property (nonatomic,strong) dispatch_queue_t monitorQueue;</span><br><span class="line"></span><br><span class="line">@end</span><br><span class="line"></span><br><span class="line">@implementation QSMainThreadMonitor</span><br><span class="line"></span><br><span class="line">+ (instancetype)sharedInstance &#123;</span><br><span class="line">    static QSMainThreadMonitor *monitor = nil;</span><br><span class="line">    static dispatch_once_t onceToken;</span><br><span class="line">    dispatch_once(&amp;onceToken, ^&#123;</span><br><span class="line">        monitor = [[QSMainThreadMonitor alloc]init];</span><br><span class="line">    &#125;);</span><br><span class="line">    return monitor;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (instancetype)init &#123;</span><br><span class="line">    self = [super init];</span><br><span class="line">    if (self) &#123;</span><br><span class="line">        self.monitorQueue = dispatch_queue_create(&quot;com.main.thread.monitor.queue&quot;, DISPATCH_QUEUE_CONCURRENT);</span><br><span class="line">    &#125;</span><br><span class="line">    return self;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)beginMonitor&#123;</span><br><span class="line">    </span><br><span class="line">    if (self.observer) &#123;</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">     __block int timeoutCount = 0;</span><br><span class="line">    </span><br><span class="line">    //创建观察者并添加到主线程</span><br><span class="line">    CFRunLoopObserverContext context = &#123;0,(__bridge void*)self,NULL,NULL,NULL&#125;;</span><br><span class="line">    self.observer = CFRunLoopObserverCreate(kCFAllocatorDefault, kCFRunLoopAllActivities, YES, 0, &amp;runLoopObserverCallBack, &amp;context);</span><br><span class="line">    //将self.observer添加到主线程RunLoop的Common模式下观察</span><br><span class="line">    CFRunLoopAddObserver(CFRunLoopGetMain(), self.observer, kCFRunLoopCommonModes);</span><br><span class="line"></span><br><span class="line">    self.semaphore = dispatch_semaphore_create(0);</span><br><span class="line">    dispatch_async(self.monitorQueue, ^&#123;</span><br><span class="line">        while (YES) &#123;</span><br><span class="line">            long result = dispatch_semaphore_wait(self.semaphore, dispatch_time(DISPATCH_TIME_NOW, 0.016 * NSEC_PER_SEC));</span><br><span class="line">            if (result != 0 &amp;&amp; self.observer) &#123;</span><br><span class="line">                //超时判断</span><br><span class="line">                if (self.runloopActivity == kCFRunLoopBeforeSources || self.runloopActivity == kCFRunLoopAfterWaiting) &#123;</span><br><span class="line">                    if (++timeoutCount &lt; 3) &#123;</span><br><span class="line">                        NSLog(@&quot;--timeoutCount--%@&quot;,@(timeoutCount));</span><br><span class="line">                        continue;</span><br><span class="line">                    &#125;</span><br><span class="line">                    //出现卡顿、进一步处理</span><br><span class="line">                    NSLog(@&quot;--timeoutCount 卡顿发生--&quot;);</span><br><span class="line">                    // todo，eg:获取堆栈信息并上报</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;else &#123;</span><br><span class="line">                timeoutCount = 0;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)stopMonitor&#123;</span><br><span class="line">    </span><br><span class="line">    if (!self.observer) &#123;</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    CFRunLoopRemoveObserver(CFRunLoopGetMain(), self.observer, kCFRunLoopCommonModes);</span><br><span class="line">    CFRelease(self.observer);</span><br><span class="line">    self.observer = NULL;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">#pragma mark -Private Method</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 观察者回调函数</span><br><span class="line"> */</span><br><span class="line">static void runLoopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopActivity activity, void *info)&#123;</span><br><span class="line">    //每一次监测到Runloop状态变化调用</span><br><span class="line">    QSMainThreadMonitor *monitor = (__bridge QSMainThreadMonitor *)info;</span><br><span class="line">    monitor.runloopActivity = activity;</span><br><span class="line">    if (monitor.semaphore) &#123;</span><br><span class="line">        dispatch_semaphore_signal(monitor.semaphore);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@end</span><br></pre></td></tr></table></figure>
+<p><strong>说明1</strong>: 信号量的超时时间，我这里是设置0.016s，即1/60s，连续5次超时且RunLoop的状态处于<code>kCFRunLoopBeforeSources</code>之后和<code>kCFRunLoopAfterWaiting</code> 状态就认为卡；网络上很多设置2s或3s，我理解是按照2s/3s为间隔进行卡顿采样。</p>
+<p><strong>说明2</strong>: 卡顿出现3次才上报，为了避免频繁上报卡顿的堆栈信息。</p>
+<p><strong>参考</strong>：<a href="https://www.jianshu.com/p/95df83780c8f" target="_blank" rel="noopener">iOS开发–APP性能检测方案汇总(一)</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS/" rel="tag"># iOS</a>
+          
+            <a href="/tags/Monitor/" rel="tag"># Monitor</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/15/iOS-NSLog/" rel="next" title="捕获NSLog日志小记">
+                <i class="fa fa-chevron-left"></i> 捕获NSLog日志小记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/17/iOS-OOM/" rel="prev" title="OOM问题小记">
+                OOM问题小记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.jpeg"
+                alt="南华coder" />
+            
+              <p class="site-author-name" itemprop="name">南华coder</p>
+              <p class="site-description motion-element" itemprop="description">天之道，损有余而补不足</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">33</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、CPU使用率监控"><span class="nav-number">1.</span> <span class="nav-text">一、CPU使用率监控</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、Task和CPU"><span class="nav-number">1.1.</span> <span class="nav-text">1、Task和CPU</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、Mach-Task和线程列表"><span class="nav-number">1.2.</span> <span class="nav-text">2、Mach Task和线程列表</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、单个线程信息结构"><span class="nav-number">1.3.</span> <span class="nav-text">3、单个线程信息结构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、CPU-占用率计算"><span class="nav-number">1.4.</span> <span class="nav-text">4、CPU 占用率计算</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、内存使用监控"><span class="nav-number">2.</span> <span class="nav-text">二、内存使用监控</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、内存和OOM"><span class="nav-number">2.1.</span> <span class="nav-text">1、内存和OOM</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、内存信息结构"><span class="nav-number">2.2.</span> <span class="nav-text">2、内存信息结构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、内存信息获取"><span class="nav-number">2.3.</span> <span class="nav-text">3、内存信息获取</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、FPS监控"><span class="nav-number">3.</span> <span class="nav-text">三、FPS监控</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、FPS和CADisplayLink"><span class="nav-number">3.1.</span> <span class="nav-text">1、FPS和CADisplayLink</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、FPS监控实现"><span class="nav-number">3.2.</span> <span class="nav-text">2、FPS监控实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、错信FPS值Case1"><span class="nav-number">3.3.</span> <span class="nav-text">3、错信FPS值Case1</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、错信FPS值Case2"><span class="nav-number">3.4.</span> <span class="nav-text">4、错信FPS值Case2</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四、卡顿监控"><span class="nav-number">4.</span> <span class="nav-text">四、卡顿监控</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、卡顿和RunLoop"><span class="nav-number">4.1.</span> <span class="nav-text">1、卡顿和RunLoop</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、如何判断卡顿"><span class="nav-number">4.2.</span> <span class="nav-text">2、如何判断卡顿</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、卡顿监控的实现"><span class="nav-number">4.3.</span> <span class="nav-text">3、卡顿监控的实现</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">南华coder</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">69.6k</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

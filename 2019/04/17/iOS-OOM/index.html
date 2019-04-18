@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="iOS,OOM," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="南华coder的空间" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="纸上得来终觉浅，绝知此事要躬行 一、概述1、OOM是什么 OOM，即Out of Memory；是由于iOS的Jetsam机制导致的奔溃，不同于常规Crash，通过 Signal等Crash等监控方案是无法捕获到OOM事件。  造成OOM的原因可能有两个：系统由于整体内存使用较高，系统基于优先级杀死优先级较低的 App；当前 App 达到了 “high water mark”，也就是达到了系统对单">
+<meta name="keywords" content="iOS,OOM">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OOM问题小记">
+<meta property="og:url" content="http://buaa0300/nanhuacoder.com/2019/04/17/iOS-OOM/index.html">
+<meta property="og:site_name" content="南华coder的空间">
+<meta property="og:description" content="纸上得来终觉浅，绝知此事要躬行 一、概述1、OOM是什么 OOM，即Out of Memory；是由于iOS的Jetsam机制导致的奔溃，不同于常规Crash，通过 Signal等Crash等监控方案是无法捕获到OOM事件。  造成OOM的原因可能有两个：系统由于整体内存使用较高，系统基于优先级杀死优先级较低的 App；当前 App 达到了 “high water mark”，也就是达到了系统对单">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-04-18T10:13:03.952Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OOM问题小记">
+<meta name="twitter:description" content="纸上得来终觉浅，绝知此事要躬行 一、概述1、OOM是什么 OOM，即Out of Memory；是由于iOS的Jetsam机制导致的奔溃，不同于常规Crash，通过 Signal等Crash等监控方案是无法捕获到OOM事件。  造成OOM的原因可能有两个：系统由于整体内存使用较高，系统基于优先级杀死优先级较低的 App；当前 App 达到了 “high water mark”，也就是达到了系统对单">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://buaa0300/nanhuacoder.com/2019/04/17/iOS-OOM/"/>
+
+
+
+
+
+  <title>OOM问题小记 | 南华coder的空间</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">南华coder的空间</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2019/04/17/iOS-OOM/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">OOM问题小记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-17T15:31:41+08:00">
+                2019-04-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS进阶/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS进阶</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,531 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  6 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><em>纸上得来终觉浅，绝知此事要躬行</em></p>
+<h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4><h5 id="1、OOM是什么"><a href="#1、OOM是什么" class="headerlink" title="1、OOM是什么"></a>1、OOM是什么</h5><ul>
+<li><p>OOM，即Out of Memory；是由于iOS的<strong>Jetsam机制</strong>导致的奔溃，不同于常规Crash，通过 Signal等Crash等监控方案是无法捕获到OOM事件。</p>
+</li>
+<li><p>造成OOM的原因可能有两个：系统由于整体内存使用较高，系统基于优先级杀死优先级较低的 App；当前 App 达到了 “high water mark”，也就是达到了系统对单个 App 的内存限制，当前App被系统强杀。</p>
+</li>
+</ul>
+<h5 id="2、Jetsam机制是什么"><a href="#2、Jetsam机制是什么" class="headerlink" title="2、Jetsam机制是什么"></a>2、Jetsam机制是什么</h5><ul>
+<li>Jetsam机制指的是操作系统为了控制内存资源过度使用而采用的一种资源管控机制。</li>
+<li>由于iOS设备不存在交换区导致的内存受限，iOS内核不得不把一些<strong>优先级不高或者占用内存过大的</strong>App杀掉;在杀掉App后会记录一些数据信息并保存到日志。</li>
+<li>Jetsam产生的这些日志可以在<strong>手机设置-&gt;隐私-&gt;分析</strong>中找到，日志是以<code>JetsamEvent</code>开头，日志中有内存页大小(pageSize)，CPU时间(cpuTime)等字段。</li>
+</ul>
+<h4 id="二、获取App的内存使用上限"><a href="#二、获取App的内存使用上限" class="headerlink" title="二、获取App的内存使用上限"></a>二、获取App的内存使用上限</h4><h5 id="1、通过JetsamEvent-日志计算内存限制值"><a href="#1、通过JetsamEvent-日志计算内存限制值" class="headerlink" title="1、通过JetsamEvent 日志计算内存限制值"></a>1、通过JetsamEvent 日志计算内存限制值</h5><ul>
+<li>查看设置-&gt;隐私-&gt;分析中以JetsamEvent开头的系统日志，关注两个重要的信息</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//内存页大小(字节数)(16384Byte = 16KB)</span><br><span class="line">&quot;pageSize&quot; : 16384,</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">//内存页达到上限</span><br><span class="line">&quot;rpages&quot; : 948,      //App 占用的内存页数量</span><br><span class="line">&quot;reason&quot; : &quot;per-process-limit&quot;,  //App 占用的内存超过了系统对单个 App 的内存限制。</span><br></pre></td></tr></table></figure>
+<ul>
+<li>该App内存限制上限：pageSize <em> rpages = 16384 </em> 948 /1024/1014 = 14.8MB</li>
+<li>【有人可能会有疑问】<strong>某App内存使用上限只有区区不到15MB，不太可能吧。</strong>其实这是正常的，Jetsam机制会把<strong>优先级不高或内存使用过大</strong>的App强杀掉，这个App属于优先级不高，系统将其强杀，为优先级高的App提供更多内存资源。</li>
+<li>App优先级可以这么理解：前台App &gt; 后台App; 占用内存少 &gt; 占用内存多</li>
+<li>JetsamEvent日志属于系统级别的，是在系统目录下的。App开发者没有权限获得系统目录下内容。只能连接Xcode获取 或 手动进入<strong>手机设置-&gt;隐私-&gt;分析</strong>中找到日志并分享出来。</li>
+</ul>
+<h5 id="2、收到内存警告通知时获取当前App的内存使用值"><a href="#2、收到内存警告通知时获取当前App的内存使用值" class="headerlink" title="2、收到内存警告通知时获取当前App的内存使用值"></a>2、收到内存警告通知时获取当前App的内存使用值</h5><ul>
+<li>iOS系统会开启优先级最高的线程 <strong>vm_pressure_monitor</strong>来监控系统的内存压力情况，并通过一个堆栈来维护所有App的进程。</li>
+<li>当监控系统内存的线程发现某App内存有压力了，就发出通知，收到通知的App执行对应的处理方法，在这里可以编写释放内存的逻辑，就可能避免App被强杀。</li>
+<li>在收到内存警告通知时，获取当前 App的内存使用值，能获得App内存使用阈值的近似值。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">//获取当前App的内存使用值</span><br><span class="line">uint64_t qs_getAppMemoryBytes() &#123;</span><br><span class="line">    task_vm_info_data_t vmInfo;</span><br><span class="line">    mach_msg_type_number_t count = TASK_VM_INFO_COUNT;</span><br><span class="line">    kern_return_t result = task_info(mach_task_self(), TASK_VM_INFO, (task_info_t) &amp;vmInfo, &amp;count);</span><br><span class="line">    if (result != KERN_SUCCESS)</span><br><span class="line">        return 0;</span><br><span class="line">    return vmInfo.phys_footprint;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//注册监听内存警告通知</span><br><span class="line">[[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(handleReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];</span><br><span class="line"></span><br><span class="line">//收到内存警告通知通知的处理</span><br><span class="line">- (void)handleReceiveMemoryWarning:(NSNotification *)notification &#123;</span><br><span class="line">    //</span><br><span class="line">    NSLog(@&quot;handleReceiveMemoryWarning&quot;);</span><br><span class="line">    NSInteger appMemoryBytes = qs_getAppMemoryBytes();</span><br><span class="line">    //....    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="3、通过XNU获取内存限制值"><a href="#3、通过XNU获取内存限制值" class="headerlink" title="3、通过XNU获取内存限制值"></a>3、通过XNU获取内存限制值</h5><p>在XNU中，可以通过memorystatus_priority_entry 这个结构体，得到进程的优先级和内存限制值。结构体如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 获取进程的 pid、优先级、状态、内存阈值等信息</span><br><span class="line">typedef struct memorystatus_priority_entry &#123;</span><br><span class="line">	pid_t pid;</span><br><span class="line">	int32_t priority;      //线程优先级</span><br><span class="line">	uint64_t user_data;    </span><br><span class="line">	int32_t limit;         //进程内存限制值</span><br><span class="line">	uint32_t state;</span><br><span class="line">&#125; memorystatus_priority_entry_t;</span><br></pre></td></tr></table></figure>
+<p><strong>说明</strong>：通过XNU获取内存限制值需要root权限，而App的权限不够，所以要获得App的内存限制需要到到越狱设备上。</p>
+<h5 id="4、总结"><a href="#4、总结" class="headerlink" title="4、总结"></a>4、总结</h5><p><strong>总的来说，获取App的内存使用阈值，有三种方式，三种方式的对比如下：</strong></p>
+<ul>
+<li>通过JetsamEvent 日志计算内存限制值 局限大，不适合线上使用；</li>
+<li><strong>收到内存警告通知时获取当前App的内存使用值，这个获取的是上限的近似值，虽然不很准确，但是适合线上使用；</strong></li>
+<li>通过XNU获取内存限制值，局限更大，虽然能知道各进程之前的优先级，内存阈值，但是需要设备越狱，更不适合线上使用。</li>
+</ul>
+<p>——————————————————————————————————————————————————</p>
+<p>很多东西后续完善，现在随便写写, 尴尬</p>
+<h4 id="三、内存分配获取"><a href="#三、内存分配获取" class="headerlink" title="三、内存分配获取"></a>三、内存分配获取</h4><h5 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h5><ul>
+<li>OOM的排查思路：监控App使用内存增长，在收到内存警告通知时，dump 内存信息，获取对象名称、对象个数、各对象的内存值，并在合适的时机上报到服务器。</li>
+</ul>
+<h5 id="2、内存分配函数"><a href="#2、内存分配函数" class="headerlink" title="2、内存分配函数"></a>2、内存分配函数</h5><ul>
+<li>内存分配函数malloc和calloc等默认使用的是nano_zone，<strong>no_zone</strong> 是 256B 以下小内存的分配，大于 256B 的时候会使用 <strong>scalable_zone</strong> 来分配。</li>
+<li>主要针对大内存的分配监控，所以只针对scalable_zone进行分析，可以过滤掉很多小内存分配，比如malloc 函数用的是 malloc_zone_malloc，calloc用的是malloc_zone_calloc。</li>
+<li>使用scalable_zone分配内存的函数都会用到malloc_logger函数，它可以统计并管理内存的分配情况。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">void *malloc_zone_malloc(malloc_zone_t *zone, size_t size)</span><br><span class="line">&#123;</span><br><span class="line">	MALLOC_TRACE(TRACE_malloc | DBG_FUNC_START, (uintptr_t)zone, size, 0, 0);</span><br><span class="line">	void *ptr;</span><br><span class="line">	if (malloc_check_start &amp;&amp; (malloc_check_counter++ &gt;= malloc_check_start)) &#123;</span><br><span class="line">		internal_check();</span><br><span class="line">	&#125;</span><br><span class="line">	if (size &gt; MALLOC_ABSOLUTE_MAX_SIZE) &#123;</span><br><span class="line">		return NULL;</span><br><span class="line">	&#125;</span><br><span class="line">	ptr = zone-&gt;malloc(zone, size);</span><br><span class="line">	// 在 zone 分配完内存后就开始使用 malloc_logger 进行进行记录</span><br><span class="line">	if (malloc_logger) &#123;</span><br><span class="line">		malloc_logger(MALLOC_LOG_TYPE_ALLOCATE | MALLOC_LOG_TYPE_HAS_ZONE, (uintptr_t)zone, (uintptr_t)size, 0, (uintptr_t)ptr, 0);</span><br><span class="line">	&#125;</span><br><span class="line">	MALLOC_TRACE(TRACE_malloc | DBG_FUNC_END, (uintptr_t)zone, size, (uintptr_t)ptr, 0);</span><br><span class="line">	return ptr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>说明</strong>：利用fishhook去hook malloc_logger函数，可以掌握内存的分配情况，当出现问题时，将内存分配日志捞上来，可以跟踪到内存不合理增大的原因。</p>
+<h5 id="3、阅读"><a href="#3、阅读" class="headerlink" title="3、阅读"></a>3、阅读</h5><p><a href="https://wetest.qq.com/lab/view/367.html" target="_blank" rel="noopener">iOS微信内存监控</a></p>
+<p><a href="https://www.jianshu.com/p/8bc1d2e5e49d" target="_blank" rel="noopener">深入理解内存分配</a></p>
+<p><a href="https://juejin.im/post/5c28646f5188257abf1d947d" target="_blank" rel="noopener">iOS Out-Of-Memory 原理阐述及方案调研</a></p>
+<p><a href="https://github.com/Tencent/OOMDetector" target="_blank" rel="noopener">OOMDetector</a></p>
+<p><a href="https://juejin.im/post/5a58f1a76fb9a01cab283392" target="_blank" rel="noopener">iOS爆内存问题解决方案-OOMDetector组件</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS/" rel="tag"># iOS</a>
+          
+            <a href="/tags/OOM/" rel="tag"># OOM</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/16/iOS-BasicMonitor/" rel="next" title="App线上数据监控小记">
+                <i class="fa fa-chevron-left"></i> App线上数据监控小记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.jpeg"
+                alt="南华coder" />
+            
+              <p class="site-author-name" itemprop="name">南华coder</p>
+              <p class="site-description motion-element" itemprop="description">天之道，损有余而补不足</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">33</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、概述"><span class="nav-number">1.</span> <span class="nav-text">一、概述</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、OOM是什么"><span class="nav-number">1.1.</span> <span class="nav-text">1、OOM是什么</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、Jetsam机制是什么"><span class="nav-number">1.2.</span> <span class="nav-text">2、Jetsam机制是什么</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、获取App的内存使用上限"><span class="nav-number">2.</span> <span class="nav-text">二、获取App的内存使用上限</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、通过JetsamEvent-日志计算内存限制值"><span class="nav-number">2.1.</span> <span class="nav-text">1、通过JetsamEvent 日志计算内存限制值</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、收到内存警告通知时获取当前App的内存使用值"><span class="nav-number">2.2.</span> <span class="nav-text">2、收到内存警告通知时获取当前App的内存使用值</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、通过XNU获取内存限制值"><span class="nav-number">2.3.</span> <span class="nav-text">3、通过XNU获取内存限制值</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、总结"><span class="nav-number">2.4.</span> <span class="nav-text">4、总结</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、内存分配获取"><span class="nav-number">3.</span> <span class="nav-text">三、内存分配获取</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、概述"><span class="nav-number">3.1.</span> <span class="nav-text">1、概述</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、内存分配函数"><span class="nav-number">3.2.</span> <span class="nav-text">2、内存分配函数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、阅读"><span class="nav-number">3.3.</span> <span class="nav-text">3、阅读</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">南华coder</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">69.6k</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
