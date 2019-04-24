@@ -89,7 +89,7 @@
 <meta property="og:site_name" content="南华coder的空间">
 <meta property="og:description" content="天之道，损有余而补不足 一、概述1、APM是什么 我们平时关注更多的是：需求是否delay，线上bug有多少？每个周期(比如2-3周) 关注下App的DAU、DNU、这些产品指标；但是团队中需要有人去关注App的技术质量指标：如Crash率、启动时间、安装包大小、核心页面的FPS、CPU使用率、内存占用、电量使用、卡顿情况等。 关注App线上质量，从技术维度来判断App是否健康。不健康的App表现">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-04-24T08:23:02.875Z">
+<meta property="og:updated_time" content="2019-04-24T08:52:47.775Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="APM基础小记">
 <meta name="twitter:description" content="天之道，损有余而补不足 一、概述1、APM是什么 我们平时关注更多的是：需求是否delay，线上bug有多少？每个周期(比如2-3周) 关注下App的DAU、DNU、这些产品指标；但是团队中需要有人去关注App的技术质量指标：如Crash率、启动时间、安装包大小、核心页面的FPS、CPU使用率、内存占用、电量使用、卡顿情况等。 关注App线上质量，从技术维度来判断App是否健康。不健康的App表现">
@@ -338,7 +338,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  4,774 字
+                  4,794 字
                 </span>
               
 
@@ -418,7 +418,7 @@
 <li>假如CPU使用过高（&gt;90%），可以认为CPU满负载，此种情况大概率发生卡顿，可以选择上报。</li>
 <li>一段时间内CPU的使用率一直超过某个阈值(80%)，此种情况大概率发生卡顿，可以选择上报。</li>
 </ul>
-<h4 id="二、内存使用监控"><a href="#二、内存使用监控" class="headerlink" title="二、内存使用监控"></a>二、内存使用监控</h4><h5 id="1、内存"><a href="#1、内存" class="headerlink" title="1、内存"></a>1、内存</h5><ul>
+<h4 id="三、内存使用监控"><a href="#三、内存使用监控" class="headerlink" title="三、内存使用监控"></a>三、内存使用监控</h4><h5 id="1、内存"><a href="#1、内存" class="headerlink" title="1、内存"></a>1、内存</h5><ul>
 <li>内存是有限且系统共享的资源，一个App占用地多，系统和其他App所能用的就更少；减少内存占用能不仅仅让自己App，其他App，甚至是整个系统都表现得更好。</li>
 <li>关注App的内存使用情况十分重要</li>
 </ul>
@@ -432,7 +432,7 @@
 <li>对于监控OOM没有很好的办法，目前比较可行的办法是：<strong>定时监控内存使用，当接近内存使用上限时，dump 内存信息，获取对象名称、对象个数、各对象的内存值，并在合适的时机上报到服务器</strong>。</li>
 <li>App中会使用很多单例，这些单例常驻内存，需要关注大单例；大图片解码会造成内存使用飙升，这个也需要关注；还有些取巧的方案，比如预创建webview对象甚至预创建ViewController对象，采用此类做法，需要关注对内存造成的压力。</li>
 </ul>
-<h4 id="三、FPS监控"><a href="#三、FPS监控" class="headerlink" title="三、FPS监控"></a>三、FPS监控</h4><h5 id="1、FPS和CADisplayLink"><a href="#1、FPS和CADisplayLink" class="headerlink" title="1、FPS和CADisplayLink"></a>1、FPS和CADisplayLink</h5><ul>
+<h4 id="四、FPS监控"><a href="#四、FPS监控" class="headerlink" title="四、FPS监控"></a>四、FPS监控</h4><h5 id="1、FPS和CADisplayLink"><a href="#1、FPS和CADisplayLink" class="headerlink" title="1、FPS和CADisplayLink"></a>1、FPS和CADisplayLink</h5><ul>
 <li><code>FPS</code>是<code>Frames Per Second</code> ，意思是每秒帧数，也就是我们常说的“刷新率（单位为Hz）。FPS低(小于50)表示App不流畅，App需要优化，iOS手机屏幕的正常刷新频率是每秒60次，即<code>FPS</code>值为60。</li>
 <li><code>CADisplayLink</code>是和屏幕刷新频率保存一致，它是<code>CoreAnimation</code>提供的另一个类似于<code>NSTimer</code>的类，它总是在屏幕完成一次更新之前启动，<code>CADisplayLink</code>有一个整型的<code>frameInterval</code>属性，指定了间隔多少帧之后才执行。默认值是1，意味着每次屏幕更新之前都会执行一次。</li>
 </ul>
@@ -455,7 +455,7 @@
 <li>和使用监控RunLoop状态来发现卡顿问题不同，FPS关注的是滑动场景下，FPS偏低的场景。</li>
 <li>而监控RunLoop状态来发现卡顿问题更加关注的是：在一段时间内无法进行用户操作的场景，这类卡顿对用户的伤害非常大，是通过日志很难发现，需要优先解决的问题</li>
 </ul>
-<h4 id="四、卡顿监控"><a href="#四、卡顿监控" class="headerlink" title="四、卡顿监控"></a>四、卡顿监控</h4><h5 id="1、卡顿和RunLoop"><a href="#1、卡顿和RunLoop" class="headerlink" title="1、卡顿和RunLoop"></a>1、卡顿和RunLoop</h5><ul>
+<h4 id="五、卡顿监控"><a href="#五、卡顿监控" class="headerlink" title="五、卡顿监控"></a>五、卡顿监控</h4><h5 id="1、卡顿和RunLoop"><a href="#1、卡顿和RunLoop" class="headerlink" title="1、卡顿和RunLoop"></a>1、卡顿和RunLoop</h5><ul>
 <li>卡顿监控的本质是，监控主线程做了哪些事；线程的消息事件依赖<strong>RunLoop</strong>，通过监听RunLoop的状态，从而判断是否发生卡顿。</li>
 <li>RunLoop在iOS中是由CFRunLoop实现的，它负责监听输入源，进行调度处理的，这里的输入源可以是输入设备、网络、周期性或者延迟时间、异步回调。RunLoop接收两种输入源：一种是来<strong>自另一个线程或者来自不同应用的异步消息</strong>；另一个事<strong>来自预定时间或重复间隔的同步事件</strong>。</li>
 <li>当有事情处理，Runloop唤起线程去处理，没有事情处理，让线程进入休眠。基于此，我们可以把大量占用CPU的任务(图片加载、数据文件读写等) ，放在空闲的非主线程执行，就可以避免影响主线程滑动过程中的体验(主线程滑动时，RunLoop处在UITrackingRunLoopMode模式)</li>
@@ -463,7 +463,7 @@
 <h5 id="2、如何判断卡顿"><a href="#2、如何判断卡顿" class="headerlink" title="2、如何判断卡顿"></a>2、如何判断卡顿</h5><ul>
 <li>已知的RunLoop的7个状态</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">//RunLoop的状态</span><br><span class="line">typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) &#123;</span><br><span class="line">    kCFRunLoopEntry , 				// 进入 loop</span><br><span class="line">    kCFRunLoopBeforeTimers ,  // 触发 Timer 回调</span><br><span class="line">    kCFRunLoopBeforeSources , // 触发 Source0 回调</span><br><span class="line">    kCFRunLoopBeforeWaiting , // 等待 mach_port 消息</span><br><span class="line">    kCFRunLoopAfterWaiting ,  // 接收 mach_port 消息</span><br><span class="line">    kCFRunLoopExit , 					// 退出 loop</span><br><span class="line">    kCFRunLoopAllActivities  // loop 所有状态改变</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">//RunLoop的状态</span><br><span class="line">typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) &#123;</span><br><span class="line">     kCFRunLoopEntry         = (1UL &lt;&lt; 0), // 即将进入Loop</span><br><span class="line">     kCFRunLoopBeforeTimers  = (1UL &lt;&lt; 1), // 即将处理 Timer</span><br><span class="line">     kCFRunLoopBeforeSources = (1UL &lt;&lt; 2), // 即将处理 Source</span><br><span class="line">     kCFRunLoopBeforeWaiting = (1UL &lt;&lt; 5), // 即将进入休眠</span><br><span class="line">     kCFRunLoopAfterWaiting  = (1UL &lt;&lt; 6), // 刚从休眠中唤醒</span><br><span class="line">     kCFRunLoopExit          = (1UL &lt;&lt; 7), // 即将退出Loop</span><br><span class="line">     kCFRunLoopAllActivities = 0x0FFFFFFFU // loop 所有状态改变</span><br><span class="line"> &#125;;</span><br></pre></td></tr></table></figure>
 <ul>
 <li>由于<code>kCFRunLoopBeforeSources之后</code>需要处理Source0，<code>kCFRunLoopAfterWaiting之后</code>需要处理timer、dispatch 到 main_queue 的 block和Source1，所以可以认为<code>kCFRunLoopBeforeSources</code>和<code>kCFRunLoopAfterWaiting</code>。因为<code>kCFRunLoopBeforeSources</code>之后和<code>kCFRunLoopAfterWaiting</code>之后是事情处理的主要时间段。</li>
 <li><p>dispatch_semaphore_t信号量机制特性：信号量到达、或者 超时会继续向下进行，否则等待；如果超时则返回的结果必定不为0，否则信号量到达结果为0。</p>
@@ -477,7 +477,7 @@
 <li>利用的RunLoop实现的卡顿方案，主要是针对那些在一段时间内无法进行用户操作的场景，这类卡顿对用户的伤害非常大，是通过日志很难发现，需要优先解决的问题。</li>
 <li><strong>卡顿时间阈值</strong>(<em>timeoutThreshold</em>)和<strong>超时时间次数</strong>(<em>timeoutCount</em>)可以通服务器下发控制，用来控制上报卡顿情况的场景。</li>
 </ul>
-<h4 id="五、电量监控"><a href="#五、电量监控" class="headerlink" title="五、电量监控"></a>五、电量监控</h4><h5 id="1、手动查看电量"><a href="#1、手动查看电量" class="headerlink" title="1、手动查看电量"></a>1、手动查看电量</h5><ul>
+<h4 id="六、电量监控"><a href="#六、电量监控" class="headerlink" title="六、电量监控"></a>六、电量监控</h4><h5 id="1、手动查看电量"><a href="#1、手动查看电量" class="headerlink" title="1、手动查看电量"></a>1、手动查看电量</h5><ul>
 <li>我们可以通过手机的<strong>设置-电池</strong>查看过去一段时间(24小时或2天)查看Top耗电量的App；</li>
 <li>对于用户来说，还有更直接的方式，使用某App时候，手机状态栏右上角电池使用量嗖嗖往下掉或手机发热，那么基本可以判断这个App耗电太快，赶紧卸了。</li>
 <li>对于开发者来说，可以通过Xcode左边栏的Energy Impact查看电量使用，蓝色表示–合理,黄色–表示比较耗电，红色–表示仅仅轻度使用你的程序,就会很耗电。</li>
@@ -499,14 +499,13 @@
 </ul>
 <h5 id="4、耗电量大的操作"><a href="#4、耗电量大的操作" class="headerlink" title="4、耗电量大的操作"></a>4、耗电量大的操作</h5><ul>
 <li><p>CPU使用率高的操作</p>
-</li>
-<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">线程过多 (控制合适的线程数)</span><br><span class="line">定位   (按需使用，降低频次)</span><br><span class="line">CPU任务繁重  (使用轻量级对象，缓存计算结果，对象复用等)</span><br><span class="line">频繁网络请求(避免无效冗余的网络请求)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">线程过多 (控制合适的线程数)</span><br><span class="line">定位   (按需使用，降低频次)</span><br><span class="line">CPU任务繁重  (使用轻量级对象，缓存计算结果，对象复用等)</span><br><span class="line">频繁网络请求(避免无效冗余的网络请求)</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>I/O操作频繁的操作</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">直接读写磁盘文件 (合理利用内存缓存，碎片化的数据在内存中聚合，合适时机写入磁盘)</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<h4 id="六、End"><a href="#六、End" class="headerlink" title="六、End"></a>六、End</h4><h5 id="1、总结"><a href="#1、总结" class="headerlink" title="1、总结"></a>1、总结</h5><ul>
+<h4 id="七、End"><a href="#七、End" class="headerlink" title="七、End"></a>七、End</h4><h5 id="1、总结"><a href="#1、总结" class="headerlink" title="1、总结"></a>1、总结</h5><ul>
 <li><p>对APP的质量指标的监控，是为了更早地发现问题；发现问题是为了更好地解决问题。所以监控不是终点，是起点。</p>
 </li>
 <li><p>在17年时候，在简书中写了<a href="https://www.jianshu.com/p/3261493e6d9e" target="_blank" rel="noopener">iOS实录14：浅谈iOS Crash（一）</a>和 <a href="https://www.jianshu.com/p/33ee5e7d312c" target="_blank" rel="noopener">iOS实录15：浅谈iOS Crash（二）</a>两篇文章；时隔两年之后，书写此文，是为了纪念过去大半年时候在App质量监控上花的努力。</p>
@@ -630,7 +629,7 @@
                 alt="南华coder" />
             
               <p class="site-author-name" itemprop="name">南华coder</p>
-              <p class="site-description motion-element" itemprop="description">天之道，损有余而补不足</p>
+              <p class="site-description motion-element" itemprop="description">于无声处听惊雷,于无色处见繁花</p>
           </div>
 
           <nav class="site-state motion-element">
@@ -662,7 +661,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-count">47</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -702,7 +701,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、概述"><span class="nav-number">1.</span> <span class="nav-text">一、概述</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、APM是什么"><span class="nav-number">1.1.</span> <span class="nav-text">1、APM是什么</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、APM工具"><span class="nav-number">1.2.</span> <span class="nav-text">2、APM工具</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、CPU使用率监控"><span class="nav-number">2.</span> <span class="nav-text">二、CPU使用率监控</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、Task和CPU"><span class="nav-number">2.1.</span> <span class="nav-text">1、Task和CPU</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、Mach-Task和线程列表"><span class="nav-number">2.2.</span> <span class="nav-text">2、Mach Task和线程列表</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、单个线程信息结构"><span class="nav-number">2.3.</span> <span class="nav-text">3、单个线程信息结构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、CPU-占用率计算"><span class="nav-number">2.4.</span> <span class="nav-text">4、CPU 占用率计算</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、为什么关注CPU使用率"><span class="nav-number">2.5.</span> <span class="nav-text">4、为什么关注CPU使用率</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、内存使用监控"><span class="nav-number">3.</span> <span class="nav-text">二、内存使用监控</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、内存"><span class="nav-number">3.1.</span> <span class="nav-text">1、内存</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、内存信息结构"><span class="nav-number">3.2.</span> <span class="nav-text">2、内存信息结构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、内存信息获取"><span class="nav-number">3.3.</span> <span class="nav-text">3、内存信息获取</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、为什么关注内存使用"><span class="nav-number">3.4.</span> <span class="nav-text">4、为什么关注内存使用</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、FPS监控"><span class="nav-number">4.</span> <span class="nav-text">三、FPS监控</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、FPS和CADisplayLink"><span class="nav-number">4.1.</span> <span class="nav-text">1、FPS和CADisplayLink</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、FPS监控实现"><span class="nav-number">4.2.</span> <span class="nav-text">2、FPS监控实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、错信FPS值Case1"><span class="nav-number">4.3.</span> <span class="nav-text">3、错信FPS值Case1</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、错信FPS值Case2"><span class="nav-number">4.4.</span> <span class="nav-text">4、错信FPS值Case2</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5、为什么关注FPS"><span class="nav-number">4.5.</span> <span class="nav-text">5、为什么关注FPS</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四、卡顿监控"><span class="nav-number">5.</span> <span class="nav-text">四、卡顿监控</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、卡顿和RunLoop"><span class="nav-number">5.1.</span> <span class="nav-text">1、卡顿和RunLoop</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、如何判断卡顿"><span class="nav-number">5.2.</span> <span class="nav-text">2、如何判断卡顿</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、卡顿监控的实现"><span class="nav-number">5.3.</span> <span class="nav-text">3、卡顿监控的实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、卡顿时间阈值说明"><span class="nav-number">5.4.</span> <span class="nav-text">4、卡顿时间阈值说明</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#五、电量监控"><span class="nav-number">6.</span> <span class="nav-text">五、电量监控</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、手动查看电量"><span class="nav-number">6.1.</span> <span class="nav-text">1、手动查看电量</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、电量监控方案1"><span class="nav-number">6.2.</span> <span class="nav-text">2、电量监控方案1</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、电量监控方案2"><span class="nav-number">6.3.</span> <span class="nav-text">3、电量监控方案2</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、耗电量大的操作"><span class="nav-number">6.4.</span> <span class="nav-text">4、耗电量大的操作</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#六、End"><span class="nav-number">7.</span> <span class="nav-text">六、End</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、总结"><span class="nav-number">7.1.</span> <span class="nav-text">1、总结</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、推荐的阅读资料"><span class="nav-number">7.2.</span> <span class="nav-text">2、推荐的阅读资料</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、概述"><span class="nav-number">1.</span> <span class="nav-text">一、概述</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、APM是什么"><span class="nav-number">1.1.</span> <span class="nav-text">1、APM是什么</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、APM工具"><span class="nav-number">1.2.</span> <span class="nav-text">2、APM工具</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、CPU使用率监控"><span class="nav-number">2.</span> <span class="nav-text">二、CPU使用率监控</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、Task和CPU"><span class="nav-number">2.1.</span> <span class="nav-text">1、Task和CPU</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、Mach-Task和线程列表"><span class="nav-number">2.2.</span> <span class="nav-text">2、Mach Task和线程列表</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、单个线程信息结构"><span class="nav-number">2.3.</span> <span class="nav-text">3、单个线程信息结构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、CPU-占用率计算"><span class="nav-number">2.4.</span> <span class="nav-text">4、CPU 占用率计算</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、为什么关注CPU使用率"><span class="nav-number">2.5.</span> <span class="nav-text">4、为什么关注CPU使用率</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、内存使用监控"><span class="nav-number">3.</span> <span class="nav-text">三、内存使用监控</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、内存"><span class="nav-number">3.1.</span> <span class="nav-text">1、内存</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、内存信息结构"><span class="nav-number">3.2.</span> <span class="nav-text">2、内存信息结构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、内存信息获取"><span class="nav-number">3.3.</span> <span class="nav-text">3、内存信息获取</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、为什么关注内存使用"><span class="nav-number">3.4.</span> <span class="nav-text">4、为什么关注内存使用</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四、FPS监控"><span class="nav-number">4.</span> <span class="nav-text">四、FPS监控</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、FPS和CADisplayLink"><span class="nav-number">4.1.</span> <span class="nav-text">1、FPS和CADisplayLink</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、FPS监控实现"><span class="nav-number">4.2.</span> <span class="nav-text">2、FPS监控实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、错信FPS值Case1"><span class="nav-number">4.3.</span> <span class="nav-text">3、错信FPS值Case1</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、错信FPS值Case2"><span class="nav-number">4.4.</span> <span class="nav-text">4、错信FPS值Case2</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5、为什么关注FPS"><span class="nav-number">4.5.</span> <span class="nav-text">5、为什么关注FPS</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#五、卡顿监控"><span class="nav-number">5.</span> <span class="nav-text">五、卡顿监控</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、卡顿和RunLoop"><span class="nav-number">5.1.</span> <span class="nav-text">1、卡顿和RunLoop</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、如何判断卡顿"><span class="nav-number">5.2.</span> <span class="nav-text">2、如何判断卡顿</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、卡顿监控的实现"><span class="nav-number">5.3.</span> <span class="nav-text">3、卡顿监控的实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、卡顿时间阈值说明"><span class="nav-number">5.4.</span> <span class="nav-text">4、卡顿时间阈值说明</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#六、电量监控"><span class="nav-number">6.</span> <span class="nav-text">六、电量监控</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、手动查看电量"><span class="nav-number">6.1.</span> <span class="nav-text">1、手动查看电量</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、电量监控方案1"><span class="nav-number">6.2.</span> <span class="nav-text">2、电量监控方案1</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、电量监控方案2"><span class="nav-number">6.3.</span> <span class="nav-text">3、电量监控方案2</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、耗电量大的操作"><span class="nav-number">6.4.</span> <span class="nav-text">4、耗电量大的操作</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#七、End"><span class="nav-number">7.</span> <span class="nav-text">七、End</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、总结"><span class="nav-number">7.1.</span> <span class="nav-text">1、总结</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、推荐的阅读资料"><span class="nav-number">7.2.</span> <span class="nav-text">2、推荐的阅读资料</span></a></li></ol></li></ol></div>
             
 
           </div>
@@ -736,7 +735,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">71.5k</span>
+    <span title="Site words total count">71.6k</span>
   
 </div>
 

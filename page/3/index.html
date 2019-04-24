@@ -81,16 +81,16 @@
 
 
 
-<meta name="description" content="天之道，损有余而补不足">
+<meta name="description" content="于无声处听惊雷,于无色处见繁花">
 <meta property="og:type" content="website">
 <meta property="og:title" content="南华coder的空间">
 <meta property="og:url" content="http://buaa0300/nanhuacoder.com/page/3/index.html">
 <meta property="og:site_name" content="南华coder的空间">
-<meta property="og:description" content="天之道，损有余而补不足">
+<meta property="og:description" content="于无声处听惊雷,于无色处见繁花">
 <meta property="og:locale" content="zh-Hans">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="南华coder的空间">
-<meta name="twitter:description" content="天之道，损有余而补不足">
+<meta name="twitter:description" content="于无声处听惊雷,于无色处见繁花">
 
 
 
@@ -906,7 +906,7 @@ objc_removeAssociatedObjects  // 删除所有关联对象
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  2,741 字
+                  2,756 字
                 </span>
               
 
@@ -946,7 +946,7 @@ objc_removeAssociatedObjects  // 删除所有关联对象
         
           
             <h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4><ul>
-<li><strong>RunLoop</strong>：运行循环，和线程有关；当没有事件/消息时，RunLoop让线程休眠；当有事件/消息发生时，RunLoop唤醒线程去处理。</li>
+<li><strong>RunLoop</strong>：运行循环；当没有事件/消息时，RunLoop让线程休眠；当有事件/消息发生时，RunLoop唤醒线程去处理。</li>
 <li><strong>每个线程都有一个对应的 Runloop 对象</strong>；主线程的RunLoop会在App运行时自动运行，<strong>子线程中需要手动获取并运行，第一次获取时，才会去创建</strong>。</li>
 <li><p>一个RunLoop包含若干个Mode,每个<strong>Mode</strong>包含若干个<strong>Source/Timer/Observer</strong>。每次启动RunLoop时，只能指定一个Mode，如果需要切换Mode，需要退出Loop，再重新指定一个Mode进入。</p>
 </li>
@@ -981,10 +981,10 @@ NSConnectionReplyMode             //可以监听NSConnection对象的状态，�
 <ul>
 <li><strong>CFRunLoopObserverRef</strong></li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">观察者，每个 Observer 都包含了一个回调（函数指针），当 RunLoop 的状态发生变化时，观察者就能通过回调接受到这个变化。可以观测的时间点有以下几个：</span><br><span class="line">typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) &#123;</span><br><span class="line">     kCFRunLoopEntry         = (1UL &lt;&lt; 0), // 即将进入Loop</span><br><span class="line">     kCFRunLoopBeforeTimers  = (1UL &lt;&lt; 1), // 即将处理 Timer</span><br><span class="line">     kCFRunLoopBeforeSources = (1UL &lt;&lt; 2), // 即将处理 Source</span><br><span class="line">     kCFRunLoopBeforeWaiting = (1UL &lt;&lt; 5), // 即将进入休眠</span><br><span class="line">     kCFRunLoopAfterWaiting  = (1UL &lt;&lt; 6), // 刚从休眠中唤醒</span><br><span class="line">     kCFRunLoopExit          = (1UL &lt;&lt; 7), // 即将退出Loop</span><br><span class="line"> &#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">观察者，每个 Observer 都包含了一个回调（函数指针），当 RunLoop 的状态发生变化时，观察者就能通过回调接受到这个变化。可以观测的时间点有以下几个：</span><br><span class="line">typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) &#123;</span><br><span class="line">     kCFRunLoopEntry         = (1UL &lt;&lt; 0), // 即将进入Loop</span><br><span class="line">     kCFRunLoopBeforeTimers  = (1UL &lt;&lt; 1), // 即将处理 Timer</span><br><span class="line">     kCFRunLoopBeforeSources = (1UL &lt;&lt; 2), // 即将处理 Source</span><br><span class="line">     kCFRunLoopBeforeWaiting = (1UL &lt;&lt; 5), // 即将进入休眠</span><br><span class="line">     kCFRunLoopAfterWaiting  = (1UL &lt;&lt; 6), // 刚从休眠中唤醒</span><br><span class="line">     kCFRunLoopExit          = (1UL &lt;&lt; 7), // 即将退出Loop</span><br><span class="line">     kCFRunLoopAllActivities = 0x0FFFFFFFU // loop 所有状态改变</span><br><span class="line"> &#125;;</span><br></pre></td></tr></table></figure>
 <h4 id="三、Runloop-Observer"><a href="#三、Runloop-Observer" class="headerlink" title="三、Runloop Observer"></a>三、Runloop Observer</h4><h5 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h5><ul>
 <li><p>Runloop 通过监控 Source 来决定有没有任务要做，除此之外，我们还可以用 Runloop Observer 来监控 Runloop 本身的状态。RunLoop的状态有</p>
-   <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) &#123;</span><br><span class="line">     kCFRunLoopEntry         = (1UL &lt;&lt; 0), // 即将进入Loop</span><br><span class="line">     kCFRunLoopBeforeTimers  = (1UL &lt;&lt; 1), // 即将处理 Timer</span><br><span class="line">     kCFRunLoopBeforeSources = (1UL &lt;&lt; 2), // 即将处理 Source</span><br><span class="line">     kCFRunLoopBeforeWaiting = (1UL &lt;&lt; 5), // 即将进入休眠</span><br><span class="line">     kCFRunLoopAfterWaiting  = (1UL &lt;&lt; 6), // 刚从休眠中唤醒</span><br><span class="line">     kCFRunLoopExit          = (1UL &lt;&lt; 7), // 即将退出Loop</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+   <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) &#123;</span><br><span class="line">     kCFRunLoopEntry         = (1UL &lt;&lt; 0), // 即将进入Loop</span><br><span class="line">     kCFRunLoopBeforeTimers  = (1UL &lt;&lt; 1), // 即将处理 Timer</span><br><span class="line">     kCFRunLoopBeforeSources = (1UL &lt;&lt; 2), // 即将处理 Source</span><br><span class="line">     kCFRunLoopBeforeWaiting = (1UL &lt;&lt; 5), // 即将进入休眠</span><br><span class="line">     kCFRunLoopAfterWaiting  = (1UL &lt;&lt; 6), // 刚从休眠中唤醒</span><br><span class="line">     kCFRunLoopExit          = (1UL &lt;&lt; 7), // 即将退出Loop</span><br><span class="line">     kCFRunLoopAllActivities = 0x0FFFFFFFU // loop 所有状态改变</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
 <h5 id="2、AutoreleasePool"><a href="#2、AutoreleasePool" class="headerlink" title="2、AutoreleasePool"></a>2、AutoreleasePool</h5><ul>
@@ -1159,9 +1159,7 @@ static void QSRunloopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopAc
     }
 }
 </code></pre><p><strong>说明</strong>：如果发现卡顿，可以利用PLCrashReporter搜集各个线程的调用堆栈信息，上报到服务器,参考自<a href="http://mrpeak.cn/blog/ui-detect/" target="_blank" rel="noopener">iOS应用UI线程卡顿监控</a></p>
-<blockquote>
-<h4 id="End"><a href="#End" class="headerlink" title="End"></a>End</h4></blockquote>
-<p>想了解更多可参考<a href="http://blog.ibireme.com/2015/05/18/runloop/" target="_blank" rel="noopener">深入理解RunLoop</a></p>
+<h4 id="End"><a href="#End" class="headerlink" title="End"></a>End</h4><p>想了解更多可参考<a href="http://blog.ibireme.com/2015/05/18/runloop/" target="_blank" rel="noopener">深入理解RunLoop</a></p>
 
           
         
@@ -3280,7 +3278,7 @@ if __name__ == &apos;__main__&apos;:
                 alt="南华coder" />
             
               <p class="site-author-name" itemprop="name">南华coder</p>
-              <p class="site-description motion-element" itemprop="description">天之道，损有余而补不足</p>
+              <p class="site-description motion-element" itemprop="description">于无声处听惊雷,于无色处见繁花</p>
           </div>
 
           <nav class="site-state motion-element">
@@ -3312,7 +3310,7 @@ if __name__ == &apos;__main__&apos;:
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-count">47</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -3370,7 +3368,7 @@ if __name__ == &apos;__main__&apos;:
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">71.5k</span>
+    <span title="Site words total count">71.6k</span>
   
 </div>
 
