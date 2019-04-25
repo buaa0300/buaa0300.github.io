@@ -254,6 +254,549 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/02/28/iOS-iOSJavaScriptCore/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/02/28/iOS-iOSJavaScriptCore/" itemprop="url">JavaScriptCore小记</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-28T00:07:41+08:00">
+                2018-02-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS基础/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,587 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  15 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="一、JavaScriptCore核心类和协议"><a href="#一、JavaScriptCore核心类和协议" class="headerlink" title="一、JavaScriptCore核心类和协议"></a>一、JavaScriptCore核心类和协议</h4><ul>
+<li><p>JavaScriptCore给iOS开发的第一反应是<strong>实现原生应用和Web应用之间通信</strong></p>
+</li>
+<li><p>实际上，JavaScriptCore是iOS 7推出的<strong>JavaScript引擎</strong>，是为了实现OC和JS通信，使用场景不局限于在原生应用和Web应用间使用(<em>虽然这是大部分场景</em>)。</p>
+</li>
+</ul>
+<h5 id="1、-JSContext"><a href="#1、-JSContext" class="headerlink" title="1、 JSContext"></a>1、 JSContext</h5><ul>
+<li><strong>JavaScript运行的上下文环境</strong>，使用JSContext对象来执行JavaScript代码，所有的JSValue对象都由JSContext对象管理。</li>
+</ul>
+<h5 id="2、JSValue"><a href="#2、JSValue" class="headerlink" title="2、JSValue"></a>2、JSValue</h5><ul>
+<li><p><strong>代表一个JavaScript实体</strong>，不仅可以表示JavaScript原始类型数据如boolean、Number、String等，还可以表示对象和函数。OC和JS对象之间的转换如下表：</p>
+<p> |Objective-C type  |   JavaScript type|</p>
+<pre><code>|--|--|
+|nil | undefined|
+|NSNull       |        null|
+|NSString      |       string|
+|NSNumber      |   number, boolean|
+|NSDictionary    |   Object object|
+|NSArray       |    Array object|
+|NSDate       |     Date object|
+|NSBlock   |   Function object |
+|id     |   Wrapper object |
+|Class | Constructor object|
+</code></pre></li>
+</ul>
+<h5 id="3、-JSManagedValue"><a href="#3、-JSManagedValue" class="headerlink" title="3、 JSManagedValue"></a>3、 JSManagedValue</h5><ul>
+<li>本质是<strong>弱引用的JSValue对象</strong>，可以处理内存管理中的一些特殊情形，它能帮助引用技术和垃圾回收这两种内存管理机制之间进行正确的转换。如代替JSValue对象被OC对象持有避免发生循环引用(<em>本文后面会讲解</em>)。</li>
+</ul>
+<h5 id="4、JSVirtualMachine"><a href="#4、JSVirtualMachine" class="headerlink" title="4、JSVirtualMachine"></a>4、JSVirtualMachine</h5><ul>
+<li><strong>JavaScript运行的虚拟机</strong>，拥有自己的堆结构和垃圾回收机制。大部分情况下不需要和它直接交互，除非要处理一些特殊的多线程或者内存管理问题。</li>
+</ul>
+<h5 id="5、JSExport"><a href="#5、JSExport" class="headerlink" title="5、JSExport"></a>5、JSExport</h5><ul>
+<li><p><strong>将OC对象直接转成JS对象的协议</strong>，可以将OC类的属性或方法转换为JS的属性或方法。使用时，继承JSExport定义自己的协议，然后在自己的协议中定义暴露给JavaScript的方法；</p>
+</li>
+<li><p><strong>方法由Objective-C中的类实现</strong>；JavaScriptCore将实现类的对象注入JSContext运行环境中，使用注入的名称调用JS方法就会自动调用这个对象对应的OC方法。</p>
+</li>
+</ul>
+<h4 id="二、Objective-C调用JavaScript代码"><a href="#二、Objective-C调用JavaScript代码" class="headerlink" title="二、Objective-C调用JavaScript代码"></a>二、Objective-C调用JavaScript代码</h4><h5 id="1、Objective-C直接执行JavaScript代码"><a href="#1、Objective-C直接执行JavaScript代码" class="headerlink" title="1、Objective-C直接执行JavaScript代码"></a>1、Objective-C直接执行JavaScript代码</h5><p><strong>1）JSContext</strong>为JavaScript提供运行的上下文环境，执行JavaScript代码前必须先创建JSContext对象，创建JSContext对象之后，才可以调用JSContext的evaluateScript:方法可以执行JavaScript代码了，如创建变量，做计算，定义方法等。</p>
+<p><strong>2）JSContext</strong>的创建都是基于<strong>JSVirtualMachine</strong>(<em>JSVirtualMachine为JavaScript的运行提供了底层资源</em>)，默认使用init进行初始化，在其内部会自动创建一个新的JSVirtualMachine对象，然后根据JSVirtualMachine对象初始化JSContext对象。</p>
+<p><strong>3）JSContext的evaluateScript:方法的返回值类型是JSValue</strong>， JSValue 封装了每一个可能的 JavaScript 值，如字符串和数字、数组、对象、方法、甚至错误和特殊的 JavaScript 值诸如 null 和 undefined等。对JSValue调用toString、toBool、toDouble、toArray等等方法把它转换成合适的Objective-C值或对象。</p>
+<p><strong>4） 示例代码如下</strong>。XCode控制台输出12，是调用add(5,7)代码执行后的结果值。</p>
+<pre><code>- (void)ocCallJsCode{
+
+    JSContext *context = [[JSContext alloc]init];
+    [context evaluateScript:@&quot;var a = 5,b = 7&quot;];
+    [context evaluateScript:@&quot;function add(a,b){return a+b}&quot;];
+    JSValue *addValue = [context evaluateScript:@&quot;add(5,7)&quot;];
+    NSLog(@&quot;addValue = %d&quot;,addValue.toInt32);    
+}
+</code></pre><h5 id="2、Objective-C执行JavaScript代码文件"><a href="#2、Objective-C执行JavaScript代码文件" class="headerlink" title="2、Objective-C执行JavaScript代码文件"></a>2、Objective-C执行JavaScript代码文件</h5><p>首先初始化了一个JSContext对象，然后执行JavaScript文件中的代码，最后从JSContext对象中取出JS函数，使用callWithArguments:调用JS函数，参数是一个数组，如果没有参数则传入空数组@[]</p>
+<p><strong>1）在项目中新建一个occalljs.js的文件，定义了加减乘除四个JS函数，代码如下：</strong></p>
+<pre><code>function add(a,b){
+    return a + b
+}
+
+function sub(a,b){
+    return a - b
+}
+
+function mul(a,b){
+    return a * b
+}
+
+function div(a,b){
+    return a / b
+}
+</code></pre><p><strong>2） OC代码中执行JS代码文件</strong></p>
+<pre><code>- (void)ocCallJsCodeInFile{
+
+    JSContext *context = [[JSContext alloc]init];
+    NSString *jsFilePath = [[NSBundle mainBundle]pathForResource:@&quot;calculate&quot; ofType:@&quot;js&quot;];
+    NSString *jsContent = [NSString stringWithContentsOfFile:jsFilePath encoding:NSUTF8StringEncoding error:nil];
+    [context evaluateScript:jsContent];
+
+    JSValue *addValue = [context[@&quot;add&quot;] callWithArguments:@[@5,@7]];
+    NSLog(@&quot;5 + 7 = %d&quot;,addValue.toInt32);
+
+    JSValue *subValue = [context[@&quot;sub&quot;] callWithArguments:@[@5,@7]];
+    NSLog(@&quot;5 - 7 = %d&quot;,subValue.toInt32);
+
+    JSValue *mulValue = [context[@&quot;mul&quot;] callWithArguments:@[@5,@7]];
+    NSLog(@&quot;5 * 7 = %d&quot;,mulValue.toInt32);
+
+    JSValue *divValue = [context[@&quot;div&quot;] callWithArguments:@[@5,@7.0]];
+    NSLog(@&quot;5 / 7 = %.2lf&quot;,divValue.toDouble);
+}
+</code></pre><p><strong>总结：</strong>通过JSContext和JSValue的配合使用，实现了Objective-C执行JavaScript代码。</p>
+<h4 id="三、JavaScript调用Objective-C代码"><a href="#三、JavaScript调用Objective-C代码" class="headerlink" title="三、JavaScript调用Objective-C代码"></a>三、JavaScript调用Objective-C代码</h4><p>可以使用两种方式实现JavaScript调用Objective-C代码</p>
+<h5 id="方式一：在OC中定义block，使用block代替JS的函数实现"><a href="#方式一：在OC中定义block，使用block代替JS的函数实现" class="headerlink" title="方式一：在OC中定义block，使用block代替JS的函数实现"></a>方式一：在OC中定义<strong>block</strong>，使用block代替JS的函数实现</h5><p>代码如下：</p>
+<p><strong>1、新建一个jscalloc1.js的文件，定义了两个方法，代码如下：</strong></p>
+<pre><code>function sayHello() {
+    print(&quot;你好&quot;);
+}
+
+function showAlert() {
+    alert(&quot;Alert!!!&quot;);
+}
+</code></pre><p><strong>2、oc中实现block代替js方法，代码如下：</strong></p>
+<pre><code>- (void)jsCalloc1{
+
+    JSContext *context = [[JSContext alloc]init];
+    NSString *jsFilePath = [[NSBundle mainBundle]pathForResource:@&quot;jscalloc&quot; ofType:@&quot;js&quot;];
+    NSString *jsContent = [NSString stringWithContentsOfFile:jsFilePath encoding:NSUTF8StringEncoding error:nil];
+    [context evaluateScript:jsContent];
+
+    //block替换js中的print方法
+    context[@&quot;print&quot;] = ^(NSString *printStr){
+
+        NSLog(@&quot;printStr = %@&quot;,printStr);
+    };
+
+    __weak typeof(self) weakSelf = self;
+    //block替换js中的alert方法
+    context[@&quot;alert&quot;] = ^(NSString *alertStr){
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        UIAlertController *vc = [UIAlertController alertControllerWithTitle:@&quot;提示&quot; message:alertStr preferredStyle:UIAlertControllerStyleAlert];
+        [vc addAction:[UIAlertAction actionWithTitle:@&quot;确定&quot; style:UIAlertActionStyleDestructive handler:nil]];
+        [strongSelf presentViewController:vc animated:YES completion:nil];
+    };
+
+    //执行
+    [context[@&quot;sayHello&quot;] callWithArguments:nil];
+    [context[@&quot;showAlert&quot;] callWithArguments:nil];
+}
+</code></pre><p><strong>说明1</strong>：在代码中，我们将两个Block分别以”print”和“alert”为名传递给JavaScript上下文。在JS中调用print函数或者alert函数，其实就是执行在oc中定义的Block；也就实现了<strong>JavaScript调用Objective-C代码</strong>。</p>
+<p><strong>说明2</strong>：JavaScript中的字符串可以无缝的桥接为NSString。</p>
+<p><strong>说明3</strong>: 当JavaScript运行时出现异常，会回调JSContext的exceptionHandler中设置的Block，我们通过Block的方式将异常信息打印处理</p>
+<pre><code>context.exceptionHandler = ^(JSContext *context, JSValue *exception) {
+       NSLog(@&quot;JS Error: %@&quot;, exception);
+};
+</code></pre><h5 id="方式二：继承JSExport协议，定义暴露给JS的方法，将实现协议的类的对象注入到context中"><a href="#方式二：继承JSExport协议，定义暴露给JS的方法，将实现协议的类的对象注入到context中" class="headerlink" title="方式二：继承JSExport协议，定义暴露给JS的方法，将实现协议的类的对象注入到context中"></a>方式二：继承JSExport协议，定义暴露给JS的方法，将实现协议的类的对象注入到context中</h5><p>代码如下：</p>
+<p><strong>1、新建一个jscalloc2.js的文件，定义了两个方法，代码如下：</strong></p>
+<pre><code>function sayHello() {
+    qsobj.print(&quot;你好&quot;);
+}
+
+function showAlert() {
+    qsobj.alert(&quot;Alert!!!&quot;);
+}
+</code></pre><p><strong>2、OC中实现QSExportObject类，将QSExportObject对象qsobj注入到JS执行的上下文环境中，JS中执行qsobj.print和qsobj.alert函数，就是执行OC对象qsobj的方法</strong>，代码如下：</p>
+<pre><code> //QSExportObject.h
+@protocol QSExport &lt;JSExport&gt;
+
+- (void)print:(NSString *)text;
+- (void)alert:(NSString *)text;
+
+//JSExportAs(print,- (void)print:(NSString *)text);
+//JSExportAs(alert,- (void)alert:(NSString *)text);
+@end
+
+@interface QSExportObject : NSObject&lt;QSExport&gt;
+@property (nonatomic,weak)UIViewController *vc;
+@end
+
+//QSExportObject.m
+@implementation QSExportObject
+
+- (void)print:(NSString *)text{
+    NSLog(@&quot;print text = %@&quot;,text);
+}
+
+- (void)alert:(NSString *)text{
+
+    UIAlertController *vc = [UIAlertController alertControllerWithTitle:@&quot;提示&quot; message:text preferredStyle:UIAlertControllerStyleAlert];
+    [vc addAction:[UIAlertAction actionWithTitle:@&quot;确定&quot; style:UIAlertActionStyleDestructive handler:nil]];
+    [self.vc presentViewController:vc animated:YES completion:nil];
+}
+@end
+
+//在ViewController中调用
+ - (void)jsCallOc2{
+
+    JSContext *context = [[JSContext alloc]init];
+    NSString *jsFilePath = [[NSBundle mainBundle]pathForResource:@&quot;jscalloc2&quot; ofType:@&quot;js&quot;];
+    NSString *jsContent = [NSString stringWithContentsOfFile:jsFilePath encoding:NSUTF8StringEncoding error:nil];
+    [context evaluateScript:jsContent];
+    //注入qsObj
+    QSExportObject *qsObj = [QSExportObject new];
+    qsObj.vc = self;
+    context[@&quot;qsobj&quot;] = qsObj;
+
+     //执行
+    [context[@&quot;sayHello&quot;] callWithArguments:nil];
+    [context[@&quot;showAlert&quot;] callWithArguments:nil];
+}
+</code></pre><p><strong>说明1</strong>：在QSExport中定义暴露给JS的接口，也可以使用宏<strong>JSExportAs</strong>，它将JS函数和OC方法绑定在一起；对于OC中多参数的方法，一般使用<strong>JSExportAs</strong>。</p>
+<h4 id="四、循环引问题"><a href="#四、循环引问题" class="headerlink" title="四、循环引问题"></a>四、循环引问题</h4><p><strong>说明</strong>：Objective-C的内存管理机制是<strong>引用计数</strong>，JavaScript的内存管理机制是<strong>垃圾回收</strong>。在大部分情况下，JavaScriptCore能做到在这两种内存管理机制之间无缝无错转换，但是有些情况下会发生循环引用。</p>
+<h5 id="1、block直接使用self-context-会发生循环引用"><a href="#1、block直接使用self-context-会发生循环引用" class="headerlink" title="1、block直接使用self.context 会发生循环引用"></a>1、block直接使用self.context 会发生循环引用</h5><p>打破这类循环引用的办法有两种。</p>
+<p><strong>1）方法1：weakSelf和strongSelf</strong></p>
+<pre><code>[self.context evaluateScript:@&quot;function printAppVersion() { print(getAppVersion())}&quot;];
+self.context[@&quot;print&quot;] = ^(NSString *printStr){
+    NSLog(@&quot;printStr = %@&quot;,printStr);
+};
+
+__weak typeof(self) weakSelf = self;
+self.context[@&quot;getAppVersion&quot;] = ^{
+    __strong typeof(weakSelf) strongSelf = weakSelf;
+    NSString* versionString = [[NSBundle mainBundle] objectForInfoDictionaryKey:@&quot;CFBundleShortVersionString&quot;];
+    versionString = [@&quot;App Version &quot; stringByAppendingString:versionString];
+    JSContext *context = strongSelf.context;
+    JSValue *version = [JSValue valueWithObject:versionString inContext:context];
+    return version;
+};
+
+//执行
+[self.context[@&quot;printAppVersion&quot;] callWithArguments:nil];
+</code></pre><p><strong>2）方法2：block内使用[JSContext currentContext]代替self.context</strong></p>
+<pre><code>[self.context evaluateScript:@&quot;function printAppVersion() { print(getAppVersion())}&quot;];
+self.context[@&quot;print&quot;] = ^(NSString *printStr){
+    NSLog(@&quot;printStr = %@&quot;,printStr);
+};
+
+self.context[@&quot;getAppVersion&quot;] = ^{
+    NSString* versionString = [[NSBundle mainBundle] objectForInfoDictionaryKey:@&quot;CFBundleShortVersionString&quot;];
+    versionString = [@&quot;App Version &quot; stringByAppendingString:versionString];
+    JSContext *context = [JSContext currentContext];
+    JSValue *version = [JSValue valueWithObject:versionString inContext:context];
+    return version;
+};
+
+//执行
+[self.context[@&quot;printAppVersion&quot;] callWithArguments:nil];
+</code></pre><h5 id="2、block中使用外部定义的JSValue对象不会发生循环引用"><a href="#2、block中使用外部定义的JSValue对象不会发生循环引用" class="headerlink" title="2、block中使用外部定义的JSValue对象不会发生循环引用"></a>2、block中使用外部定义的JSValue对象不会发生循环引用</h5><pre><code>[self.context evaluateScript:@&quot;function log() { }&quot;];
+JSValue *value = [JSValue valueWithObject:@&quot;test content&quot; inContext:self.context];
+
+self.context[@&quot;log&quot;] = ^(){
+    NSLog(@&quot;%@&quot;,value);
+};
+
+[self.context[@&quot;log&quot;] callWithArguments:nil];
+</code></pre><p><strong>原因：</strong>在block里面直接使用外部定义的JSValue对象不会发生循环引用。以上诉代码为例，JSContext强引用了一个log函数，log函数中又强引用了JSValue对象，JSValue对象强引用JSContext对象和保存的值，JSContext对象引用它管理的所有JSValue对象，这样JSContext和JSValue看上去是循环引用的，然而并不会，<strong>垃圾回收机制会打破这个循环引用</strong>。</p>
+<h5 id="3、OC对象保存JSValue容易引起循环引用"><a href="#3、OC对象保存JSValue容易引起循环引用" class="headerlink" title="3、OC对象保存JSValue容易引起循环引用"></a>3、OC对象保存JSValue容易引起循环引用</h5><p>假设下面这样的场景，定义QSAlertView类，该类中持有successHandler，failureHandler这两个JSValue对象，使用block方式注入JS方法时候</p>
+<pre><code>self.context[@&quot;presentNativeAlert&quot;] = ^(NSString *title,
+                                        NSString *message,
+                                        JSValue *successHandler,
+                                        JSValue *failureHandler) {
+    JSContext *context = [JSContext currentContext];
+    QSAlertView *alertView = [[QSAlertView alloc] initWithTitle:title
+                                                        message:message
+                                                        successHandler:successHandler
+                                                 failureHandler:failureHandler
+                                                        context:context];
+    [alertView show];
+};
+</code></pre><p><strong>说明</strong>：因为JavaScript环境中都是“强引用”（相对Objective-C的概念来说）的，这时JSContext强引用了一个presentNativeAlert函数，这个函数中又强引用了QSAlertView，等于说JSContext强引用了QSAlertView，而QSAlertView为了持有两个回调强引用了successHandler和failureHandler这两个JSValue，而JSValue又是强引用JSContext的，循环引用便出现了。</p>
+<p><strong>打破该类循环引用的方式是：JSMagagedValue对象代替JSValue对象被OC对象持有</strong></p>
+<h4 id="五、JSMagagedValue类使用"><a href="#五、JSMagagedValue类使用" class="headerlink" title="五、JSMagagedValue类使用"></a>五、JSMagagedValue类使用</h4><p><strong>JSMagagedValue类</strong>：弱引用对象，需要调用JSVirtualMachine的addManagedReference:withOwner:把它添加到JSVirtualMachine对象中，确保使用过程中JSValue不会被释放 </p>
+<pre><code>//QSAlertView.h
+@interface QSAlertView : UIAlertView
+- (instancetype)initWithTitle:(NSString *)title
+                      message:(NSString *)message
+               successHandler:(JSValue *)successHandler
+               failureHandler:(JSValue *)failureHandler
+                      context:(JSContext *)context;
+@end
+
+//QSAlertView.m
+@interface QSAlertView() &lt;UIAlertViewDelegate&gt;
+
+@property (nonatomic,strong) JSContext *context;
+@property (nonatomic,strong) JSManagedValue *successHandler;
+@property (nonatomic,strong) JSManagedValue *failureHandler;
+
+@end
+
+@implementation QSAlertView
+
+- (instancetype)initWithTitle:(NSString *)title
+                      message:(NSString *)message
+               successHandler:(JSValue *)successHandler
+               failureHandler:(JSValue *)failureHandler
+                      context:(JSContext *)context{
+
+    self = [super initWithTitle:title message:message delegate:self cancelButtonTitle:@&quot;NO&quot; otherButtonTitles:@&quot;YES&quot;, nil];
+    if (self) {
+        _context = context;
+        _successHandler = [JSManagedValue managedValueWithValue:successHandler];
+        _failureHandler = [JSManagedValue managedValueWithValue:failureHandler];
+
+        //添加JSManagedValue对象到JSVirtualMachine对象中，防止使用过程被释放
+        [_context.virtualMachine addManagedReference:_successHandler withOwner:self];
+        [_context.virtualMachine addManagedReference:_failureHandler withOwner:self];
+    }
+    return self;
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+
+    NSString *btnTitle = [alertView buttonTitleAtIndex:buttonIndex];
+    if ([btnTitle isEqualToString:@&quot;YES&quot;]) {
+
+        JSValue *function = [self.successHandler value];
+        [function callWithArguments:@[]];
+
+    }else{
+        JSValue *function = [self.failureHandler value];
+        [function callWithArguments:@[]];
+    }
+    //移除JSManagedValue对象
+    [self.context.virtualMachine removeManagedReference:_successHandler withOwner:self];
+    [self.context.virtualMachine removeManagedReference:_failureHandler withOwner:self];
+}
+@end
+</code></pre><p><strong>说明1</strong>：外部传入的JSValue对象在类内部使用JSManagedValue(弱引用对象)来保存<br><strong>说明2</strong>：JSManagedValue对象因为是弱引用对象，需要调用JSVirtualMachine的addManagedReference:withOwner:把它添加到JSVirtualMachine对象中，确保使用过程中JSValue不会被释放<br><strong>说明3</strong>：当用户点击QSAlertView上的按钮时，根据用户点击哪一个按钮，来执行对应的处理函数，这时QSAlertView也随即被销毁。 这时需要手动调用removeManagedReference:withOwner:来移除JSManagedValue对象。</p>
+<pre><code>//OC执行JS代码
+[self.context evaluateScript:@&quot;function success() {print(&apos;success&apos;) }&quot;];
+[self.context evaluateScript:@&quot;function failure() {print(&apos;failure&apos;) }&quot;];
+self.context[@&quot;print&quot;] = ^(NSString *printStr){
+    NSLog(@&quot;printStr = %@&quot;,printStr);
+};
+self.context[@&quot;presentNativeAlert&quot;] = ^(NSString *title,
+                                        NSString *message,
+                                        JSValue *successHandler,
+                                        JSValue *failureHandler) {
+    JSContext *context = [JSContext currentContext];
+    QSAlertView *alertView = [[QSAlertView alloc] initWithTitle:title
+                                                        message:message
+                                                        successHandler:successHandler
+                                                 failureHandler:failureHandler
+                                                        context:context];
+    [alertView show];
+};
+
+[self.context evaluateScript:@&quot;presentNativeAlert(&apos;提示&apos;,&apos;这是一条警告&apos;,success,failure)&quot;];
+</code></pre><p><strong>说明1</strong>：在JS中定义了success和failure函数，为JS中的print函数和presentNativeAlert函数注入OC实现。<br><strong>说明2</strong>：点击弹出框的YES，调用JS的success函数，点击弹出框的NO，调用JS的failure函数。</p>
+<p><strong>效果图如下：</strong></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/201701-b063e377adf7528c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="JS函数弹出OC警告框的效果图.png"></p>
+<h4 id="六、UIWebView中获取JSContext"><a href="#六、UIWebView中获取JSContext" class="headerlink" title="六、UIWebView中获取JSContext"></a>六、UIWebView中获取JSContext</h4><p>JavaScriptCore实现JS和OC交互是依赖<strong>JSContext对象</strong>，而在UIWebView使用中，不应该手动去创建JSContext对象，因为手动创建JSContext对象和UIWebView对应的JSContext对象并不是同一个JS上下文环境。我们应该去获取UIWebView对应的JSContext对象，虽然Apple并未提供直接的方式，但是我们可以通过KVC +  Runtime这两种方式去获取</p>
+<h5 id="1、KVC"><a href="#1、KVC" class="headerlink" title="1、KVC"></a>1、KVC</h5><pre><code>JSContext *context = [self.webView valueForKeyPath:@&quot;documentView.webView.mainFrame.javaScriptContext&quot;];
+</code></pre><p>使用简单，但是坑比较多，项目不推荐</p>
+<p><strong>原因一</strong>：方法暴力，有不被APP Store的审核通过的风险<br><strong>原因二</strong>：通过KVC获取JSContext对象的时机不好控制，</p>
+<ul>
+<li><p>在UIWebView的<strong>shouldStartLoadWithRequest</strong>或者<strong>webViewDidStartLoad</strong>阶段中获取context，由于此时页面中的JS代码并没有完全加载完，所以JS中定义的函数在OC端无法被执行。还会出现在加载一级页面时JS可以正常调用OC的方法，而跳转到二级页面中无法执行OC的方法。</p>
+</li>
+<li><p>在UIWebView的<strong>webViewDidFinishLoad</strong>阶段获取context,并暴露OC方法，由于加载JS的时机在<strong>webVIewDidFinishLoad</strong>阶段之前，因此会发生JS无法调用OC方法的情况发生。</p>
+</li>
+</ul>
+<h5 id="2、Runtime-（项目中使用）"><a href="#2、Runtime-（项目中使用）" class="headerlink" title="2、Runtime （项目中使用）"></a>2、Runtime （项目中使用）</h5><p>UIWebViewTS_JavaScriptContet项目：通过 runtime 机制，巧妙地获取 JavaScriptContext 创建之后，生成回调。</p>
+<p>在项目中，实现TSWebViewDelegate中的didCreateJavaScriptContext方法，可以获取UIWebView对应的JSContext对象</p>
+<pre><code>- (void)webView:(UIWebView *)webView didCreateJavaScriptContext:(JSContext*) ctx{
+      //ctx就是UIWebView对应的JSContext对象
+}
+</code></pre><h4 id="七、其他"><a href="#七、其他" class="headerlink" title="七、其他"></a>七、其他</h4><h5 id="1、JS调用OC"><a href="#1、JS调用OC" class="headerlink" title="1、JS调用OC"></a>1、JS调用OC</h5><ul>
+<li>通过 JSCore 中的 block</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//在 JS 执⾏行行环境中添加⼀一个 _OC_catch 的 block，那么在 JS 代码中就可以直接调⽤用 _OC_catch 这 个函数，当在 JS 中调⽤用 _OC_catch 这个函数后，我们刚才注册的 block 就会被执行。也就是通过 JS 成功的调⽤了 OC 代码。</span><br><span class="line">context[@&quot;_OC_catch&quot;] = ^(JSValue *msg, JSValue *stack) &#123;</span><br><span class="line"> </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>通过 JSCore 中的 JSExport</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">JSExport 可以导出 Objective-C 的属性、实例方法、类方法和初始化⽅方法到 JS 环境，这样就可 以通过 JS 代码直接调⽤用 Objective-C 。通过 JSExport 不仅可以导出⾃自定义类的方法、属性，也可以导出已有类的⽅方法、属性。在导出过程中，类的方法名会被转换成 JS 类型命名，第二个参数的第一个字⺟会被大写，比如- (void)addX:(int)x andY:(int)y;被转为addXAndY(x, y)。除此，JSExport还可以导出已有类的⽅方法、属性。</span><br></pre></td></tr></table></figure>
+<ul>
+<li>通过拦截 URL</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">通过拦截 URL，这种方式是 Web 端通过某种方式发送 URLScheme 请求，之后 Native 拦截到请求并根据URL SCHEME(包括所带的参数)进行相关操作。类似于通过 SCHEME 唤起APP。这种方式的缺点是 **url 长度有隐患**，并且**创建请求需要一定的耗时**，比注入 API 的方式调用同样的功能。耗时会比较长。所以还是更推荐使用注入 API 的方式。</span><br></pre></td></tr></table></figure>
+<h5 id="2、OC-调-JS"><a href="#2、OC-调-JS" class="headerlink" title="2、OC 调 JS"></a>2、OC 调 JS</h5><ul>
+<li>UIWebview/WKWebview</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">通过 UIWebView 来获取 JSContext ，这样直接通过获取到 context 来执⾏行行 JS 代码。</span><br><span class="line">//通过 UIWebView 获取 context</span><br><span class="line">JSContext *context = [_webView</span><br><span class="line">valueForKeyPath:@&quot;documentView.webView.mainFrame.JSContext&quot;]; // 要执行的 JS 代码，定义一个 add 函数并执⾏行行NSString *addjs = @&quot;function add(a, b) &#123;return a + b;&#125;;add(1,3)&quot;;// sumValue 为执⾏行行后的结果</span><br><span class="line">JSValue *sumValue = [self.context evaluateScript:addjs];</span><br><span class="line">//WKWebView 没有提供获取 JSContext 的方法，但是它提供了执行 JS 的方法 evaluateJS: ，通过下面方法来执行 JS 代码。</span><br></pre></td></tr></table></figure>
+<ul>
+<li>JSCore </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// 要执行的 JS 代码，定义一个 add 函数并执⾏行行</span><br><span class="line">NSString *addjs = @&quot;function add(a, b) &#123;return a + b;&#125;;add(1,3)&quot;;// sumValue 为执⾏行行后的结果</span><br><span class="line">JSValue *sumValue = [self.context evaluateScript:addjs]</span><br></pre></td></tr></table></figure>
+<p>3、其他</p>
+<ul>
+<li><p>之前的笔记整理，主要介绍JavaScriptCore的使用，为后续JavaScriptCore深入使用做准备。</p>
+</li>
+<li><p>本文参考了<a href="http://liuduo.me/2015/10/24/JavaScriptCore%E5%88%9D%E6%8E%A2/" target="_blank" rel="noopener">JavaScriptCore初探</a> 和 <a href="https://segmentfault.com/a/1190000004285316" target="_blank" rel="noopener">iOS引入JavaScriptCore引擎框架</a></p>
+</li>
+<li><p><a href="https://github.com/buaa0300/QSKitDemo/tree/master/QSUseJSCoreDemo" target="_blank" rel="noopener">QSUseJSCoreDemo</a></p>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/02/24/iOS-IGListKit/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2875,365 +3418,6 @@ varchar,password
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/04/iOS-CodeConfuse/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="南华coder">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="南华coder的空间">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/01/04/iOS-CodeConfuse/" itemprop="url">浅谈代码混淆</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-04T23:21:30+08:00">
-                2018-01-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS实践/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS实践</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,614 字
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  7 分
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>代码混淆的目的，是为了对抗<strong>反编译</strong>。</p>
-<blockquote>
-<h4 id="一、反编译工具"><a href="#一、反编译工具" class="headerlink" title="一、反编译工具"></a>一、反编译工具</h4></blockquote>
-<p>虽然AppleStore会对App加壳保护，但是在越狱手机上，破壳App并非不可能，失去保护的App，可以利用工具去反编译；常见的反编译工具有： <strong>class-dump</strong> 和 <strong>Hopper Disassembler</strong>；</p>
-<h5 id="1、class-dump简介"><a href="#1、class-dump简介" class="headerlink" title="1、class-dump简介"></a>1、class-dump简介</h5><ul>
-<li><p>下载并安装<a href="https://link.jianshu.com/?t=http://stevenygard.com/projects/class-dump/" target="_blank" rel="noopener">class-dump</a>，将class-dump复制到/usr/local/bin/目录下，使用下面命令可以反编译出头文件</p>
-<pre><code>class-dump -H xxx.app -o /Users/xxxx/Desktop/heads 
-</code></pre></li>
-</ul>
-<h5 id="2、Hopper-Disassembler简介"><a href="#2、Hopper-Disassembler简介" class="headerlink" title="2、Hopper Disassembler简介"></a>2、Hopper Disassembler简介</h5><ul>
-<li><p>下载并安装<a href="http://xclient.info/s/hopper-disassembler.html?_=ccf82bf7d0f9ec485d8d0e11710f4561" target="_blank" rel="noopener">Hopper Disassembler</a></p>
-<pre><code>//破解办法：
-将Hopper Disassembler v4.app移动至应用程序文件夹
-双击HopperV4Patcher，将应用程序中的Hopper Disassembler v4.app拖进HopperV4Patcher完成注册
-</code></pre></li>
-<li><p>解压缩App文件，获得二进制文件，直接拖进Hopper Disassembler，选择点右上角的if(b)f(x)，就可以看到类名、方法、伪代码，字符串等信息。</p>
-</li>
-</ul>
-<p><strong>说明</strong>：开发中，我们可以利用Xcode在debug下编译后产生的（.app）文件, 作为反编译练习的<strong>原材料</strong>。这个文件放在<strong>/Users/user name/Library/Developer/Xcode/DerivedData/ xx Project Name/Build/Products/Debug-iphonesimulator</strong>。</p>
-<blockquote>
-<h4 id="二、代码混淆"><a href="#二、代码混淆" class="headerlink" title="二、代码混淆"></a>二、代码混淆</h4></blockquote>
-<h5 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h5><ul>
-<li><p><strong>代码混淆</strong>： 主要是混淆重要的 <strong>方法名</strong> 、 <strong>类名</strong> 和 <strong>字符串常量</strong>。（大面积的混淆没有太大意义），手段主要是利用宏定义。</p>
-</li>
-<li><p><strong>宏定义</strong>的关键就是<strong>替换</strong>，将A替换成B；A可以是<strong>见名知意</strong>函数名、类名或字符串常量，B可以是<strong>百思不得其解</strong>的名字或 函数 等等。</p>
-</li>
-<li><p>利用宏定义，做到扰乱耳目，迷惑他人的目的。</p>
-<p><strong>说明</strong>：具体宏方便的知识，可以参考<a href="https://onevcat.com/2014/01/black-magic-in-macro/" target="_blank" rel="noopener">宏定义的黑魔法 - 宏菜鸟起飞手册</a></p>
-</li>
-</ul>
-<h5 id="2、具体方案"><a href="#2、具体方案" class="headerlink" title="2、具体方案"></a>2、具体方案</h5><ul>
-<li><p><strong>混淆方法名 和 类名</strong></p>
-<pre><code>单段的selector，如func: ，可以通过#define func 来实现字符串替换。
-多段的selector，如a:b:c: ，可以通过分别#define a 、b、c 来实现字符串替换。
-</code></pre></li>
-<li><p><strong>混淆字符串常量</strong></p>
-<p>  代码中使用的都是密文（密文通过脚本生成）；OC中定义对应的 <strong>密文转成明文</strong> 方法；这样编译出来的只有字符串常量只有密文，反编译者难以根据字符串信息，去推敲逻辑。</p>
-</li>
-</ul>
-<h5 id="3、方案实现"><a href="#3、方案实现" class="headerlink" title="3、方案实现"></a>3、方案实现</h5><ul>
-<li>脚本实现方法名 、 类名 和 字符串常量的混淆，输入是想要混淆的对象，输出是 <strong>#define 要混淆的对象  混淆内容</strong>。混淆内容可以是随机字符串等难以理解的信息。</li>
-</ul>
-<ul>
-<li>考虑到方便自己、恶心别人的目的，我们将混淆结果合并在一个.h中，在工程Prefix.pch的最前面#import这个.h文件。不导入也可以编译、导入则实现混淆。</li>
-</ul>
-<p><strong>脚本实现如下</strong>：</p>
-<pre><code>#!/usr/bin/python 
-# -*- coding: utf-8 -*-
-
-import sys
-import os
-from random import Random
-import time;  
-import base64
-
-#
-# 执行脚本命令：python Confuse.py
-#
-
-# ***** 工具类 *****
-
-class Util(object):
-    def __init__(self, arg):
-        super(Util, self).__init__()
-        self.arg = arg
-
-    # 生成随机串
-    @classmethod
-    def randomString(self,randomlength=16):
-
-        str = &apos;&apos;
-        chars = &apos;AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz&apos;
-        length = len(chars) - 1
-        random = Random()
-        for i in range(randomlength):
-            str += chars[random.randint(0, length)]
-        return str
-
-    @classmethod
-    def loadFileCotent(self,filePath):
-
-        contents = []
-        with open(filePath) as f:
-            line = f.readline()
-            while line:
-                contents.append(line.rstrip(&apos;\n&apos;)) 
-                line = f.readline()
-        return contents
-
-    #加密（可以换成你想要的加密方法）
-    @classmethod
-    def encrypt(self,content):
-        res = &apos; &apos;.join([bin(ord(c)).replace(&apos;0b&apos;, &apos;&apos;) for c in content])
-        return base64.b64encode(res)
-
-    # 解密 (需要OC代码实现一份)
-    @classmethod
-    def decrypt(self,content):
-        return &apos;&apos;.join([chr(i) for i in [int(b, 2) for b in base64.b64decode(content).split(&apos; &apos;)]])
-
-#混淆函数名和方法名
-def confuseFunc(filePath):
-
-    originContents = Util.loadFileCotent(filePath)
-    confuseRes = &apos;&apos;
-    for i in range(0,len(originContents)):
-        outStr = &quot;#define &quot; + originContents[i] + &quot; &quot; + Util.randomString() + &quot;\n&quot;
-        confuseRes = confuseRes + outStr
-
-    #返回混淆结果
-    return confuseRes
-
-#混淆字符串
-def confuseText(filePath):
-
-    originContents = Util.loadFileCotent(filePath)
-    confuseRes = &apos;&apos;
-    for i in range(0,len(originContents)):
-        text = originContents[i]
-        text_encrypted = Util.encrypt(text)
-        # print &quot;decrypt&quot;,Util.decrypt(text_encrypted)
-        outStr = &quot;#define kKBParameter%sKey  QSString(@\&quot;%s\&quot;)\n&quot; %(text.capitalize(),text_encrypted)
-        confuseRes = confuseRes + outStr
-
-    #返回混淆结果
-    return confuseRes
-
-confuse_file_name =  &quot;QSConfuseHeader&quot;
-
-if __name__ == &apos;__main__&apos;:
-
-    fileContent = &apos;&apos;&apos;//
-//  &apos;&apos;&apos; + confuse_file_name + &apos;&apos;&apos;
-//  XXProject
-//
-//  Created on&apos;&apos;&apos; + time.asctime( time.localtime(time.time()) ) + &apos;&apos;&apos;!\n 
-#ifndef &apos;&apos;&apos; + confuse_file_name + &apos;&apos;&apos;_h
-#define &apos;&apos;&apos; + confuse_file_name + &apos;&apos;&apos;_h\n\n&apos;&apos;&apos;
-
-    confuseFuncContent = confuseFunc(&quot;func_class.txt&quot;)
-    if len(confuseFuncContent) &gt; 0:
-        fileContent += &quot;\n//函数混淆\n&quot; + confuseFuncContent
-
-    confuseTextContent = confuseText(&quot;string.txt&quot;)
-    if len(confuseTextContent) &gt; 0:
-        fileContent += &quot;\n//字符串混淆\n&quot; + confuseTextContent
-
-    endFileContent = &quot;\n\n#endif /* &quot; + confuse_file_name + &quot;_h */&quot;
-
-    if len(fileContent) &gt; 0:
-        fileContent+= endFileContent
-        print fileContent
-        # 打开一个文件
-        outputFile = open(confuse_file_name + &quot;.h&quot;, &quot;wb&quot;)
-        outputFile.write(fileContent)
-        # 关闭打开的文件
-        outputFile.close()
-</code></pre><p>​<br>   <strong>说明1</strong>：目前需要混淆内容放在txt文件（需要混淆函数名和类名放在func_class.txt，需要混淆字符串常量放在string.txt中）；进一步做法是，给需要混淆的字符串打上标记，然后用脚本搜索这些需要混淆的对象，实现混淆；</p>
-<p>  <strong>说明2</strong>：代码混淆需要考虑代码的可读性，建议做法是，对应混淆后的结果使用<strong>宏定义</strong>替换，类似于</p>
-<pre><code>//QSString(x)是个宏方法，定义是解密实现，在OC中实现
-#define kKBParameterGoodKey  QSString(@&quot;MTEwMDExMSAxMTAxMTExIDExMDExMTEgMTEwMDEwMA==&quot;)
-</code></pre><p>  <strong>说明3</strong>：在脚本中，加密方法并非真正的加密，只是将字符串转成二进制，再Base64编码而已；这个根据自己业务需要增加真正的加密算法，对应的解密算法放在OC中实现。</p>
-<p>  <strong>其他参考</strong><a href="http://blog.csdn.net/yiyaaixuexi/article/details/29201699" target="_blank" rel="noopener">iOS安全攻防（二十三）：Objective-C代码混淆</a></p>
-<blockquote>
-<h4 id="三、关键逻辑混淆"><a href="#三、关键逻辑混淆" class="headerlink" title="三、关键逻辑混淆"></a>三、关键逻辑混淆</h4></blockquote>
-<p>提供两种方案</p>
-<h5 id="方案1"><a href="#方案1" class="headerlink" title="方案1"></a>方案1</h5><ul>
-<li><p>把函数名隐藏在结构体里，以函数指针成员的形式存储。</p>
-</li>
-<li><p>编译后，只留了下地址，去掉了名字和参数表，提高了逆向成本和攻击门槛。</p>
-</li>
-<li><p>具体参考<a href="http://blog.csdn.net/yiyaaixuexi/article/details/29210413" target="_blank" rel="noopener">iOS安全攻防（二十四）：敏感逻辑的保护方案（1）</a></p>
-</li>
-</ul>
-<h5 id="方案2"><a href="#方案2" class="headerlink" title="方案2"></a>方案2</h5><ul>
-<li><p>使用C/C++语言实现逻辑，这里利用到Objective-C 与 C/C++混编的知识。下面以C++为例，混编最需要注意的是<strong>OC 调用 C++</strong>和<strong>C++ 调用 OC</strong></p>
-</li>
-<li><p><strong>OC 调用 C++</strong>：这种情况比较简单，因为编译器做了优化，把 .m 文件直接改为 <strong>.mm</strong> ，然后直接用就好了。</p>
-</li>
-<li><p><strong>C++ 调用 OC</strong>：分为两种情况：1）完全的 C++ ，实现文件以 .cpp 结尾，里面不允许直接OC的方法；通过编写接口，间接调用 OC 方法，实际上 C++ 调用的是OC编译过后的 .o 文件；2）部分 C++ 部分 OC ，实现文件以 .mm 结尾，里面允许直接使用 OC 方法。</p>
-</li>
-</ul>
-<blockquote>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4></blockquote>
-<ul>
-<li>代码混淆只是提高了破解的门槛和难度，不能百分百保证代码安全，但是如果不做这些，你的核心业务无疑在裸奔，这是很危险的事情。</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3288,7 +3472,7 @@ if __name__ == &apos;__main__&apos;:
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">33</span>
+                  <span class="site-state-item-count">34</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -3310,7 +3494,7 @@ if __name__ == &apos;__main__&apos;:
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">47</span>
+                  <span class="site-state-item-count">48</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -3368,7 +3552,7 @@ if __name__ == &apos;__main__&apos;:
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">71.6k</span>
+    <span title="Site words total count">73.8k</span>
   
 </div>
 

@@ -254,6 +254,336 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2019/02/21/iOS-iOSDesignMode/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/02/21/iOS-iOSDesignMode/" itemprop="url">iOS架构小记</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-21T22:29:49+08:00">
+                2019-02-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS进阶/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS进阶</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,922 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  11 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4><h5 id="1、背景"><a href="#1、背景" class="headerlink" title="1、背景"></a>1、背景</h5><ul>
+<li>谈及iOS的架构，绕不开组件化、MVC、MVVM这些关键词</li>
+<li>对于几个人的小团队，组件化未必是适合的方案，当然遇到业务扩张，新App需要落地，将相同的功能沉库，可以汲取组件化的精髓，提高生产效率。</li>
+<li>组件化是大中型App团队的选择。</li>
+<li>对于百人以上的客户端超级大团队，组件化非常值得拥有，当然实施起来也非常复杂，包括业务划分，业务组件和基础组件的设计和开发、测试、集成和发版。</li>
+</ul>
+<h5 id="2、MVC和MVVM"><a href="#2、MVC和MVVM" class="headerlink" title="2、MVC和MVVM"></a>2、MVC和MVVM</h5><ul>
+<li>好像一说起Controller代码臃肿，就把锅求给MVC，就鼓吹MVVM，其实MVC虽然有明显的缺点，但是合理使用，绝对满足大部分需求，造成代码的臃肿和难以管理，很大原因和开发者认知有关系。</li>
+<li>MVVM可以用，使用MVVM不必要一定引入RAC,</li>
+</ul>
+<h5 id="3、组件化"><a href="#3、组件化" class="headerlink" title="3、组件化"></a>3、组件化</h5><ul>
+<li><strong>业务快速发展、复杂的业务场景、团队的快速扩张等</strong>带来的变革诉求，希望通过<strong>组件化</strong>来提高团队的协作能力、减低开发成本，提高开发质量。</li>
+<li>组件化直接效果：代码解耦，功能模块化；代码的复用性高；代码管理更加科学。</li>
+<li>从<strong>蘑菇街</strong>(<a href="https://www.jianshu.com/p/cdf94a963c27" target="_blank" rel="noopener">蘑菇街 App 的组件化之路</a>)、<strong>支付宝(<a href="http://www.sohu.com/a/129493438_536622" target="_blank" rel="noopener">从支付宝红包揭秘亿级APP的移动开发</a>)</strong>等团队公开的信息来看：业务的增加、开发团队的扩张、快速迭代的要求，催生组件化方案(<em>可能有更好的架构方案</em>)快速落地。</li>
+<li>蘑菇街和支付宝等团队实现组件化方案，一是业务发展的必然选择；二是其技术沉淀深，能为自己和兄弟团队打造出质量上乘的组件化服务。</li>
+</ul>
+<h4 id="二、组件化实施"><a href="#二、组件化实施" class="headerlink" title="二、组件化实施"></a>二、组件化实施</h4><h5 id="1、实施步骤"><a href="#1、实施步骤" class="headerlink" title="1、实施步骤"></a>1、实施步骤</h5><ul>
+<li>剥离产品公共库和基础库</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">将网络请求、数据存储、图片下载和存储、第三方SDK(微信，支付宝)、UI基础组件、自定义相机等、UIKit和Foundation的扩展等，拆分出来，各自沉库，使用cocopods管理。</span><br></pre></td></tr></table></figure>
+<ul>
+<li>独立业务模块单独成库</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">将登录、分享、支付、日志上报等模块封装成组件，也可以将一些通用模块，如资讯详情页、XX模块拆分出来，拆分粒度可以先粗后细，将相对独立的功能封装成组件，统一对外提供服务，保证体验一致性。</span><br></pre></td></tr></table></figure>
+<ul>
+<li>对外服务最小化</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在前两步都完成的情况下，根据组件被调用的需求来抽象出组件对外的最小化接口(遵循SOLID原则中的接口分离原则)</span><br></pre></td></tr></table></figure>
+<h5 id="2、组件通信"><a href="#2、组件通信" class="headerlink" title="2、组件通信"></a>2、组件通信</h5><p>组件之间的通信，更多是指业务组件之间的通信吧。目前蘑菇街团队公开的方案是：<strong>URLRouter</strong>、<strong>Protocol Class Binding</strong>和<strong>Target-Action</strong>这三类方案。</p>
+<h6 id="1）URLRouter"><a href="#1）URLRouter" class="headerlink" title="1）URLRouter"></a>1）URLRouter</h6><ul>
+<li><p><strong>简介</strong>：蘑菇街团队实现<a href="https://github.com/meili/MGJRouter" target="_blank" rel="noopener">MGJRouter</a>库，可以根据URL处理执行对应的Block；其核心在于，先注册URL 和 <strong>服务Block</strong> &amp; <strong>参数字典</strong>的对应关系（<em>保存在router字典中</em>），然后利用URL找到对应的Block，将参数字典交给Block，唤起对应的服务。</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">// 注册</span><br><span class="line">[MGJRouter registerURLPattern:@&quot;mgj://foo/bar&quot; toHandler:^(NSDictionary *routerParameters) &#123;</span><br><span class="line">[self appendLog:[NSString stringWithFormat:@&quot;routerParameters:%@&quot;, routerParameters]];</span><br><span class="line">      &#125;];</span><br><span class="line"></span><br><span class="line">//传参</span><br><span class="line">[MGJRouter openURL:@&quot;mgj://foo/bar&quot; withUserInfo:@&#123;@&quot;param1&quot;:@&quot;hello world&quot;&#125; completion:nil];</span><br><span class="line"></span><br><span class="line">//同步获取object</span><br><span class="line">NSNumber *orderCount = [MGJRouter objectForURL:@&quot;mgj://cart/ordercount&quot;]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>优势</strong>：解耦方便；各个组件依赖MGJRouter就可以；打破组件间的相互依赖；</p>
+</li>
+<li><p><strong>不足</strong>：组件本身依赖中间件，但是分散注册又使得<strong>耦合较多</strong>。<br>需要专门维护URL(<em>蘑菇街使用后台维护，自动生成URL短链的方式</em>)；</p>
+</li>
+<li><p><strong>补充</strong>：<a href="https://github.com/meili/MGJRouter" target="_blank" rel="noopener">MGJRouter</a>是URL Router的OC版本实现，<a href="https://github.com/devxoul/URLNavigator" target="_blank" rel="noopener">URLNavigator</a>是URL Router的Swift版本实现，核心都是：注册URL和对应的处理，然后根据URL解析去做事情，如页面跳转。</p>
+</li>
+</ul>
+<h6 id="2）Protocol-Class-Binding-协议和类绑定"><a href="#2）Protocol-Class-Binding-协议和类绑定" class="headerlink" title="2）Protocol Class Binding(协议和类绑定)"></a>2）Protocol Class Binding(协议和类绑定)</h6><ul>
+<li><p><strong>简介</strong>：核心在于，为组件定义Protocol，Protocol指定返回的数据，然后在组件中新建Class实现Protocol，如此将Protocol和Class关联起来。</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">//以购物车组件为例</span><br><span class="line">//1、组件定义MGJCart，执行返回订单数方法</span><br><span class="line">@protocol MGJCart &lt;NSObject&gt;</span><br><span class="line"></span><br><span class="line">- (NSInteger)orderCount;</span><br><span class="line">@end</span><br><span class="line"></span><br><span class="line">//2、MGJCartImpl 实现MGJCart ，实现略</span><br><span class="line">   	   </span><br><span class="line">//3、关联</span><br><span class="line">[ModuleManager registerClass:MGJCartImpl forProtocol:@protocol(MGJCart)]，</span><br><span class="line">	</span><br><span class="line"> //4、获取MGJCartImpl，接下来可以访问到参数了</span><br><span class="line">[ModuleManager classForProtocol:@protocol(MGJCart)]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>优势</strong>：把公共的协议统一放到同一文件中，组件依赖该文件即可。</p>
+</li>
+<li><p><strong>补充</strong>：阿里的beehive属于此类方案实现，具体参考<a href="https://halfrost.com/beehive/" target="_blank" rel="noopener">BeeHive —— 一个优雅但还在完善中的解耦框架</a>，核心思想涉及：各个模块间从直接调用对应模块，变成以Service的形式，避免了直接依赖；App生命周期的分发，将耦合在AppDelegate中的逻辑拆分，每个模块以微应用的形式独立存在。</p>
+</li>
+</ul>
+<h6 id="3）Target-Action方案"><a href="#3）Target-Action方案" class="headerlink" title="3）Target-Action方案"></a>3）Target-Action方案</h6><ul>
+<li><strong>简介</strong>: <a href="https://github.com/casatwy/CTMediator" target="_blank" rel="noopener">CTMediator</a>方案，在此类中对外提供明确参数类型的接口，接口内部通过performTarget方法调用服务方组件的Target、Action。由于CTMediator类的调用是通过runtime主动发现服务的，所以服务方对此类是完全解耦的。但如果CTMediator类对外提供的方法都放在此类中，将会对CTMediator造成极大的负担和代码量。解决方法就是对每个服务方组件创建一个CTMediator的Category，并将对服务方的performTarget调用放在对应的Category中，这些Category都属于CTMediator中间件，从而实现了感官上的接口分离。</li>
+<li><strong>特点</strong>: 侵入小，但硬编码较多，Runtime编译阶段不检查,运行时才检查对应类或者方法是否存在，对开发要求较高。</li>
+</ul>
+<h5 id="3、其他"><a href="#3、其他" class="headerlink" title="3、其他"></a>3、其他</h5><p>需要一个组件的管理平台，管理这些组件的单元测试、集成和发版</p>
+<p>参考文章：<a href="https://www.jianshu.com/p/48fbcbb36c75" target="_blank" rel="noopener">iOS App组件化开发实践</a>、<a href="http://cocoafei.top/2018/06/iOS%E7%BB%84%E4%BB%B6%E5%8C%96%E6%96%B9%E6%A1%88%E9%80%89%E5%9E%8B/#3_2" target="_blank" rel="noopener">iOS组件化方案选型</a></p>
+<h4 id="三、MVC"><a href="#三、MVC" class="headerlink" title="三、MVC"></a>三、MVC</h4><h5 id="1、苹果推荐的MVC"><a href="#1、苹果推荐的MVC" class="headerlink" title="1、苹果推荐的MVC"></a>1、苹果推荐的MVC</h5><ul>
+<li>我们常说的MVC主要包括以下三部分</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">控制器（Controller）- 数据的加工者</span><br><span class="line">视图（View） - 数据显示</span><br><span class="line">模型（Model）- 数据管理</span><br></pre></td></tr></table></figure>
+<ul>
+<li>在苹果推荐的MVC中，<strong>View和Model是没有通信的</strong>，但是Controller可以Model和View通信；</li>
+</ul>
+<p><img src="https://upload-images.jianshu.io/upload_images/201701-77b1b371629ba8d8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="MVC"></p>
+<ul>
+<li>Controller是可以直接访问Model，然后Model不知道Controller是谁，当Model发生变化时候，利用通知、代理或KVO等方式通知Controller</li>
+<li><p>Controller也可以直接访问View，Controller可以直接根据Model来决定View的展示。View接收到响应事件, 通过delegate、target-action、block等方式告诉Controller的状态变化。Controller进行业务的处理，然后再控制View的展示。</p>
+</li>
+<li><p>随着Controller和Model、View的交互(通信)越来越多，Controller中的代码就越来越多，造成Controller中代码过于臃肿。</p>
+</li>
+</ul>
+<h5 id="2、MVC的优化实践"><a href="#2、MVC的优化实践" class="headerlink" title="2、MVC的优化实践"></a>2、MVC的优化实践</h5><ul>
+<li>MVC是非常经典的设计模式，虽然有很多问题，但是使用得当的话，其实能搞定大部分项目。很多时候，代码的臃肿很大原因是开发者代码不规范造成的，比如将网络请求逻辑，数据的存储逻辑都放在Controller中，或者Controller中展示聚集太多的UI元素，这如何不造成Controller的代码臃肿呢。</li>
+<li>在使用MVC模式，需要划分好MVC的职责</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Model应该做的事：</span><br><span class="line">1.给ViewController提供数据</span><br><span class="line">2.给ViewController存储数据提供接口</span><br><span class="line">3.提供经过抽象的业务基本组件，供Controller调度</span><br><span class="line"></span><br><span class="line">Controller应该做的事：</span><br><span class="line">1.管理View Container的生命周期</span><br><span class="line">2.负责生成所有的View实例，并放入View Container</span><br><span class="line">3.监听来自View与业务有关的事件，通过与Model的合作，来完成对应事件的业务。</span><br><span class="line"></span><br><span class="line">View应该做的事：</span><br><span class="line">1.响应与业务无关的事件，并因此引发动画效果，点击反馈（如果合适的话，尽量还是放在View去做）等。</span><br><span class="line">2.界面元素表达</span><br></pre></td></tr></table></figure>
+<ul>
+<li>对软件结构做好分层，将软件分成若干个水平层，每一层都有清晰的角色和分工，不需要知道其他层的细节。层与层之间通过接口通信。</li>
+</ul>
+<h4 id="四、MVVM"><a href="#四、MVVM" class="headerlink" title="四、MVVM"></a>四、MVVM</h4><h5 id="1、介绍"><a href="#1、介绍" class="headerlink" title="1、介绍"></a>1、介绍</h5><p><img src="https://upload-images.jianshu.io/upload_images/201701-7584653944d3e889.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="MVVM.png"></p>
+<ul>
+<li>在MVVM中，将和视图、数据的交互处理从Controller中移到ViewModel中；VM负责和Model通信，可以直接访问Model，当Model改变时候通知VM；同时，VM负责和视图的通信，直接访问视图，当视图接收到响应事件时，通知VM去处理。而Controller仅仅是协调各个部分的绑定关系以及必要的逻辑处理。</li>
+<li>MVVM的核心是：<strong>实现MVVM的双向绑定</strong>，很多项目组因此引入RAC框架(函数响应式框架)，其实使用KVO机制也可以实现双向绑定也可以，直接使用KVO，会有一些问题，建议直接使用facebook的KVOController</li>
+</ul>
+<h5 id="2、MVVM和MVC的对比"><a href="#2、MVVM和MVC的对比" class="headerlink" title="2、MVVM和MVC的对比"></a>2、MVVM和MVC的对比</h5><p><img src="https://upload-images.jianshu.io/upload_images/201701-ea78e2837ecc0db4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="mvvm和mvc.png"></p>
+<ul>
+<li><strong>MVVM优点</strong>：方便测试，VM可以方便做单元测试，MVC下的Controller里面逻辑太多，无法做单元测试；耦合度低； 复用性高； 层次更清晰； 重构成本低；</li>
+<li><strong>MVVM缺点</strong>：类文件增多(每个VC多一个ViewModel)，ViewModel的代码复杂度增大(处理各种交互)</li>
+<li><strong>MVC优点</strong>：通用架构； 处理耦合度高的逻辑方便； </li>
+<li><strong>MVC缺点：</strong> 耦合度高； 复用性差； 测试性差；</li>
+</ul>
+<h5 id="3、补充个MVP"><a href="#3、补充个MVP" class="headerlink" title="3、补充个MVP"></a>3、补充个MVP</h5><ul>
+<li>MVP分别是<strong>Mode</strong>、<strong>View</strong>和<strong>Presenter</strong>，对应数据<strong>、</strong>视图<strong>和</strong>主持者，在Android开发中使用普遍。</li>
+</ul>
+<p><img src="https://upload-images.jianshu.io/upload_images/201701-7fdab1dde3415a38.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="MVP.png"></p>
+<ul>
+<li>MVC模式下，Android的Activity承担繁杂的业务逻辑，导致代码臃肿，使用MVP模式，将View层和Mode层隔离开，增加Presenter层，作为Mode层和View层通讯的桥梁</li>
+<li>Presenter同时持有Mode层和View层的引用，在需要数据改变 或 视图显示时直接改变数据或者视图的显示状态。同样View层持有Presenter层的引用，这样就能将一些处理事件的逻辑放在Presenter层中进行处理，处理完成后通知View层改变显示状态。</li>
+<li>具体参考 <a href="https://juejin.im/post/5a61559051882573351a5fb6" target="_blank" rel="noopener">MVP模式的经典封装</a></li>
+</ul>
+<h4 id="五、SOLD原则"><a href="#五、SOLD原则" class="headerlink" title="五、SOLD原则"></a>五、SOLD原则</h4><h5 id="1、介绍-1"><a href="#1、介绍-1" class="headerlink" title="1、介绍"></a>1、介绍</h5><ul>
+<li>根据项目的复杂度来决定选择MVC或MVVM，但是无论哪种模式，都做好代码设计，结构分层，类设计遵守SOLID原则</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>缩写</th>
+<th>全称</th>
+<th>中文</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S</td>
+<td>The Single Responsibility Principle</td>
+<td>单一责任原则</td>
+<td>一个类只应承担一种责任</td>
+</tr>
+<tr>
+<td>O</td>
+<td>The Open Closed Principle</td>
+<td>开放封闭原则</td>
+<td>可扩展，不可修改</td>
+</tr>
+<tr>
+<td>L</td>
+<td>Liskov Substitution Principle</td>
+<td>里氏替换原则</td>
+<td>子类可以在任意地方替换基类且软件功能不受影响</td>
+</tr>
+<tr>
+<td>I</td>
+<td>The Interface Segregation Principle</td>
+<td>接口分离原则</td>
+<td>将接口拆分成更小和更具体的接口，有助于解耦</td>
+</tr>
+<tr>
+<td>D</td>
+<td>The Dependency Inversion Principle</td>
+<td>依赖倒置原则</td>
+<td>一个方法应该遵从“依赖于抽象而不是一个实例”。依赖注入 是该原则的一种实现方式。</td>
+</tr>
+</tbody>
+</table>
+<h5 id="2、IOC和DI"><a href="#2、IOC和DI" class="headerlink" title="2、IOC和DI"></a>2、IOC和DI</h5><p>控制反转(IOC)和依赖注入(DI)是Spring中最重要的核心概念之一，而两者实际上是一体两面的。</p>
+<ul>
+<li>依赖注入<ul>
+<li>一个类依赖另一个类的功能，那么就通过注入，如构造器、setter方法等方式将这个类的实例引入。</li>
+<li>侧重于实现。</li>
+</ul>
+</li>
+<li>控制反转<ul>
+<li>创建实例的控制权由一个实例的代码剥离到IOC容器控制，如xml配置中。</li>
+<li>侧重于原理。</li>
+<li>反转了什么：原先是由类本身去创建另一个类，控制反转后变成了被动等待这个类的注入。</li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2019/01/05/iOS-AppThinning/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2692,549 +3022,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/02/28/iOS-iOSJavaScriptCore/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="南华coder">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="南华coder的空间">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/02/28/iOS-iOSJavaScriptCore/" itemprop="url">JavaScriptCore小记</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-28T00:07:41+08:00">
-                2018-02-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS基础/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS基础</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  3,587 字
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  15 分
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h4 id="一、JavaScriptCore核心类和协议"><a href="#一、JavaScriptCore核心类和协议" class="headerlink" title="一、JavaScriptCore核心类和协议"></a>一、JavaScriptCore核心类和协议</h4><ul>
-<li><p>JavaScriptCore给iOS开发的第一反应是<strong>实现原生应用和Web应用之间通信</strong></p>
-</li>
-<li><p>实际上，JavaScriptCore是iOS 7推出的<strong>JavaScript引擎</strong>，是为了实现OC和JS通信，使用场景不局限于在原生应用和Web应用间使用(<em>虽然这是大部分场景</em>)。</p>
-</li>
-</ul>
-<h5 id="1、-JSContext"><a href="#1、-JSContext" class="headerlink" title="1、 JSContext"></a>1、 JSContext</h5><ul>
-<li><strong>JavaScript运行的上下文环境</strong>，使用JSContext对象来执行JavaScript代码，所有的JSValue对象都由JSContext对象管理。</li>
-</ul>
-<h5 id="2、JSValue"><a href="#2、JSValue" class="headerlink" title="2、JSValue"></a>2、JSValue</h5><ul>
-<li><p><strong>代表一个JavaScript实体</strong>，不仅可以表示JavaScript原始类型数据如boolean、Number、String等，还可以表示对象和函数。OC和JS对象之间的转换如下表：</p>
-<p> |Objective-C type  |   JavaScript type|</p>
-<pre><code>|--|--|
-|nil | undefined|
-|NSNull       |        null|
-|NSString      |       string|
-|NSNumber      |   number, boolean|
-|NSDictionary    |   Object object|
-|NSArray       |    Array object|
-|NSDate       |     Date object|
-|NSBlock   |   Function object |
-|id     |   Wrapper object |
-|Class | Constructor object|
-</code></pre></li>
-</ul>
-<h5 id="3、-JSManagedValue"><a href="#3、-JSManagedValue" class="headerlink" title="3、 JSManagedValue"></a>3、 JSManagedValue</h5><ul>
-<li>本质是<strong>弱引用的JSValue对象</strong>，可以处理内存管理中的一些特殊情形，它能帮助引用技术和垃圾回收这两种内存管理机制之间进行正确的转换。如代替JSValue对象被OC对象持有避免发生循环引用(<em>本文后面会讲解</em>)。</li>
-</ul>
-<h5 id="4、JSVirtualMachine"><a href="#4、JSVirtualMachine" class="headerlink" title="4、JSVirtualMachine"></a>4、JSVirtualMachine</h5><ul>
-<li><strong>JavaScript运行的虚拟机</strong>，拥有自己的堆结构和垃圾回收机制。大部分情况下不需要和它直接交互，除非要处理一些特殊的多线程或者内存管理问题。</li>
-</ul>
-<h5 id="5、JSExport"><a href="#5、JSExport" class="headerlink" title="5、JSExport"></a>5、JSExport</h5><ul>
-<li><p><strong>将OC对象直接转成JS对象的协议</strong>，可以将OC类的属性或方法转换为JS的属性或方法。使用时，继承JSExport定义自己的协议，然后在自己的协议中定义暴露给JavaScript的方法；</p>
-</li>
-<li><p><strong>方法由Objective-C中的类实现</strong>；JavaScriptCore将实现类的对象注入JSContext运行环境中，使用注入的名称调用JS方法就会自动调用这个对象对应的OC方法。</p>
-</li>
-</ul>
-<h4 id="二、Objective-C调用JavaScript代码"><a href="#二、Objective-C调用JavaScript代码" class="headerlink" title="二、Objective-C调用JavaScript代码"></a>二、Objective-C调用JavaScript代码</h4><h5 id="1、Objective-C直接执行JavaScript代码"><a href="#1、Objective-C直接执行JavaScript代码" class="headerlink" title="1、Objective-C直接执行JavaScript代码"></a>1、Objective-C直接执行JavaScript代码</h5><p><strong>1）JSContext</strong>为JavaScript提供运行的上下文环境，执行JavaScript代码前必须先创建JSContext对象，创建JSContext对象之后，才可以调用JSContext的evaluateScript:方法可以执行JavaScript代码了，如创建变量，做计算，定义方法等。</p>
-<p><strong>2）JSContext</strong>的创建都是基于<strong>JSVirtualMachine</strong>(<em>JSVirtualMachine为JavaScript的运行提供了底层资源</em>)，默认使用init进行初始化，在其内部会自动创建一个新的JSVirtualMachine对象，然后根据JSVirtualMachine对象初始化JSContext对象。</p>
-<p><strong>3）JSContext的evaluateScript:方法的返回值类型是JSValue</strong>， JSValue 封装了每一个可能的 JavaScript 值，如字符串和数字、数组、对象、方法、甚至错误和特殊的 JavaScript 值诸如 null 和 undefined等。对JSValue调用toString、toBool、toDouble、toArray等等方法把它转换成合适的Objective-C值或对象。</p>
-<p><strong>4） 示例代码如下</strong>。XCode控制台输出12，是调用add(5,7)代码执行后的结果值。</p>
-<pre><code>- (void)ocCallJsCode{
-
-    JSContext *context = [[JSContext alloc]init];
-    [context evaluateScript:@&quot;var a = 5,b = 7&quot;];
-    [context evaluateScript:@&quot;function add(a,b){return a+b}&quot;];
-    JSValue *addValue = [context evaluateScript:@&quot;add(5,7)&quot;];
-    NSLog(@&quot;addValue = %d&quot;,addValue.toInt32);    
-}
-</code></pre><h5 id="2、Objective-C执行JavaScript代码文件"><a href="#2、Objective-C执行JavaScript代码文件" class="headerlink" title="2、Objective-C执行JavaScript代码文件"></a>2、Objective-C执行JavaScript代码文件</h5><p>首先初始化了一个JSContext对象，然后执行JavaScript文件中的代码，最后从JSContext对象中取出JS函数，使用callWithArguments:调用JS函数，参数是一个数组，如果没有参数则传入空数组@[]</p>
-<p><strong>1）在项目中新建一个occalljs.js的文件，定义了加减乘除四个JS函数，代码如下：</strong></p>
-<pre><code>function add(a,b){
-    return a + b
-}
-
-function sub(a,b){
-    return a - b
-}
-
-function mul(a,b){
-    return a * b
-}
-
-function div(a,b){
-    return a / b
-}
-</code></pre><p><strong>2） OC代码中执行JS代码文件</strong></p>
-<pre><code>- (void)ocCallJsCodeInFile{
-
-    JSContext *context = [[JSContext alloc]init];
-    NSString *jsFilePath = [[NSBundle mainBundle]pathForResource:@&quot;calculate&quot; ofType:@&quot;js&quot;];
-    NSString *jsContent = [NSString stringWithContentsOfFile:jsFilePath encoding:NSUTF8StringEncoding error:nil];
-    [context evaluateScript:jsContent];
-
-    JSValue *addValue = [context[@&quot;add&quot;] callWithArguments:@[@5,@7]];
-    NSLog(@&quot;5 + 7 = %d&quot;,addValue.toInt32);
-
-    JSValue *subValue = [context[@&quot;sub&quot;] callWithArguments:@[@5,@7]];
-    NSLog(@&quot;5 - 7 = %d&quot;,subValue.toInt32);
-
-    JSValue *mulValue = [context[@&quot;mul&quot;] callWithArguments:@[@5,@7]];
-    NSLog(@&quot;5 * 7 = %d&quot;,mulValue.toInt32);
-
-    JSValue *divValue = [context[@&quot;div&quot;] callWithArguments:@[@5,@7.0]];
-    NSLog(@&quot;5 / 7 = %.2lf&quot;,divValue.toDouble);
-}
-</code></pre><p><strong>总结：</strong>通过JSContext和JSValue的配合使用，实现了Objective-C执行JavaScript代码。</p>
-<h4 id="三、JavaScript调用Objective-C代码"><a href="#三、JavaScript调用Objective-C代码" class="headerlink" title="三、JavaScript调用Objective-C代码"></a>三、JavaScript调用Objective-C代码</h4><p>可以使用两种方式实现JavaScript调用Objective-C代码</p>
-<h5 id="方式一：在OC中定义block，使用block代替JS的函数实现"><a href="#方式一：在OC中定义block，使用block代替JS的函数实现" class="headerlink" title="方式一：在OC中定义block，使用block代替JS的函数实现"></a>方式一：在OC中定义<strong>block</strong>，使用block代替JS的函数实现</h5><p>代码如下：</p>
-<p><strong>1、新建一个jscalloc1.js的文件，定义了两个方法，代码如下：</strong></p>
-<pre><code>function sayHello() {
-    print(&quot;你好&quot;);
-}
-
-function showAlert() {
-    alert(&quot;Alert!!!&quot;);
-}
-</code></pre><p><strong>2、oc中实现block代替js方法，代码如下：</strong></p>
-<pre><code>- (void)jsCalloc1{
-
-    JSContext *context = [[JSContext alloc]init];
-    NSString *jsFilePath = [[NSBundle mainBundle]pathForResource:@&quot;jscalloc&quot; ofType:@&quot;js&quot;];
-    NSString *jsContent = [NSString stringWithContentsOfFile:jsFilePath encoding:NSUTF8StringEncoding error:nil];
-    [context evaluateScript:jsContent];
-
-    //block替换js中的print方法
-    context[@&quot;print&quot;] = ^(NSString *printStr){
-
-        NSLog(@&quot;printStr = %@&quot;,printStr);
-    };
-
-    __weak typeof(self) weakSelf = self;
-    //block替换js中的alert方法
-    context[@&quot;alert&quot;] = ^(NSString *alertStr){
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        UIAlertController *vc = [UIAlertController alertControllerWithTitle:@&quot;提示&quot; message:alertStr preferredStyle:UIAlertControllerStyleAlert];
-        [vc addAction:[UIAlertAction actionWithTitle:@&quot;确定&quot; style:UIAlertActionStyleDestructive handler:nil]];
-        [strongSelf presentViewController:vc animated:YES completion:nil];
-    };
-
-    //执行
-    [context[@&quot;sayHello&quot;] callWithArguments:nil];
-    [context[@&quot;showAlert&quot;] callWithArguments:nil];
-}
-</code></pre><p><strong>说明1</strong>：在代码中，我们将两个Block分别以”print”和“alert”为名传递给JavaScript上下文。在JS中调用print函数或者alert函数，其实就是执行在oc中定义的Block；也就实现了<strong>JavaScript调用Objective-C代码</strong>。</p>
-<p><strong>说明2</strong>：JavaScript中的字符串可以无缝的桥接为NSString。</p>
-<p><strong>说明3</strong>: 当JavaScript运行时出现异常，会回调JSContext的exceptionHandler中设置的Block，我们通过Block的方式将异常信息打印处理</p>
-<pre><code>context.exceptionHandler = ^(JSContext *context, JSValue *exception) {
-       NSLog(@&quot;JS Error: %@&quot;, exception);
-};
-</code></pre><h5 id="方式二：继承JSExport协议，定义暴露给JS的方法，将实现协议的类的对象注入到context中"><a href="#方式二：继承JSExport协议，定义暴露给JS的方法，将实现协议的类的对象注入到context中" class="headerlink" title="方式二：继承JSExport协议，定义暴露给JS的方法，将实现协议的类的对象注入到context中"></a>方式二：继承JSExport协议，定义暴露给JS的方法，将实现协议的类的对象注入到context中</h5><p>代码如下：</p>
-<p><strong>1、新建一个jscalloc2.js的文件，定义了两个方法，代码如下：</strong></p>
-<pre><code>function sayHello() {
-    qsobj.print(&quot;你好&quot;);
-}
-
-function showAlert() {
-    qsobj.alert(&quot;Alert!!!&quot;);
-}
-</code></pre><p><strong>2、OC中实现QSExportObject类，将QSExportObject对象qsobj注入到JS执行的上下文环境中，JS中执行qsobj.print和qsobj.alert函数，就是执行OC对象qsobj的方法</strong>，代码如下：</p>
-<pre><code> //QSExportObject.h
-@protocol QSExport &lt;JSExport&gt;
-
-- (void)print:(NSString *)text;
-- (void)alert:(NSString *)text;
-
-//JSExportAs(print,- (void)print:(NSString *)text);
-//JSExportAs(alert,- (void)alert:(NSString *)text);
-@end
-
-@interface QSExportObject : NSObject&lt;QSExport&gt;
-@property (nonatomic,weak)UIViewController *vc;
-@end
-
-//QSExportObject.m
-@implementation QSExportObject
-
-- (void)print:(NSString *)text{
-    NSLog(@&quot;print text = %@&quot;,text);
-}
-
-- (void)alert:(NSString *)text{
-
-    UIAlertController *vc = [UIAlertController alertControllerWithTitle:@&quot;提示&quot; message:text preferredStyle:UIAlertControllerStyleAlert];
-    [vc addAction:[UIAlertAction actionWithTitle:@&quot;确定&quot; style:UIAlertActionStyleDestructive handler:nil]];
-    [self.vc presentViewController:vc animated:YES completion:nil];
-}
-@end
-
-//在ViewController中调用
- - (void)jsCallOc2{
-
-    JSContext *context = [[JSContext alloc]init];
-    NSString *jsFilePath = [[NSBundle mainBundle]pathForResource:@&quot;jscalloc2&quot; ofType:@&quot;js&quot;];
-    NSString *jsContent = [NSString stringWithContentsOfFile:jsFilePath encoding:NSUTF8StringEncoding error:nil];
-    [context evaluateScript:jsContent];
-    //注入qsObj
-    QSExportObject *qsObj = [QSExportObject new];
-    qsObj.vc = self;
-    context[@&quot;qsobj&quot;] = qsObj;
-
-     //执行
-    [context[@&quot;sayHello&quot;] callWithArguments:nil];
-    [context[@&quot;showAlert&quot;] callWithArguments:nil];
-}
-</code></pre><p><strong>说明1</strong>：在QSExport中定义暴露给JS的接口，也可以使用宏<strong>JSExportAs</strong>，它将JS函数和OC方法绑定在一起；对于OC中多参数的方法，一般使用<strong>JSExportAs</strong>。</p>
-<h4 id="四、循环引问题"><a href="#四、循环引问题" class="headerlink" title="四、循环引问题"></a>四、循环引问题</h4><p><strong>说明</strong>：Objective-C的内存管理机制是<strong>引用计数</strong>，JavaScript的内存管理机制是<strong>垃圾回收</strong>。在大部分情况下，JavaScriptCore能做到在这两种内存管理机制之间无缝无错转换，但是有些情况下会发生循环引用。</p>
-<h5 id="1、block直接使用self-context-会发生循环引用"><a href="#1、block直接使用self-context-会发生循环引用" class="headerlink" title="1、block直接使用self.context 会发生循环引用"></a>1、block直接使用self.context 会发生循环引用</h5><p>打破这类循环引用的办法有两种。</p>
-<p><strong>1）方法1：weakSelf和strongSelf</strong></p>
-<pre><code>[self.context evaluateScript:@&quot;function printAppVersion() { print(getAppVersion())}&quot;];
-self.context[@&quot;print&quot;] = ^(NSString *printStr){
-    NSLog(@&quot;printStr = %@&quot;,printStr);
-};
-
-__weak typeof(self) weakSelf = self;
-self.context[@&quot;getAppVersion&quot;] = ^{
-    __strong typeof(weakSelf) strongSelf = weakSelf;
-    NSString* versionString = [[NSBundle mainBundle] objectForInfoDictionaryKey:@&quot;CFBundleShortVersionString&quot;];
-    versionString = [@&quot;App Version &quot; stringByAppendingString:versionString];
-    JSContext *context = strongSelf.context;
-    JSValue *version = [JSValue valueWithObject:versionString inContext:context];
-    return version;
-};
-
-//执行
-[self.context[@&quot;printAppVersion&quot;] callWithArguments:nil];
-</code></pre><p><strong>2）方法2：block内使用[JSContext currentContext]代替self.context</strong></p>
-<pre><code>[self.context evaluateScript:@&quot;function printAppVersion() { print(getAppVersion())}&quot;];
-self.context[@&quot;print&quot;] = ^(NSString *printStr){
-    NSLog(@&quot;printStr = %@&quot;,printStr);
-};
-
-self.context[@&quot;getAppVersion&quot;] = ^{
-    NSString* versionString = [[NSBundle mainBundle] objectForInfoDictionaryKey:@&quot;CFBundleShortVersionString&quot;];
-    versionString = [@&quot;App Version &quot; stringByAppendingString:versionString];
-    JSContext *context = [JSContext currentContext];
-    JSValue *version = [JSValue valueWithObject:versionString inContext:context];
-    return version;
-};
-
-//执行
-[self.context[@&quot;printAppVersion&quot;] callWithArguments:nil];
-</code></pre><h5 id="2、block中使用外部定义的JSValue对象不会发生循环引用"><a href="#2、block中使用外部定义的JSValue对象不会发生循环引用" class="headerlink" title="2、block中使用外部定义的JSValue对象不会发生循环引用"></a>2、block中使用外部定义的JSValue对象不会发生循环引用</h5><pre><code>[self.context evaluateScript:@&quot;function log() { }&quot;];
-JSValue *value = [JSValue valueWithObject:@&quot;test content&quot; inContext:self.context];
-
-self.context[@&quot;log&quot;] = ^(){
-    NSLog(@&quot;%@&quot;,value);
-};
-
-[self.context[@&quot;log&quot;] callWithArguments:nil];
-</code></pre><p><strong>原因：</strong>在block里面直接使用外部定义的JSValue对象不会发生循环引用。以上诉代码为例，JSContext强引用了一个log函数，log函数中又强引用了JSValue对象，JSValue对象强引用JSContext对象和保存的值，JSContext对象引用它管理的所有JSValue对象，这样JSContext和JSValue看上去是循环引用的，然而并不会，<strong>垃圾回收机制会打破这个循环引用</strong>。</p>
-<h5 id="3、OC对象保存JSValue容易引起循环引用"><a href="#3、OC对象保存JSValue容易引起循环引用" class="headerlink" title="3、OC对象保存JSValue容易引起循环引用"></a>3、OC对象保存JSValue容易引起循环引用</h5><p>假设下面这样的场景，定义QSAlertView类，该类中持有successHandler，failureHandler这两个JSValue对象，使用block方式注入JS方法时候</p>
-<pre><code>self.context[@&quot;presentNativeAlert&quot;] = ^(NSString *title,
-                                        NSString *message,
-                                        JSValue *successHandler,
-                                        JSValue *failureHandler) {
-    JSContext *context = [JSContext currentContext];
-    QSAlertView *alertView = [[QSAlertView alloc] initWithTitle:title
-                                                        message:message
-                                                        successHandler:successHandler
-                                                 failureHandler:failureHandler
-                                                        context:context];
-    [alertView show];
-};
-</code></pre><p><strong>说明</strong>：因为JavaScript环境中都是“强引用”（相对Objective-C的概念来说）的，这时JSContext强引用了一个presentNativeAlert函数，这个函数中又强引用了QSAlertView，等于说JSContext强引用了QSAlertView，而QSAlertView为了持有两个回调强引用了successHandler和failureHandler这两个JSValue，而JSValue又是强引用JSContext的，循环引用便出现了。</p>
-<p><strong>打破该类循环引用的方式是：JSMagagedValue对象代替JSValue对象被OC对象持有</strong></p>
-<h4 id="五、JSMagagedValue类使用"><a href="#五、JSMagagedValue类使用" class="headerlink" title="五、JSMagagedValue类使用"></a>五、JSMagagedValue类使用</h4><p><strong>JSMagagedValue类</strong>：弱引用对象，需要调用JSVirtualMachine的addManagedReference:withOwner:把它添加到JSVirtualMachine对象中，确保使用过程中JSValue不会被释放 </p>
-<pre><code>//QSAlertView.h
-@interface QSAlertView : UIAlertView
-- (instancetype)initWithTitle:(NSString *)title
-                      message:(NSString *)message
-               successHandler:(JSValue *)successHandler
-               failureHandler:(JSValue *)failureHandler
-                      context:(JSContext *)context;
-@end
-
-//QSAlertView.m
-@interface QSAlertView() &lt;UIAlertViewDelegate&gt;
-
-@property (nonatomic,strong) JSContext *context;
-@property (nonatomic,strong) JSManagedValue *successHandler;
-@property (nonatomic,strong) JSManagedValue *failureHandler;
-
-@end
-
-@implementation QSAlertView
-
-- (instancetype)initWithTitle:(NSString *)title
-                      message:(NSString *)message
-               successHandler:(JSValue *)successHandler
-               failureHandler:(JSValue *)failureHandler
-                      context:(JSContext *)context{
-
-    self = [super initWithTitle:title message:message delegate:self cancelButtonTitle:@&quot;NO&quot; otherButtonTitles:@&quot;YES&quot;, nil];
-    if (self) {
-        _context = context;
-        _successHandler = [JSManagedValue managedValueWithValue:successHandler];
-        _failureHandler = [JSManagedValue managedValueWithValue:failureHandler];
-
-        //添加JSManagedValue对象到JSVirtualMachine对象中，防止使用过程被释放
-        [_context.virtualMachine addManagedReference:_successHandler withOwner:self];
-        [_context.virtualMachine addManagedReference:_failureHandler withOwner:self];
-    }
-    return self;
-}
-
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
-
-    NSString *btnTitle = [alertView buttonTitleAtIndex:buttonIndex];
-    if ([btnTitle isEqualToString:@&quot;YES&quot;]) {
-
-        JSValue *function = [self.successHandler value];
-        [function callWithArguments:@[]];
-
-    }else{
-        JSValue *function = [self.failureHandler value];
-        [function callWithArguments:@[]];
-    }
-    //移除JSManagedValue对象
-    [self.context.virtualMachine removeManagedReference:_successHandler withOwner:self];
-    [self.context.virtualMachine removeManagedReference:_failureHandler withOwner:self];
-}
-@end
-</code></pre><p><strong>说明1</strong>：外部传入的JSValue对象在类内部使用JSManagedValue(弱引用对象)来保存<br><strong>说明2</strong>：JSManagedValue对象因为是弱引用对象，需要调用JSVirtualMachine的addManagedReference:withOwner:把它添加到JSVirtualMachine对象中，确保使用过程中JSValue不会被释放<br><strong>说明3</strong>：当用户点击QSAlertView上的按钮时，根据用户点击哪一个按钮，来执行对应的处理函数，这时QSAlertView也随即被销毁。 这时需要手动调用removeManagedReference:withOwner:来移除JSManagedValue对象。</p>
-<pre><code>//OC执行JS代码
-[self.context evaluateScript:@&quot;function success() {print(&apos;success&apos;) }&quot;];
-[self.context evaluateScript:@&quot;function failure() {print(&apos;failure&apos;) }&quot;];
-self.context[@&quot;print&quot;] = ^(NSString *printStr){
-    NSLog(@&quot;printStr = %@&quot;,printStr);
-};
-self.context[@&quot;presentNativeAlert&quot;] = ^(NSString *title,
-                                        NSString *message,
-                                        JSValue *successHandler,
-                                        JSValue *failureHandler) {
-    JSContext *context = [JSContext currentContext];
-    QSAlertView *alertView = [[QSAlertView alloc] initWithTitle:title
-                                                        message:message
-                                                        successHandler:successHandler
-                                                 failureHandler:failureHandler
-                                                        context:context];
-    [alertView show];
-};
-
-[self.context evaluateScript:@&quot;presentNativeAlert(&apos;提示&apos;,&apos;这是一条警告&apos;,success,failure)&quot;];
-</code></pre><p><strong>说明1</strong>：在JS中定义了success和failure函数，为JS中的print函数和presentNativeAlert函数注入OC实现。<br><strong>说明2</strong>：点击弹出框的YES，调用JS的success函数，点击弹出框的NO，调用JS的failure函数。</p>
-<p><strong>效果图如下：</strong></p>
-<p><img src="http://upload-images.jianshu.io/upload_images/201701-b063e377adf7528c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="JS函数弹出OC警告框的效果图.png"></p>
-<h4 id="六、UIWebView中获取JSContext"><a href="#六、UIWebView中获取JSContext" class="headerlink" title="六、UIWebView中获取JSContext"></a>六、UIWebView中获取JSContext</h4><p>JavaScriptCore实现JS和OC交互是依赖<strong>JSContext对象</strong>，而在UIWebView使用中，不应该手动去创建JSContext对象，因为手动创建JSContext对象和UIWebView对应的JSContext对象并不是同一个JS上下文环境。我们应该去获取UIWebView对应的JSContext对象，虽然Apple并未提供直接的方式，但是我们可以通过KVC +  Runtime这两种方式去获取</p>
-<h5 id="1、KVC"><a href="#1、KVC" class="headerlink" title="1、KVC"></a>1、KVC</h5><pre><code>JSContext *context = [self.webView valueForKeyPath:@&quot;documentView.webView.mainFrame.javaScriptContext&quot;];
-</code></pre><p>使用简单，但是坑比较多，项目不推荐</p>
-<p><strong>原因一</strong>：方法暴力，有不被APP Store的审核通过的风险<br><strong>原因二</strong>：通过KVC获取JSContext对象的时机不好控制，</p>
-<ul>
-<li><p>在UIWebView的<strong>shouldStartLoadWithRequest</strong>或者<strong>webViewDidStartLoad</strong>阶段中获取context，由于此时页面中的JS代码并没有完全加载完，所以JS中定义的函数在OC端无法被执行。还会出现在加载一级页面时JS可以正常调用OC的方法，而跳转到二级页面中无法执行OC的方法。</p>
-</li>
-<li><p>在UIWebView的<strong>webViewDidFinishLoad</strong>阶段获取context,并暴露OC方法，由于加载JS的时机在<strong>webVIewDidFinishLoad</strong>阶段之前，因此会发生JS无法调用OC方法的情况发生。</p>
-</li>
-</ul>
-<h5 id="2、Runtime-（项目中使用）"><a href="#2、Runtime-（项目中使用）" class="headerlink" title="2、Runtime （项目中使用）"></a>2、Runtime （项目中使用）</h5><p>UIWebViewTS_JavaScriptContet项目：通过 runtime 机制，巧妙地获取 JavaScriptContext 创建之后，生成回调。</p>
-<p>在项目中，实现TSWebViewDelegate中的didCreateJavaScriptContext方法，可以获取UIWebView对应的JSContext对象</p>
-<pre><code>- (void)webView:(UIWebView *)webView didCreateJavaScriptContext:(JSContext*) ctx{
-      //ctx就是UIWebView对应的JSContext对象
-}
-</code></pre><h4 id="七、其他"><a href="#七、其他" class="headerlink" title="七、其他"></a>七、其他</h4><h5 id="1、JS调用OC"><a href="#1、JS调用OC" class="headerlink" title="1、JS调用OC"></a>1、JS调用OC</h5><ul>
-<li>通过 JSCore 中的 block</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//在 JS 执⾏行行环境中添加⼀一个 _OC_catch 的 block，那么在 JS 代码中就可以直接调⽤用 _OC_catch 这 个函数，当在 JS 中调⽤用 _OC_catch 这个函数后，我们刚才注册的 block 就会被执行。也就是通过 JS 成功的调⽤了 OC 代码。</span><br><span class="line">context[@&quot;_OC_catch&quot;] = ^(JSValue *msg, JSValue *stack) &#123;</span><br><span class="line"> </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>通过 JSCore 中的 JSExport</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">JSExport 可以导出 Objective-C 的属性、实例方法、类方法和初始化⽅方法到 JS 环境，这样就可 以通过 JS 代码直接调⽤用 Objective-C 。通过 JSExport 不仅可以导出⾃自定义类的方法、属性，也可以导出已有类的⽅方法、属性。在导出过程中，类的方法名会被转换成 JS 类型命名，第二个参数的第一个字⺟会被大写，比如- (void)addX:(int)x andY:(int)y;被转为addXAndY(x, y)。除此，JSExport还可以导出已有类的⽅方法、属性。</span><br></pre></td></tr></table></figure>
-<ul>
-<li>通过拦截 URL</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">通过拦截 URL，这种方式是 Web 端通过某种方式发送 URLScheme 请求，之后 Native 拦截到请求并根据URL SCHEME(包括所带的参数)进行相关操作。类似于通过 SCHEME 唤起APP。这种方式的缺点是 **url 长度有隐患**，并且**创建请求需要一定的耗时**，比注入 API 的方式调用同样的功能。耗时会比较长。所以还是更推荐使用注入 API 的方式。</span><br></pre></td></tr></table></figure>
-<h5 id="2、OC-调-JS"><a href="#2、OC-调-JS" class="headerlink" title="2、OC 调 JS"></a>2、OC 调 JS</h5><ul>
-<li>UIWebview/WKWebview</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">通过 UIWebView 来获取 JSContext ，这样直接通过获取到 context 来执⾏行行 JS 代码。</span><br><span class="line">//通过 UIWebView 获取 context</span><br><span class="line">JSContext *context = [_webView</span><br><span class="line">valueForKeyPath:@&quot;documentView.webView.mainFrame.JSContext&quot;]; // 要执行的 JS 代码，定义一个 add 函数并执⾏行行NSString *addjs = @&quot;function add(a, b) &#123;return a + b;&#125;;add(1,3)&quot;;// sumValue 为执⾏行行后的结果</span><br><span class="line">JSValue *sumValue = [self.context evaluateScript:addjs];</span><br><span class="line">//WKWebView 没有提供获取 JSContext 的方法，但是它提供了执行 JS 的方法 evaluateJS: ，通过下面方法来执行 JS 代码。</span><br></pre></td></tr></table></figure>
-<ul>
-<li>JSCore </li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// 要执行的 JS 代码，定义一个 add 函数并执⾏行行</span><br><span class="line">NSString *addjs = @&quot;function add(a, b) &#123;return a + b;&#125;;add(1,3)&quot;;// sumValue 为执⾏行行后的结果</span><br><span class="line">JSValue *sumValue = [self.context evaluateScript:addjs]</span><br></pre></td></tr></table></figure>
-<p>3、其他</p>
-<ul>
-<li><p>之前的笔记整理，主要介绍JavaScriptCore的使用，为后续JavaScriptCore深入使用做准备。</p>
-</li>
-<li><p>本文参考了<a href="http://liuduo.me/2015/10/24/JavaScriptCore%E5%88%9D%E6%8E%A2/" target="_blank" rel="noopener">JavaScriptCore初探</a> 和 <a href="https://segmentfault.com/a/1190000004285316" target="_blank" rel="noopener">iOS引入JavaScriptCore引擎框架</a></p>
-</li>
-<li><p><a href="https://github.com/buaa0300/QSKitDemo/tree/master/QSUseJSCoreDemo" target="_blank" rel="noopener">QSUseJSCoreDemo</a></p>
-</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3289,7 +3076,7 @@ self.context[@&quot;presentNativeAlert&quot;] = ^(NSString *title,
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">33</span>
+                  <span class="site-state-item-count">34</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -3311,7 +3098,7 @@ self.context[@&quot;presentNativeAlert&quot;] = ^(NSString *title,
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">47</span>
+                  <span class="site-state-item-count">48</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -3369,7 +3156,7 @@ self.context[@&quot;presentNativeAlert&quot;] = ^(NSString *title,
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">71.6k</span>
+    <span title="Site words total count">73.8k</span>
   
 </div>
 
