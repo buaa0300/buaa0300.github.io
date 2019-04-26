@@ -90,7 +90,7 @@
 <meta property="og:description" content="行到水穷处，坐看云起时 一、概述1、背景 鉴于H5的优势，客户端的很多业务都由H5来实现，Webview成了App中H5业务的唯一载体。 WebView组件是iOS组件体系中非常重要的一个，之前的UIWebView 存在严重的性能和内存消耗问题，iOS 8之后推出WKWebView，旨在代替UIWebView； WKWebView在性能、稳定性、内存占用上有很大的提升，支持更多的HTML5特性，高">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/201701-acf2d12be5ffcbbd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2019-04-26T09:21:42.878Z">
+<meta property="og:updated_time" content="2019-04-26T09:31:00.816Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Webview加载H5优化小记">
 <meta name="twitter:description" content="行到水穷处，坐看云起时 一、概述1、背景 鉴于H5的优势，客户端的很多业务都由H5来实现，Webview成了App中H5业务的唯一载体。 WebView组件是iOS组件体系中非常重要的一个，之前的UIWebView 存在严重的性能和内存消耗问题，iOS 8之后推出WKWebView，旨在代替UIWebView； WKWebView在性能、稳定性、内存占用上有很大的提升，支持更多的HTML5特性，高">
@@ -340,7 +340,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  2,812 字
+                  2,814 字
                 </span>
               
 
@@ -450,7 +450,7 @@
 </li>
 <li>离线包可以<strong>提升用户体验</strong>(页面加载更快)，还可以<strong>实现动态更新</strong>（在推出新版本或是紧急发布的时候，可以把修改的资源放入离线包，通过更新配置让应用自动下载更新）</li>
 </ul>
-<h5 id="2、方案描述"><a href="#2、方案描述" class="headerlink" title="2、方案描述"></a>2、方案描述</h5><p><em>引入bang的离线包方案，简单描述如下</em>：</p>
+<h5 id="2、方案描述"><a href="#2、方案描述" class="headerlink" title="2、方案描述"></a>2、方案描述</h5><p><em>引用bang的离线包方案，简单描述如下</em>：</p>
 <ul>
 <li><p>后端使用构建工具把同一个业务模块相关的页面和资源打包成一个文件，同时对文件加密/签名。</p>
 </li>
@@ -471,7 +471,7 @@
 <li>因此，如果通过 <strong>registerSchemeForCustomProtocol</strong> 注册了 http(s) scheme, 那么由 WKWebView 发起的所有 http(s)请求都会通过 IPC 传给主进程 NSURLProtocol 处理，<strong>导致 post 请求 body 被清空</strong>；</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">//苹果开源的 WebKit2 源码暴露了私有API：</span><br><span class="line">+ [WKBrowsingContextController registerSchemeForCustomProtocol:]</span><br><span class="line"></span><br><span class="line">//通过注册 http(s) scheme 后 WKWebView 将可以使用 NSURLProtocol 拦截 http(s) 请求：</span><br><span class="line">Class cls = NSClassFromString(@&quot;WKBrowsingContextController”); </span><br><span class="line">SEL sel = NSSelectorFromString(@&quot;registerSchemeForCustomProtocol:&quot;); </span><br><span class="line">if ([(id)cls respondsToSelector:sel]) &#123; </span><br><span class="line">   // 注册http(s) scheme, 把 http和https请求交给 NSURLProtocol处理 </span><br><span class="line">   [(id)cls performSelector:sel withObject:@&quot;http&quot;]; </span><br><span class="line">   [(id)cls performSelector:sel withObject:@&quot;https&quot;]; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><strong>说明1：</strong>名目张胆使用私有API，是过不了AppStore审核的，具体使用什么办法，想来你也懂。</p>
+<p><strong>说明1：</strong>名目张胆使用私有API，是过不了AppStore审核的，具体使用什么办法，想来你也懂(hun xiao)。</p>
 <p><strong>说明2</strong>：一旦打开ATS开关：<strong>Allow Arbitrary Loads 选项设置为NO</strong>，通过 registerSchemeForCustomProtocol 注册了 http(s) scheme，WKWebView 发起的所有 http(s) 网络请求将被阻塞（即便将<strong>Allow Arbitrary Loads in Web Content 选项设置为YES</strong>）；</p>
 <p><strong>说明3</strong>：iOS11之后可以通过<strong>WKURLSchemeHandler</strong>去完成对<code>WKWebView</code>的请求拦截,不需要再调用私有API解决上述问题了。</p>
 <h5 id="4、WKWebView自定义资源scheme"><a href="#4、WKWebView自定义资源scheme" class="headerlink" title="4、WKWebView自定义资源scheme"></a>4、WKWebView自定义资源scheme</h5><ul>
