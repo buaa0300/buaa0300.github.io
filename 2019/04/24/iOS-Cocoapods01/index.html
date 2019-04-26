@@ -89,7 +89,7 @@
 <meta property="og:site_name" content="南华coder的空间">
 <meta property="og:description" content="不识庐山真面目，只缘身在此山中 一、概述1、CocoaPods是什么？ CocoaPods是OS X和iOS下的一个第三类库管理工具，通过CocoaPods工具我们可以为项目添加被称为“Pods”的依赖库（这些类库必须是CocoaPods本身所支持的），并且可以轻松管理其版本。  iOS程序依赖管理工具还有Carthage(Carthage 是由 Swift 语言写的，只支持动态框架，只支持 iO">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-04-25T08:44:42.650Z">
+<meta property="og:updated_time" content="2019-04-25T08:49:46.283Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Cocoapods使用小记">
 <meta name="twitter:description" content="不识庐山真面目，只缘身在此山中 一、概述1、CocoaPods是什么？ CocoaPods是OS X和iOS下的一个第三类库管理工具，通过CocoaPods工具我们可以为项目添加被称为“Pods”的依赖库（这些类库必须是CocoaPods本身所支持的），并且可以轻松管理其版本。  iOS程序依赖管理工具还有Carthage(Carthage 是由 Swift 语言写的，只支持动态框架，只支持 iO">
@@ -491,7 +491,6 @@
 <h5 id="3、第三方库禁止BITCODE"><a href="#3、第三方库禁止BITCODE" class="headerlink" title="3、第三方库禁止BITCODE"></a>3、第三方库禁止BITCODE</h5><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">post_install <span class="keyword">do</span> <span class="params">|installer|</span></span><br><span class="line">    installer.pods_project.targets.each <span class="keyword">do</span> <span class="params">|target|</span></span><br><span class="line">        target.build_configurations.each <span class="keyword">do</span> <span class="params">|config|</span></span><br><span class="line">           config.build_setting[<span class="string">"ENABLE_BITCODE"</span>] = <span class="string">'NO'</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
 <h5 id="4、清除相关命令"><a href="#4、清除相关命令" class="headerlink" title="4、清除相关命令"></a>4、清除相关命令</h5><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#查看本地pod缓存</span></span><br><span class="line">pod cache list</span><br><span class="line"></span><br><span class="line"><span class="comment">#清除某个库缓存</span></span><br><span class="line">pod cache clean xxxx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清除所有pod缓存</span></span><br><span class="line">pod cache clean -all</span><br><span class="line"></span><br><span class="line"><span class="comment">#删除缓存方法</span></span><br><span class="line">rm ~<span class="regexp">/Library/</span>Caches/Cocoapods/Pods/Pods/Release</span><br></pre></td></tr></table></figure>
 <h5 id="5、其他"><a href="#5、其他" class="headerlink" title="5、其他"></a>5、其他</h5><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 更新库命令</span></span><br><span class="line">pod repo update</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除 search_index.json 文件</span></span><br><span class="line">rm  ~<span class="regexp">/Library/</span>Caches/CocoaPods/search_index.json</span><br></pre></td></tr></table></figure>
-<p>##### </p>
 
       
     </div>
@@ -635,7 +634,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">48</span>
+                  <span class="site-state-item-count">49</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -709,7 +708,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">73.8k</span>
+    <span title="Site words total count">75.3k</span>
   
 </div>
 
