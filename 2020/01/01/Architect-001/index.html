@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="南华coder的空间" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="一、研发架构的演进1、概述 互联网PC时代没有明确的前后端概念，这个时期，开发人员没有前后端边界，前端页面和后端逻辑写在一个工程中，如早期的JavaWeb开发，既要写HTML、CSS、JavaScript还要写Java； 随着业务的发展，开发者同时处理前后端工作，效率越来越低；而移动互联网Android和iOS的爆发，庞大流量的涌入，业务变得越来越复杂，研发团队急速扩张，这些都急速加剧了前后端的分">
+<meta property="og:type" content="article">
+<meta property="og:title" content="漫谈0x01:技术演进和思考">
+<meta property="og:url" content="http://buaa0300/nanhuacoder.com/2020/01/01/Architect-001/index.html">
+<meta property="og:site_name" content="南华coder的空间">
+<meta property="og:description" content="一、研发架构的演进1、概述 互联网PC时代没有明确的前后端概念，这个时期，开发人员没有前后端边界，前端页面和后端逻辑写在一个工程中，如早期的JavaWeb开发，既要写HTML、CSS、JavaScript还要写Java； 随着业务的发展，开发者同时处理前后端工作，效率越来越低；而移动互联网Android和iOS的爆发，庞大流量的涌入，业务变得越来越复杂，研发团队急速扩张，这些都急速加剧了前后端的分">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-01-01T09:20:25.354Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="漫谈0x01:技术演进和思考">
+<meta name="twitter:description" content="一、研发架构的演进1、概述 互联网PC时代没有明确的前后端概念，这个时期，开发人员没有前后端边界，前端页面和后端逻辑写在一个工程中，如早期的JavaWeb开发，既要写HTML、CSS、JavaScript还要写Java； 随着业务的发展，开发者同时处理前后端工作，效率越来越低；而移动互联网Android和iOS的爆发，庞大流量的涌入，业务变得越来越复杂，研发团队急速扩张，这些都急速加剧了前后端的分">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://buaa0300/nanhuacoder.com/2020/01/01/Architect-001/"/>
+
+
+
+
+
+  <title>漫谈0x01:技术演进和思考 | 南华coder的空间</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">南华coder的空间</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2020/01/01/Architect-001/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">漫谈0x01:技术演进和思考</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-01T10:31:24+08:00">
+                2020-01-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/架构笔记/" itemprop="url" rel="index">
+                    <span itemprop="name">架构笔记</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,921 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  10 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="一、研发架构的演进"><a href="#一、研发架构的演进" class="headerlink" title="一、研发架构的演进"></a>一、研发架构的演进</h4><h5 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h5><ul>
+<li>互联网PC时代没有明确的前后端概念，这个时期，开发人员没有前后端边界，前端页面和后端逻辑写在一个工程中，如早期的JavaWeb开发，既要写HTML、CSS、JavaScript还要写Java；</li>
+<li>随着业务的发展，开发者同时处理前后端工作，效率越来越低；而移动互联网Android和iOS的爆发，庞大流量的涌入，业务变得越来越复杂，研发团队急速扩张，这些都急速加剧了前后端的分离；</li>
+<li>我们需要一个全新的研发架构，既要保证用户在前端的体验，又要保证在后端服务的高并低延；将团队拆分成前后端团队，让两端的工程师更加专注自己的领域，独立治理，然后构架出一个全栈式、精益求精的团队。</li>
+</ul>
+<h5 id="2、从移动端、前端到大前端"><a href="#2、从移动端、前端到大前端" class="headerlink" title="2、从移动端、前端到大前端"></a>2、从移动端、前端到大前端</h5><ul>
+<li>移动互联网时代，Android和iOS手机操作系统横空出世，他们被定义为客户端；在客户端高歌猛进的同时，前端也非常热闹，Angular、React、Vue … 等各种各样的新技术层出不穷；</li>
+<li>随着业务的急速发展，对业务快速交付的要求越来越高，Hybrid开发模式、跨端技术方案(React Native、Weex、Flutter)也应运而生；</li>
+<li>此后，客户端和Web端的边界越来越模糊，渐渐演化成大前端。对于后端、PM等来说，他们都是前端。</li>
+</ul>
+<h5 id="3、从后端到大后端"><a href="#3、从后端到大后端" class="headerlink" title="3、从后端到大后端"></a>3、从后端到大后端</h5><ul>
+<li>得益于移动互联网的爆发式增长，海量的前端请求都聚集到后端；后端单个接口QPS从0.1k、到1k、1w甚至到10w+；百万、千万PV，百亿级流量已是常态；后端面临越来越多的挑战；</li>
+<li>后端不是简单的BBF(Backend For Frontend，服务于前端的后端），而是在接收诸多挑战：高并发、低延迟、负载均衡、分布式、消息队列、安全等。</li>
+<li>后端的软件架构也在激进演化，从单体架构到分布式应用，到微服务，甚至走向Serverless架构。</li>
+</ul>
+<h4 id="二、后端软件架构的演进"><a href="#二、后端软件架构的演进" class="headerlink" title="二、后端软件架构的演进"></a>二、后端软件架构的演进</h4><p> 后端的软件架构分以下四种（<em>主流的、炙手可热的依然是微服务架构</em>）：</p>
+<h5 id="1、单体架构"><a href="#1、单体架构" class="headerlink" title="1、单体架构"></a>1、单体架构</h5><ul>
+<li>初级结构，典型的三级架构，前端(Web端/客户端) + 中间业务逻辑层 + 数据库层，这是一种典型的<code>Java Spring MVC</code>或者<code>Python Drango</code>框架的应用；</li>
+<li>单体架构的应用比较容易部署、测试，但是缺点也比较明显：<ul>
+<li>复杂性高</li>
+<li>技术债务</li>
+<li>部署频率低</li>
+<li>可靠性差：某个应用Bug，例如死循环、内存溢出等，可能会导致整个应用的崩溃。</li>
+<li>扩展能力受限：单体应用只能作为一个整体进行扩展，无法根据业务模块的需要进行伸缩。</li>
+<li>阻碍技术创新：单体应用往往使用统一的技术平台或方案解决所有的问题， 团队中的每个成员都必须使用相同的开发语言和框架，要想引入新框架或新技术平台会非常困难。</li>
+</ul>
+</li>
+</ul>
+<h5 id="2、分布式应用"><a href="#2、分布式应用" class="headerlink" title="2、分布式应用"></a>2、分布式应用</h5><ul>
+<li>核心是：中间业务逻辑层分布式 + 数据库分布式，是对单体架构的并发扩展，将一个大的系统划分为多个业务模块，业务模块分别部署在不同的服务器上，各个业务模块之间通过接口进行数据交互。</li>
+<li>数据库也大量采用分布式数据库，如Redis。通过 LVS/Nginx 代理应用，将用户请求均衡的负载到不同的服务器上。</li>
+<li>分布式应用大大提高了系统负载均衡能力，极大满足高并发的需求，<strong>优点如下：</strong><ul>
+<li>降低了耦合度：把模块拆分，使用接口通信，降低模块之间的耦合度。</li>
+<li>责任清晰：把项目拆分成若干个子项目，不同的团队负责不同的子项目。</li>
+<li>扩展方便：增加功能时只需要再增加一个子项目，调用其他系统的接口就可以。</li>
+<li>部署方便：可以灵活的进行分布式部署。</li>
+<li>提高代码的复用性：比如Web、Android，iOS使用同一个Service层。</li>
+</ul>
+</li>
+<li><strong>分布式应用的缺点：</strong><ul>
+<li>各个系统之间的交互要使用远程通信，接口开发增大工作量，但是利大于弊。</li>
+</ul>
+</li>
+</ul>
+<h5 id="3、微服务架构【当前の主流】"><a href="#3、微服务架构【当前の主流】" class="headerlink" title="3、微服务架构【当前の主流】"></a>3、微服务架构【当前の主流】</h5><ul>
+<li>主要是<strong>中间业务逻辑层</strong>的解耦，将系统拆分成很多小应用（微服务），微服务可以部署在不同的服务器上，也可以部署在相同的服务器上的不同的容器中，单应用的故障和负载都不会影响到其他应用，其代表框架有<code>Spring Cloud</code>、<code>Dubbo</code>等。</li>
+<li><strong>微服务架构的优势：</strong><ul>
+<li>易于开发和维护：一个微服务只会关注一个特定的业务功能，所以它业务清晰、代码量较少</li>
+<li>单个微服务启动较快：单个微服务代码量较少， 所以启动会比较快。</li>
+<li>局部修改容易部署：对某个微服务进行修改，只需要重新部署这个服务即可。</li>
+<li>技术栈不受限：</li>
+</ul>
+</li>
+<li><strong>微服务架构的缺点：</strong><ul>
+<li>运维要求较高：更多的服务意味着更多的运维投入。在单体架构中，只需要保证一个应用的正常运行。而在微服务中，需要保证几十甚至几百个服务服务的正常运行与协作，这给运维带来了很大的挑战。</li>
+<li>分布式固有的复杂性：使用微服务构建的是分布式系统。对于一个分布式系统，系统容错、网络延迟、分布式事务等都会带来巨大的挑战。</li>
+<li>接口调整成本高：微服务之间通过接口进行通信。如果修改某一个微服务的API，可能所有使用了该接口的微服务都需要做调整。</li>
+<li>重复劳动：很多服务可能都会使用到相同的功能，而这个功能并没有达到分解为一个微服务的程度，这个时候，可能各个服务都会开发这一功能，从而导致代码重复。尽管可以使用共享库来解决这个问题（例如可以将这个功能封装成公共组件，需要该功能的微服务引用该组件），但共享库在多语言环境下就不一定行得通了。</li>
+</ul>
+</li>
+</ul>
+<h5 id="4、Serverless架构"><a href="#4、Serverless架构" class="headerlink" title="4、Serverless架构"></a>4、Serverless架构</h5><ul>
+<li>Serverless（无服务器架构）是指服务端逻辑由开发者实现，运行在无状态的计算容器中，由事件触发，完全被第三方管理，其业务层面的状态则存储在数据库或其他介质中。</li>
+<li>Serverless 是<strong>云原生技术</strong>发展的高级阶段，可以使开发者更聚焦在业务逻辑，而减少对基础设施的关注。</li>
+<li><p>Serverless分为以下两个领域：</p>
+<ul>
+<li>BaaS（Backend as a Service）后端即服务；一个个API调用后端或已经实现好的程序逻辑，这些API可以使用Baas提供的服务（如数据存储)。</li>
+<li>FaaS（Functions as a Service）函数即服务，FaaS是无服务器计算的一种形式，当前使用最广泛的是AWS的Lambada。</li>
+</ul>
+</li>
+<li><p>Serverless架构能够让开发者在构建应用的过程中无需关注计算资源的获取和运维，由平台来按需分配计算资源并保证应用执行的SLA（服务等级协议），按照调用次数进行计费，有效的节省应用成本。其优点如下所示：</p>
+<ul>
+<li>低运营成本</li>
+<li>简化设备运维</li>
+<li>提升可维护性</li>
+<li>更快的开发速度</li>
+</ul>
+</li>
+<li><p><strong>Serverless架构的缺点：</strong></p>
+<ul>
+<li>厂商平台绑定，对平台依赖非常高，不能随便迁移或迁移成本很高</li>
+<li>目前成功案例比较少，没有行业标准。</li>
+</ul>
+</li>
+</ul>
+<h4 id="三、几点思考"><a href="#三、几点思考" class="headerlink" title="三、几点思考"></a>三、几点思考</h4><h5 id="1、业务-VS-技术"><a href="#1、业务-VS-技术" class="headerlink" title="1、业务 VS 技术"></a>1、业务 VS 技术</h5><ul>
+<li>业务决定技术的上限：技术是为了解决业务问题的，业务能带来真正的价值，技术才有存在的意义。如果没有双11秒杀活动、春节抢火车票这些事情，流量削峰、削峰填谷这类技术就没有存在的意义。在一个业务高歌猛进的同时，技术也在不断演化；</li>
+<li>技术是业务的护城河：没有技术或技术无法支撑业务的快速迭代、快速试错，再美好的业务终究是水中月、镜中花，一纸空谈而已；</li>
+<li>技术和业务是相互促进的，相互依存。对于技术人来说，选择一个好的业务，对技术成长非常重要；业务中成长远快于从书本中学习，甚至是碾压。</li>
+</ul>
+<h5 id="2、个人-VS-团队"><a href="#2、个人-VS-团队" class="headerlink" title="2、个人 VS 团队"></a>2、个人 VS 团队</h5><ul>
+<li>有一定规模的互联网公司，团队职责都会细分，绝大数人在团队中只是做着或负责很小的一部分事情（俗称<em>拧螺丝</em>），但是职责划分是趋势，是团队进化的必然选择；</li>
+<li>在一个团队中，做什么很重要；但是更重要的是能看到什么；团队给你提供了一个非常大的平台，因此可以接触到非常多的人或事；</li>
+<li>团队中的个体通力合作，共同完成团队目标，不仅提高了个人的影响力，也提高了团队整体的竞争力。</li>
+</ul>
+<h5 id="3、技术人的边界"><a href="#3、技术人的边界" class="headerlink" title="3、技术人的边界"></a>3、技术人的边界</h5><ul>
+<li>而今，技术方向细分，每个技术人都在自己的方向深挖，这是非常必要的，因为这样才能组成一个全栈式、精益求精的团队，但是这还远远不够；</li>
+<li>技术人应该不设置边界（不是说没有边界）：技术人应该跳出自己的领域，观察其他人、其他技术团队，甚至业务团队在做什么；主动去了解这条业务线上不同角色的职责，然后完善或扩张自己的边界；</li>
+<li>从当今的技术发展趋势来看，每个团队负责”小型”服务，”小型”服务内完成闭环，对外提供服务能力。而”小型”服务内的技术选型，技术栈是灵活的，甚至可以实现在”小型”服务内 技术 + 业务闭环。</li>
+</ul>
+<h5 id="4、技术专家-VS-架构师"><a href="#4、技术专家-VS-架构师" class="headerlink" title="4、技术专家 VS 架构师"></a>4、技术专家 VS 架构师</h5><ul>
+<li><strong>技术专家追求的是深度</strong>，需要专注于某些领域，某一类技术，需要对这方面了解非常透彻，适合做技术专家的领域有：安全、搜索、应用程序框架、缓存、JVM、分布式、RPC框架等，或更加底层的数据库开发，Web服务器开发， 编译器开发等。</li>
+<li><p><strong>架构师追求的是广度</strong>，对深度并没有极致要求， 你可能并不了解一个系统的内部细节实现，但是一定要知道这个系统的特点、能力、性能和适用范围；在工作中，由点及面， 着眼系统整体和业务的全局，培养出设计系统架构的能力：把需求转化成合适的技术方案，然后推动方案的落地。</p>
+</li>
+<li><p>根据自己的优劣势选择合适自己的方向，然后刻意练习，不断完善这方面的能力。</p>
+</li>
+</ul>
+<h4 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h4><ul>
+<li><p><a href="https://mp.weixin.qq.com/s?__biz=MzI0MDQ4MTM5NQ==&amp;mid=2247491020&amp;idx=2&amp;sn=19d29c54d39ae9a08118dd3e9e3fedc8&amp;chksm=e91b78d0de6cf1c657651b4f185a254eeee607eae910e90231e010035247376a7febd2140eaf&amp;token=1182852775&amp;lang=zh_CN#rd" target="_blank" rel="noopener">漫谈四种主流软件架构演进史</a></p>
+</li>
+<li><p><a href="https://jimmysong.io/posts/what-is-serverless/" target="_blank" rel="noopener">什么是Serverless（无服务器）架构</a></p>
+</li>
+<li><a href="https://mp.weixin.qq.com/s/W4Slu5F__AQtQTSOEFOsfg" target="_blank" rel="noopener">Flutter+Serverless端到端研发架构实践</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/24/iOS-Cocoapods01/" rel="next" title="Cocoapods使用小记">
+                <i class="fa fa-chevron-left"></i> Cocoapods使用小记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.jpeg"
+                alt="南华coder" />
+            
+              <p class="site-author-name" itemprop="name">南华coder</p>
+              <p class="site-description motion-element" itemprop="description">于无声处听惊雷,于无色处见繁花</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">35</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">49</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、研发架构的演进"><span class="nav-number">1.</span> <span class="nav-text">一、研发架构的演进</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、概述"><span class="nav-number">1.1.</span> <span class="nav-text">1、概述</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、从移动端、前端到大前端"><span class="nav-number">1.2.</span> <span class="nav-text">2、从移动端、前端到大前端</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、从后端到大后端"><span class="nav-number">1.3.</span> <span class="nav-text">3、从后端到大后端</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、后端软件架构的演进"><span class="nav-number">2.</span> <span class="nav-text">二、后端软件架构的演进</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、单体架构"><span class="nav-number">2.1.</span> <span class="nav-text">1、单体架构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、分布式应用"><span class="nav-number">2.2.</span> <span class="nav-text">2、分布式应用</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、微服务架构【当前の主流】"><span class="nav-number">2.3.</span> <span class="nav-text">3、微服务架构【当前の主流】</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、Serverless架构"><span class="nav-number">2.4.</span> <span class="nav-text">4、Serverless架构</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、几点思考"><span class="nav-number">3.</span> <span class="nav-text">三、几点思考</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、业务-VS-技术"><span class="nav-number">3.1.</span> <span class="nav-text">1、业务 VS 技术</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、个人-VS-团队"><span class="nav-number">3.2.</span> <span class="nav-text">2、个人 VS 团队</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、技术人的边界"><span class="nav-number">3.3.</span> <span class="nav-text">3、技术人的边界</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、技术专家-VS-架构师"><span class="nav-number">3.4.</span> <span class="nav-text">4、技术专家 VS 架构师</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考文章"><span class="nav-number">4.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">南华coder</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">78.3k</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

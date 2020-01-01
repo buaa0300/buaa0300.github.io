@@ -254,6 +254,292 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2020/01/01/Architect-001/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/01/01/Architect-001/" itemprop="url">漫谈0x01:技术演进和思考</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-01T10:31:24+08:00">
+                2020-01-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/架构笔记/" itemprop="url" rel="index">
+                    <span itemprop="name">架构笔记</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,921 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  10 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="一、研发架构的演进"><a href="#一、研发架构的演进" class="headerlink" title="一、研发架构的演进"></a>一、研发架构的演进</h4><h5 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h5><ul>
+<li>互联网PC时代没有明确的前后端概念，这个时期，开发人员没有前后端边界，前端页面和后端逻辑写在一个工程中，如早期的JavaWeb开发，既要写HTML、CSS、JavaScript还要写Java；</li>
+<li>随着业务的发展，开发者同时处理前后端工作，效率越来越低；而移动互联网Android和iOS的爆发，庞大流量的涌入，业务变得越来越复杂，研发团队急速扩张，这些都急速加剧了前后端的分离；</li>
+<li>我们需要一个全新的研发架构，既要保证用户在前端的体验，又要保证在后端服务的高并低延；将团队拆分成前后端团队，让两端的工程师更加专注自己的领域，独立治理，然后构架出一个全栈式、精益求精的团队。</li>
+</ul>
+<h5 id="2、从移动端、前端到大前端"><a href="#2、从移动端、前端到大前端" class="headerlink" title="2、从移动端、前端到大前端"></a>2、从移动端、前端到大前端</h5><ul>
+<li>移动互联网时代，Android和iOS手机操作系统横空出世，他们被定义为客户端；在客户端高歌猛进的同时，前端也非常热闹，Angular、React、Vue … 等各种各样的新技术层出不穷；</li>
+<li>随着业务的急速发展，对业务快速交付的要求越来越高，Hybrid开发模式、跨端技术方案(React Native、Weex、Flutter)也应运而生；</li>
+<li>此后，客户端和Web端的边界越来越模糊，渐渐演化成大前端。对于后端、PM等来说，他们都是前端。</li>
+</ul>
+<h5 id="3、从后端到大后端"><a href="#3、从后端到大后端" class="headerlink" title="3、从后端到大后端"></a>3、从后端到大后端</h5><ul>
+<li>得益于移动互联网的爆发式增长，海量的前端请求都聚集到后端；后端单个接口QPS从0.1k、到1k、1w甚至到10w+；百万、千万PV，百亿级流量已是常态；后端面临越来越多的挑战；</li>
+<li>后端不是简单的BBF(Backend For Frontend，服务于前端的后端），而是在接收诸多挑战：高并发、低延迟、负载均衡、分布式、消息队列、安全等。</li>
+<li>后端的软件架构也在激进演化，从单体架构到分布式应用，到微服务，甚至走向Serverless架构。</li>
+</ul>
+<h4 id="二、后端软件架构的演进"><a href="#二、后端软件架构的演进" class="headerlink" title="二、后端软件架构的演进"></a>二、后端软件架构的演进</h4><p> 后端的软件架构分以下四种（<em>主流的、炙手可热的依然是微服务架构</em>）：</p>
+<h5 id="1、单体架构"><a href="#1、单体架构" class="headerlink" title="1、单体架构"></a>1、单体架构</h5><ul>
+<li>初级结构，典型的三级架构，前端(Web端/客户端) + 中间业务逻辑层 + 数据库层，这是一种典型的<code>Java Spring MVC</code>或者<code>Python Drango</code>框架的应用；</li>
+<li>单体架构的应用比较容易部署、测试，但是缺点也比较明显：<ul>
+<li>复杂性高</li>
+<li>技术债务</li>
+<li>部署频率低</li>
+<li>可靠性差：某个应用Bug，例如死循环、内存溢出等，可能会导致整个应用的崩溃。</li>
+<li>扩展能力受限：单体应用只能作为一个整体进行扩展，无法根据业务模块的需要进行伸缩。</li>
+<li>阻碍技术创新：单体应用往往使用统一的技术平台或方案解决所有的问题， 团队中的每个成员都必须使用相同的开发语言和框架，要想引入新框架或新技术平台会非常困难。</li>
+</ul>
+</li>
+</ul>
+<h5 id="2、分布式应用"><a href="#2、分布式应用" class="headerlink" title="2、分布式应用"></a>2、分布式应用</h5><ul>
+<li>核心是：中间业务逻辑层分布式 + 数据库分布式，是对单体架构的并发扩展，将一个大的系统划分为多个业务模块，业务模块分别部署在不同的服务器上，各个业务模块之间通过接口进行数据交互。</li>
+<li>数据库也大量采用分布式数据库，如Redis。通过 LVS/Nginx 代理应用，将用户请求均衡的负载到不同的服务器上。</li>
+<li>分布式应用大大提高了系统负载均衡能力，极大满足高并发的需求，<strong>优点如下：</strong><ul>
+<li>降低了耦合度：把模块拆分，使用接口通信，降低模块之间的耦合度。</li>
+<li>责任清晰：把项目拆分成若干个子项目，不同的团队负责不同的子项目。</li>
+<li>扩展方便：增加功能时只需要再增加一个子项目，调用其他系统的接口就可以。</li>
+<li>部署方便：可以灵活的进行分布式部署。</li>
+<li>提高代码的复用性：比如Web、Android，iOS使用同一个Service层。</li>
+</ul>
+</li>
+<li><strong>分布式应用的缺点：</strong><ul>
+<li>各个系统之间的交互要使用远程通信，接口开发增大工作量，但是利大于弊。</li>
+</ul>
+</li>
+</ul>
+<h5 id="3、微服务架构【当前の主流】"><a href="#3、微服务架构【当前の主流】" class="headerlink" title="3、微服务架构【当前の主流】"></a>3、微服务架构【当前の主流】</h5><ul>
+<li>主要是<strong>中间业务逻辑层</strong>的解耦，将系统拆分成很多小应用（微服务），微服务可以部署在不同的服务器上，也可以部署在相同的服务器上的不同的容器中，单应用的故障和负载都不会影响到其他应用，其代表框架有<code>Spring Cloud</code>、<code>Dubbo</code>等。</li>
+<li><strong>微服务架构的优势：</strong><ul>
+<li>易于开发和维护：一个微服务只会关注一个特定的业务功能，所以它业务清晰、代码量较少</li>
+<li>单个微服务启动较快：单个微服务代码量较少， 所以启动会比较快。</li>
+<li>局部修改容易部署：对某个微服务进行修改，只需要重新部署这个服务即可。</li>
+<li>技术栈不受限：</li>
+</ul>
+</li>
+<li><strong>微服务架构的缺点：</strong><ul>
+<li>运维要求较高：更多的服务意味着更多的运维投入。在单体架构中，只需要保证一个应用的正常运行。而在微服务中，需要保证几十甚至几百个服务服务的正常运行与协作，这给运维带来了很大的挑战。</li>
+<li>分布式固有的复杂性：使用微服务构建的是分布式系统。对于一个分布式系统，系统容错、网络延迟、分布式事务等都会带来巨大的挑战。</li>
+<li>接口调整成本高：微服务之间通过接口进行通信。如果修改某一个微服务的API，可能所有使用了该接口的微服务都需要做调整。</li>
+<li>重复劳动：很多服务可能都会使用到相同的功能，而这个功能并没有达到分解为一个微服务的程度，这个时候，可能各个服务都会开发这一功能，从而导致代码重复。尽管可以使用共享库来解决这个问题（例如可以将这个功能封装成公共组件，需要该功能的微服务引用该组件），但共享库在多语言环境下就不一定行得通了。</li>
+</ul>
+</li>
+</ul>
+<h5 id="4、Serverless架构"><a href="#4、Serverless架构" class="headerlink" title="4、Serverless架构"></a>4、Serverless架构</h5><ul>
+<li>Serverless（无服务器架构）是指服务端逻辑由开发者实现，运行在无状态的计算容器中，由事件触发，完全被第三方管理，其业务层面的状态则存储在数据库或其他介质中。</li>
+<li>Serverless 是<strong>云原生技术</strong>发展的高级阶段，可以使开发者更聚焦在业务逻辑，而减少对基础设施的关注。</li>
+<li><p>Serverless分为以下两个领域：</p>
+<ul>
+<li>BaaS（Backend as a Service）后端即服务；一个个API调用后端或已经实现好的程序逻辑，这些API可以使用Baas提供的服务（如数据存储)。</li>
+<li>FaaS（Functions as a Service）函数即服务，FaaS是无服务器计算的一种形式，当前使用最广泛的是AWS的Lambada。</li>
+</ul>
+</li>
+<li><p>Serverless架构能够让开发者在构建应用的过程中无需关注计算资源的获取和运维，由平台来按需分配计算资源并保证应用执行的SLA（服务等级协议），按照调用次数进行计费，有效的节省应用成本。其优点如下所示：</p>
+<ul>
+<li>低运营成本</li>
+<li>简化设备运维</li>
+<li>提升可维护性</li>
+<li>更快的开发速度</li>
+</ul>
+</li>
+<li><p><strong>Serverless架构的缺点：</strong></p>
+<ul>
+<li>厂商平台绑定，对平台依赖非常高，不能随便迁移或迁移成本很高</li>
+<li>目前成功案例比较少，没有行业标准。</li>
+</ul>
+</li>
+</ul>
+<h4 id="三、几点思考"><a href="#三、几点思考" class="headerlink" title="三、几点思考"></a>三、几点思考</h4><h5 id="1、业务-VS-技术"><a href="#1、业务-VS-技术" class="headerlink" title="1、业务 VS 技术"></a>1、业务 VS 技术</h5><ul>
+<li>业务决定技术的上限：技术是为了解决业务问题的，业务能带来真正的价值，技术才有存在的意义。如果没有双11秒杀活动、春节抢火车票这些事情，流量削峰、削峰填谷这类技术就没有存在的意义。在一个业务高歌猛进的同时，技术也在不断演化；</li>
+<li>技术是业务的护城河：没有技术或技术无法支撑业务的快速迭代、快速试错，再美好的业务终究是水中月、镜中花，一纸空谈而已；</li>
+<li>技术和业务是相互促进的，相互依存。对于技术人来说，选择一个好的业务，对技术成长非常重要；业务中成长远快于从书本中学习，甚至是碾压。</li>
+</ul>
+<h5 id="2、个人-VS-团队"><a href="#2、个人-VS-团队" class="headerlink" title="2、个人 VS 团队"></a>2、个人 VS 团队</h5><ul>
+<li>有一定规模的互联网公司，团队职责都会细分，绝大数人在团队中只是做着或负责很小的一部分事情（俗称<em>拧螺丝</em>），但是职责划分是趋势，是团队进化的必然选择；</li>
+<li>在一个团队中，做什么很重要；但是更重要的是能看到什么；团队给你提供了一个非常大的平台，因此可以接触到非常多的人或事；</li>
+<li>团队中的个体通力合作，共同完成团队目标，不仅提高了个人的影响力，也提高了团队整体的竞争力。</li>
+</ul>
+<h5 id="3、技术人的边界"><a href="#3、技术人的边界" class="headerlink" title="3、技术人的边界"></a>3、技术人的边界</h5><ul>
+<li>而今，技术方向细分，每个技术人都在自己的方向深挖，这是非常必要的，因为这样才能组成一个全栈式、精益求精的团队，但是这还远远不够；</li>
+<li>技术人应该不设置边界（不是说没有边界）：技术人应该跳出自己的领域，观察其他人、其他技术团队，甚至业务团队在做什么；主动去了解这条业务线上不同角色的职责，然后完善或扩张自己的边界；</li>
+<li>从当今的技术发展趋势来看，每个团队负责”小型”服务，”小型”服务内完成闭环，对外提供服务能力。而”小型”服务内的技术选型，技术栈是灵活的，甚至可以实现在”小型”服务内 技术 + 业务闭环。</li>
+</ul>
+<h5 id="4、技术专家-VS-架构师"><a href="#4、技术专家-VS-架构师" class="headerlink" title="4、技术专家 VS 架构师"></a>4、技术专家 VS 架构师</h5><ul>
+<li><strong>技术专家追求的是深度</strong>，需要专注于某些领域，某一类技术，需要对这方面了解非常透彻，适合做技术专家的领域有：安全、搜索、应用程序框架、缓存、JVM、分布式、RPC框架等，或更加底层的数据库开发，Web服务器开发， 编译器开发等。</li>
+<li><p><strong>架构师追求的是广度</strong>，对深度并没有极致要求， 你可能并不了解一个系统的内部细节实现，但是一定要知道这个系统的特点、能力、性能和适用范围；在工作中，由点及面， 着眼系统整体和业务的全局，培养出设计系统架构的能力：把需求转化成合适的技术方案，然后推动方案的落地。</p>
+</li>
+<li><p>根据自己的优劣势选择合适自己的方向，然后刻意练习，不断完善这方面的能力。</p>
+</li>
+</ul>
+<h4 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h4><ul>
+<li><p><a href="https://mp.weixin.qq.com/s?__biz=MzI0MDQ4MTM5NQ==&amp;mid=2247491020&amp;idx=2&amp;sn=19d29c54d39ae9a08118dd3e9e3fedc8&amp;chksm=e91b78d0de6cf1c657651b4f185a254eeee607eae910e90231e010035247376a7febd2140eaf&amp;token=1182852775&amp;lang=zh_CN#rd" target="_blank" rel="noopener">漫谈四种主流软件架构演进史</a></p>
+</li>
+<li><p><a href="https://jimmysong.io/posts/what-is-serverless/" target="_blank" rel="noopener">什么是Serverless（无服务器）架构</a></p>
+</li>
+<li><a href="https://mp.weixin.qq.com/s/W4Slu5F__AQtQTSOEFOsfg" target="_blank" rel="noopener">Flutter+Serverless端到端研发架构实践</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2019/04/24/iOS-Cocoapods01/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2722,311 +3008,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2019/03/13/iOS-PicDecode/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="南华coder">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="南华coder的空间">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/13/iOS-PicDecode/" itemprop="url">图片解码小记</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-13T12:56:46+08:00">
-                2019-03-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS基础/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS基础</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  2,308 字
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  9 分
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><strong>KeyPoints</strong></p>
-<ul>
-<li><p>图片如何显示到屏幕上的</p>
-</li>
-<li><p>为什么要图片解码</p>
-</li>
-<li><p>图片解码方案及其对比</p>
-</li>
-</ul>
-<h4 id="一、图像知识"><a href="#一、图像知识" class="headerlink" title="一、图像知识"></a>一、图像知识</h4><h5 id="1、图片"><a href="#1、图片" class="headerlink" title="1、图片"></a>1、图片</h5><ul>
-<li><p>计算机能以<strong>矢量图</strong>(vector)或<strong>位图</strong>(bitmap)格式显示图像，其中<strong>矢量图</strong> 使用线段和曲线描述图像，同时图像还包含了<strong>色彩</strong>和<strong>位置</strong>信息；而<strong>位图</strong> 使用像素点来描述图像，也称为点阵图像，位图图片格式有RGB、CMYK等颜色模式；其中RGB是最常用的颜色模式，它通过红(R)、绿(G)、蓝(B)三个颜色通道的数值表示颜色。手机显示屏使用自带Aphal通道(<strong>RGBA</strong>)的<strong>RGB32</strong>格式。</p>
-</li>
-<li><p>我们平时接触到的JPG或PNG图片格式，他们是<strong>压缩的位图</strong>图形格式，其中 PNG 图片是<strong>无损压缩</strong>，并且支持 alpha 通道，而 JPEG 图片则是<strong>有损压缩</strong>，可以指定 0-100% 的压缩比。JPG或PNG图片显示到屏幕之前，需要将JPG/PNG格式的图片<strong>解码</strong>成<strong>位图图像。</strong></p>
-</li>
-</ul>
-<h5 id="2、16位色、24位色、32位色、真彩色"><a href="#2、16位色、24位色、32位色、真彩色" class="headerlink" title="2、16位色、24位色、32位色、真彩色"></a>2、16位色、24位色、32位色、真彩色</h5><ul>
-<li><p>16位色表示描绘图像时有<strong>2^16种颜色可供选择， 颜色</strong>总数65536。</p>
-</li>
-<li><p>24位色表示描绘图像时有<strong>2^24</strong>种颜色可供选择；颜色总数是16777216。通常也被简称为1600万色或千万色；24位色被称为真彩色，它可以达到人眼分辨的极限</p>
-</li>
-<li><p>32位色在1677万多色基础上，不过它增加了256阶颜色的灰度，为了方便称呼，就规定它为32位色。</p>
-</li>
-<li><p>真彩色指用三个或更多字节描述颜色，24位色、32位色都是真彩色。</p>
-</li>
-</ul>
-<h5 id="3、动图GIF"><a href="#3、动图GIF" class="headerlink" title="3、动图GIF"></a>3、动图GIF</h5><ul>
-<li><p>GIF格式的图像只有256种颜色用以描绘图片，并且只能通过抖动、差值等方式模拟较多丰富的颜色。</p>
-</li>
-<li><p>GIF的alpha通道只有1bit，一个像素要么完全透明，要么完全不透明，而不像现在PNG的RGBA的8bit alpha通道，alpha值也可以和RGB一样都有255个透明值。</p>
-</li>
-<li><p>所有GIF的图片带上透明度以后，边缘会出现明显的锯齿。如果客户端需要展示带透明度的动图，不考虑GIF。</p>
-</li>
-</ul>
-<h4 id="二、iOS背景知识"><a href="#二、iOS背景知识" class="headerlink" title="二、iOS背景知识"></a>二、iOS背景知识</h4><h5 id="1、图像显示到屏幕"><a href="#1、图像显示到屏幕" class="headerlink" title="1、图像显示到屏幕"></a>1、图像显示到屏幕</h5><p><img src="https://upload-images.jianshu.io/upload_images/201701-60465ee3a4d45e3f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
-<p>图像显示到屏幕上，是CPU和GPU协作完成渲染的。具体工作如下:</p>
-<ul>
-<li><p><strong>CPU</strong>: 计算视图frame，图片解码，需要绘制纹理图片通过数据总线交给GPU</p>
-</li>
-<li><p><strong>GPU</strong>: 纹理混合，顶点变换与计算,像素点的填充计算，渲染到帧缓冲区。</p>
-</li>
-<li><p><strong>时钟信号</strong>：垂直同步信号V-Sync / 水平同步信号H-Sync。</p>
-</li>
-<li><p><strong>iOS设备双缓冲机制</strong>：显示系统通常会引入两个帧缓冲区，双缓冲机制</p>
-</li>
-</ul>
-<h5 id="2、图片的显示流程"><a href="#2、图片的显示流程" class="headerlink" title="2、图片的显示流程"></a>2、图片的显示流程</h5><ul>
-<li><p>假设本地从本地加载一张图片，将值赋给UIImageView</p>
-</li>
-<li><p>一次Runloop结束后，CATransaction遍历所有layer的contents(寄宿图)，发现UIImageView layer的contents的变化(CGImage类型)；</p>
-</li>
-<li><p>发现图片不是位图，解码成位图；</p>
-</li>
-<li><p>如果图像数据没有字节对齐，Core Animation会再拷贝一份数据，进行字节对齐；</p>
-</li>
-<li><p>Core Animation提交渲染树CA::render::<strong>commit</strong>，将渲染任务和数据交给Render server线程去处理；</p>
-</li>
-<li><p>Render server调用Open GL、Core Graphics相关程序,最终由GPU完成图像渲染并显示到屏幕。</p>
-</li>
-</ul>
-<p><strong>说明</strong>：图片的解压缩是一个非常耗时的 CPU 操作，并且它默认是在主线程中执行的。那么当需要加载的图片比较多时，就会对我们应用的响应性造成严重的影响，尤其是在快速滑动的列表上，这个问题会表现得更加突出。</p>
-<h5 id="3、为什么要解压图片"><a href="#3、为什么要解压图片" class="headerlink" title="3、为什么要解压图片"></a>3、为什么要解压图片</h5><ul>
-<li><p>JPEG 和 PNG 图片是位图的压缩格式</p>
-</li>
-<li><p>本质上，位图就是一个像素数组，数组中的每个像素就代表着图片中的一个点</p>
-</li>
-<li><p>将磁盘中/网络上获取的 图片渲染到屏幕之前，必须<strong>先要得到图片的原始像素数据</strong>，才能执行后续的绘制操作。</p>
-</li>
-</ul>
-<p><strong>参考</strong>：<a href="https://www.jianshu.com/p/4008ec3cacaa" target="_blank" rel="noopener">https://www.jianshu.com/p/4008ec3cacaa</a></p>
-<h4 id="三、Image-I-O-iOS图片解码方案"><a href="#三、Image-I-O-iOS图片解码方案" class="headerlink" title="三、Image I/O: iOS图片解码方案"></a>三、Image I/O: iOS图片解码方案</h4><h5 id="1、Image-I-O是什么"><a href="#1、Image-I-O是什么" class="headerlink" title="1、Image I/O是什么"></a>1、Image I/O是什么</h5><ul>
-<li><p>Image/IO是Apple提供的一套用于<strong>图片编码解码</strong>的系统库，详细参考 <a href="http://link.zhihu.com/?target=https%3A//developer.apple.com/documentation/imageio" target="_blank" rel="noopener">Apple Image/IO</a></p>
-</li>
-<li><p>Image/IO的解码，支持了常见的图像格式，包括PNG（包括APNG）、JPEG、GIF、BMP、TIFF（具体的，可以通过CGImageSourceCopyTypeIdentifiers来打印出来，不同平台不完全一致）。在iOS 11之后另外支持了HEIC（即使用了HEVC编码的HEIF格式）；</p>
-</li>
-<li><p>Image/IO支持的解码和编码格式可通过以下方法查询</p>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">- (void)printImageSupportTypes &#123;</span><br><span class="line">	CFArrayRef mySourceTypes = CGImageSourceCopyTypeIdentifiers();</span><br><span class="line">    //支持解码的图片格式</span><br><span class="line">    CFShow(mySourceTypes);</span><br><span class="line">    </span><br><span class="line">    //支持编码的图片格式</span><br><span class="line">    CFArrayRef myDestinationTypes = CGImageDestinationCopyTypeIdentifiers();</span><br><span class="line">    CFShow(myDestinationTypes);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h5 id="2、解码流程"><a href="#2、解码流程" class="headerlink" title="2、解码流程"></a>2、解码流程</h5><ul>
-<li><strong>静态图（PNG、JPG）解码流程</strong></li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">创建CGImageSource</span><br><span class="line">读取图像格式元数据（可选）</span><br><span class="line">**解码得到CGImage**</span><br><span class="line">CGImage转成UIImage，资源清理</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>动态图(GIF、APNG)解码流程</strong></li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">静态图的步骤1</span><br><span class="line">遍历所有图像帧，重复静态图的步骤2-4</span><br><span class="line">生成动图UIImage</span><br></pre></td></tr></table></figure>
-<h5 id="3、解码关键API"><a href="#3、解码关键API" class="headerlink" title="3、解码关键API"></a>3、解码关键API</h5><ul>
-<li><p><strong>CGImageSourceCreateWithData</strong>：从一个内存中的二进制数据（CGData）中创建ImageSource。ImageSource代表一个待解码数据，还可以通过CGImageSourceCreateWithURL、CGImageSourceCreateWithDataProvider分别从URL、DataProvide中创建ImageSource，DataProvider提供了很多种输入，包括内存，文件，网络，流等。很多CG的接口会用到这个来避免多个额外的接口。</p>
-</li>
-<li><p><strong>CGImageSourceCreateImageAtIndex</strong>: 获取<strong>CGImage</strong>，对于静态图来说，index始终是0。</p>
-</li>
-</ul>
-<h5 id="4、动态图解码Demo"><a href="#4、动态图解码Demo" class="headerlink" title="4、动态图解码Demo"></a>4、动态图解码Demo</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">CGImageSourceRef source = **CGImageSourceCreateWithData**((__bridge CFDataRef)data, NULL);</span><br><span class="line">if (!source) &#123; // 一般这时候都是输入图像数据的格式不支持</span><br><span class="line">    return nil;</span><br><span class="line">&#125;</span><br><span class="line">NSUInteger frameCount = CGImageSourceGetCount(source); //帧数</span><br><span class="line">NSMutableArray &lt;UIImage *&gt; *images = [NSMutableArray array];</span><br><span class="line">double totalDuration = 0;</span><br><span class="line">for (size_t i = 0; i &lt; frameCount; i++) &#123;</span><br><span class="line">    NSDictionary *frameProperties = (__bridge NSDictionary *) CGImageSourceCopyPropertiesAtIndex(source, i, NULL);</span><br><span class="line">    NSDictionary *gifProperties = frameProperties[(NSString *)kCGImagePropertyGIFDictionary]; // GIF属性字典</span><br><span class="line">    double duration = [gifProperties[(NSString *)kCGImagePropertyGIFUnclampedDelayTime] doubleValue]; // GIF原始的帧持续时长，秒数</span><br><span class="line">    CGImagePropertyOrientation exifOrientation = [frameProperties[(__bridge NSString *)kCGImagePropertyOrientation] integerValue]; // 方向</span><br><span class="line">    CGImageRef imageRef = **CGImageSourceCreateImageAtIndex**(source, i, NULL); // CGImage</span><br><span class="line">    UIImageOrientation imageOrientation = [self imageOrientationFromExifOrientation:exifOrientation];</span><br><span class="line">    UIImage *image = [[UIImage imageWithCGImage:imageRef scale:[UIScreen mainScreen].scale orientation:imageOrientation];</span><br><span class="line">    totalDuration += duration;</span><br><span class="line">    [images addObject:image];</span><br><span class="line">&#125;</span><br><span class="line">// 最后生成动图</span><br><span class="line">UIImage *animatedImage = [UIImage animatedImageWithImages:images duration:totalDuration];</span><br></pre></td></tr></table></figure>
-<h5 id="5、说明"><a href="#5、说明" class="headerlink" title="5、说明"></a>5、说明</h5><ul>
-<li><p>Image/IO所有的方法都是线程安全的，而且基本上也都是同步的；</p>
-</li>
-<li><p>通过CGImageSourceCreateImageAtIndex生成的CGImage，其实它的Bitmap还没有立即创建，他只是一个包含了一些<strong>元信息的空壳Image</strong>。这个CGImage，在最终需要获取它的Bitmap Buffer的时候（即，通过相应的API，如CGDataProviderCopyData，CGDataProviderRetainBytePtr），<strong>才会触发最后的Bitmap Buffer的创建和内存分配；</strong></p>
-</li>
-<li><p>图片的解码默认发生在主线程，在图片多或图片过大的情况下，第一次加载会导致滚动帧率下滑，后续帧率会好些，解码完成后的Bitmap Buffer会复用；</p>
-</li>
-<li><p>Image/IO是Appple提供的<strong>图片编码解码库，使用简单，性能也有保证，</strong> 但是对于不支持的格式如webp，编解码是无能为力。</p>
-</li>
-</ul>
-<h4 id="四、子线程解码方案"><a href="#四、子线程解码方案" class="headerlink" title="四、子线程解码方案"></a>四、子线程解码方案</h4><h5 id="1、空间换时间"><a href="#1、空间换时间" class="headerlink" title="1、空间换时间"></a>1、空间换时间</h5><ul>
-<li><p>通过CGContext创建一个位图画布 <strong>CGBitmapContextCreate</strong></p>
-</li>
-<li><p>通过<strong>CGContextDrawImage</strong>绘制位图，CGContextDrawImage在执行过程中会触发Image/IO进行解码并分配Bitmap内存。得到的产物用来真正产出一个CGImage-based的UIImage，交由UIImageView渲染。</p>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(imageRef) &amp; kCGBitmapAlphaInfoMask;</span><br><span class="line">        BOOL hasAlpha = NO;</span><br><span class="line">        if (alphaInfo == kCGImageAlphaPremultipliedLast ||</span><br><span class="line">            alphaInfo == kCGImageAlphaPremultipliedFirst ||</span><br><span class="line">            alphaInfo == kCGImageAlphaLast ||</span><br><span class="line">            alphaInfo == kCGImageAlphaFirst) &#123;</span><br><span class="line">            hasAlpha = YES;</span><br><span class="line">        &#125;</span><br><span class="line">        // BGRA8888 (premultiplied) or BGRX8888</span><br><span class="line">        // same as UIGraphicsBeginImageContext() and -[UIView drawRect:]</span><br><span class="line">        CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host;</span><br><span class="line">        bitmapInfo |= hasAlpha ? kCGImageAlphaPremultipliedFirst : kCGImageAlphaNoneSkipFirst;</span><br><span class="line">        CGContextRef context = **CGBitmapContextCreate**(NULL, width, height, 8, 0, YYCGColorSpaceGetDeviceRGB(), bitmapInfo);</span><br><span class="line">        if (!context) return NULL;</span><br><span class="line">        **CGContextDrawImage**(context, CGRectMake(0, 0, width, height), imageRef); // decode</span><br><span class="line">        CGImageRef newImage = **CGBitmapContextCreateImage**(context);</span><br><span class="line">        CFRelease(context);</span><br><span class="line">        return newImage;</span><br></pre></td></tr></table></figure>
-<h5 id="2、特点"><a href="#2、特点" class="headerlink" title="2、特点"></a>2、特点</h5><ul>
-<li><p>可以提升图第一次渲染到屏幕上的性能和滚动帧率; </p>
-</li>
-<li><p>因为解码后的位图要保留在内存中，会给内存带来压力，要注意内存的清理;</p>
-</li>
-<li><p>注意控制处理图片解码的子线程数量，子线程过多同样会影响性能。</p>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">解码后的图像大小和图片的宽高像素有关，宽高像素越大，位图图像就越大。假设一个3MB的图片，其宽高像素为2048 * 2048 的图片，解码后的位图图像大小是16MB（2048 * 2048 * 4）</span><br></pre></td></tr></table></figure>
-<h5 id="3、其他"><a href="#3、其他" class="headerlink" title="3、其他"></a>3、其他</h5><ul>
-<li><p>SDWebImage中有两个解码方法decodedImageWithImage 和 decodedAndScaledDownImageWithImage ，分别对应处理普通图，大图（默认位图大小超过60MB），对于大图，建议使用后者。其主要思路是：将大的原图切块，按块缩放成指定大小的图片填充到目标图片中去。</p>
-</li>
-<li><p>Apple大大没有采用此类方案，猜测原因是：因为早期设备内存有限，UIKit整套渲染机制很多地方采用时间换空间的策略。</p>
-</li>
-<li><p>现在，大部分业务使用的是小图，大图的场景少，导致SDWebImage这类子线程解码方案很欢迎，内存开销比较稳定，性能也能提升。</p>
-</li>
-</ul>
-<h4 id="五、后续"><a href="#五、后续" class="headerlink" title="五、后续"></a>五、后续</h4><ul>
-<li><p>子线程解码最终还是利用Image I/O解码，对于Image I/O不支持的图片格式，第三方解码方案？</p>
-</li>
-<li><p>图片编解中遇到的图像方面的知识</p>
-</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3081,7 +3062,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">34</span>
+                  <span class="site-state-item-count">35</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -3147,7 +3128,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
@@ -3161,7 +3142,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">75.3k</span>
+    <span title="Site words total count">78.3k</span>
   
 </div>
 

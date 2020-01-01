@@ -254,6 +254,208 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/03/20/iOS-SystemBasic/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/20/iOS-SystemBasic/" itemprop="url">OSX/iOS 的系统架构</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-20T12:00:13+08:00">
+                2018-03-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS知识小集/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS知识小集</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  710 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  3 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="一、系统架构"><a href="#一、系统架构" class="headerlink" title="一、系统架构"></a>一、系统架构</h3><p>苹果官方将整个系统大致划分为下述4个层次</p>
+<h4 id="1、-应用层"><a href="#1、-应用层" class="headerlink" title="1、 应用层"></a>1、 应用层</h4><p>包括用户能接触到的图形应用，例如 Spotlight、Aqua、SpringBoard 等</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SpringBoard：iOS的桌面</span><br><span class="line">Spotlight：搜索界面</span><br><span class="line">Aqua：Mac OS X的桌面 ？？</span><br></pre></td></tr></table></figure>
+<h4 id="2、应用框架层"><a href="#2、应用框架层" class="headerlink" title="2、应用框架层"></a>2、应用框架层</h4><p>即开发人员接触到的 Cocoa 等框架</p>
+<h4 id="3、核心框架层"><a href="#3、核心框架层" class="headerlink" title="3、核心框架层"></a>3、核心框架层</h4><p>各种核心框架、OpenGL 等内容</p>
+<h4 id="4、Darwin"><a href="#4、Darwin" class="headerlink" title="4、Darwin"></a>4、Darwin</h4><p>操作系统的核心，包括系统内核、驱动、Shell 等内容，源码可以访问<a href="http://opensource.apple.com" target="_blank" rel="noopener">opensource.apple.com</a> </p>
+<p><img src="https://upload-images.jianshu.io/upload_images/201701-8d4708bdfac3da31.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
+<h3 id="二、Darwin-核心的架构"><a href="#二、Darwin-核心的架构" class="headerlink" title="二、Darwin 核心的架构"></a>二、Darwin 核心的架构</h3><p><img src="https://upload-images.jianshu.io/upload_images/201701-f69c10b12fcdc42f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
+<ul>
+<li><p>XNU是Darwin操作系统的一部分，是操作系统的内核，主要有<strong>Mach</strong>、<strong>BSD</strong>、<strong>IOKit**</strong>,** </p>
+</li>
+<li><p>XNU内核的内环被称作 Mach，其作为一个微内核，仅提供了诸如<strong>处理器调度</strong>、<strong>IPC</strong> (进程间通信)等非常少量的基础服务。 </p>
+</li>
+<li><p>BSD 层可以看作围绕 Mach 层的一个外环，其提供了诸如进程管理、文件系统和网络等功能</p>
+</li>
+<li><p>IOKit 层是为设备驱动提供了一个面向对象(C++)的一个框架。</p>
+</li>
+<li><p><strong>Mach</strong> 本身提供的 API 非常有限，而且苹果也不鼓励使用 Mach 的 API，但是这些API非常基础，如果没有这些API的话，其他任何工作都无法实施。</p>
+</li>
+<li><p>在 Mach 中，所有的东西都是通过自己的对象实现的，<strong>进程、线程和虚拟内存都被称为”对象”。和其他架构不同， Mach 的对象间不能直接调用，只能通过消息传递的方式实现对象间的通信。”消息”是 Mach 中最基础的概念，消息在两个端口 (port) 之间传递，这就是 Mach 的 IPC (进程间通信) 的核心。</strong></p>
+</li>
+</ul>
+<h3 id="三、Mach-消息"><a href="#三、Mach-消息" class="headerlink" title="三、Mach 消息"></a>三、Mach 消息</h3><h4 id="1、消息的定义"><a href="#1、消息的定义" class="headerlink" title="1、消息的定义"></a>1、消息的定义</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">typedef struct &#123;</span><br><span class="line">  mach_msg_header_t header;</span><br><span class="line">  mach_msg_body_t body;</span><br><span class="line">&#125; mach_msg_base_t;</span><br><span class="line">  </span><br><span class="line">typedef struct &#123;</span><br><span class="line">  mach_msg_bits_t msgh_bits;</span><br><span class="line">  mach_msg_size_t msgh_size;</span><br><span class="line">  mach_port_t msgh_remote_port;</span><br><span class="line">  mach_port_t msgh_local_port;</span><br><span class="line">  mach_port_name_t msgh_voucher_port;</span><br><span class="line">  mach_msg_id_t msgh_id;</span><br><span class="line">&#125; mach_msg_header_t;</span><br></pre></td></tr></table></figure>
+<p>一条 Mach 消息实际上就是一个二进制数据包 (BLOB)，其头部定义了当前端口 local_port 和目标端口 remote_port， 发送和接受消息是通过同一个 API 进行的，其 option 标记了消息传递的方向：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mach_msg_return_t mach_msg(</span><br><span class="line">    mach_msg_header_t *msg,</span><br><span class="line">    mach_msg_option_t option,</span><br><span class="line">    mach_msg_size_t send_size,</span><br><span class="line">    mach_msg_size_t rcv_size,</span><br><span class="line">    mach_port_name_t rcv_name,</span><br><span class="line">    mach_msg_timeout_t timeout,</span><br><span class="line">    mach_port_name_t notify);</span><br></pre></td></tr></table></figure>
+<h4 id="2、消息发送和接收"><a href="#2、消息发送和接收" class="headerlink" title="2、消息发送和接收"></a>2、消息发送和接收</h4><p>为了实现消息的<strong>发送</strong>和<strong>接收</strong>，mach_msg() 函数实际上是调用了一个 Mach 陷阱 (trap)，即函数<strong>mach_msg_trap</strong>()，trap这个概念在 Mach 中等同于系统调用。当你在用户态调用 mach_msg_trap() 时会触发陷阱机制，切换到内核态；内核态中内核实现的 mach_msg() 函数会完成实际的工作，如下图：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/201701-09914a1f3cdd0484.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
+<ul>
+<li>RunLoop 的核心就是一个 mach_msg()，RunLoop 调用这个函数去接收消息，<strong>如果没有别人发送 port 消息过来，内核会将线程置于等待状态</strong>。</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/02/28/iOS-iOSJavaScriptCore/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3161,263 +3363,6 @@ varchar,password
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/13/iOS-AppImageOptimize/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="南华coder">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="南华coder的空间">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/01/13/iOS-AppImageOptimize/" itemprop="url">iOS图片优化小记</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-13T19:40:12+08:00">
-                2018-01-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/App优化/" itemprop="url" rel="index">
-                    <span itemprop="name">App优化</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,278 字
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  4 分
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>根据我自己的经验，说一下我对图片优化的理解。</p>
-<h4 id="一、他山之石"><a href="#一、他山之石" class="headerlink" title="一、他山之石"></a>一、他山之石</h4><h5 id="1、图片的加载步骤"><a href="#1、图片的加载步骤" class="headerlink" title="1、图片的加载步骤"></a>1、图片的加载步骤</h5><p>从磁盘中加载图片，并通过UIImageVIew显示在屏幕上，需要经过以下步骤：</p>
-<pre><code>1、从磁盘拷贝数据到内核缓冲区
-2、从内核缓冲区复制数据到用户空间
-3、生成UIImageView，把图像数据赋值给UIImageView
-4、如果图像数据为未解码的PNG/JPG，解码为位图数据
-5、CATransaction捕获到UIImageView layer树的变化
-6、主线程Runloop提交CATransaction，开始进行图像渲染
-  6.1 如果数据没有字节对齐，Core Animation会再拷贝一份数据，进行字节对齐。
-  6.2 GPU处理位图数据，进行渲染。
-</code></pre><p><strong>说明1</strong>：这部分摘抄自<a href="http://blog.cnbang.net/tech/2578/" target="_blank" rel="noopener">iOS图片加载速度极限优化—FastImageCache解析</a>，它介绍了<a href="https://github.com/path/FastImageCache" target="_blank" rel="noopener">FastImageCache</a>极限优化的手段。</p>
-<h5 id="2、FastImageCache的优化手段"><a href="#2、FastImageCache的优化手段" class="headerlink" title="2、FastImageCache的优化手段"></a>2、FastImageCache的优化手段</h5><p><em>优化有三</em>：</p>
-<ul>
-<li><p>使用<strong>mmap这样的内存映射方案</strong>，将文件映射进内存；比普通的<strong>read()读取</strong>少了一次内存拷贝（内核缓存区拷贝到用户内存空间）</p>
-</li>
-<li><p><strong>图像子线程解码</strong>，将耗时的解码工作从主线程移到了子线程; <strong>缓存解码后的位图数据</strong>到磁盘，避免重复解码。</p>
-</li>
-<li><p><strong>字节对齐</strong>；生成字节对齐的数据，防止CoreAnimation在渲染时再拷贝一份数据。</p>
-</li>
-</ul>
-<h5 id="3、FastImageCache的缺点"><a href="#3、FastImageCache的缺点" class="headerlink" title="3、FastImageCache的缺点"></a>3、FastImageCache的缺点</h5><p><em>缺点有三</em>：</p>
-<ul>
-<li><p>位图数据缓要保存在磁盘，<strong>占据空间大</strong>。</p>
-</li>
-<li><p><strong>接口不友好</strong>，需预定义好缓存的图像尺寸。FastImageCache无法像SDWebImage那样无缝接入UIImageView。</p>
-</li>
-<li><p>FastImageCache库已经快4年没有新的版本更新，很多项目使用SDWebImage这样的活跃库。</p>
-</li>
-</ul>
-<h5 id="4、我的拙见"><a href="#4、我的拙见" class="headerlink" title="4、我的拙见"></a>4、我的拙见</h5><ul>
-<li><p>在项目中，为了优化，直接颠覆原来的，风险很大；但是借鉴其他好的方法，对原有的进行优化，是个值得做的事情。</p>
-</li>
-<li><p>图片的优化，绕不开图片的<strong>解码</strong>、<strong>缓存</strong>和<strong>下载</strong>三大件。</p>
-</li>
-<li><p>优化工作需要考虑 <strong>低代价高回报</strong> 这件事。</p>
-</li>
-</ul>
-<h4 id="二、本地图片加载的优化"><a href="#二、本地图片加载的优化" class="headerlink" title="二、本地图片加载的优化"></a>二、本地图片加载的优化</h4><h5 id="1、优化的目的"><a href="#1、优化的目的" class="headerlink" title="1、优化的目的"></a>1、优化的目的</h5><p><em>目的有三：</em></p>
-<ul>
-<li><p><strong>减少App包的大小</strong>；图片体积的暴增最大原因之一；可能是新业务引入大量图片资源。</p>
-</li>
-<li><p><strong>提高图片加载的性能</strong>；使用UIImage的方法imageNamed:方法加载图片，<strong>默认在主线程解码</strong>会拖累你的APP性能。可以考虑<strong>将图片的解码放在子线程</strong>。</p>
-</li>
-<li><p><strong>图像不失真</strong>；JPG或PNG格式的图片展示时，可能会失真。PNG比JPG好一些。</p>
-</li>
-</ul>
-<h5 id="2、优化手段"><a href="#2、优化手段" class="headerlink" title="2、优化手段"></a>2、优化手段</h5><p><em>手段有三：</em></p>
-<ul>
-<li><p><strong>PNG图片虽好不作为唯一的选择</strong>，本地图片可以使用其他方案代替。如<strong>矢量图PDF</strong>、<strong>ICONFONT</strong>、<strong>CG绘制</strong>。（像运营类色彩比较丰富的图片，优先使用PNG图片）</p>
-</li>
-<li><p><strong>缓存的使用</strong>。无论是图片的解码，还是绘制CG图片，都是个耗时耗CPU的操作，将这些结果缓存(到内存中)下来，避免重复解码和绘制，是个好的选择，这里推荐<a href="https://github.com/ibireme/YYCache" target="_blank" rel="noopener">YYCache</a>这样的方案（线程安全、LRU淘汰算法）。</p>
-</li>
-<li><p><strong>及时清理旧的图片资源</strong>。使用类似<a href="https://github.com/tinymind/LSUnusedResources" target="_blank" rel="noopener">LSUnusedResources</a> 清理旧的图片文件。</p>
-<p><strong>说明</strong>：导入项目中的图片记得压缩。</p>
-</li>
-</ul>
-<h4 id="三、网络图片的优化"><a href="#三、网络图片的优化" class="headerlink" title="三、网络图片的优化"></a>三、网络图片的优化</h4><p>相比较本地图片，它面临复杂的网络环境、复杂的图片来源。</p>
-<h5 id="1、优化目的"><a href="#1、优化目的" class="headerlink" title="1、优化目的"></a>1、优化目的</h5><p><em>目的有三：</em></p>
-<ul>
-<li><p><strong>异步下载</strong>，不阻塞主线程操作；</p>
-</li>
-<li><p>图片<strong>快速加载显示</strong>；</p>
-</li>
-<li><p><strong>良好的接口</strong>，让使用者用的<em>开心</em> ；（不必关心复杂的网络环境、图片加载性能等）</p>
-</li>
-</ul>
-<h5 id="2、优化手段-1"><a href="#2、优化手段-1" class="headerlink" title="2、优化手段"></a>2、优化手段</h5><p><em>手段有三：</em></p>
-<ul>
-<li><p><strong>使用优秀的第三方库</strong>，如<a href="https://github.com/rs/SDWebImage" target="_blank" rel="noopener">SDWebImage</a>。关于SDWebImage我在简书上写了文章<a href="https://www.jianshu.com/p/f3cb4ea0d14c" target="_blank" rel="noopener">SDWebImage源码理解</a>,可以看看。</p>
-</li>
-<li><p><strong>使用压缩比高，质量小，失真小的图片格式</strong>，如Google的Webp、Tencent的SharpP格式，这两图片文件小，很适合在网络中传输，消耗的流量少，下载快,解码快（SharpP和webp的编码慢）。</p>
-</li>
-<li><p><strong>结合业务需要优化图片</strong>；网络环境获取图片比较复杂，且难以预测；对下载下来的图片进行<strong>裁剪</strong>（按显示的<em>目标大小</em>、<em>是否需要圆角</em>、<em>描边</em>、<em>阴影</em>等），能很大程度上避免<strong>图片像素不对齐</strong>(图片大小和显示大小不一致)、<strong>像素混合</strong>（图层透明）、<strong>离屏渲染</strong>（圆角和阴影等）等问题。</p>
-<p>  <strong>参考</strong>：<a href="https://cloud.tencent.com/developer/article/1004404" target="_blank" rel="noopener">图片流量节省大杀器：基于 CDN 的 sharpP 自适应图片技术实践</a></p>
-</li>
-</ul>
-<h5 id="3、一些小的优化手段"><a href="#3、一些小的优化手段" class="headerlink" title="3、一些小的优化手段"></a>3、一些小的优化手段</h5><ul>
-<li><p>要从网络中获取的<strong>重要图片</strong>（如广告、运营相关的图片），要<strong>先校验图片的完整性</strong>，校验通过才去真正处理并显示，否则不处理。</p>
-</li>
-<li><p>纯显示的视图，CALayer代替UIImageVIew，可以减少GPU计算（去透明/像素对齐）</p>
-</li>
-</ul>
-<h4 id="End"><a href="#End" class="headerlink" title="End"></a>End</h4><ul>
-<li>这篇文章算是对之前写的 <a href="https://www.jianshu.com/p/a38a7c7bccbb" target="_blank" rel="noopener">网络图片的优化显示</a> 和 <a href="https://www.jianshu.com/p/26402bc4ddac" target="_blank" rel="noopener">iOS中本地图片的缩放、裁剪和压缩</a>的<strong>补充</strong>和<strong>扩展</strong>吧。</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3472,7 +3417,7 @@ varchar,password
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">34</span>
+                  <span class="site-state-item-count">35</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -3538,7 +3483,7 @@ varchar,password
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
@@ -3552,7 +3497,7 @@ varchar,password
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">75.3k</span>
+    <span title="Site words total count">78.3k</span>
   
 </div>
 
