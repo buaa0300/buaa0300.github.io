@@ -254,6 +254,306 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/13/iOS-GenerateCode/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/13/iOS-GenerateCode/" itemprop="url">代码自动生成笔记</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-13T20:05:09+08:00">
+                2018-01-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS实践/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS实践</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,424 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  6 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>iOS开发中，使用脚本语言(Ruby或Python)生成些Objective-C代码，提高代码生产力。</p>
+<blockquote>
+<h4 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h4></blockquote>
+<ul>
+<li><p>使用脚本生成简单的Objective-C代码，这件工作并不复杂；</p>
+</li>
+<li><p>先介绍<strong>Xcode自动运行脚本相关设置</strong>和 <strong>自动添加类文件到项目</strong>；</p>
+</li>
+<li><p>最后介绍一个使用Ruby生成Objective-C代码的<strong>实例</strong>；</p>
+</li>
+</ul>
+<blockquote>
+<h4 id="二、Xcode自动运行脚本"><a href="#二、Xcode自动运行脚本" class="headerlink" title="二、Xcode自动运行脚本"></a>二、Xcode自动运行脚本</h4></blockquote>
+<p><strong>目标</strong>：在运行项目时自动运行脚本。考虑到可能在项目中引入比较多的脚本，建议在项目的根路径下新建一个存放脚本的文件夹；在这个文件夹中，集中管理脚本。推荐两个比较常见的设置自动运行脚本的办法。</p>
+<h5 id="方法1：External-Build-System-外部编译系统"><a href="#方法1：External-Build-System-外部编译系统" class="headerlink" title="方法1：External Build System(外部编译系统)"></a>方法1：External Build System(外部编译系统)</h5><p>具体步骤分为以下 5 步</p>
+<h6 id="1）新建External-Build-System"><a href="#1）新建External-Build-System" class="headerlink" title="1）新建External Build System"></a>1）新建External Build System</h6><p>在工程下添加一个<strong>target</strong>：选择Cross-platform &gt; Other &gt; External Build System，取名为CodeGenerator。</p>
+<h6 id="2）新建shell脚本文件"><a href="#2）新建shell脚本文件" class="headerlink" title="2）新建shell脚本文件"></a>2）新建shell脚本文件</h6><p>在工程的根路径下新建一个<strong>ToolScripts</strong>文件夹，新建脚本文件，名为start.sh</p>
+<h6 id="3）设置CodeGenerator"><a href="#3）设置CodeGenerator" class="headerlink" title="3）设置CodeGenerator"></a>3）设置CodeGenerator</h6><p>选择Targets &gt; CodeGenerator &gt;Info &gt; External Build Tool Configuration，<strong>Build Tools</strong>中填入start.sh所在的路径；<strong>Directory</strong>中填入存放所有脚本的文件夹，本例中是ToolScripts所在的位置。如果编译失败，请检查这里Directory的设置，修改成对应的位置。</p>
+<h6 id="4）添加运行依赖"><a href="#4）添加运行依赖" class="headerlink" title="4）添加运行依赖"></a>4）添加运行依赖</h6><p>选择Targets &gt; QSRunScriptDemo &gt; Build Phase &gt; Target Dependencies,添加运行依赖。</p>
+<h6 id="5）编译运行"><a href="#5）编译运行" class="headerlink" title="5）编译运行"></a>5）编译运行</h6><p>编译运行，选择Show the report navigator -&gt; build，可以看到对应的日志输出。</p>
+<h5 id="方法2：项目中直接添加脚本执行"><a href="#方法2：项目中直接添加脚本执行" class="headerlink" title="方法2：项目中直接添加脚本执行"></a>方法2：项目中直接添加脚本执行</h5><p>具体步骤分为以下 4 步</p>
+<h6 id="1）新建shell脚本文件"><a href="#1）新建shell脚本文件" class="headerlink" title="1）新建shell脚本文件"></a>1）新建shell脚本文件</h6><p>在工程的根路径下新建一个<strong>ToolScripts</strong>文件夹，新建脚本文件，名为start.sh，这步骤和方法1一样。</p>
+<h6 id="2）添加Run-Script"><a href="#2）添加Run-Script" class="headerlink" title="2）添加Run Script"></a>2）添加Run Script</h6><p>选择Targets &gt; QSRunScriptDemo &gt; Build Phase中添加 New Run Script Phase 即可。</p>
+<h6 id="3）设置Run-Script"><a href="#3）设置Run-Script" class="headerlink" title="3）设置Run Script"></a>3）设置Run Script</h6><p>在Run Script中设置执行start.sh命令即可。</p>
+<h6 id="4）编译运行"><a href="#4）编译运行" class="headerlink" title="4）编译运行"></a>4）编译运行</h6><p>编译运行，选择Show the report navigator -&gt; build，可以看到对应的日志输出。</p>
+<h5 id="3、小结"><a href="#3、小结" class="headerlink" title="3、小结"></a>3、小结</h5><ul>
+<li><p>我们并没有直接设置<strong>执行Ruby 或 Python 代码</strong>，是因为这两类脚本可能并存在项目中，编译前执行shell脚本，在shell脚本中定义执行Ruby 或 Python脚本。</p>
+</li>
+<li><p>接下来介绍如何将生成的类文件自动添加到项目中。</p>
+</li>
+</ul>
+<blockquote>
+<h4 id="三、自动添加类文件到项目"><a href="#三、自动添加类文件到项目" class="headerlink" title="三、自动添加类文件到项目"></a>三、自动添加类文件到项目</h4></blockquote>
+<p><strong>目标</strong>：将通过Ruby 脚本来生成类文件自动添加到项目。（手动添加也可以，但是我想偷点懒）</p>
+<h5 id="1、准备工作"><a href="#1、准备工作" class="headerlink" title="1、准备工作"></a>1、准备工作</h5><ul>
+<li><p>在Xcode项目中，我们手动添加和删除类文件，其实是在修改<strong>project.pbxproj</strong>文件。</p>
+</li>
+<li><p>Cocoapods提供了一个可以创建和修改 Xcode 工程文件的工具：<a href="https://github.com/CocoaPods/Xcodeproj" target="_blank" rel="noopener">Xcodeproj</a>，该工具中有<strong>Ruby 的开源库xcodeproj</strong>，可以帮助我们实现<strong>自动添加类文件到项目</strong>。（Cocoapods也是通过它自动添加文件到到项目）</p>
+</li>
+<li><p>我们可以通过<strong>安装Cocoapods实现安装ruby的xcodeproj库</strong>；当然也可以<strong>直接安装</strong>，执行命令gem install xcodeproj即可。无论是选择哪种方案，都需要注意使用正确的ruby源。</p>
+</li>
+<li><p>因为一直在使用<strong>Cocoapods</strong>，恰好在升级系统到<strong>macOS 10.13</strong>后，发现使用xcodeproj库有问题，原因是Cocoapods版本过旧，需要升级Cocoapods，升级过程中，要注意现在“taobao Gems 源已停止维护”，使用 ruby-china 提供镜像服务。下面以安装Cocoapods为例：</p>
+<pre><code>sudo gem update --system    //升级gem，很有必要
+
+gem sources --remove https://rubygems.org/
+gem sources --remove https://ruby.taobao.org/       //如果安装了淘宝的镜像
+gem sources -a https://gems.ruby-china.org/          //保证只使用ruby-china镜像
+gem sources -l                                       //查看更换源结果，保证只有ruby-china镜像
+
+sudo gem uninstall cocoapods                           //如果有旧的CocoaPods，先卸载
+sudo gem install -n /usr/local/bin cocoapods          //安装最新的
+</code></pre></li>
+</ul>
+<h5 id="2、主要代码实现"><a href="#2、主要代码实现" class="headerlink" title="2、主要代码实现"></a>2、主要代码实现</h5><pre><code>#添加类文件到项目
+def add_files_to_projects(oc_file_paths,group_path)
+
+  #1、获取.xcodeproj
+  xcodeproj_path = File.expand_path File.join(__dir__, &quot;../&quot;, &quot;QSRunScriptDemo.xcodeproj&quot;)
+  project = Xcodeproj::Project.open(xcodeproj_path)
+
+  #2、获取target
+  target = project.targets.first
+
+  #3、创建group
+  generator_group = project.main_group.find_subpath(group_path, true)
+  generator_group.clear
+  generator_group.set_source_tree(&apos;SOURCE_ROOT&apos;)
+
+  #4、向group中添加文件
+  file_refs = []
+  oc_file_paths.each do |f|
+      unless generator_group.find_file_by_path(f)
+          file_ref = generator_group.new_reference(f)
+          file_refs &lt;&lt; file_ref
+      end
+  end
+  #5、将文件加入 Build Phases
+  target.add_file_references(file_refs)
+
+  #6、保存 project
+  project.save
+
+end
+</code></pre><blockquote>
+<h4 id="四、自动生成Objective-C代码实例"><a href="#四、自动生成Objective-C代码实例" class="headerlink" title="四、自动生成Objective-C代码实例"></a>四、自动生成Objective-C代码实例</h4></blockquote>
+<p>#####1、输入：txt模板（文件名user_model.txt） #####</p>
+<pre><code>varchar,name
+int,age
+varchar,address
+varchar,password
+</code></pre><p><strong>说明</strong>：文件名和OC类名相关，文本内每一行描述属性类型和名称。</p>
+<p>#####2、执行脚本（自动执行） #####</p>
+<p>在start.sh文件中输入执行脚本命令</p>
+<pre><code>ruby generator_model/model_generator.rb
+</code></pre><p>#####3、输出：OC类文件及代码 #####</p>
+<pre><code>// QSUserModel.h文件
+// Generated by Ruby.  DO NOT EDIT!
+//  Copyright © 2017年 shaoqing. All rights reserved.
+
+#import &lt;UIKit/UIKit.h&gt;
+
+@interface QSUserModel : NSObject
+
+@property (nonatomic,copy)NSString *name;
+@property (nonatomic,assign)NSInteger age;
+@property (nonatomic,copy)NSString *address;
+@property (nonatomic,copy)NSString *password;
+
+@end
+
+//QSUserModel.m文件
+// Generated by Ruby.  DO NOT EDIT!
+//  Copyright © 2017年 shaoqing. All rights reserved.
+
+#import &quot;QSUserModel.h&quot;
+@implementation QSUserModel
+
+@end
+</code></pre><p><strong>说明</strong>：类名QSUserModel，根据模板文件名而来；属性定义根据模板内容而来。</p>
+<p>#####4、总结 #####</p>
+<ul>
+<li><p>通过ruby脚本，实现了根据模板实现了<strong>自动生成Model类</strong>和<strong>自动添加文件到项目</strong>。</p>
+</li>
+<li><p>在iOS项目中，脚本生成代码这类做法，不单单是帮助iOS开发减少重复工作量，从更广的范围来看，其实是为了让跨团队，跨部门的合作更加高效，更好地达成目标。</p>
+</li>
+<li><p>本例只是一个简单例子，主要为了说清思路，设计比较粗糙；在实际工程中，模板中需要定义的信息很多，txt并不是一个很好的选择；ruby脚本还需要更多完善的地方。</p>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2018/01/13/iOS-AppImageOptimize/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1736,7 +2036,7 @@ scheme: Gemini
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">35</span>
+                  <span class="site-state-item-count">36</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1816,7 +2116,7 @@ scheme: Gemini
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">78.3k</span>
+    <span title="Site words total count">81.7k</span>
   
 </div>
 

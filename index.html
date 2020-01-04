@@ -254,6 +254,308 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2020/01/04/Architect-002/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/01/04/Architect-002/" itemprop="url">漫谈0x02:研发视角下的DNS</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-04T10:31:24+08:00">
+                2020-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/架构笔记/" itemprop="url" rel="index">
+                    <span itemprop="name">架构笔记</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,469 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  13 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="一、DNS基础"><a href="#一、DNS基础" class="headerlink" title="一、DNS基础"></a>一、DNS基础</h3><h4 id="1、Domain-Name-和-DNS"><a href="#1、Domain-Name-和-DNS" class="headerlink" title="1、Domain Name 和 DNS"></a>1、Domain Name 和 DNS</h4><ul>
+<li><p><strong>域名</strong>（Domain Name）是由一串用点分隔的名字组成的Internet上某一台计算机或计算机组的名称，用于在数据传输时对计算机的定位标识（有时也指地理位置)；eg: www.baidu.com</p>
+</li>
+<li><p><strong>DNS</strong>（Domain Name System, 域名系统) 是Internet上作为将域名和IP地址相互映射的一个分布式数据库，能够根据域名找到对应的IP地址。</p>
+</li>
+<li><p><strong>根域、顶级域、二级域、子域</strong>  域名采用层次化的方式进行组织，每一个点代表一个层级。一个域名完整的格式为<code>www.baidu.com.</code> 最末尾的点(<code>.</code>)代表根域，常常省略；<code>com</code>即顶级域（TLD, Top-Level Domain）；<code>baidu.com</code>即二级域。依次类推，还有三级域、四级域等等。子域是一个相对的概念，<code>baidu.com</code>是<code>com</code>的子域，<code>www.baidu.com</code>是<code>baidu.com</code>的子域。</p>
+</li>
+<li><p>根域名通常使用”.”来表示，其实际上也是由域名组成，全世界目前有13组域名根节点，由少数几个国家进行管理，而国内仅有几台根节点镜像。</p>
+</li>
+</ul>
+<h4 id="2、DNS解析相关"><a href="#2、DNS解析相关" class="headerlink" title="2、DNS解析相关"></a>2、DNS解析相关</h4><ul>
+<li><p><strong>正向解析</strong>：查找域名对应IP的过程；<strong>反向解析</strong>: 查找IP对应域名的过程；<strong>解析器</strong>： 即resolver，处于DNS客户端的一套系统，用于实现正向解析或者反向解析。</p>
+</li>
+<li><p><strong>权威DNS</strong>：处于DNS服务端的一套系统，该系统保存了相应域名的权威信息。权威DNS即通俗上“这个域名我说了算”的服务器。</p>
+</li>
+<li><strong>递归DNS</strong>：又叫Local DNS，递归DNS可以理解为是一种功能复杂些的解析器(resolver)，其核心是 缓存 和 递归查询。收到域名查询请求后，首先看本地缓存是否有记录，如果没有则一级一级的查询根、顶级域、二级域……直到获取到结果然后返回给用户。<strong>日常上网中运营商分配的DNS即是递归DNS</strong></li>
+<li><strong>转发DNS</strong>：是一种特殊的递归。如果本地的缓存记录中没有相应域名结果时，其将查询请求转发给另外一台DNS服务器，由另外一台DNS服务器来完成查询请求。</li>
+<li><strong>公共DNS</strong>：属于递归DNS。其典型特征为对外一个IP，为所有用户提供公共的递归查询服务。<ul>
+<li>国内主流的公共DNS的有<strong>114DNS</strong>(114.114.114.114)、<strong>阿里DNS</strong>(223.5.5.5)、<strong>百度DNS</strong>(180.76.76.76)、<strong>腾讯DNS</strong>(119.29.29.29)</li>
+<li>国外推荐的公共DNS是<strong>谷歌DNS</strong>(8.8.8.8)</li>
+</ul>
+</li>
+</ul>
+<h4 id="3、DNS常用命令工具"><a href="#3、DNS常用命令工具" class="headerlink" title="3、DNS常用命令工具"></a>3、DNS常用命令工具</h4><ul>
+<li><code>host</code> 命令 or  <code>nslookup</code>命令：分析域名查询工具，测试域名系统工作是否正常</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 查询域名的主机信息</span><br><span class="line">host -a www.baidu.com</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> Trying "www.baidu.com"</span><br><span class="line"><span class="meta">#</span> ;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 27785</span><br><span class="line"><span class="meta">#</span> ;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> ;; QUESTION SECTION:</span><br><span class="line"><span class="meta">#</span> ;www.baidu.com.			IN	ANY</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> ;; ANSWER SECTION:</span><br><span class="line"><span class="meta">#</span> www.baidu.com.		60	IN	A	10.15.63.90</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 根据IP反查域名</span><br><span class="line">host 114.114.114.114 </span><br><span class="line"><span class="meta">#</span> 114.114.114.114.in-addr.arpa domain name pointer public1.114dns.com.</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 查询域名对应的IP</span><br><span class="line">nslookup www.baidu.com  </span><br><span class="line"><span class="meta">#</span> Server:		10.8.8.18</span><br><span class="line"><span class="meta">#</span> Address:	10.8.8.18#53</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> Non-authoritative answer:</span><br><span class="line"><span class="meta">#</span> Name:	www.baidu.com</span><br><span class="line"><span class="meta">#</span> Address: 10.15.63.90</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 根据IP反查域名</span><br><span class="line">nslookup 114.114.114.114 </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> Server:		10.8.8.18</span><br><span class="line"><span class="meta">#</span> Address:	10.8.8.18#53</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> Non-authoritative answer:</span><br><span class="line"><span class="meta">#</span> 114.114.114.114.in-addr.arpa	name = public1.114dns.com.</span><br><span class="line"><span class="meta">#</span> Authoritative answers can be found from:</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>whois</code>命令：查看域名的注册情况。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">whois www.baidu.com</span><br></pre></td></tr></table></figure>
+<h3 id="二、DNS查询"><a href="#二、DNS查询" class="headerlink" title="二、DNS查询"></a>二、DNS查询</h3><h4 id="1、DNS查询方式"><a href="#1、DNS查询方式" class="headerlink" title="1、DNS查询方式"></a>1、DNS查询方式</h4><ul>
+<li>DNS查询分两种：递归查询与迭代查询；</li>
+<li><strong>递归查询</strong>：Local DNS Server接收到客户端请求后，如果它本地没有被查询的域名的IP地址，就会代替客户端，去向其他域名服务器继续发出查询，直到查询到结果后，然后层层返回给客户；</li>
+<li><strong>迭代查询</strong>：Local DNS Server接收到客户端请求后，如果它本地没有被查询的域名的IP地址，并不直接回复查询结果，而是告诉客户机另一台DNS 服务器地址，客户机再向这台DNS 服务器提交请求，依次循环直到返回查询的结果。</li>
+</ul>
+<h4 id="2、Local-DNS的设置"><a href="#2、Local-DNS的设置" class="headerlink" title="2、Local DNS的设置"></a>2、Local DNS的设置</h4><ul>
+<li>主机(PC或移动设备)上可以通过<strong>手动配置</strong> DNS的服务器地址 OR 利用DHCP（Dynamic Host Configuration Protocol，动态主机配置协议）<strong>动态获得</strong>DNS的服务器地址。</li>
+<li>Local DNS包括网络服务提供商（ISP）分配给我们的DNS（一般为两个），或者是其他组织提供的公共DNS，比如</li>
+<li>有时，PC或者移动设备上，DNS的地使用路由器的地址，这是因为路由器会将DNS请求转发到ISP的DNS服务器上。</li>
+</ul>
+<h4 id="3、典型DNS查询过程"><a href="#3、典型DNS查询过程" class="headerlink" title="3、典型DNS查询过程"></a>3、典型DNS查询过程</h4><p>当我们在浏览器中输入一个网站如：<code>www.baidu.com</code>时，会发生如下过程: </p>
+<ul>
+<li>操作系统会先依次检查缓存中、本地的hosts中是够有这个域名对应的IP地址；如果有，就先调用这个IP地址，完成域名解析，否则进入下一步；</li>
+<li>如果缓存中、本地的hosts里都没有这个域名的映射，客户端会向Local DNS Server发起查询。Local DNS Server收到查询请求时，如果本地缓存中有记录，则返回IP地址给客户机，完成域名解析，否则进入下一步；</li>
+<li>如果Local DNS Server本地缓存没有记录，则一级一级的查询根、顶级域、二级域……直到获取到IP地址，然后返回给用户。</li>
+<li>最终，客户端可以通过 IP 访问到对应的服务器</li>
+</ul>
+<h4 id="4、扩展"><a href="#4、扩展" class="headerlink" title="4、扩展"></a>4、扩展</h4><ul>
+<li><p>DNS的查询和响应使用的是UDP协议，DNS消息通过UDP数据包发送，如果在一个限定时间内没有收到响应的UDP数据包，那么DNS客户端则会重复查询请求；如果重复一定次数仍然失败，则会尝试域内另一台DNS服务器。</p>
+</li>
+<li><p>TTL（Time To-Live）是一条域名解析记录在DNS服务器中的存留时间；可以通过设置TTL时间来控制DNS缓存的时间；但是客户端也可以域名解析记录，甚至有的客户端忽略DNS Server的TTL时间，而采用自己的固定DNS过期时间。</p>
+</li>
+<li><p>对于大型网站而言，通过Local DNS返回的IP地址，并不是真正应用服务器的地址，而是网站的反向代理(nginx)服务器地址；反向代理(nginx)服务器会根据 负载均衡策略，将请求分配给对应的应用服务器处理；应用服务器处理后，才会返回给原来的客户端。</p>
+</li>
+</ul>
+<h3 id="三、DNS轮询及应用"><a href="#三、DNS轮询及应用" class="headerlink" title="三、DNS轮询及应用"></a>三、DNS轮询及应用</h3><h4 id="1、基本概念"><a href="#1、基本概念" class="headerlink" title="1、基本概念"></a>1、基本概念</h4><ul>
+<li><p>DNS轮询：通过对一个域名设置多个IP解析，来扩充Server性能及实施负载均衡的技术；目前，大部分域名注册商都支持多条A(Address)记录的解析，DNS服务器将解析请求按照A记录的顺序，逐一分配到不同的IP上，这样就完成了简单的负载均衡。</p>
+</li>
+<li><p>A(Address)记录：又称IP指向，用户可以在此设置子域名并指向到自己的目标主机地址上，从而实现通过域名找到服务器。(<em>说明：指向的目标主机地址类型只能使用IP地址</em>)</p>
+</li>
+<li><p><strong>负载均衡</strong>（Load Balance）是分布式系统架构设计中必须考虑的因素之一，它通常是指，将请求/数据均匀分摊到多个操作单元上执行。</p>
+</li>
+</ul>
+<h4 id="2、DNS轮询的优点"><a href="#2、DNS轮询的优点" class="headerlink" title="2、DNS轮询的优点"></a>2、DNS轮询的优点</h4><ul>
+<li>基本上无成本，因为域名注册商的这种解析都是免费的；</li>
+<li>部署方便，除了网络拓扑的简单扩增，新增的Web服务器只要增加一个公网IP即可。</li>
+</ul>
+<h4 id="3、DNS轮询的缺点"><a href="#3、DNS轮询的缺点" class="headerlink" title="3、DNS轮询的缺点"></a>3、DNS轮询的缺点</h4><ul>
+<li><strong>健康检查缺失</strong>：如果某台服务器宕机，DNS服务器是无法知晓的，仍旧会将访问分配到此服务器。修改DNS记录全部生效起码要3-4小时，甚至更久；</li>
+<li><strong>请求/数据分配不均</strong>：如果几台Web服务器之间的配置不同，能够承受的压力也就不同，但是DNS解析分配的访问却是均匀分配的。其实DNS也是有分配算法的，可以根据当前连接较少的分配、可以设置Rate权重分配等等，只是目前绝大多数的DNS服务器都不支持；</li>
+<li><strong>缺少会话保持</strong>：如果是需要身份验证的网站，在不修改软件构架的情况下，这点是比较致命的；因为DNS解析无法将验证用户的访问持久分配到同一服务器。虽然有一定的本地DNS缓存，但是很难保证在用户访问期间，本地DNS不过期，而重新查询服务器并指向新的服务器，那么原服务器保存的用户信息是无法被带到新服务器的，而且可能要求被重新认证身份，来回切换时间长了各台服务器都保存有用户不同的信息，对服务器资源也是一种浪费。</li>
+</ul>
+<h4 id="4、DNS轮询的应用"><a href="#4、DNS轮询的应用" class="headerlink" title="4、DNS轮询的应用"></a>4、DNS轮询的应用</h4><ul>
+<li>常见互联网分布式架构，分为<strong>客户端层、反向代理nginx层、站点层、服务层、数据层</strong>。每一个下游都有多个上游调用，只需要做到，每一个上游都均匀访问每一个下游，就能实现“将请求/数据【均匀】分摊到多个操作单元上执行”。</li>
+<li><p><strong>水平扩展反向代理层</strong>：DNS Server对于一个域名配置了多个解析IP，每次DNS解析请求来访问DNS-Server，会轮询返回这些IP，保证每个IP的解析概率是相同的; 而这些IP就是nginx的外网ip，以做到每台nginx的请求分配也是均衡的。</p>
+</li>
+<li><p>当然，对于比较简单的系统，甚至可以不需要反向代理层，直接利用DNS轮询实施负载均衡，优缺点都非常明显，根据实际情况来吧。</p>
+<ul>
+<li>优点：少了一层网络请求，服务端架构简单</li>
+<li>缺点：<ul>
+<li>DNS只具备解析功能，不能保证对应外网IP的可用性，而nginx与应用Server之间有保活探测机制，当应用Server挂掉时，能够自动迁移流量；</li>
+<li>应用Server需要扩容时，通过DNS扩容生效时间长，而nginx是服务端完全自己可控的部分，应用Server扩容更实时更方便</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="5、总结"><a href="#5、总结" class="headerlink" title="5、总结"></a>5、总结</h4><ul>
+<li>在网络架构的发展过程中，会有利用DNS轮询来实现简单Web Server的负载均衡，但是Web Server的负载均衡主要是通过nginx、LVS和keepalived来实现的。</li>
+<li>使用DNS轮询实现 水平扩展 反向代理层，也是个不错的选择。</li>
+<li>在网站架构中，除了有DNS轮询技术，还有智能DNS技术(<em>GSLB(Global Server load Blance、全局负载均衡</em>)一种应用)，可以实现根据用户IP来就近访问服务器。</li>
+</ul>
+<h3 id="四、HTTPDNS方案"><a href="#四、HTTPDNS方案" class="headerlink" title="四、HTTPDNS方案"></a>四、HTTPDNS方案</h3><h4 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h4><ul>
+<li><p><strong>HTTPDNS</strong>：基于HTTP协议DNS服务器发送域名解析请求，替代了<em>基于UDP的DNS协议向运营商Local DNS发起解析请求方式</em>，有效避免Local DNS造成的域名劫持和跨网访问问题，提高域名解析效率。</p>
+</li>
+<li><p>DNS劫持是目前常见的攻击手段，通过攻击运营商的解析服务器，返回假IP地址或让请求失去响应，使得通过域名不能访问或访问的是假网址；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">国内电信运营商 = 中国电信、中国移动、中国联通三大运营商 + 长城宽带等小的运营商</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>HTTPDNS的主要收益是 <strong>防止DNS的劫持，保障了服务高可用</strong>；精准调度，提升用户体验。</p>
+</li>
+</ul>
+<h4 id="2、HTTPDNS设计中关键点"><a href="#2、HTTPDNS设计中关键点" class="headerlink" title="2、HTTPDNS设计中关键点"></a>2、HTTPDNS设计中关键点</h4><ul>
+<li><strong>安全策略</strong>：HTTPDNS查询是基于标准的HTTP协议，但是如果为了保证安全，可以使用HTTPS；</li>
+<li><strong>IP选取策略</strong>：HTTPDNS服务将最优IP按照顺序下发，客户端默认选取第一个，校验连通性OK就使用，如果不OK，选用下一个校验；</li>
+<li><p><strong>缓存过期策略</strong>：后端动态下发域名的TTL时间，当域名的TTL超时后，如果没有新的IP将继续沿用老的IP，也可以降级成Local DNS返回的IP。</p>
+</li>
+<li><p><strong>批量拉取策略</strong>：在应用冷启动 或 网络切换时候，批量拉取域名和IP列表的映射数据，缓存下来；以便在后续请求中使用到，预期提升精准调度能力。</p>
+</li>
+<li><p><strong>降级策略</strong>：当HTTPDNS服务不可用 &amp; 本地也没有缓存或者缓存失效时，降级成运营商的Local DNS方案；当HTTPDNS服务 &amp; Local DNS服务双双不可用的情况下，可以使用<code>BACKUP IP</code>；</p>
+</li>
+</ul>
+<h4 id="3、总结"><a href="#3、总结" class="headerlink" title="3、总结"></a>3、总结</h4><ul>
+<li>复杂的网络环境中，在避免DNS劫持攻击，提升解析的准确性，降低网络时延等方面，HTTPDNS比传统的DNS方案优秀很多；移动互联网发展到今天，HTTPDNS方案已经是保障大前端服务高可用的必备手段；</li>
+<li>国内如阿里云、腾讯云、百度等厂商都提供此类服务，接入也比较简单(推荐使用阿里云HTTPDNS)。</li>
+</ul>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
+<li><a href="https://juejin.im/post/5dc14f096fb9a04a6b204c6f" target="_blank" rel="noopener">全面理解DNS及HTTPDNS</a></li>
+<li><a href="https://tech.meituan.com/2017/08/10/checkout-counter-front-end.html" target="_blank" rel="noopener">前端可用性保障实践</a></li>
+<li><p><a href="https://blog.csdn.net/crazw/article/details/8986581" target="_blank" rel="noopener">域名解析中A记录、CNAME、MX记录、NS记录的区别和联系</a></p>
+</li>
+<li><p><a href="https://www.cnblogs.com/data2value/p/6107380.html" target="_blank" rel="noopener">负载均衡手段之DNS轮询</a></p>
+</li>
+<li><p><a href="https://www.w3cschool.cn/architectroad/architectroad-dns-polling.html" target="_blank" rel="noopener">lvs为何不能完全替代DNS轮询</a>、</p>
+</li>
+<li><p><a href="https://www.w3cschool.cn/architectroad/architectroad-dns-in-architectural-design.html" target="_blank" rel="noopener">DNS在架构设计中的巧用</a></p>
+</li>
+<li><a href="https://laod.cn/dns/public-dns.html" target="_blank" rel="noopener">细数免费公共DNS服务器IP地址大全</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2020/01/01/Architect-001/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2673,341 +2975,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2019/03/24/iOS-RAC01/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="南华coder">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="南华coder的空间">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/24/iOS-RAC01/" itemprop="url">ReactiveCocoa-信号基础</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-24T10:48:59+08:00">
-                2019-03-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS第三方库/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS第三方库</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  3,092 字
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  13 分
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h4 id="一、背景"><a href="#一、背景" class="headerlink" title="一、背景"></a>一、背景</h4><p>ReactiveCocoa火了一段时间(大概15，16年)，在谈及MVVM的双向绑定时候，必然提及ReactiveCocoa，但是这几年，ReactiveCocoa似乎不怎么火了，之前没有用过，最近在一个项目中遇到，简单了解下。</p>
-<h5 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h5><ul>
-<li><p><a href="https://link.juejin.im/?target=https%3A%2F%2Fgithub.com%2FReactiveCocoa" target="_blank" rel="noopener">ReactiveCocoa</a>（简称为RAC）,是一个开源的，可应用于iOS开发的<strong>函数式</strong> <strong>响应式</strong>编程框架，它提供了一系列用来组合和转换值流的 API</p>
-</li>
-<li><p>函数响应式编程（Functional reactive programming，简称FRP</p>
-</li>
-<li><p>RAC 5.0 对自身项目结构的也进行了大幅度的调整。这个调整就是将 RAC 拆分为四个库：ReactiveCocoa、ReactiveSwift、ReactiveObjC、ReactiveObjCBridge，Swift版本是ReactiveSwift，OC版本是ReactiveObjc。</p>
-</li>
-</ul>
-<h5 id="2、编程思想"><a href="#2、编程思想" class="headerlink" title="2、编程思想"></a>2、编程思想</h5><ul>
-<li><p><strong>面向过程</strong>：处理事情以过程为核心，一步一步的实现。</p>
-</li>
-<li><p><strong>面向对象</strong>:  万物皆对象</p>
-</li>
-<li><p><strong>链式编程</strong>：是将多个操作（多行代码）通过点号(.)链接在一起成为一句代码,使代码可读性好，代表作 : masonry</p>
-</li>
-<li><p><strong>响应式编程</strong>：不需要考虑调用顺序，只需要知道考虑结果，类似于蝴蝶效应，产生一个事件，会影响很多东西，这些事件像流一样的传播出去，然后影响结果，借用面向对象的一句话，万物皆流。代表KVO</p>
-</li>
-<li><p><strong>函数式编程思想</strong>：是把操作尽量写成一系列嵌套的函数或者方法调用</p>
-</li>
-</ul>
-<p><strong>说明</strong>：<strong>ReactiveCocoa</strong>结合<strong>函数式编程</strong>（Functional Programming）和 <strong>响应式编程</strong>（Reactive Programming）编程思想，简记为 <strong>函数响应式</strong>编程（Functional reactive programming，简称FRP) ; 所以使用RAC时候，不需要考虑调用顺序，直接考虑结果，把每一次操作都写成一系列嵌套的方法中，使代码高聚合，方便管理。</p>
-<h5 id="3、竞品"><a href="#3、竞品" class="headerlink" title="3、竞品"></a>3、竞品</h5><ul>
-<li><p><strong>RxSwift</strong> 是 Rx的 Swift 版本，<strong>Rx</strong>是<strong>ReactiveX</strong>（Reactive Extensions）的简写，它致力于提供一致的编程接口，帮助开发者更方便的处理异步数据流，Rx库支持.NET、JavaScript、C++、Swift, 但是没有支持Objective。</p>
-</li>
-<li><p><a href="https://github.com/meituan/EasyReact" target="_blank" rel="noopener">EasyReact</a> 美团18年开源的响应式编程框架，从官方纰漏信息说，比RAC性能更好 (<a href="https://www.raywenderlich.com/1190-reactivecocoa-vs-rxswift" target="_blank" rel="noopener">ReactiveCocoa vs RxSwift</a>)</p>
-</li>
-</ul>
-<h4 id="二、信号RACSignal"><a href="#二、信号RACSignal" class="headerlink" title="二、信号RACSignal"></a>二、信号RACSignal</h4><p><strong>RACSignal是RAC的核心，RACSignal是RACStream子类。本质是是数据流，可以用来传递和绑定</strong>。</p>
-<h5 id="1、基础操作"><a href="#1、基础操作" class="headerlink" title="1、基础操作"></a>1、基础操作</h5><ul>
-<li><p><strong>创建信号</strong>（createSignal）：创建了一个 RACDynamicSignal 类型的信号，并将传入的代码块保存起来，留待以后调用。</p>
-</li>
-<li><p><strong>订阅信号</strong>（subscribeNext）：创建了一个 RACPassthroughSubscriber 类型的订阅者，并将传入的代码块保存起来，留待以后调用，同时调用了第一步创建信号中保存的代码块，并传入创建的订阅者。</p>
-</li>
-<li><p><strong>发送信号</strong>（sendNext）:执行订阅信号时对应的block</p>
-</li>
-<li><p><strong>取消订阅（disposable):</strong> 把订阅信号获得的disposable进行dispose，即可在调度器调度该部分代码之前禁止调用。</p>
-</li>
-</ul>
-<h5 id="2、Code"><a href="#2、Code" class="headerlink" title="2、Code"></a>2、Code</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">// 1.创建信号</span><br><span class="line">    RACSignal *signal = [RACSignal createSignal:^RACDisposable *(id&lt;RACSubscriber&gt; subscriber ) &#123;</span><br><span class="line">        </span><br><span class="line">        //3.发送信号</span><br><span class="line">        [subscriber sendNext:@&quot;123&quot;];</span><br><span class="line">        //3.发送完成并取消订阅</span><br><span class="line">        [subscriber sendCompleted];</span><br><span class="line">        </span><br><span class="line">        //4、用于取消订阅时清理资源用，比如释放资源</span><br><span class="line">        return [RACDisposable disposableWithBlock:^&#123;</span><br><span class="line">            NSLog(@&quot;信号被取消订阅了&quot;);</span><br><span class="line">        &#125;];</span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">    // 2.订阅信号</span><br><span class="line">    [signal subscribeNext:^(id  _Nullable x) &#123;</span><br><span class="line">       </span><br><span class="line">        NSLog(@&quot;xxxx-%@&quot;,x);</span><br><span class="line">        </span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">    // 2.订阅信号</span><br><span class="line">    [signal subscribeNext:^(id x) &#123;</span><br><span class="line">        NSLog(@&quot;yyyy-%@&quot;,x);</span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    // xxxx-123</span><br><span class="line">	// 信号被取消订阅了</span><br><span class="line">	// yyyy-123</span><br><span class="line">	// 信号被取消订阅了</span><br></pre></td></tr></table></figure>
-<h4 id="三、信号操作源码解读"><a href="#三、信号操作源码解读" class="headerlink" title="三、信号操作源码解读"></a>三、信号操作源码解读</h4><p><img src="https://upload-images.jianshu.io/upload_images/201701-e7bf63b105cdf58a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img">               </p>
-<h5 id="1、源码-创建信号"><a href="#1、源码-创建信号" class="headerlink" title="1、源码-创建信号"></a>1、源码-创建信号</h5><ul>
-<li><strong>createSignal</strong>（<strong>创建信号</strong>）<strong>，实际上是创建 RACDynamicSignal 类型的信号，并把定义的</strong>block存储到<strong>didSubscribe</strong>。</li>
-</ul>
-<p><img src="https://upload-images.jianshu.io/upload_images/201701-9c730e8e40ddaf05.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="create.png">               </p>
-<h5 id="2、源码-订阅信号"><a href="#2、源码-订阅信号" class="headerlink" title="2、源码-订阅信号"></a>2、源码-订阅信号</h5><p><strong>subscribeNext (订阅信号)</strong>分为两步：第一步<strong>创建一个订阅者subscriber，存入nextBlock,  </strong>第二步<strong>该subscriber订阅信号</strong>。</p>
-<p><img src="https://upload-images.jianshu.io/upload_images/201701-c55b5d564d2439d6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="subscribe.png">               </p>
-<ul>
-<li><strong>第一步代码如下</strong>：</li>
-</ul>
-<p><img src="https://upload-images.jianshu.io/upload_images/201701-881dc25b7d62026e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="subscribe-next.png">               </p>
-<ul>
-<li><strong>第二步：有三个关键点</strong>，一个是<strong>创建一个RACCompoundDisposable</strong>对象，这里存储的是取消订阅后需要做的清除工作；另一个是 <strong>创建RACPassthroughSubscriber对象</strong>，将subscriber、信号和disposable处理存储下来，完成订阅者转换( 可以理解 RACPassthroughSubscriber 是订阅者的装饰器)。最后一个是使用在<strong>RACScheduler.subscriptionScheduler schedule:</strong> 来执行<strong>didSubscribe</strong>(这是创建信号穿过来的block), 最后返回RACCompoundDisposable对象</li>
-</ul>
-<p><img src="https://upload-images.jianshu.io/upload_images/201701-69b14dca5a123e81.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="subscribe-next2.png"></p>
-<h5 id="3、源码-发送信号"><a href="#3、源码-发送信号" class="headerlink" title="3、源码-发送信号"></a>3、源码-<strong>发送信号</strong></h5><ul>
-<li><p>在发送信号里，执行<strong>didSubscribe</strong>时候<strong>，</strong>传入的是<strong>RACPassthroughSubscriber</strong>对象，在执行sendNext: 时候，先执行<strong>RACPassthroughSubscriber对象的sendNext: 方法</strong>，</p>
-</li>
-<li><p>在这里<strong>：先检查disposable状态</strong>，如果已经disposed直接返回；没有disposed才调用内部的innerSubscriber的sendNext:方法（RACSubscriber对象方法）</p>
-</li>
-</ul>
-<p><img src="https://upload-images.jianshu.io/upload_images/201701-66b346feb1e6c953.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="send.png">               </p>
-<p><img src="https://upload-images.jianshu.io/upload_images/201701-1377630b1862cc71.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="send2.png">               </p>
-<p><strong>说明</strong>：</p>
-<ul>
-<li><p>发送信号就是执行相应block，此处执行的就是第二步中保存的<strong>相应的block</strong>。</p>
-</li>
-<li><p>对于 sendError 和 sendCompleted 都是<strong>先取消订阅，再执行相应的代码块</strong>，而 sendNext 并未<strong>取消</strong>订阅，所以，一般sendNext: 和 sendCompleted组合出现。</p>
-</li>
-</ul>
-<h5 id="4、源码-取消订阅"><a href="#4、源码-取消订阅" class="headerlink" title="4、源码-取消订阅"></a>4、源码-取消订阅</h5><ul>
-<li><p>在 执行sendCompleted后，<strong>RACPassthroughSubscriber</strong>对象执行dispose方法，完成整个过程</p>
-</li>
-<li><p>如果不调用sendCompleted，当订阅者被销毁的时候，<strong>RACPassthroughSubscriber</strong>对象也会执行dispose方法。</p>
-</li>
-</ul>
-<h4 id="四、RACSubscriber-amp-RACDisposable"><a href="#四、RACSubscriber-amp-RACDisposable" class="headerlink" title="四、RACSubscriber &amp; RACDisposable"></a>四、RACSubscriber &amp; RACDisposable</h4><h5 id="1、RACSubscriber"><a href="#1、RACSubscriber" class="headerlink" title="1、RACSubscriber"></a>1、RACSubscriber</h5><ul>
-<li><p><strong>订阅者协议</strong>，主要遵守这个协议，并且实现方法才能成为订阅者。设计者特意设计同名的RACSubscriber类，实现RACSubscriber协议</p>
-</li>
-<li><p><strong>RACSubscriber协议定义如下</strong></p>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">@protocol RACSubscriber &lt;NSObject&gt;</span><br><span class="line">@required</span><br><span class="line">/// Sends the next value to subscribers.</span><br><span class="line">- (void)sendNext:(nullable id)value;</span><br><span class="line"></span><br><span class="line">/// Sends the error to subscribers.</span><br><span class="line">- (void)sendError:(nullable NSError *)error;</span><br><span class="line"></span><br><span class="line">/// Sends completed to subscribers.</span><br><span class="line">- (void)sendCompleted;</span><br><span class="line"></span><br><span class="line">/// Sends the subscriber a disposable that represents one of its subscriptions.</span><br><span class="line">- (void)didSubscribeWithDisposable:(RACCompoundDisposable *)disposable;</span><br><span class="line">@end</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>RACSubscriber类定义如下</strong></li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// A simple block-based subscriber.</span><br><span class="line">@interface RACSubscriber : NSObject &lt;RACSubscriber&gt;</span><br><span class="line"></span><br><span class="line">// Creates a new subscriber with the given blocks.</span><br><span class="line">+ (instancetype)subscriberWithNext:(void (^)(id x))next error:(void (^)(NSError *error))error completed:(void (^)(void))completed;</span><br><span class="line"></span><br><span class="line">@end</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>RACPassthroughSubscriber</strong>也是实现了RACSubscriber协议，而不是继承RACSubscriber类</li>
-</ul>
-<p><img src="https://upload-images.jianshu.io/upload_images/201701-73824afb1d8ac9db.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="RACPassthroughSubscriber.png">               </p>
-<h5 id="2、RACDisposable及其子类"><a href="#2、RACDisposable及其子类" class="headerlink" title="2、RACDisposable及其子类"></a>2、RACDisposable及其子类</h5><ul>
-<li><p>用于<strong>取消订阅</strong>或者<strong>清理资源</strong>，当信号发送完成 或者 发送错误的时候，就会自动触发它。</p>
-</li>
-<li><p><strong>使用场景</strong>:不想监听某个信号时，可以通过它主动取消订阅信号。</p>
-</li>
-<li><p>子类：RACCompoundDisposable、RACScopedDisposable、RACKVOTrampoline、RACSerialDisposable等。</p>
-</li>
-<li><p><strong>RACCompoundDisposable</strong>可以存放<strong>多个RACDisposable</strong> 。当RACCompoundDisposable 执行dispose方法时，它所存放的disposable都会被释放。</p>
-</li>
-</ul>
-<h4 id="五、信号组合"><a href="#五、信号组合" class="headerlink" title="五、信号组合"></a>五、信号组合</h4><h5 id="1、concat"><a href="#1、concat" class="headerlink" title="1、concat"></a>1、concat</h5><p><strong>组合信号，让信号按照顺序去执行。</strong></p>
-<p>模拟发送两个请求，第一个请求返回数据后执行第二个请求</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">//创建一个信号A</span><br><span class="line">    RACSignal *signalA = [RACSignal createSignal:^RACDisposable * _Nullable(id&lt;RACSubscriber&gt;  _Nonnull subscriber) &#123;</span><br><span class="line">        NSLog(@&quot;发送请求1...&quot;);</span><br><span class="line">        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^&#123;</span><br><span class="line">            [subscriber sendNext:@&quot;请求1返回的数据&quot;];</span><br><span class="line">            [subscriber sendCompleted];</span><br><span class="line">        &#125;);</span><br><span class="line">        return [RACDisposable disposableWithBlock:^&#123;</span><br><span class="line">            NSLog(@&quot;取消订阅1...&quot;);</span><br><span class="line">        &#125;];</span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">    //创建一个信号B</span><br><span class="line">    RACSignal *siganlB = [RACSignal createSignal:^RACDisposable *(id&lt;RACSubscriber&gt; subscriber) &#123;</span><br><span class="line">        </span><br><span class="line">        NSLog(@&quot;发送请求2...&quot;);</span><br><span class="line">        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^&#123;</span><br><span class="line">            [subscriber sendNext:@&quot;请求2返回的数据&quot;];</span><br><span class="line">            [subscriber sendCompleted];</span><br><span class="line">        &#125;);</span><br><span class="line">        </span><br><span class="line">        return [RACDisposable disposableWithBlock:^&#123;</span><br><span class="line">           NSLog(@&quot;取消订阅2...&quot;);</span><br><span class="line">        &#125;];</span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">    //串联信号A和B</span><br><span class="line">    RACSignal *concatSignal = [signalA concat:siganlB];</span><br><span class="line">    [concatSignal subscribeNext:^(id  _Nullable x) &#123;</span><br><span class="line">        NSLog(@&quot;value = %@&quot;,x);</span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">    output:</span><br><span class="line">	//发送请求1...</span><br><span class="line">	//value = 请求1返回的数据</span><br><span class="line">	//取消订阅1...</span><br><span class="line">	//发送请求2...</span><br><span class="line">	//value = 请求2返回的数据</span><br><span class="line">	//取消订阅2...</span><br></pre></td></tr></table></figure>
-<p><strong>说明</strong>：使用concat 连接信号时，第一个信号发送后，一定要执行<strong>sendCompleted</strong>方法，否则不会发送第二个信号。</p>
-<h5 id="2、concat源码实现"><a href="#2、concat源码实现" class="headerlink" title="2、concat源码实现"></a>2、concat源码实现</h5><p><img src="https://upload-images.jianshu.io/upload_images/201701-7a5f43720da0d05f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="concat.png"></p>
-<ul>
-<li><p>当调用concat时，会创建一个<strong>拼接信号（RACDynamicSignal对象）</strong></p>
-</li>
-<li><p>当拼接信号被订阅，就会执行拼接信号的didSubscribe</p>
-</li>
-<li><p>在<strong>didSubscribe</strong>中会<strong>先订阅</strong>第一个信号（signalA），此时会执行第一个信号（signalA）的didSubscribe。</p>
-</li>
-<li><p>第一个信号（signalA）didSubscribe中，发送值，就调用第一个信号（signalA）订阅者的nextBlock,通过拼接信号的订阅者把值发送出来。</p>
-</li>
-<li><p>第一个信号（signalA）didSubscribe中发送完成，<strong>就会调用第一个源信号（signalA）订阅者的completedBlock</strong>,订阅第二个源信号（signalB）这时候才激活（signalB）。</p>
-</li>
-<li><p>订阅第二个信号（signalB）,执行第二个源信号（signalB）的didSubscribe</p>
-</li>
-<li><p>第二个信号（signalB）didSubscribe中发送值,就会通过拼接信号的订阅者把值发送出来.</p>
-</li>
-</ul>
-<h5 id="3、then"><a href="#3、then" class="headerlink" title="3、then"></a>3、then</h5><p>用于连接连个信号，<strong>当第一个信号完成，才会连接then返回的信号</strong>，then底层也是使用了concat实现。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">//创建信号A</span><br><span class="line">    RACSignal*signalA = [RACSignal createSignal:^RACDisposable*(id subscriber) &#123;</span><br><span class="line">        NSLog(@&quot;send data A&quot;);</span><br><span class="line">        //发送信号</span><br><span class="line">        [subscriber sendNext:@&quot;dataA&quot;];</span><br><span class="line">        [subscriber sendCompleted];</span><br><span class="line">        return nil;</span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">    //创建信号B</span><br><span class="line">    RACSignal *signalB = [RACSignal createSignal:^RACDisposable*(id subscriber) &#123;</span><br><span class="line">        //发送请求</span><br><span class="line">        NSLog(@&quot;send data B&quot;);</span><br><span class="line">        //发送信号</span><br><span class="line">        [subscriber sendNext:@&quot;dataB&quot;];</span><br><span class="line">        [subscriber sendCompleted];</span><br><span class="line">        return nil;</span><br><span class="line">    &#125;];</span><br><span class="line">    //创建组合信号</span><br><span class="line">    //then会忽略点第一个信号的所有值</span><br><span class="line">    RACSignal *signalThen = [signalA then:^RACSignal*&#123;</span><br><span class="line">        //返回的信号就是需要组合的信号，这里回将signalA信号忽略掉</span><br><span class="line">        return signalB;</span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">    //订阅信号</span><br><span class="line">    [signalThen subscribeNext:^(id x) &#123;</span><br><span class="line">        NSLog(@&quot;%@&quot;,x);</span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">    //send data A</span><br><span class="line">    //send data B</span><br><span class="line">    //dataB</span><br></pre></td></tr></table></figure>
-<h5 id="4、then源码实现"><a href="#4、then源码实现" class="headerlink" title="4、then源码实现"></a>4、then源码实现</h5><p><img src="https://upload-images.jianshu.io/upload_images/201701-64c023e296a0dd9f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="then.png">            </p>
-<ul>
-<li><p>先过滤掉之前的信号发出的值。</p>
-</li>
-<li><p>使用concat连接then返回的信号</p>
-</li>
-</ul>
-<h5 id="5、其他信号组合"><a href="#5、其他信号组合" class="headerlink" title="5、其他信号组合"></a>5、其他信号组合</h5><ul>
-<li><p><strong>merge</strong>：把两个信号合并为一个信号，任何一个信号有新值的时候就会调用。</p>
-</li>
-<li><p><strong>zipWith</strong>：把两个信号压缩成一个信号，只有当两个信号同时发出信号内容时，并且把两个信号的内容合并成一个元组，才会触发事件。当一个界面有多个网络请求时，要等所有请求完成才更新UI，这时我们就可以用zipWith</p>
-</li>
-<li><strong>combineLatest</strong>：将<strong>多个信号合并起来，拿到各个信号的最新的值</strong>，每个合并的signal至少都有过一次sendNext,才会触发合并的信号，底层也是用 zipWith实现的。 一般拿来跟 reduce 一起使用。</li>
-</ul>
-<h4 id="六、应用"><a href="#六、应用" class="headerlink" title="六、应用"></a>六、应用</h4><p>老说源码比较枯燥，说下信号是怎么让开发变得更有意思。</p>
-<h5 id="1、监听Control事件"><a href="#1、监听Control事件" class="headerlink" title="1、监听Control事件"></a>1、监听Control事件</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@weakify(self);</span><br><span class="line"> [[self.btn1 rac_signalForControlEvents:UIControlEventTouchUpInside] subscribeNext:^(UIButton *btn) &#123;</span><br><span class="line">     @strongify(self);</span><br><span class="line">     NSLog(@&quot;点击事件了&quot;);</span><br><span class="line"> &#125;];</span><br></pre></td></tr></table></figure>
-<h5 id="2、监听-textField-的-text-改变"><a href="#2、监听-textField-的-text-改变" class="headerlink" title="2、监听 textField 的 text 改变"></a>2、监听 textField 的 text 改变</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">self.textField.frame = CGRectMake(15, 200, 300, 40);</span><br><span class="line">    [[self.textField rac_textSignal] subscribeNext:^(NSString * _Nullable x) &#123;</span><br><span class="line">        NSLog(@&quot;textField input = [%@]&quot;,x);</span><br><span class="line">    &#125;];</span><br></pre></td></tr></table></figure>
-<h5 id="3、把-label-的属性-text-绑定在-UITextField-上"><a href="#3、把-label-的属性-text-绑定在-UITextField-上" class="headerlink" title="3、把 label 的属性 text 绑定在 UITextField 上"></a>3、把 label 的属性 text 绑定在 UITextField 上</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//self.label1.text 随着 self.textField.text 的改变而改变</span><br><span class="line">RAC(self.label1,text) = self.textField.rac_textSignal;</span><br></pre></td></tr></table></figure>
-<h5 id="4、告别繁琐的KVO"><a href="#4、告别繁琐的KVO" class="headerlink" title="4、告别繁琐的KVO"></a>4、告别繁琐的KVO</h5><ul>
-<li>不需要手动移除了</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[RACObserve(self.person, name) subscribeNext:^(id  _Nullable x) &#123;</span><br><span class="line">        NSLog(@&quot;name = %@&quot;,x);</span><br><span class="line">    &#125;];</span><br></pre></td></tr></table></figure>
-<h5 id="5、监听通知"><a href="#5、监听通知" class="headerlink" title="5、监听通知"></a>5、监听通知</h5><ul>
-<li>不需要手动移除了</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//监听通知</span><br><span class="line">   [[[NSNotificationCenter defaultCenter] rac_addObserverForName:UIKeyboardWillChangeFrameNotification object:nil] subscribeNext:^(NSNotification * _Nullable notification) &#123;</span><br><span class="line">       NSLog(@&quot;-----%@&quot;, notification.description);</span><br><span class="line">   &#125;];</span><br></pre></td></tr></table></figure>
-<h5 id="6、数组-amp-字典遍历"><a href="#6、数组-amp-字典遍历" class="headerlink" title="6、数组 &amp; 字典遍历"></a>6、数组 &amp; 字典遍历</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">//数组遍历</span><br><span class="line">    NSLog(@&quot;array filter:&quot;);</span><br><span class="line">    NSArray *array = @[@(1), @(2), @(3), @(4), @(5)];</span><br><span class="line">    [array.rac_sequence.signal subscribeNext:^(id  _Nullable x) &#123;</span><br><span class="line">        NSLog(@&quot;x = %@&quot;,x);</span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    NSLog(@&quot;after array filter:&quot;);</span><br><span class="line">    //过滤 filter，并获取过滤后的数组</span><br><span class="line">    NSArray *filter = [[array.rac_sequence filter:^BOOL(id  _Nullable value) &#123;</span><br><span class="line">        return [value integerValue] &gt; 2;</span><br><span class="line">    &#125;] array];</span><br><span class="line">    </span><br><span class="line">    //</span><br><span class="line">    [filter.rac_sequence.signal subscribeNext:^(id  _Nullable x) &#123;</span><br><span class="line">        NSLog(@&quot;y = %@&quot;,x);</span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    //匹配、映射 map，变换元素并获取新数组</span><br><span class="line">    NSArray *map = [[array.rac_sequence map:^id _Nullable(id  _Nullable value) &#123;</span><br><span class="line">         NSInteger a = [value integerValue] * [value  integerValue];</span><br><span class="line">        return [NSNumber numberWithInt:a];</span><br><span class="line">    &#125;] array];</span><br><span class="line">    </span><br><span class="line">     [map.rac_sequence.signal subscribeNext:^(id  _Nullable x) &#123;</span><br><span class="line">        NSLog(@&quot;z = %@&quot;,x);</span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    //字典</span><br><span class="line">    NSDictionary *dic = @&#123;@&quot;name&quot;: @&quot;lion&quot;, @&quot;age&quot;: @18&#125;;</span><br><span class="line">    [dic.rac_sequence.signal subscribeNext:^(id  _Nullable x) &#123;</span><br><span class="line">       </span><br><span class="line">        RACTupleUnpack(NSString *key, NSString *value) = x;</span><br><span class="line">        NSLog(@&quot;\r\nkey: %@\r\nvalue: %@&quot;, key, value);</span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">    &#125;];​</span><br></pre></td></tr></table></figure>
-<h5 id="7、按钮是否点击"><a href="#7、按钮是否点击" class="headerlink" title="7、按钮是否点击"></a>7、按钮是否点击</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// 先联合两个信号，再解析信号结果，最后把结果绑定到信号上</span><br><span class="line">    RAC(self.btn1, enabled) = [RACSignal combineLatest:@[self.textField.rac_textSignal] reduce:^id _Nonnull(NSString *username)&#123;</span><br><span class="line">        return @(username.length &gt; 0);</span><br><span class="line">    &#125;];</span><br></pre></td></tr></table></figure>
-<h5 id="8、节流throttle"><a href="#8、节流throttle" class="headerlink" title="8、节流throttle"></a>8、节流throttle</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//节流(0.5 秒内 text 没有改变时，才会进行搜索请求)</span><br><span class="line">    [[[self.textField rac_textSignal] throttle:0.5] subscribeNext:^(NSString * _Nullable x) &#123;</span><br><span class="line">       //发送请求</span><br><span class="line">        NSLog(@&quot;开始搜索请求==%@&quot;, x);</span><br><span class="line">    &#125;]</span><br></pre></td></tr></table></figure>
-<h4 id="End"><a href="#End" class="headerlink" title="End"></a>End</h4><h5 id="1、总结"><a href="#1、总结" class="headerlink" title="1、总结"></a>1、总结</h5><ul>
-<li>ReactiveCocoa提供了一个单一的、统一的方法去处理异步的行为，<strong>包括delegate方法,blocks回调,target-action机制,notifications和KVO.</strong></li>
-<li><strong>冷信号和热信号</strong>：冷信号是被动的，只会在被订阅时向订阅者发送通知；热信号是主动的，它会在任意时间发出通知，与订阅者的订阅时间无关；也就是说冷信号所有的订阅者会在订阅时收到完全相同的序列；而订阅热信号之后，只会收到在订阅之后发出的序列。</li>
-</ul>
-<h5 id="2、参考"><a href="#2、参考" class="headerlink" title="2、参考"></a>2、参考</h5><p><a href="https://blog.csdn.net/yutaotst/article/details/58608829" target="_blank" rel="noopener">iOS Reactivecocoa（RAC）知其所以然</a></p>
-<p><a href="https://yyn835314557.github.io/ios/2015/10/07/iOS-ReactiveCocoa%E8%AF%A6%E8%A7%A3.html" target="_blank" rel="noopener">iOS ReactiveCocoa详解</a></p>
-<p><a href="https://www.jianshu.com/p/912c69dfb55a" target="_blank" rel="noopener">ReactiveCocoa信号发送详解</a></p>
-<p><a href="https://juejin.im/entry/58b2f26aac502e0069d9ff42" target="_blank" rel="noopener">RAC 之引起你的兴趣</a></p>
-<p><a href="https://www.jianshu.com/p/912c69dfb55a" target="_blank" rel="noopener">ReactiveCocoa信号发送详解</a></p>
-<p><a href="https://www.jianshu.com/p/a027898612e6" target="_blank" rel="noopener">ReactiveCocoa代码分析之UITextField</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3062,7 +3029,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">35</span>
+                  <span class="site-state-item-count">36</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -3142,7 +3109,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">78.3k</span>
+    <span title="Site words total count">81.7k</span>
   
 </div>
 

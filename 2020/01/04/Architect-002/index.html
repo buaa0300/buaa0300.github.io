@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="南华coder的空间" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="一、DNS基础1、Domain Name 和 DNS 域名（Domain Name）是由一串用点分隔的名字组成的Internet上某一台计算机或计算机组的名称，用于在数据传输时对计算机的定位标识（有时也指地理位置)；eg: www.baidu.com  DNS（Domain Name System, 域名系统) 是Internet上作为将域名和IP地址相互映射的一个分布式数据库，能够根据域名找到对">
+<meta property="og:type" content="article">
+<meta property="og:title" content="漫谈0x02:研发视角下的DNS">
+<meta property="og:url" content="http://buaa0300/nanhuacoder.com/2020/01/04/Architect-002/index.html">
+<meta property="og:site_name" content="南华coder的空间">
+<meta property="og:description" content="一、DNS基础1、Domain Name 和 DNS 域名（Domain Name）是由一串用点分隔的名字组成的Internet上某一台计算机或计算机组的名称，用于在数据传输时对计算机的定位标识（有时也指地理位置)；eg: www.baidu.com  DNS（Domain Name System, 域名系统) 是Internet上作为将域名和IP地址相互映射的一个分布式数据库，能够根据域名找到对">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-01-04T14:24:24.818Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="漫谈0x02:研发视角下的DNS">
+<meta name="twitter:description" content="一、DNS基础1、Domain Name 和 DNS 域名（Domain Name）是由一串用点分隔的名字组成的Internet上某一台计算机或计算机组的名称，用于在数据传输时对计算机的定位标识（有时也指地理位置)；eg: www.baidu.com  DNS（Domain Name System, 域名系统) 是Internet上作为将域名和IP地址相互映射的一个分布式数据库，能够根据域名找到对">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://buaa0300/nanhuacoder.com/2020/01/04/Architect-002/"/>
+
+
+
+
+
+  <title>漫谈0x02:研发视角下的DNS | 南华coder的空间</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">南华coder的空间</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://buaa0300/nanhuacoder.com/2020/01/04/Architect-002/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="南华coder">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="南华coder的空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">漫谈0x02:研发视角下的DNS</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-04T10:31:24+08:00">
+                2020-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/架构笔记/" itemprop="url" rel="index">
+                    <span itemprop="name">架构笔记</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,469 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  13 分
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="一、DNS基础"><a href="#一、DNS基础" class="headerlink" title="一、DNS基础"></a>一、DNS基础</h3><h4 id="1、Domain-Name-和-DNS"><a href="#1、Domain-Name-和-DNS" class="headerlink" title="1、Domain Name 和 DNS"></a>1、Domain Name 和 DNS</h4><ul>
+<li><p><strong>域名</strong>（Domain Name）是由一串用点分隔的名字组成的Internet上某一台计算机或计算机组的名称，用于在数据传输时对计算机的定位标识（有时也指地理位置)；eg: www.baidu.com</p>
+</li>
+<li><p><strong>DNS</strong>（Domain Name System, 域名系统) 是Internet上作为将域名和IP地址相互映射的一个分布式数据库，能够根据域名找到对应的IP地址。</p>
+</li>
+<li><p><strong>根域、顶级域、二级域、子域</strong>  域名采用层次化的方式进行组织，每一个点代表一个层级。一个域名完整的格式为<code>www.baidu.com.</code> 最末尾的点(<code>.</code>)代表根域，常常省略；<code>com</code>即顶级域（TLD, Top-Level Domain）；<code>baidu.com</code>即二级域。依次类推，还有三级域、四级域等等。子域是一个相对的概念，<code>baidu.com</code>是<code>com</code>的子域，<code>www.baidu.com</code>是<code>baidu.com</code>的子域。</p>
+</li>
+<li><p>根域名通常使用”.”来表示，其实际上也是由域名组成，全世界目前有13组域名根节点，由少数几个国家进行管理，而国内仅有几台根节点镜像。</p>
+</li>
+</ul>
+<h4 id="2、DNS解析相关"><a href="#2、DNS解析相关" class="headerlink" title="2、DNS解析相关"></a>2、DNS解析相关</h4><ul>
+<li><p><strong>正向解析</strong>：查找域名对应IP的过程；<strong>反向解析</strong>: 查找IP对应域名的过程；<strong>解析器</strong>： 即resolver，处于DNS客户端的一套系统，用于实现正向解析或者反向解析。</p>
+</li>
+<li><p><strong>权威DNS</strong>：处于DNS服务端的一套系统，该系统保存了相应域名的权威信息。权威DNS即通俗上“这个域名我说了算”的服务器。</p>
+</li>
+<li><strong>递归DNS</strong>：又叫Local DNS，递归DNS可以理解为是一种功能复杂些的解析器(resolver)，其核心是 缓存 和 递归查询。收到域名查询请求后，首先看本地缓存是否有记录，如果没有则一级一级的查询根、顶级域、二级域……直到获取到结果然后返回给用户。<strong>日常上网中运营商分配的DNS即是递归DNS</strong></li>
+<li><strong>转发DNS</strong>：是一种特殊的递归。如果本地的缓存记录中没有相应域名结果时，其将查询请求转发给另外一台DNS服务器，由另外一台DNS服务器来完成查询请求。</li>
+<li><strong>公共DNS</strong>：属于递归DNS。其典型特征为对外一个IP，为所有用户提供公共的递归查询服务。<ul>
+<li>国内主流的公共DNS的有<strong>114DNS</strong>(114.114.114.114)、<strong>阿里DNS</strong>(223.5.5.5)、<strong>百度DNS</strong>(180.76.76.76)、<strong>腾讯DNS</strong>(119.29.29.29)</li>
+<li>国外推荐的公共DNS是<strong>谷歌DNS</strong>(8.8.8.8)</li>
+</ul>
+</li>
+</ul>
+<h4 id="3、DNS常用命令工具"><a href="#3、DNS常用命令工具" class="headerlink" title="3、DNS常用命令工具"></a>3、DNS常用命令工具</h4><ul>
+<li><code>host</code> 命令 or  <code>nslookup</code>命令：分析域名查询工具，测试域名系统工作是否正常</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 查询域名的主机信息</span><br><span class="line">host -a www.baidu.com</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> Trying "www.baidu.com"</span><br><span class="line"><span class="meta">#</span> ;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 27785</span><br><span class="line"><span class="meta">#</span> ;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> ;; QUESTION SECTION:</span><br><span class="line"><span class="meta">#</span> ;www.baidu.com.			IN	ANY</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> ;; ANSWER SECTION:</span><br><span class="line"><span class="meta">#</span> www.baidu.com.		60	IN	A	10.15.63.90</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 根据IP反查域名</span><br><span class="line">host 114.114.114.114 </span><br><span class="line"><span class="meta">#</span> 114.114.114.114.in-addr.arpa domain name pointer public1.114dns.com.</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 查询域名对应的IP</span><br><span class="line">nslookup www.baidu.com  </span><br><span class="line"><span class="meta">#</span> Server:		10.8.8.18</span><br><span class="line"><span class="meta">#</span> Address:	10.8.8.18#53</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> Non-authoritative answer:</span><br><span class="line"><span class="meta">#</span> Name:	www.baidu.com</span><br><span class="line"><span class="meta">#</span> Address: 10.15.63.90</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 根据IP反查域名</span><br><span class="line">nslookup 114.114.114.114 </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> Server:		10.8.8.18</span><br><span class="line"><span class="meta">#</span> Address:	10.8.8.18#53</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> Non-authoritative answer:</span><br><span class="line"><span class="meta">#</span> 114.114.114.114.in-addr.arpa	name = public1.114dns.com.</span><br><span class="line"><span class="meta">#</span> Authoritative answers can be found from:</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>whois</code>命令：查看域名的注册情况。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">whois www.baidu.com</span><br></pre></td></tr></table></figure>
+<h3 id="二、DNS查询"><a href="#二、DNS查询" class="headerlink" title="二、DNS查询"></a>二、DNS查询</h3><h4 id="1、DNS查询方式"><a href="#1、DNS查询方式" class="headerlink" title="1、DNS查询方式"></a>1、DNS查询方式</h4><ul>
+<li>DNS查询分两种：递归查询与迭代查询；</li>
+<li><strong>递归查询</strong>：Local DNS Server接收到客户端请求后，如果它本地没有被查询的域名的IP地址，就会代替客户端，去向其他域名服务器继续发出查询，直到查询到结果后，然后层层返回给客户；</li>
+<li><strong>迭代查询</strong>：Local DNS Server接收到客户端请求后，如果它本地没有被查询的域名的IP地址，并不直接回复查询结果，而是告诉客户机另一台DNS 服务器地址，客户机再向这台DNS 服务器提交请求，依次循环直到返回查询的结果。</li>
+</ul>
+<h4 id="2、Local-DNS的设置"><a href="#2、Local-DNS的设置" class="headerlink" title="2、Local DNS的设置"></a>2、Local DNS的设置</h4><ul>
+<li>主机(PC或移动设备)上可以通过<strong>手动配置</strong> DNS的服务器地址 OR 利用DHCP（Dynamic Host Configuration Protocol，动态主机配置协议）<strong>动态获得</strong>DNS的服务器地址。</li>
+<li>Local DNS包括网络服务提供商（ISP）分配给我们的DNS（一般为两个），或者是其他组织提供的公共DNS，比如</li>
+<li>有时，PC或者移动设备上，DNS的地使用路由器的地址，这是因为路由器会将DNS请求转发到ISP的DNS服务器上。</li>
+</ul>
+<h4 id="3、典型DNS查询过程"><a href="#3、典型DNS查询过程" class="headerlink" title="3、典型DNS查询过程"></a>3、典型DNS查询过程</h4><p>当我们在浏览器中输入一个网站如：<code>www.baidu.com</code>时，会发生如下过程: </p>
+<ul>
+<li>操作系统会先依次检查缓存中、本地的hosts中是够有这个域名对应的IP地址；如果有，就先调用这个IP地址，完成域名解析，否则进入下一步；</li>
+<li>如果缓存中、本地的hosts里都没有这个域名的映射，客户端会向Local DNS Server发起查询。Local DNS Server收到查询请求时，如果本地缓存中有记录，则返回IP地址给客户机，完成域名解析，否则进入下一步；</li>
+<li>如果Local DNS Server本地缓存没有记录，则一级一级的查询根、顶级域、二级域……直到获取到IP地址，然后返回给用户。</li>
+<li>最终，客户端可以通过 IP 访问到对应的服务器</li>
+</ul>
+<h4 id="4、扩展"><a href="#4、扩展" class="headerlink" title="4、扩展"></a>4、扩展</h4><ul>
+<li><p>DNS的查询和响应使用的是UDP协议，DNS消息通过UDP数据包发送，如果在一个限定时间内没有收到响应的UDP数据包，那么DNS客户端则会重复查询请求；如果重复一定次数仍然失败，则会尝试域内另一台DNS服务器。</p>
+</li>
+<li><p>TTL（Time To-Live）是一条域名解析记录在DNS服务器中的存留时间；可以通过设置TTL时间来控制DNS缓存的时间；但是客户端也可以域名解析记录，甚至有的客户端忽略DNS Server的TTL时间，而采用自己的固定DNS过期时间。</p>
+</li>
+<li><p>对于大型网站而言，通过Local DNS返回的IP地址，并不是真正应用服务器的地址，而是网站的反向代理(nginx)服务器地址；反向代理(nginx)服务器会根据 负载均衡策略，将请求分配给对应的应用服务器处理；应用服务器处理后，才会返回给原来的客户端。</p>
+</li>
+</ul>
+<h3 id="三、DNS轮询及应用"><a href="#三、DNS轮询及应用" class="headerlink" title="三、DNS轮询及应用"></a>三、DNS轮询及应用</h3><h4 id="1、基本概念"><a href="#1、基本概念" class="headerlink" title="1、基本概念"></a>1、基本概念</h4><ul>
+<li><p>DNS轮询：通过对一个域名设置多个IP解析，来扩充Server性能及实施负载均衡的技术；目前，大部分域名注册商都支持多条A(Address)记录的解析，DNS服务器将解析请求按照A记录的顺序，逐一分配到不同的IP上，这样就完成了简单的负载均衡。</p>
+</li>
+<li><p>A(Address)记录：又称IP指向，用户可以在此设置子域名并指向到自己的目标主机地址上，从而实现通过域名找到服务器。(<em>说明：指向的目标主机地址类型只能使用IP地址</em>)</p>
+</li>
+<li><p><strong>负载均衡</strong>（Load Balance）是分布式系统架构设计中必须考虑的因素之一，它通常是指，将请求/数据均匀分摊到多个操作单元上执行。</p>
+</li>
+</ul>
+<h4 id="2、DNS轮询的优点"><a href="#2、DNS轮询的优点" class="headerlink" title="2、DNS轮询的优点"></a>2、DNS轮询的优点</h4><ul>
+<li>基本上无成本，因为域名注册商的这种解析都是免费的；</li>
+<li>部署方便，除了网络拓扑的简单扩增，新增的Web服务器只要增加一个公网IP即可。</li>
+</ul>
+<h4 id="3、DNS轮询的缺点"><a href="#3、DNS轮询的缺点" class="headerlink" title="3、DNS轮询的缺点"></a>3、DNS轮询的缺点</h4><ul>
+<li><strong>健康检查缺失</strong>：如果某台服务器宕机，DNS服务器是无法知晓的，仍旧会将访问分配到此服务器。修改DNS记录全部生效起码要3-4小时，甚至更久；</li>
+<li><strong>请求/数据分配不均</strong>：如果几台Web服务器之间的配置不同，能够承受的压力也就不同，但是DNS解析分配的访问却是均匀分配的。其实DNS也是有分配算法的，可以根据当前连接较少的分配、可以设置Rate权重分配等等，只是目前绝大多数的DNS服务器都不支持；</li>
+<li><strong>缺少会话保持</strong>：如果是需要身份验证的网站，在不修改软件构架的情况下，这点是比较致命的；因为DNS解析无法将验证用户的访问持久分配到同一服务器。虽然有一定的本地DNS缓存，但是很难保证在用户访问期间，本地DNS不过期，而重新查询服务器并指向新的服务器，那么原服务器保存的用户信息是无法被带到新服务器的，而且可能要求被重新认证身份，来回切换时间长了各台服务器都保存有用户不同的信息，对服务器资源也是一种浪费。</li>
+</ul>
+<h4 id="4、DNS轮询的应用"><a href="#4、DNS轮询的应用" class="headerlink" title="4、DNS轮询的应用"></a>4、DNS轮询的应用</h4><ul>
+<li>常见互联网分布式架构，分为<strong>客户端层、反向代理nginx层、站点层、服务层、数据层</strong>。每一个下游都有多个上游调用，只需要做到，每一个上游都均匀访问每一个下游，就能实现“将请求/数据【均匀】分摊到多个操作单元上执行”。</li>
+<li><p><strong>水平扩展反向代理层</strong>：DNS Server对于一个域名配置了多个解析IP，每次DNS解析请求来访问DNS-Server，会轮询返回这些IP，保证每个IP的解析概率是相同的; 而这些IP就是nginx的外网ip，以做到每台nginx的请求分配也是均衡的。</p>
+</li>
+<li><p>当然，对于比较简单的系统，甚至可以不需要反向代理层，直接利用DNS轮询实施负载均衡，优缺点都非常明显，根据实际情况来吧。</p>
+<ul>
+<li>优点：少了一层网络请求，服务端架构简单</li>
+<li>缺点：<ul>
+<li>DNS只具备解析功能，不能保证对应外网IP的可用性，而nginx与应用Server之间有保活探测机制，当应用Server挂掉时，能够自动迁移流量；</li>
+<li>应用Server需要扩容时，通过DNS扩容生效时间长，而nginx是服务端完全自己可控的部分，应用Server扩容更实时更方便</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="5、总结"><a href="#5、总结" class="headerlink" title="5、总结"></a>5、总结</h4><ul>
+<li>在网络架构的发展过程中，会有利用DNS轮询来实现简单Web Server的负载均衡，但是Web Server的负载均衡主要是通过nginx、LVS和keepalived来实现的。</li>
+<li>使用DNS轮询实现 水平扩展 反向代理层，也是个不错的选择。</li>
+<li>在网站架构中，除了有DNS轮询技术，还有智能DNS技术(<em>GSLB(Global Server load Blance、全局负载均衡</em>)一种应用)，可以实现根据用户IP来就近访问服务器。</li>
+</ul>
+<h3 id="四、HTTPDNS方案"><a href="#四、HTTPDNS方案" class="headerlink" title="四、HTTPDNS方案"></a>四、HTTPDNS方案</h3><h4 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h4><ul>
+<li><p><strong>HTTPDNS</strong>：基于HTTP协议DNS服务器发送域名解析请求，替代了<em>基于UDP的DNS协议向运营商Local DNS发起解析请求方式</em>，有效避免Local DNS造成的域名劫持和跨网访问问题，提高域名解析效率。</p>
+</li>
+<li><p>DNS劫持是目前常见的攻击手段，通过攻击运营商的解析服务器，返回假IP地址或让请求失去响应，使得通过域名不能访问或访问的是假网址；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">国内电信运营商 = 中国电信、中国移动、中国联通三大运营商 + 长城宽带等小的运营商</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>HTTPDNS的主要收益是 <strong>防止DNS的劫持，保障了服务高可用</strong>；精准调度，提升用户体验。</p>
+</li>
+</ul>
+<h4 id="2、HTTPDNS设计中关键点"><a href="#2、HTTPDNS设计中关键点" class="headerlink" title="2、HTTPDNS设计中关键点"></a>2、HTTPDNS设计中关键点</h4><ul>
+<li><strong>安全策略</strong>：HTTPDNS查询是基于标准的HTTP协议，但是如果为了保证安全，可以使用HTTPS；</li>
+<li><strong>IP选取策略</strong>：HTTPDNS服务将最优IP按照顺序下发，客户端默认选取第一个，校验连通性OK就使用，如果不OK，选用下一个校验；</li>
+<li><p><strong>缓存过期策略</strong>：后端动态下发域名的TTL时间，当域名的TTL超时后，如果没有新的IP将继续沿用老的IP，也可以降级成Local DNS返回的IP。</p>
+</li>
+<li><p><strong>批量拉取策略</strong>：在应用冷启动 或 网络切换时候，批量拉取域名和IP列表的映射数据，缓存下来；以便在后续请求中使用到，预期提升精准调度能力。</p>
+</li>
+<li><p><strong>降级策略</strong>：当HTTPDNS服务不可用 &amp; 本地也没有缓存或者缓存失效时，降级成运营商的Local DNS方案；当HTTPDNS服务 &amp; Local DNS服务双双不可用的情况下，可以使用<code>BACKUP IP</code>；</p>
+</li>
+</ul>
+<h4 id="3、总结"><a href="#3、总结" class="headerlink" title="3、总结"></a>3、总结</h4><ul>
+<li>复杂的网络环境中，在避免DNS劫持攻击，提升解析的准确性，降低网络时延等方面，HTTPDNS比传统的DNS方案优秀很多；移动互联网发展到今天，HTTPDNS方案已经是保障大前端服务高可用的必备手段；</li>
+<li>国内如阿里云、腾讯云、百度等厂商都提供此类服务，接入也比较简单(推荐使用阿里云HTTPDNS)。</li>
+</ul>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
+<li><a href="https://juejin.im/post/5dc14f096fb9a04a6b204c6f" target="_blank" rel="noopener">全面理解DNS及HTTPDNS</a></li>
+<li><a href="https://tech.meituan.com/2017/08/10/checkout-counter-front-end.html" target="_blank" rel="noopener">前端可用性保障实践</a></li>
+<li><p><a href="https://blog.csdn.net/crazw/article/details/8986581" target="_blank" rel="noopener">域名解析中A记录、CNAME、MX记录、NS记录的区别和联系</a></p>
+</li>
+<li><p><a href="https://www.cnblogs.com/data2value/p/6107380.html" target="_blank" rel="noopener">负载均衡手段之DNS轮询</a></p>
+</li>
+<li><p><a href="https://www.w3cschool.cn/architectroad/architectroad-dns-polling.html" target="_blank" rel="noopener">lvs为何不能完全替代DNS轮询</a>、</p>
+</li>
+<li><p><a href="https://www.w3cschool.cn/architectroad/architectroad-dns-in-architectural-design.html" target="_blank" rel="noopener">DNS在架构设计中的巧用</a></p>
+</li>
+<li><a href="https://laod.cn/dns/public-dns.html" target="_blank" rel="noopener">细数免费公共DNS服务器IP地址大全</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/01/Architect-001/" rel="next" title="漫谈0x01:技术演进和思考">
+                <i class="fa fa-chevron-left"></i> 漫谈0x01:技术演进和思考
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.jpeg"
+                alt="南华coder" />
+            
+              <p class="site-author-name" itemprop="name">南华coder</p>
+              <p class="site-description motion-element" itemprop="description">于无声处听惊雷,于无色处见繁花</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">49</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、DNS基础"><span class="nav-number">1.</span> <span class="nav-text">一、DNS基础</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、Domain-Name-和-DNS"><span class="nav-number">1.1.</span> <span class="nav-text">1、Domain Name 和 DNS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、DNS解析相关"><span class="nav-number">1.2.</span> <span class="nav-text">2、DNS解析相关</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、DNS常用命令工具"><span class="nav-number">1.3.</span> <span class="nav-text">3、DNS常用命令工具</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、DNS查询"><span class="nav-number">2.</span> <span class="nav-text">二、DNS查询</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、DNS查询方式"><span class="nav-number">2.1.</span> <span class="nav-text">1、DNS查询方式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、Local-DNS的设置"><span class="nav-number">2.2.</span> <span class="nav-text">2、Local DNS的设置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、典型DNS查询过程"><span class="nav-number">2.3.</span> <span class="nav-text">3、典型DNS查询过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、扩展"><span class="nav-number">2.4.</span> <span class="nav-text">4、扩展</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、DNS轮询及应用"><span class="nav-number">3.</span> <span class="nav-text">三、DNS轮询及应用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、基本概念"><span class="nav-number">3.1.</span> <span class="nav-text">1、基本概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、DNS轮询的优点"><span class="nav-number">3.2.</span> <span class="nav-text">2、DNS轮询的优点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、DNS轮询的缺点"><span class="nav-number">3.3.</span> <span class="nav-text">3、DNS轮询的缺点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、DNS轮询的应用"><span class="nav-number">3.4.</span> <span class="nav-text">4、DNS轮询的应用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5、总结"><span class="nav-number">3.5.</span> <span class="nav-text">5、总结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四、HTTPDNS方案"><span class="nav-number">4.</span> <span class="nav-text">四、HTTPDNS方案</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、简介"><span class="nav-number">4.1.</span> <span class="nav-text">1、简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、HTTPDNS设计中关键点"><span class="nav-number">4.2.</span> <span class="nav-text">2、HTTPDNS设计中关键点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、总结"><span class="nav-number">4.3.</span> <span class="nav-text">3、总结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">南华coder</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">81.7k</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
