@@ -1,0 +1,155 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="7分钟了解PNG图片"><meta name="keywords" content=""><meta name="author" content="南华coder"><meta name="copyright" content="南华coder"><title>7分钟了解PNG图片 | 南华coder的空间</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.6.1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.6.1"><link rel="dns-prefetch" href="https://cdn.staticfile.org"><link rel="dns-prefetch" href="https://cdn.bootcss.com"><link rel="dns-prefetch" href="https://creativecommons.org"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  }
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#一、PNG概述"><span class="toc-number">1.</span> <span class="toc-text">一、PNG概述</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1、PNG简介"><span class="toc-number">1.1.</span> <span class="toc-text">1、PNG简介</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2、PNG结构"><span class="toc-number">1.2.</span> <span class="toc-text">2、PNG结构</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3、PNG的数据块"><span class="toc-number">1.3.</span> <span class="toc-text">3、PNG的数据块</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3、总结"><span class="toc-number">1.4.</span> <span class="toc-text">3、总结</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#二、PNG的压缩原理"><span class="toc-number">2.</span> <span class="toc-text">二、PNG的压缩原理</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1、无损压缩-VS-有损压缩"><span class="toc-number">2.1.</span> <span class="toc-text">1、无损压缩 VS 有损压缩</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2、PNG压缩之Prediction"><span class="toc-number">2.2.</span> <span class="toc-text">2、PNG压缩之Prediction</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3、PNG压缩之Compression"><span class="toc-number">2.3.</span> <span class="toc-text">3、PNG压缩之Compression</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4、总结"><span class="toc-number">2.4.</span> <span class="toc-text">4、总结</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#三、PNG的有损压缩方案"><span class="toc-number">3.</span> <span class="toc-text">三、PNG的有损压缩方案</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1、概述"><span class="toc-number">3.1.</span> <span class="toc-text">1、概述</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2、TinyPNG"><span class="toc-number">3.2.</span> <span class="toc-text">2、TinyPNG</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3、pngquant算法及其应用"><span class="toc-number">3.3.</span> <span class="toc-text">3、pngquant算法及其应用</span></a></li></ol></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.png"></div><div class="author-info__name text-center">南华coder</div><div class="author-info__description text-center">于无声处听惊雷,于无色处见繁花</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">37</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">49</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">11</span></a></div></div></div><div id="content-outer"><div class="no-bg" id="top-container"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">南华coder的空间</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus"><a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span></div><div id="post-info"><div id="post-title">7分钟了解PNG图片</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2019-08-25</time></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p><em>Question</em>：</p>
+<ul>
+<li><p>PNG图片结构是什么样的</p>
+</li>
+<li><p>PNG规范中定义PNG是无损压缩(Lossless Compression)的图片格式，那么PNG支持有损压缩吗？</p>
+</li>
+</ul>
+<h4 id="一、PNG概述"><a href="#一、PNG概述" class="headerlink" title="一、PNG概述"></a>一、PNG概述</h4><h5 id="1、PNG简介"><a href="#1、PNG简介" class="headerlink" title="1、PNG简介"></a>1、PNG简介</h5><ul>
+<li><p>PNG（Portable Network Graphics，便携式网络图型）是一种无损压缩的图片格式，支持索引、灰度、RGB三种颜色方案以及Alpha通道等特性（<em>iOS的绝大部分切图都是PNG格式</em>)。</p>
+</li>
+<li><p>PNG图片主要有三个类型，分别为 PNG 8、 PNG 24 和 PNG 32；其中 <code>PNG 8</code>支持两种不同的透明形式，索引透明和<code>Alpha</code>透明、 <code>PNG 24</code>不支持透明和 <code>PNG 32</code>在<code>24</code>位基础上增加了<code>8</code>bits透明通道。</p>
+</li>
+<li>PNG规范可见： <a href="https://www.w3.org/TR/2003/REC-PNG-20031110/" target="_blank" rel="noopener">Portable Network Graphics (PNG) Specification (Second Edition)</a></li>
+</ul>
+<h5 id="2、PNG结构"><a href="#2、PNG结构" class="headerlink" title="2、PNG结构"></a>2、PNG结构</h5><ul>
+<li>PNG结构如下: header,chunk,chunk,chunk….chunk; 其中，<code>header</code>代表png图片的头，png文件头一般都是由固定的8个字节组成<code>89 50 4E 47 OD 0A 1A 0A</code>而<code>chunk</code>代表png图片的数据块。</li>
+</ul>
+<p><img src="http://upload.ouliu.net/i/20190816182301odda6.jpeg" alt="PNG编码结构"></p>
+<p><img src="http://upload.ouliu.net/i/20190816181318ythij.jpeg" alt="二进制查看PNG图片"></p>
+<h5 id="3、PNG的数据块"><a href="#3、PNG的数据块" class="headerlink" title="3、PNG的数据块"></a>3、PNG的数据块</h5><ul>
+<li>PNG的数据块由四个数据域组成：长度、数据块类型码、<strong>数据块数据</strong>和循环冗余校验；而数据块分成两种：<strong>关键数据块</strong>和<strong>可选数据块</strong>，关键数据块包括：文件头数据块、调色板数据块、图像数据块和图像结束数据块</li>
+<li><p>对于用户可见的部分，真正和展现有关就是<strong>图像数据块</strong>中的<strong>数据块区域</strong>，因此，我们就需要注意<strong>有没有在别的数据块中引入了不必要的数据</strong>。</p>
+</li>
+<li><p>IHDR数据块：一个PNG图片中只能有一个IHDR数据块，它是PNG图片中第一个数据块，共13个字节(0000 000d)，具体信息如下：</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>域名称</th>
+<th>字节数(bytes)</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>width</td>
+<td>4</td>
+<td>图像宽度，以像素为单位</td>
+</tr>
+<tr>
+<td>height</td>
+<td>4</td>
+<td>图像高度，以像素为单位</td>
+</tr>
+<tr>
+<td>bit depth</td>
+<td>1</td>
+<td>表示一个通道的总位数</td>
+</tr>
+<tr>
+<td>color type</td>
+<td>1</td>
+<td>颜色类型. <code>[0]：灰度图像, 1，2，4，8或16</code> <code>[2]：真彩色图像，8或16</code> <code>[3]：索引彩色图像，1，2，4或8</code> <code>[4]：带α通道数据的灰度图像，8或16</code> <code>[6]：带α通道数据的真彩色图像，8或16</code></td>
+</tr>
+<tr>
+<td>compression method</td>
+<td>1</td>
+<td>压缩方法(LZ77派生算法)</td>
+</tr>
+<tr>
+<td>filter method</td>
+<td>1</td>
+<td>滤波器方法</td>
+</tr>
+<tr>
+<td>Interlace method</td>
+<td>1</td>
+<td>隔行扫描方法. <code>0：非隔行扫描</code> <code>1： Adam7(7遍隔行扫描方法)</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>0000 000d</code>是iHDR数据块的长度，为13，<code>4948 4452</code>是数据块的type,为IHDR，之后紧跟着是data， <code>0000 02bc</code>是图片的宽度,<code>0000 03a5</code>是高度，<code>08</code>是bit depth，也就是一个通道是8位,<code>06</code>是color type,这里表示图片是真彩色，<code>00</code>是压缩方法，png中目前只有一种，也就是LZ77派生的算法，<code>00</code>是滤波器方法，表示不使用，<code>00</code>是隔行扫描方法，代表不扫描。<code>8f 1434 a4</code>是四个字节的CRC校验码。</li>
+<li>IDAT数据块：存放的就是图像的一个个像素，一张图像中可以存在多个IDAT数据块，这里的数据会被<code>隔行扫描方法(Interlace method)</code>、<code>滤波器（filtering）</code>和<code>压缩算法(compression)</code>处理。</li>
+</ul>
+<h5 id="3、总结"><a href="#3、总结" class="headerlink" title="3、总结"></a>3、总结</h5><ul>
+<li>通过了解PNG的结果，可以知道，减少PNG图片大小可以通过去除<code>PNG</code>文件中不需要的信息，或 选择正确的PNG格式(如，如果图片中没有<code>Alpha</code>通道，那么就应当使用<code>PNG 24</code>，而不是使用<code>PNG 32</code>。类似，如果是灰度的图片，那么应当使用<code>PNG 8</code>) </li>
+</ul>
+<h4 id="二、PNG的压缩原理"><a href="#二、PNG的压缩原理" class="headerlink" title="二、PNG的压缩原理"></a>二、PNG的压缩原理</h4><h5 id="1、无损压缩-VS-有损压缩"><a href="#1、无损压缩-VS-有损压缩" class="headerlink" title="1、无损压缩 VS 有损压缩"></a>1、无损压缩 VS 有损压缩</h5><ul>
+<li>无损压缩（Lossless Compression）：数据压缩格式方法之一，指数据经过压缩后，信息不受损失，还能完全恢复到压缩前的原样。</li>
+<li>有损压缩（Lossy compression）：数据压缩格式方法之一，指数据经过压缩、解压的数据会与原始数据不同但是非常接近。</li>
+<li>无损压缩和有损压缩是相对的，有损压缩将次要的信息数据舍弃，牺牲一些质量来减少数据量、提高压缩比。</li>
+<li>PNG压缩过程分为两个阶段：<strong>Prediction</strong>(预解析) 和 <strong>Compression</strong>(压缩)</li>
+</ul>
+<p><img src="https://s2.ax1x.com/2019/08/22/m0yZSe.png" alt="PNG图片压缩"></p>
+<h5 id="2、PNG压缩之Prediction"><a href="#2、PNG压缩之Prediction" class="headerlink" title="2、PNG压缩之Prediction"></a>2、PNG压缩之Prediction</h5><ul>
+<li><p>简单理解：在这个阶段，对图片做一些预处理，方便后续的压缩处理；</p>
+</li>
+<li><p>每次会处理图片中一行的数据，首先通过<code>Filter</code>处理这一行当中<strong>每一个的像素点中每条通道的值</strong>，然后交<strong>由差分处理器</strong>来重新计算该通道的值。</p>
+</li>
+<li><p><strong>差分处理器</strong>会根据这个像素点上通道和之前或者之上像素点对应通道值之间的差异，进行<strong>差分编码</strong>，也就是说，如果原本相邻像素点之间通道的值之间很接近，那么我们就会获得很多的<code>1,0,-1</code>这种很小的值。(差分编码器比较的是像素点之间对应通道的值，而并不是整个像素点)</p>
+</li>
+<li><p>整个<code>Prediction</code>阶段的目的，也就是<strong>选择合适的差分处理器，让最终的编码结果出现尽可能多的零值和重复值</strong>，这一结果将会影响到<code>Compression</code>阶段的压缩率。</p>
+</li>
+</ul>
+<h5 id="3、PNG压缩之Compression"><a href="#3、PNG压缩之Compression" class="headerlink" title="3、PNG压缩之Compression"></a>3、PNG压缩之Compression</h5><ul>
+<li><p>在<code>Prediction</code>处理完毕之后，再将这一转换的结果输出给<code>Deflate</code>，<code>Deflate</code>执行真正的压缩操作，它会通过<code>LZ77</code>和<code>Huffman</code>对图像进行编码，最后将处理之后的结果保存。在<code>Compression</code>阶段，它最终的压缩率会受到两方面的影响：</p>
+<ul>
+<li><p><strong>Prediction 的处理结果</strong>：对于颜色相近的区域，也就是有很多零值的区域，那么压缩率将会更高，而如果颜色之间差异很大，那么压缩效果将不尽人意。</p>
+</li>
+<li><p><strong>Deflate 每一行的匹配情况</strong>：整个处理过程是按行来处理的。而在处理每一行的数据时，<code>Deflate</code>把处理的符号数限制为<code>3 ~ 258</code>，也就是说，最大的压缩率为<code>1032:1</code>，当出现符号数小于<code>3</code>个时，那么就有可能出现无法匹配的情况，因此，对于图片宽度的改变将有可能影响最终压缩的效果。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="4、总结"><a href="#4、总结" class="headerlink" title="4、总结"></a>4、总结</h5><ul>
+<li>从上述内容可以知道，减少PNG的图片大小，可以通过PNG压缩优化，压缩优化有两个方向：<ul>
+<li>优化差分编码器，使得经过差分编码后的图像有尽可能多的零值和相同的值</li>
+<li>优化<code>Deflate</code>的算法，获得更高的压缩率</li>
+</ul>
+</li>
+</ul>
+<h4 id="三、PNG的有损压缩方案"><a href="#三、PNG的有损压缩方案" class="headerlink" title="三、PNG的有损压缩方案"></a>三、PNG的有损压缩方案</h4><h5 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h5><ul>
+<li>目前大部分PNG的压缩采用基于LZ77派生算法，使得它压缩比率更高，生成的文件体积更小，并且不损失数据。</li>
+<li>但是有些大神不能接受无损压缩的压缩率，搞了些无损压缩算法，并在工程中得到了应用。</li>
+</ul>
+<h5 id="2、TinyPNG"><a href="#2、TinyPNG" class="headerlink" title="2、TinyPNG"></a>2、TinyPNG</h5><ul>
+<li><p>这是一个提供PNG有损压缩的平台，地址：<a href="https://tinypng.com/" target="_blank" rel="noopener">https://tinypng.com/</a></p>
+</li>
+<li><p>从官网公开的信息来看，TinyPNG主要是使用Quantization的技术，通过合并图片中相似的颜色，通过将 24 位的 PNG 图片压缩成小得多的 8 位色值的图片，并且去掉了图片中不必要的 metadata（元数据，从 Photoshop 等工具中导出的图片都会带有此类信息），这种方式几乎能完美支持原图片的透明度。</p>
+</li>
+<li>很可惜，没有公开PNG的有损压缩算法。</li>
+</ul>
+<h5 id="3、pngquant算法及其应用"><a href="#3、pngquant算法及其应用" class="headerlink" title="3、pngquant算法及其应用"></a>3、<a href="https://github.com/kornelski/pngquant" target="_blank" rel="noopener">pngquant</a>算法及其应用</h5><ul>
+<li>PNG有损压缩算法，详细介绍地址在：<a href="https://pngquant.org/，源码在" target="_blank" rel="noopener">https://pngquant.org/，源码在</a></li>
+</ul>
+<p><img src="https://s2.ax1x.com/2019/08/25/mgod3T.jpg" alt="mgod3T.jpg"></p>
+<ul>
+<li>ImageAlpha也采用了pngquant算法，设计师使用的PNGyu也采用了pngquant算法；甚至有猜测，TinyPNG可能综合利用了pngquant、optipng、advpng，才获得很好的压缩效果。</li>
+<li>这类无损压缩方案在压缩PNG图片，对最终的包大小优化，是有收益的（<em>Xcode构建包的时候，会压缩PNG；如果使用ImageOptim这类无损压缩工具来压缩PNG是没有什么收益的</em>）</li>
+</ul>
+<p><img src="https://s2.ax1x.com/2019/08/25/mgoX28.jpg" alt="mgoX28.jpg"></p>
+<ul>
+<li><strong>pngquant算法的核心</strong>：通过Vector Quantization （矢量量化）减少图片中颜色的种类<ul>
+<li>如果图像中的颜色种类小于<code>256</code>，那么我们可以把它转换为索引<code>PNG</code>格式，而如果图片原本的颜色大于<code>256</code>种，那么可以通过<strong>矢量量化</strong>的方法来创建一个索引<code>PNG</code>格式。</li>
+<li>在矢量量化的过程中，会把所有的像素基于它们之间颜色的相似程度进行分组，一个组内像素的颜色会比较接近。之后根据组内的所有颜色，计算出一个中心点颜色，组内的所有颜色会被替换成为该中心点的颜色。</li>
+<li>矢量量化会通过<strong>将相近颜色替换成同一种颜色的方法，来减少图片中颜色的种类</strong>，因此有可能会使得图片失真。</li>
+</ul>
+</li>
+</ul>
+<p><strong>参考</strong>：<a href="https://www.jianshu.com/p/324744087e24" target="_blank" rel="noopener">图片压缩知识梳理(2) - 减小 PNG 大小</a></p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">南华coder</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://buaa0300/nanhuacoder.com/2019/08/25/Knowledge-png/">http://buaa0300/nanhuacoder.com/2019/08/25/Knowledge-png/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://buaa0300/nanhuacoder.com">南华coder的空间</a>！</span></div></div><div class="post-meta__tag-list"></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2020/01/01/Architect-001/"><i class="fa fa-chevron-left">  </i><span>漫谈0x01:技术演进和思考</span></a></div><div class="next-post pull-right"><a href="/2019/04/24/iOS-Cocoapods01/"><span>Cocoapods使用小记</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer><div class="layout" id="footer"><div class="copyright">&copy;2013 - 2020 By 南华coder</div><div class="framework-info"><span>驱动 - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file-o"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.6.1"></script><script src="/js/fancybox.js?version=1.6.1"></script><script src="/js/sidebar.js?version=1.6.1"></script><script src="/js/copy.js?version=1.6.1"></script><script src="/js/fireworks.js?version=1.6.1"></script><script src="/js/transition.js?version=1.6.1"></script><script src="/js/scroll.js?version=1.6.1"></script><script src="/js/head.js?version=1.6.1"></script><script>if(/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+}</script></body></html>
